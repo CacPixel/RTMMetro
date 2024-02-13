@@ -1,0 +1,270 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url = "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
+        maven { url = "https://maven.aliyun.com/nexus/content/groups/public" }
+        maven { url = "https://maven.aliyun.com/nexus/content/repositories/google" }
+        maven { url = "https://repo.spongepowered.org/maven" }
+        maven { url = "https://files.minecraftforge.net/maven" }
+
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+//        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+//apply plugin: 'org.spongepowered.mixin'
+//Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+
+//mixin {
+//    add sourceSets.main, "mixins." + property("modid").toString() + ".refmap.json"
+//    //生成一个refmap json，上方是文件名称的推荐格式
+//}
+
+repositories {
+    mavenCentral()
+    maven { url = "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
+    maven { url = "https://maven.aliyun.com/nexus/content/groups/public" }
+    maven { url = "https://maven.aliyun.com/nexus/content/repositories/google" }
+
+    maven { url = "https://cursemaven.com" }
+//    maven { url = "https://repo.spongepowered.org/maven" }
+//    maven { url = "https://api.modrinth.com/maven" }
+}
+
+version = property("version").toString()
+group = property("group").toString()
+archivesBaseName = property("archivesBaseName").toString()
+
+ngtlibModName = property("ngtlibModName").toString()
+ngtlibProjectID = property("ngtlibProjectID").toString()
+ngtlibFileID = property("ngtlibFileID").toString()
+
+rtmModName = property("rtmModName").toString()
+rtmProjectID = property("rtmProjectID").toString()
+rtmFileID = property("rtmFileID").toString()
+
+sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+}
+
+minecraft {
+    version = "1.12.2-14.23.5.2847"
+    runDir = "run"
+
+    // the mappings can be changed at any time, and must be in the following format.
+    // snapshot_YYYYMMDD   snapshot are built nightly.
+    // stable_#            stables are built at the discretion of the MCP team.
+    // Use non-default mappings at your own risk. they may not always work.
+    // simply re-run your setup task after changing the mappings to update your workspace.
+    mappings = "snapshot_20171003"
+    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+
+    clientJvmArgs += "-Dfml.coreMods.load=net.cacpixel.rtmmetro.asm.FixNgtPacketCustomPlugin"
+    serverJvmArgs += "-Dfml.coreMods.load=net.cacpixel.rtmmetro.asm.FixNgtPacketCustomPlugin"
+
+}
+
+dependencies {
+    // you may put jars on which you depend on in ./libs
+    // or you may define them like so..
+    //compile "some.group:artifact:version:classifier"
+    //compile "some.group:artifact:version"
+
+    // real examples
+    //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
+    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+
+    // the 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
+    //provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // the deobf configurations:  'deobfCompile' and 'deobfProvided' are the same as the normal compile and provided,
+    // except that these dependencies get remapped to your current MCP mappings
+    //deobfCompile 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+    //deobfProvided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    compileOnly('curse.maven' + ':' +
+            ngtlibModName + '-' +
+            ngtlibProjectID + ':' +
+            ngtlibFileID)
+    compileOnly('curse.maven' + ':' +
+            rtmModName + '-' +
+            rtmProjectID + ':' +
+            rtmFileID)
+
+//    compile(fileTree(dir: 'rxtx/build', includes: ['*jar']))
+//    compileOnly files('mixinbooter/!mixinbooter-8.8.jar')
+
+
+    // for more info...
+    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
+}
+
+task buildNativeWin32amd64(group: 'build') {
+//    dependsOn("sourceApiJava")
+    doFirst {
+        def out = new ByteArrayOutputStream()
+        exec {
+            ExecSpec execSpec ->
+                executable 'mingw32-make'
+                args 'all'
+                workingDir("./rxtx/build")
+                standardOutput = out
+        }
+        println(out.toString())
+    }
+}
+
+task copyNative(type: Copy, group: 'build') {
+//    dependsOn('buildNative')
+    from(file('rxtx/build')) {
+        include('rxtxSerial.dll')
+    }
+    destinationDir = file('src/main/resources/win32-x86-64')
+}
+
+task copyNativeToMCrun(type: Copy, group: 'build') {
+//    dependsOn('buildNative')
+    from(file('rxtx/build')) {
+        include('**rxtxSerial.*')
+    }
+    destinationDir = file('run/librxtx')
+}
+
+task cleanNative(type: Delete, group: 'build') {
+    delete('rxtx/build/gnu')
+    FileTree tree = fileTree(dir: 'rxtx/build')
+    tree.each { File file ->
+        if (file.toString().contains(".o") || file.toString().contains(".h") || file.toString().contains(".jar")) {
+            delete file
+        }
+    }
+}
+
+task extractRTMResource(type: Copy, group: 'build') {
+    File tmp = new File('build/tmp/expandedArchives')
+    if(tmp.exists()){
+        tmp.delete()
+    }
+    String classPath = System.getProperty("java.class.path")
+    String gradleCachePath = classPath.replaceAll('\\\\', "/").split("/wrapper")[0] // Sb groovy不能用\\转义
+    println("Gradle home is:" + gradleCachePath)
+    File cursePath = new File(gradleCachePath + "/caches/modules-2/files-2.1/curse.maven/")
+//    List<File> toExtract = new ArrayList<>()
+//    getFiles(cursePath, toExtract)
+    fileTree(dir: cursePath).each {
+        if (it.getName().toString() == ngtlibModName + '-' + ngtlibProjectID + '-' + ngtlibFileID + ".jar"
+                || it.getName().toString() == rtmModName + '-' + rtmProjectID + '-' + rtmFileID + ".jar") {
+            println("Found jar file: " + it.toString())
+            zipTree(it).each {}
+        }
+    }
+    for (File file : tmp.listFiles()) {
+        if (file.getName().toString().contains(ngtlibModName + '-' + ngtlibProjectID + '-' + ngtlibFileID + ".jar")
+                || file.getName().toString().contains(rtmModName + '-' + rtmProjectID + '-' + rtmFileID + ".jar")) {
+            if(!file.isDirectory()) continue
+            println("Found dir: " + file.toString())
+            String path = file.getCanonicalPath() + "/assets"
+            from(path)
+        }
+    }
+    destinationDir = file('src/main/resources/assets')
+}
+
+//def getFiles(File path, List<File> toExtract) {
+//    for(File file : path.listFiles()) {
+//        if(file.isDirectory()) {
+//            getFiles(file, toExtract)
+//        }
+//        if (file.getName().toString() == ngtlibModName + '-' + ngtlibProjectID + '-' + ngtlibFileID + ".jar"
+//         || file.getName().toString() == rtmModName + '-' + rtmProjectID + '-' + rtmFileID + ".jar") {
+//            println("Found file: " + file.toString())
+//            toExtract.add(file)
+//        }
+//    }
+//}
+
+processResources {
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+
+        // replace version and mcversion
+        expand 'version': project.version, 'mcversion': project.minecraft.version
+    }
+
+    // copy everything else except the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+sourceSets {
+    main {
+        output.resourcesDir = output.classesDir
+        java.srcDirs += ['rxtx/src']
+    }
+}
+
+jar {
+    dependsOn('copyNative')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from sourceSets.main.resources.srcDirs
+    exclude 'assets/rtm/**'
+    exclude 'assets/ngtlib/**'
+    exclude 'assets/minecraft/**'
+    exclude 'assets/hoge/**'
+    exclude 'rtm/**'
+    exclude 'dummyThing'
+//    String runtimePath = ''
+//    configurations.runtime.each { runtimePath = runtimePath + " rxtx//" + it.name } // 本地lib
+//    from {
+//        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+//        // implementation 相关的引入解压并打包入新的jar中
+//    }
+    manifest {
+        attributes([
+                'FMLCorePlugin'              : "net.cacpixel.rtmmetro.asm.FixNgtPacketCustomPlugin",
+                'FMLCorePluginContainsFMLMod': true
+        ])
+    }
+
+}
+
+sourceJar {
+    from sourceSets.main.resources.srcDirs
+    exclude 'assets/rtm/**'
+    exclude 'assets/ngtlib/**'
+    exclude 'assets/minecraft/**'
+    exclude 'assets/hoge/**'
+    exclude 'rtm/**'
+}
+
+clean {
+    dependsOn('cleanNative')
+}
+
+compileJava {
+    dependsOn('copyNative')
+    dependsOn('copyNativeToMCrun')
+}
+
+processResources {
+    dependsOn('extractRTMResource')
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "utf-8"
+}
+tasks.withType(Javadoc) {
+    options.encoding = "utf-8"
+}

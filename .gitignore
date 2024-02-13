@@ -1,0 +1,34 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+
+# gradle
+./build
+.gradle
+
+# other
+eclipse
+run
+some-temp-files
+.vscode
+rxtx/.vscode
+rxtx/build/*.jar
+rxtx/build/*.h
+rxtx/build/*.o
+rxtx/build/gnu
+/src/main/resources/assets/hoge/
+/src/main/resources/assets/minecraft/
+/src/main/resources/assets/ngtlib/
+/src/main/resources/assets/rtm/
+/build/

@@ -1,0 +1,16 @@
+[
+{
+  "modid": "rtmmetro",
+  "name": "RTM Metro",
+  "description": "RTM Metro Mod brings real metro facilities into Minecraft based on RealTrainMod.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["CacPixel"],
+  "credits": "CacPixel",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

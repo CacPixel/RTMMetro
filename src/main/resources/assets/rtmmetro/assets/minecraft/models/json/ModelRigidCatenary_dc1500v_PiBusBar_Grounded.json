@@ -1,0 +1,11 @@
+{
+  "rigidCatenaryName": "dc1500v_PiBusBar_Grounded",
+  "model": {
+    "modelFile": "cacpixel/DC1500V_RigidCatenary_style1.mqo",
+    "textures": [["default", "textures/rail/largeRailPC.png", ""]],
+    "rendererPath": "scripts/cacpixel/DC1500V_RigidCatenary_style1.js"
+  },
+  "buttonTexture": "textures/rail/button_1067mm_PC.png",
+  "accuracy": "LOW",
+  "tags": "地下接触网汇流排刚性接触网样式1 直流 DC1500V dc1500v overheadrail OverheadRail RigidCatenary rigidcatenary CacPixel cacpixel Cacpixel style1 w51-1m"
+}

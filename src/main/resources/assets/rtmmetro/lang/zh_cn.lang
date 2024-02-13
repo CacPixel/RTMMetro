@@ -1,0 +1,17 @@
+#PARSE_ESCAPES
+item.rtmmetro.rigid_catenary.name=刚性接触网
+item.rtmmetro.rail_editor.name=轨道编辑器
+item.rtmmetro.rail_advanced.name=高级铁轨
+
+tile.rtmmetro.marker_advanced.name=高级铁轨标记
+tile.rtmmetro.marker_switch_advanced.name=高级分叉标记
+
+itemGroup.rtm_metro_tab_items=RTMMetro_物品
+itemGroup.rtm_metro_tab_tools=RTMMetro_工具
+
+usage.item.rigid_catenary_1=右键空气以打开刚性接触网设置界面。
+usage.item.rigid_catenary_2=手持配置好的刚性接触网右键铁轨
+usage.item.rigid_catenary_3=以附加接触网至该铁轨上。
+
+usage.item.rail_advanced_1=右键空气以打开高级铁轨设置界面。
+usage.item.rail_advanced_2=使用标记或右键地面放置。

@@ -1,0 +1,18 @@
+#PARSE_ESCAPES
+item.rtmmetro.rigid_catenary.name=Rigid Catenary
+item.rtmmetro.rail_editor.name=Rail Editor
+item.rtmmetro.rail_advanced.name=Advanced Rail
+
+tile.rtmmetro.marker_advanced.name=Advanced Marker
+tile.rtmmetro.marker_switch_advanced.name=Advanced Switch Marker
+
+itemGroup.rtm_metro_tab_items=RTMMetro_Items
+itemGroup.rtm_metro_tab_tools=RTMMetro_Tools
+
+usage.item.rigid_catenary_1=Right-click the air to open the settings menu
+usage.item.rigid_catenary_2=of Rigid Catenary.
+usage.item.rigid_catenary_3=Right-click the rail to attach Rigid Catenary.
+
+usage.item.rail_advanced_1=Right-click the air to open the settings menu.
+usage.item.rail_advanced_2=Use markers or right-click the floor to place rail.
+
