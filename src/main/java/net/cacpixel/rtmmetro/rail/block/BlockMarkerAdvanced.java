@@ -104,9 +104,9 @@ public class BlockMarkerAdvanced extends BlockMarker {
         int j = getFacing(placer, i >= 4);
         int k = i / 4;
         BlockUtil.setBlock(world, pos, this, j + k * 4, 2);
-        if(BlockUtil.getBlock(world, pos).hasTileEntity()){
-            TileEntity te = BlockUtil.getTileEntity(world,pos);
-            if(te instanceof TileEntityMarkerAdvanced){
+        if (BlockUtil.getBlock(world, pos).hasTileEntity()) {
+            TileEntity te = BlockUtil.getTileEntity(world, pos);
+            if (te instanceof TileEntityMarkerAdvanced) {
                 TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) te;
 //                marker.playerWhoPlacedMarker = (EntityPlayer) placer;
             }
@@ -149,10 +149,19 @@ public class BlockMarkerAdvanced extends BlockMarker {
 
             TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) tileentity;
             long startTime = System.currentTimeMillis();
-            while (marker.markerProcess != null && marker.markerProcess.isAlive()) {
-                NGTLog.debug("Wait for thread complete");
-                if (System.currentTimeMillis() > startTime + 5000) {
-                    NGTLog.debug("Wait time out (5s)!");
+            while (marker.markerProcess != null && marker.markerProcess.startProcess) {
+                for (BlockPos pos : marker.markerPosList) {
+                    TileEntity te = BlockUtil.getTileEntity(holder.getWorld(), pos);
+                    if (te instanceof TileEntityMarkerAdvanced) {
+                        TileEntityMarkerAdvanced m = (TileEntityMarkerAdvanced) te;
+                        if (m.markerProcess != null && m.markerProcess.startProcess) {
+                            m.markerProcess.endLoop();
+                        }
+                    }
+                }
+                if (System.currentTimeMillis() > startTime + 3000) {
+                    NGTLog.debug("Wait time out (3s)!");
+                    NGTLog.sendChatMessage(holder.getPlayer(), "Wait time out (3s)!");
                     return true;
                 }
             }
@@ -175,7 +184,7 @@ public class BlockMarkerAdvanced extends BlockMarker {
     }
 
     @SideOnly(Side.CLIENT)
-    public boolean onMarkerActivatedClient(TileEntityMarkerAdvanced marker, int x, int y, int z){
+    public boolean onMarkerActivatedClient(TileEntityMarkerAdvanced marker, int x, int y, int z) {
         return this.onMarkerActivated(marker.getWorld(), x, y, z, NGTUtilClient.getMinecraft().player, false);
     }
 

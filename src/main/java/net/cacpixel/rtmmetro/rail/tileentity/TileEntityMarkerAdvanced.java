@@ -30,9 +30,9 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     private static final int SEARCH_COUNT = 40;
     public RailPosition rp;
     public BlockPos startPos;
-    private RailMap[] railMaps;
+    private RailMap[] railMaps, prevRailMaps;
     public List<BlockPos> markerPosList = new ArrayList();
-    private volatile List<int[]> grid;
+    private List<int[]> grid, prevGrid;
     public float startPlayerPitch;
     public float startPlayerYaw;
     public byte startMarkerHeight;
@@ -45,7 +45,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     @SideOnly(Side.CLIENT)
     public float[][][] linePos;
     private int count;
-    public volatile int refreshTicksInterval = STANDARD_INTERVAL;
+    public int refreshTicksInterval = STANDARD_INTERVAL;
     public static final int STANDARD_INTERVAL = (ModConfig.useFastMarkerSearchMethod) ? 4 : 40;
     public RailProcessThread markerProcess;
     public EntityPlayer playerWhoPlacedMarker;
@@ -110,16 +110,26 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             this.updateClientLines();
         }
         if (this.getWorld().isRemote) {
-            if (this.count >= this.refreshTicksInterval) {
+//            if (this.count >= this.refreshTicksInterval) {
+            if (true) {
                 this.updateStartPos();
                 if (this.markerProcess == null) {
                     this.markerProcess = new RailProcessThread(this, !this.getWorld().isRemote);
+                    this.markerProcess.setPriority(Thread.NORM_PRIORITY - 1);
+                    this.markerProcess.start();
                 }
-                if (!this.markerProcess.isAlive()) {
+                if (!this.markerProcess.startProcess) {
+                    if (this.railMaps != null) {
+                        this.prevRailMaps = this.railMaps.clone();
+                    }
+                    this.prevGrid = new ArrayList<>();
+                    if (this.grid != null) {
+                        this.prevGrid.addAll(this.grid);
+                    }
                     try {
                         if (this.isCoreMarker() || this.getRailMaps() == null || this.getRailMaps().length < 1) {
-                            this.markerProcess = new RailProcessThread(this, !this.getWorld().isRemote);
-                            this.markerProcess.start();
+//                            this.markerProcess = new RailProcessThread(this, !this.getWorld().isRemote);
+                            this.markerProcess.startProcess = true;
                         } else {
 //                        NGTLog.debug("not core marker");
                         }
@@ -166,8 +176,16 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         return this.grid;
     }
 
+    public List<int[]> getPrevGrid() {
+        return this.prevGrid;
+    }
+
     public RailMap[] getRailMaps() {
         return this.railMaps;
+    }
+
+    public RailMap[] getPrevRailMaps() {
+        return this.prevRailMaps;
     }
 
     public void onChangeRailShape() {
@@ -187,7 +205,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             }
 
             this.railMaps = arailmap;
-            this.linePos = (float[][][]) null;
+//            this.linePos = (float[][][]) null;
             this.createGrids();
 
             for (BlockPos blockpos : this.markerPosList) {
@@ -244,7 +262,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
 
         if (this.railMaps != null) {
             this.markerPosList = list;
-            this.createGrids();
+//            this.createGrids();
             if (blockpos != null) {
                 for (int i = 0; i < list.size(); ++i) {
                     BlockPos blockpos1 = (BlockPos) list.get(i);
@@ -259,7 +277,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         }
     }
 
-    private synchronized void createGrids() {
+    private void createGrids() {
         this.grid = new ArrayList<>();
         try {
             for (RailMap railmap : this.railMaps) {

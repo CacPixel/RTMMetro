@@ -137,11 +137,13 @@ task copyNativeToMCrun(type: Copy, group: 'build') {
 }
 
 task cleanNative(type: Delete, group: 'build') {
-    delete('rxtx/build/gnu')
-    FileTree tree = fileTree(dir: 'rxtx/build')
-    tree.each { File file ->
-        if (file.toString().contains(".o") || file.toString().contains(".h") || file.toString().contains(".jar")) {
-            delete file
+    doFirst {
+        delete('rxtx/build/gnu')
+        FileTree tree = fileTree(dir: 'rxtx/build')
+        tree.each { File file ->
+            if (file.toString().contains(".o") || file.toString().contains(".h") || file.toString().contains(".jar")) {
+                delete file
+            }
         }
     }
 }
