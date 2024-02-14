@@ -1,9 +1,9 @@
 {
   "rigidCatenaryName": "dc1500v_PiBusBar_Grounded",
   "model": {
-    "modelFile": "cacpixel/DC1500V_RigidCatenary_style1.mqo",
+    "modelFile": "ModelRail_762mm.mqo",
     "textures": [["default", "textures/rail/largeRailPC.png", ""]],
-    "rendererPath": "scripts/cacpixel/DC1500V_RigidCatenary_style1.js"
+    "rendererPath": "scripts/RenderRailStandard.js"
   },
   "buttonTexture": "textures/rail/button_1067mm_PC.png",
   "accuracy": "LOW",
