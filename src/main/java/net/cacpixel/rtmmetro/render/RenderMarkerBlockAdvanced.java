@@ -534,10 +534,11 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                 }
             }
             if (marker.getState(MarkerState.LINE1)) {
+                float ADD_FIX = 1.6f;
                 int height = (int) Math.floor(NGTUtilClient.getMinecraft().player.posY) + 1;
                 int length = (int) Math.floor((NGTUtilClient.getMinecraft().gameSettings.renderDistanceChunks * 16.0D) * (double) MathHelper.SQRT_2) + 1;
                 int distance = (int) Math.sqrt(height * height + length * length);
-                RayTraceResult raytraceresult = WorldUtils.getMOPFromPlayer(minecraft.player, (distance > 128.0D) ? distance : 128.0D, true);
+                RayTraceResult raytraceresult = WorldUtils.getMOPFromPlayer(minecraft.player, (distance > 128.0D) ? ADD_FIX * distance : 128.0D, true);
                 if (raytraceresult == null || raytraceresult.typeOfHit != Type.BLOCK) {
                     return false;
                 }
