@@ -51,17 +51,17 @@ public class RTMMetroEventHandler {
 
     @SubscribeEvent
     public void onUnloadWorld(WorldEvent.Unload event) {
-//        if (event.getWorld().isRemote) {
-//            onClientWorldUnload(event);
-//        } else {
-//            MinecraftServer server = event.getWorld().getMinecraftServer();
-//            if (server != null) {
-//                onServerWorldUnload(event);
-//                if (server.worlds.length <= 1) {
-//                    onServerAllWorldsUnload(event);
-//                }
-//            }
-//        }
+        if (event.getWorld().isRemote) {
+            onClientWorldUnload(event);
+        } else {
+            MinecraftServer server = event.getWorld().getMinecraftServer();
+            if (server != null) {
+                onServerWorldUnload(event);
+                if (server.worlds.length <= 1) {
+                    onServerAllWorldsUnload(event);
+                }
+            }
+        }
     }
 
     private void onServerAllWorldsUnload(WorldEvent.Unload event) {
@@ -80,14 +80,14 @@ public class RTMMetroEventHandler {
 
     @SideOnly(Side.CLIENT)
     private void onClientWorldUnload(WorldEvent.Unload event) {
-        RailProcessThread.getInstance().endLoop();
-        long startTime = System.currentTimeMillis();
-        while (RTMMetro.proxy.railProcessThread.isAlive()) {
-            if (System.currentTimeMillis() - startTime > 5000) {
-                NGTLog.debug("Wait timeout!");
-                break;
-            }
-        }
+//        RailProcessThread.getInstance().endLoop();
+//        long startTime = System.currentTimeMillis();
+//        while (RTMMetro.proxy.railProcessThread.isAlive()) {
+//            if (System.currentTimeMillis() - startTime > 5000) {
+//                NGTLog.debug("Wait timeout!");
+//                break;
+//            }
+//        }
     }
 
     @SubscribeEvent

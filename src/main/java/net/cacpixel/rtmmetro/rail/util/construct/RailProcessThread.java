@@ -68,33 +68,14 @@ public class RailProcessThread extends Thread {
 
     public static void constructTask(RailConstructTask task) {
         try {
-            task.running = true;
+            task.processed = false;
             task.runTask();
-            task.running = false;
         } catch (Throwable e) {
             e.printStackTrace();
+        } finally {
+            task.processed = true;
         }
     }
-
-
-//    public void runThread() {
-//        RailConstructTask task = this.taskQueue.poll();
-//        if (task == null) {
-//            try {
-//                Thread.sleep(10);
-//            } catch (InterruptedException ignored) {
-//                ;
-//            }
-//            return;
-//        }
-//        try {
-//            task.running = true;
-//            task.runTask();
-//            task.running = false;
-//        } catch (Throwable e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     public void endLoop() {
         this.loop = false;
@@ -105,6 +86,11 @@ public class RailProcessThread extends Thread {
     }
 
     public void addTask(RailConstructTask task) {
+        task.processed = false;
         this.getQueue().add(task);
+    }
+
+    public void addTaskList(Iterable<RailConstructTask> tasks) {
+        tasks.forEach(task -> this.getQueue().add(task));
     }
 }

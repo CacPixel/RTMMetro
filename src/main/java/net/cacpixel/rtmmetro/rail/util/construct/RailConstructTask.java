@@ -1,16 +1,18 @@
 package net.cacpixel.rtmmetro.rail.util.construct;
 
 public abstract class RailConstructTask {
-    protected boolean processed;
+    public boolean processed;
+    @Deprecated
     protected boolean running;
 
     public RailConstructTask() {
         this.processed = true;
-        this.running = false;
+//        this.running = false;
     }
 
     public abstract void runTask();
 
+    @Deprecated
     public void complete() {
         this.processed = true;
     }

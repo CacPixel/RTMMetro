@@ -12,6 +12,7 @@ import net.cacpixel.rtmmetro.network.PacketMarkerRPServer;
 import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.util.*;
 import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
+import net.cacpixel.rtmmetro.rail.util.construct.TaskGridConstruct;
 import net.cacpixel.rtmmetro.rail.util.construct.TaskMarkerUpdate;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -46,6 +47,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     public boolean shouldUpdateClientLines = false; // 其他玩家修改了Line后置true，发送数据包给所有玩家更新Line
     public RailProcessThread processor;
     public TaskMarkerUpdate task = new TaskMarkerUpdate(this);
+    public TaskGridConstruct[] gridTasks;
 
     public TileEntityMarkerAdvanced() {
         this.markerState = MarkerState.DISTANCE.set(this.markerState, true);
@@ -176,7 +178,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
                 TileEntityMarkerAdvanced.onChangeRailShape();
             }
         } else {
-            RailMap[] arailmap = new RailMap[this.railMaps.length];
+            RailMap[] arailmap = new RailMapAdvanced[this.railMaps.length];
 
             for (int i = 0; i < arailmap.length; ++i) {
                 RailPosition railposition = this.railMaps[i].getStartRP();
@@ -205,19 +207,19 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         if (list.size() == 1) {
             RailPosition railposition = this.getMarkerRP((BlockPos) list.get(0));
             if (railposition != null && railposition.hasScript()) {
-                RailMap railmap = new RailMapCustom(railposition, railposition.scriptName, railposition.scriptArgs);
-                this.railMaps = new RailMap[]{railmap};
+//                RailMapAdvanced railmap = new RailMapCustom(railposition, railposition.scriptName, railposition.scriptArgs);
+//                this.railMaps = new RailMapAdvanced[]{railmap};
                 blockpos = new BlockPos(railposition.blockX, railposition.blockY, railposition.blockZ);
             } else {
-                this.railMaps = new RailMap[]{};
+                this.railMaps = new RailMapAdvanced[]{};
             }
         } else if (list.size() == 2) {
             if (list.get(0) != null && list.get(1) != null) {
                 RailPosition railposition2 = this.getMarkerRP((BlockPos) list.get(0));
                 RailPosition railposition3 = this.getMarkerRP((BlockPos) list.get(1));
                 if (railposition2 != null && railposition3 != null) {
-                    RailMap railmap1 = new RailMapBasic(railposition2, railposition3);
-                    this.railMaps = new RailMap[]{railmap1};
+                    RailMapAdvanced railmap1 = new RailMapAdvanced(railposition2, railposition3);
+                    this.railMaps = new RailMapAdvanced[]{railmap1};
                     blockpos = new BlockPos(railposition2.blockX, railposition2.blockY, railposition2.blockZ);
                 }
             }
@@ -233,6 +235,8 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
 
             SwitchType switchtype = (new RailMaker(this.getWorld(), list2)).getSwitch();
             if (switchtype != null) {
+                // Todo: 使用新的SwitchType或者依次手动clone railMaps为RailMapSwitchAdvanced (RailMapSwitch final class，临时解决方案)
+
                 this.railMaps = switchtype.getAllRailMap();
                 if (this.railMaps != null) {
                     RailPosition railposition4 = this.railMaps[0].getStartRP();
@@ -262,7 +266,12 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         this.grid = new ArrayList<>();
         try {
             for (RailMap railmap : this.railMaps) {
-                this.grid.addAll(railmap.getRailBlockList(ItemRail.getDefaultProperty(), true));
+                if (this.railMaps instanceof RailMapAdvanced[]) {
+                    this.grid.addAll(((RailMapAdvanced) railmap).getRailBlockList(ItemRail.getDefaultProperty(), true, this));
+                } else {
+                    // Todo：暂时不支持道岔的Grid生成多线程优化
+                    this.grid.addAll(railmap.getRailBlockList(ItemRail.getDefaultProperty(), true));
+                }
             }
         } catch (NullPointerException e) {
             e.printStackTrace();

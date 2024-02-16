@@ -14,6 +14,5 @@ public class TaskMarkerUpdate extends RailConstructTask {
     public void runTask() {
         marker.searchOtherMarkers();
         marker.onChangeRailShape();
-        this.complete();
     }
 }

@@ -1,13 +1,33 @@
 package net.cacpixel.rtmmetro.rail.util;
 
+import jp.ngt.ngtlib.io.NGTLog;
 import jp.ngt.ngtlib.math.BezierCurve;
 import jp.ngt.ngtlib.math.NGTMath;
 import jp.ngt.ngtlib.math.StraightLine;
+import jp.ngt.rtm.modelpack.cfg.RailConfig;
+import jp.ngt.rtm.modelpack.modelset.ModelSetRail;
+import jp.ngt.rtm.modelpack.state.ResourceStateRail;
 import jp.ngt.rtm.rail.util.RailMapBasic;
 import jp.ngt.rtm.rail.util.RailPosition;
 import net.cacpixel.rtmmetro.RTMMetro;
+import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
+import net.cacpixel.rtmmetro.rail.util.construct.RailConstructTask;
+import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
+import net.cacpixel.rtmmetro.rail.util.construct.TaskGridConstruct;
+import net.minecraft.util.math.BlockPos;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class RailMapAdvanced extends RailMapBasic {
+    ConcurrentHashMap<Integer, double[]> pointMap = new ConcurrentHashMap<>();
+    CopyOnWriteArrayList<int[]> railsConcurrent = new CopyOnWriteArrayList<>();
+
     public RailMapAdvanced(RailPosition par1, RailPosition par2) {
         super(par1, par2);
     }
@@ -67,4 +87,132 @@ public class RailMapAdvanced extends RailMapBasic {
             }
         }
     }
+
+    public List<int[]> getRailBlockList(ResourceStateRail prop, boolean regenerate, TileEntityMarkerAdvanced marker) {
+        if (this.railsConcurrent.isEmpty() || regenerate) {
+            this.createRailList(prop, marker);
+        }
+
+        return new ArrayList<>(this.railsConcurrent);
+    }
+
+    protected void createRailList(ResourceStateRail prop, TileEntityMarkerAdvanced marker) {
+//        super.createRailList(prop);
+        this.railsConcurrent.clear();
+        ModelSetRail modelSet = (ModelSetRail) prop.getResourceSet();
+        int halfWidth = ((RailConfig) modelSet.getConfig()).ballastWidth >> 1;
+        double halfPi = 1.5707963267948966;
+        int split = (int) (this.getLength() * 4.0);
+        RailProcessThread thread = RailProcessThread.getInstance();
+        int step = 100;
+        marker.gridTasks = new TaskGridConstruct[split / step + 1];
+        for (int order = 1; order < (split - 1); order += step) {
+            marker.gridTasks[order / step] = new TaskGridConstruct(this, prop, order);
+            thread.addTask(marker.gridTasks[order / step]);
+        }
+
+        for (int j = 1; j < split - 1; ++j) {
+            double[] point;
+            do {
+                point = pointMap.get(j);
+            } while (point == null);
+            double x = point[1];
+            double z = point[0];
+            double slope = (double) NGTMath.toRadians(this.getRailYaw(split, j));
+            double height = this.getRailHeight(split, j);
+            int y = (int) height;
+
+            int x0;
+            for (x0 = 0; x0 <= halfWidth; ++x0) {
+                double d0 = (double) x0 + 0.25;
+                int x1 = NGTMath.floor(x + Math.sin(slope + halfPi) * d0);
+                int z1 = NGTMath.floor(z + Math.cos(slope + halfPi) * d0);
+                this.addRailBlock(x1, y, z1);
+                int x2 = NGTMath.floor(x + Math.sin(slope - halfPi) * d0);
+                int z2 = NGTMath.floor(z + Math.cos(slope - halfPi) * d0);
+                this.addRailBlock(x2, y, z2);
+            }
+
+            x0 = NGTMath.floor(x);
+            int z0 = NGTMath.floor(z);
+            this.addRailBlock(x0, y, z0);
+        }
+
+
+
+        //现在不需要判断，所有任务必定处理完毕
+//        long startTime = System.currentTimeMillis();
+//        while (marker.gridTasks[marker.gridTasks.length - 1] == null || !marker.gridTasks[marker.gridTasks.length - 1].hasProcessed()) {
+//            try {
+//                Thread.sleep(5);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//            if (System.currentTimeMillis() - startTime > 5000) {
+//                NGTLog.debug("grid create time out");
+//                break;
+//            }
+//        }
+    }
+
+    public void createRailList0(ResourceStateRail prop, int order) {
+        int step = 100;
+        int split = (int) (this.getLength() * 4.0);
+//        ModelSetRail modelSet = (ModelSetRail) prop.getResourceSet();
+//        int halfWidth = ((RailConfig) modelSet.getConfig()).ballastWidth >> 1;
+//        double halfPi = 1.5707963267948966;
+        Map<Integer, double[]> map = new HashMap<>(128);
+        for (int i = 0; (i < step); i++) {
+            double[] point = this.getRailPos(split, order + i);
+//            double x = point[1];
+//            double z = point[0];
+//            double slope = (double) NGTMath.toRadians(this.getRailYaw(split, order + i));
+//            double height = this.getRailHeight(split, order + i);
+//            int y = (int) height;
+//
+//            int x0;
+//            for (x0 = 0; x0 <= halfWidth; ++x0) {
+//                double d0 = (double) x0 + 0.25;
+//                int x1 = NGTMath.floor(x + Math.sin(slope + halfPi) * d0);
+//                int z1 = NGTMath.floor(z + Math.cos(slope + halfPi) * d0);
+//                this.addRailBlock(x1, y, z1);
+//                int x2 = NGTMath.floor(x + Math.sin(slope - halfPi) * d0);
+//                int z2 = NGTMath.floor(z + Math.cos(slope - halfPi) * d0);
+//                this.addRailBlock(x2, y, z2);
+//            }
+//
+//            x0 = NGTMath.floor(x);
+//            int z0 = NGTMath.floor(z);
+//            this.addRailBlock(x0, y, z0);
+
+
+            map.put(order + i, point);
+            if (i + order >= split - 1) {
+                break;
+            }
+        }
+        pointMap.putAll(map);
+    }
+
+    @Override
+    protected void addRailBlock(int x, int y, int z) {
+        for(int i = 0; i < this.railsConcurrent.size(); ++i) {
+            int[] ia = (int[])this.railsConcurrent.get(i);
+            if (ia[0] == x && ia[2] == z) {
+                if (ia[1] <= y) {
+                    return;
+                }
+
+                this.railsConcurrent.remove(i);
+                --i;
+            }
+        }
+
+        BlockPos pos = new BlockPos(x, y, z);
+        if (!pos.equals(this.getStartRP().getNeighborBlockPos()) && !pos.equals(this.getEndRP().getNeighborBlockPos())) {
+            this.railsConcurrent.add(new int[]{x, y, z});
+        }
+
+    }
+
 }
