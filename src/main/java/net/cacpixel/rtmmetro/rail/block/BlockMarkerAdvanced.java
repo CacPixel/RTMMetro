@@ -104,13 +104,6 @@ public class BlockMarkerAdvanced extends BlockMarker {
         int j = getFacing(placer, i >= 4);
         int k = i / 4;
         BlockUtil.setBlock(world, pos, this, j + k * 4, 2);
-        if (BlockUtil.getBlock(world, pos).hasTileEntity()) {
-            TileEntity te = BlockUtil.getTileEntity(world, pos);
-            if (te instanceof TileEntityMarkerAdvanced) {
-                TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) te;
-//                marker.playerWhoPlacedMarker = (EntityPlayer) placer;
-            }
-        }
     }
 
     @Override
@@ -147,31 +140,11 @@ public class BlockMarkerAdvanced extends BlockMarker {
                 return true;
             }
 
-            TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) tileentity;
-            long startTime = System.currentTimeMillis();
-            while (marker.markerProcess != null && marker.markerProcess.startProcess) {
-                for (BlockPos pos : marker.markerPosList) {
-                    TileEntity te = BlockUtil.getTileEntity(holder.getWorld(), pos);
-                    if (te instanceof TileEntityMarkerAdvanced) {
-                        TileEntityMarkerAdvanced m = (TileEntityMarkerAdvanced) te;
-                        if (m.markerProcess != null && m.markerProcess.startProcess) {
-                            m.markerProcess.endLoop();
-                        }
-                    }
-                }
-                if (System.currentTimeMillis() > startTime + 3000) {
-                    NGTLog.debug("Wait time out (3s)!");
-                    NGTLog.sendChatMessage(holder.getPlayer(), "Wait time out (3s)!");
-                    return true;
-                }
-            }
-
             if (itemstack.getItem() == Item.getItemFromBlock(RTMMetroBlock.MARKER_ADVANCED)
                     || itemstack.getItem() == Item.getItemFromBlock(RTMMetroBlock.MARKER_ADVANCED_SWITCH)) {
                 if (world.isRemote) {
 //                    entityplayer.openGui(RTMCore.instance, RTMCore.guiIdRailMarker, world, i, j, k);
                 }
-
                 return true;
             }
         }
@@ -179,7 +152,6 @@ public class BlockMarkerAdvanced extends BlockMarker {
         if (!world.isRemote && this.onMarkerActivated(world, i, j, k, entityplayer, true) && !entityplayer.capabilities.isCreativeMode) {
             itemstack.shrink(1);
         }
-
         return true;
     }
 
@@ -192,7 +164,6 @@ public class BlockMarkerAdvanced extends BlockMarker {
         if (marker.getWorld().isRemote) {
             this.onMarkerActivatedClient(marker, x, y, z);
         } else {
-//            this.onMarkerActivated(marker.getWorld(), x, y, z, marker.playerWhoPlacedMarker, false);
             this.onMarkerActivated(marker.getWorld(), x, y, z, null, false);
         }
     }

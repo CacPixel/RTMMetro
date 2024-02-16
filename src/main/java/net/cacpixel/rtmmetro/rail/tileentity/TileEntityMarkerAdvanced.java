@@ -6,15 +6,13 @@ import jp.ngt.rtm.gui.InternalButton;
 import jp.ngt.rtm.gui.InternalGUI;
 import jp.ngt.rtm.item.ItemRail;
 import jp.ngt.rtm.rail.util.*;
-import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.network.PacketMarkerRPServer;
 import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
-import net.cacpixel.rtmmetro.rail.util.MarkerManager;
-import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
-import net.cacpixel.rtmmetro.rail.util.RailProcessThread;
-import net.minecraft.entity.player.EntityPlayer;
+import net.cacpixel.rtmmetro.rail.util.*;
+import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
+import net.cacpixel.rtmmetro.rail.util.construct.TaskMarkerUpdate;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
@@ -45,11 +43,9 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     @SideOnly(Side.CLIENT)
     public float[][][] linePos;
     private int count;
-    public int refreshTicksInterval = STANDARD_INTERVAL;
-    public static final int STANDARD_INTERVAL = (ModConfig.useFastMarkerSearchMethod) ? 4 : 40;
-    public RailProcessThread markerProcess;
-    public EntityPlayer playerWhoPlacedMarker;
     public boolean shouldUpdateClientLines = false; // 其他玩家修改了Line后置true，发送数据包给所有玩家更新Line
+    public RailProcessThread processor;
+    public TaskMarkerUpdate task = new TaskMarkerUpdate(this);
 
     public TileEntityMarkerAdvanced() {
         this.markerState = MarkerState.DISTANCE.set(this.markerState, true);
@@ -79,7 +75,6 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     private void updateClientLines() {
         if (!this.world.isRemote) {
             RTMMetro.NETWORK_WRAPPER.sendToAll(new PacketMarkerRPServer(this, this.rp));
-//            NGTLog.debug("send" + this.getPos());
         }
         this.shouldUpdateClientLines = false;
     }
@@ -98,49 +93,38 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             byte b0 = BlockMarkerAdvanced.getMarkerDir(this.getBlockType(), this.getBlockMetadata());
             byte b1 = (byte) (this.getBlockType() == RTMMetroBlock.MARKER_ADVANCED_SWITCH ? 1 : 0);
             this.rp = new RailPosition(this.getPos().getX(), this.getPos().getY(), this.getPos().getZ(), b0, b1);
-//            if (this.getWorld().isRemote) {
-//                for(TileEntity tileentity : this.getWorld().loadedTileEntityList) {
-//                    if (tileentity instanceof TileEntityMarkerAdvanced) {
-//                        ((TileEntityMarkerAdvanced)tileentity).searchOtherMarkers();
-//                    }
-//                }
-//            }
         }
+
         if (this.shouldUpdateClientLines) {
             this.updateClientLines();
         }
+
         if (this.getWorld().isRemote) {
-//            if (this.count >= this.refreshTicksInterval) {
-            if (true) {
-                this.updateStartPos();
-                if (this.markerProcess == null) {
-                    this.markerProcess = new RailProcessThread(this, !this.getWorld().isRemote);
-                    this.markerProcess.setPriority(Thread.NORM_PRIORITY - 1);
-                    this.markerProcess.start();
+            if (processor == null) {
+                processor = RailProcessThread.getInstance();
+            }
+            if (!this.processor.isAlive()) {
+                this.processor.start();
+            }
+            this.updateStartPos();
+            if (task.hasProcessed()) {
+                this.updatePrevData();
+                if (this.isCoreMarker() || this.getRailMaps() == null || this.getRailMaps().length < 1) {
+                    this.processor.addTask(this.task);
                 }
-                if (!this.markerProcess.startProcess) {
-                    if (this.railMaps != null) {
-                        this.prevRailMaps = this.railMaps.clone();
-                    }
-                    this.prevGrid = new ArrayList<>();
-                    if (this.grid != null) {
-                        this.prevGrid.addAll(this.grid);
-                    }
-                    try {
-                        if (this.isCoreMarker() || this.getRailMaps() == null || this.getRailMaps().length < 1) {
-//                            this.markerProcess = new RailProcessThread(this, !this.getWorld().isRemote);
-                            this.markerProcess.startProcess = true;
-                        } else {
-//                        NGTLog.debug("not core marker");
-                        }
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                    }
-                }
-                this.count = 0;
             }
         }
-        ++this.count;
+    }
+
+    private void updatePrevData() {
+        if (this.railMaps != null) {
+            this.prevRailMaps = this.railMaps.clone();
+        }
+
+        this.prevGrid = new ArrayList<>();
+        if (this.grid != null) {
+            this.prevGrid.addAll(this.grid);
+        }
     }
 
     public void searchOtherMarkers() {
@@ -153,10 +137,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             if (!(tileentity instanceof TileEntityMarkerAdvanced)) {
                 this.startPos = null;
             }
-        } else if (ModConfig.useFastMarkerSearchMethod) {
-//            this.searchOtherMarkers();
         }
-
     }
 
     public RailPosition getMarkerRP() {
@@ -268,8 +249,8 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
                     BlockPos blockpos1 = (BlockPos) list.get(i);
                     TileEntity tileentity = BlockUtil.getTileEntity(this.getWorld(), blockpos1);
                     if (tileentity instanceof TileEntityMarkerAdvanced) {
-                        TileEntityMarkerAdvanced TileEntityMarkerAdvanced = (TileEntityMarkerAdvanced) tileentity;
-                        TileEntityMarkerAdvanced.setStartPos(blockpos, this.railMaps);
+                        TileEntityMarkerAdvanced ma = (TileEntityMarkerAdvanced) tileentity;
+                        ma.setStartPos(blockpos, this.railMaps);
                     }
                 }
             }

@@ -1,27 +1,93 @@
 package net.cacpixel.rtmmetro.event;
 
+import jp.ngt.ngtlib.io.NGTLog;
+import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.rail.util.MarkerManager;
+import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class RTMMetroEventHandler {
 
     @SubscribeEvent
     public void onLoadWorld(WorldEvent.Load event) {
-        if (!event.getWorld().isRemote) {
-            MarkerManager.getInstance().loadData(event.getWorld());
+        if (event.getWorld().isRemote) {
+            onClientWorldLoad(event);
+        } else {
+            MinecraftServer server = event.getWorld().getMinecraftServer();
+            if (server != null) {
+                onServerWorldLoad(event);
+                if (server.worlds == null || server.worlds.length == 1) {
+                    onServerWorldFirstLoad(event);
+                }
+            }
         }
     }
 
+    private void onServerWorldFirstLoad(WorldEvent.Load event) {
+//        RTMMetro.proxy.railProcessThread = new RailProcessThread(event.getWorld().isRemote);
+//        RTMMetro.proxy.railProcessThread.start();
+    }
+
+    private void onServerWorldLoad(WorldEvent.Load event) {
+        MarkerManager.getInstance().loadData(event.getWorld());
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void onClientWorldLoad(WorldEvent.Load event) {
+//        RTMMetro.proxy.railProcessThread = new RailProcessThread(event.getWorld().isRemote);
+//        RTMMetro.proxy.railProcessThread.start();
+    }
+
+
     @SubscribeEvent
     public void onUnloadWorld(WorldEvent.Unload event) {
+//        if (event.getWorld().isRemote) {
+//            onClientWorldUnload(event);
+//        } else {
+//            MinecraftServer server = event.getWorld().getMinecraftServer();
+//            if (server != null) {
+//                onServerWorldUnload(event);
+//                if (server.worlds.length <= 1) {
+//                    onServerAllWorldsUnload(event);
+//                }
+//            }
+//        }
+    }
 
+    private void onServerAllWorldsUnload(WorldEvent.Unload event) {
+//        RailProcessThread.getInstance().endLoop();
+//        long startTime = System.currentTimeMillis();
+//        while (RTMMetro.proxy.railProcessThread.isAlive()) {
+//            if (System.currentTimeMillis() - startTime > 5000) {
+//                NGTLog.debug("Wait timeout!");
+//                break;
+//            }
+//        }
+    }
+
+    private void onServerWorldUnload(WorldEvent.Unload event) {
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void onClientWorldUnload(WorldEvent.Unload event) {
+        RailProcessThread.getInstance().endLoop();
+        long startTime = System.currentTimeMillis();
+        while (RTMMetro.proxy.railProcessThread.isAlive()) {
+            if (System.currentTimeMillis() - startTime > 5000) {
+                NGTLog.debug("Wait timeout!");
+                break;
+            }
+        }
     }
 
     @SubscribeEvent
