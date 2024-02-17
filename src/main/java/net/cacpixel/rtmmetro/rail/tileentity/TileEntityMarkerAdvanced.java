@@ -109,9 +109,14 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
                 this.processor.start();
             }
             this.updateStartPos();
+            if (!this.isCoreMarker()) {
+                if (this.getCoreMarker() != null && this.getCoreMarker().task.hasProcessed()) {
+                    this.updatePrevData();
+                }
+            }
             if (task.hasProcessed()) {
-                this.updatePrevData();
                 if (this.isCoreMarker() || this.getRailMaps() == null || this.getRailMaps().length < 1) {
+                    this.updatePrevData();
                     this.processor.addTask(this.task);
                 }
             }
