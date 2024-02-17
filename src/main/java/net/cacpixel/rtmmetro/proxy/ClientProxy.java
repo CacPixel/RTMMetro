@@ -11,7 +11,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy {
     private final MarkerManager mmClient = new MarkerManager(true);
-    public RailProcessThread railProcessThreadClient = new RailProcessThread(true);
 
     public ClientProxy() {
     }
@@ -26,7 +25,6 @@ public class ClientProxy extends CommonProxy {
     public void init() {
         RTMMetroBlock.initClient2();
         RTMMetroItems.initClient2();
-
     }
 
     @Override
@@ -36,11 +34,6 @@ public class ClientProxy extends CommonProxy {
     @Override
     public MarkerManager getMarkerManager() {
         return NGTUtil.isServer() ? super.getMarkerManager() : this.mmClient;
-    }
-
-    @Override
-    public RailProcessThread getRailProcessThread() {
-        return NGTUtil.isServer() ? super.getRailProcessThread() : this.railProcessThreadClient;
     }
 
 }

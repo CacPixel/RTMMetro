@@ -2,6 +2,7 @@ package net.cacpixel.rtmmetro.rail.util.construct;
 
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.RTMMetro;
+import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,19 +13,21 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class RailProcessThread extends Thread {
-    public boolean isRemote; // true = Client, false = Server
+    private static final RailProcessThread INSTANCE = new RailProcessThread();
     private boolean loop = true;
     private final RailConstructTaskQueue taskQueue = new RailConstructTaskQueue();
     private ExecutorService pool;
     private List<Future<?>> futures = new ArrayList<>();
 
-    public RailProcessThread(boolean isRemote) {
-        super("Rail Process Thread " + ((!isRemote) ? "Server" : "Client"));
-        this.isRemote = isRemote;
+    public RailProcessThread() {
+        super("Rail Process Thread");
     }
 
     public static RailProcessThread getInstance() {
-        return RTMMetro.proxy.getRailProcessThread();
+        if (!INSTANCE.isAlive()) {
+            INSTANCE.start();
+        }
+        return INSTANCE;
     }
 
     public void init() {
@@ -39,8 +42,7 @@ public class RailProcessThread extends Thread {
                         public Thread newThread(Runnable runnable) {
                             ThreadGroup group = System.getSecurityManager().getThreadGroup();
                             Thread thread = new Thread(group, runnable,
-                                    "Rail Construct Thread " + ((!isRemote) ? "Server " : "Client " + this.num.getAndIncrement()),
-                                    0);
+                                    "Rail Construct Thread " + this.num.getAndIncrement());
                             thread.setPriority(NORM_PRIORITY);
                             thread.setDaemon(false);
                             return thread;

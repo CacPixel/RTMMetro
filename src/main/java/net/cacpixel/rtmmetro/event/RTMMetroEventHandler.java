@@ -34,8 +34,6 @@ public class RTMMetroEventHandler {
     }
 
     private void onServerWorldFirstLoad(WorldEvent.Load event) {
-//        RTMMetro.proxy.railProcessThread = new RailProcessThread(event.getWorld().isRemote);
-//        RTMMetro.proxy.railProcessThread.start();
     }
 
     private void onServerWorldLoad(WorldEvent.Load event) {
@@ -44,8 +42,6 @@ public class RTMMetroEventHandler {
 
     @SideOnly(Side.CLIENT)
     private void onClientWorldLoad(WorldEvent.Load event) {
-//        RTMMetro.proxy.railProcessThread = new RailProcessThread(event.getWorld().isRemote);
-//        RTMMetro.proxy.railProcessThread.start();
     }
 
 
@@ -65,14 +61,6 @@ public class RTMMetroEventHandler {
     }
 
     private void onServerAllWorldsUnload(WorldEvent.Unload event) {
-//        RailProcessThread.getInstance().endLoop();
-//        long startTime = System.currentTimeMillis();
-//        while (RTMMetro.proxy.railProcessThread.isAlive()) {
-//            if (System.currentTimeMillis() - startTime > 5000) {
-//                NGTLog.debug("Wait timeout!");
-//                break;
-//            }
-//        }
     }
 
     private void onServerWorldUnload(WorldEvent.Unload event) {
@@ -80,14 +68,6 @@ public class RTMMetroEventHandler {
 
     @SideOnly(Side.CLIENT)
     private void onClientWorldUnload(WorldEvent.Unload event) {
-//        RailProcessThread.getInstance().endLoop();
-//        long startTime = System.currentTimeMillis();
-//        while (RTMMetro.proxy.railProcessThread.isAlive()) {
-//            if (System.currentTimeMillis() - startTime > 5000) {
-//                NGTLog.debug("Wait timeout!");
-//                break;
-//            }
-//        }
     }
 
     @SubscribeEvent

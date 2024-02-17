@@ -8,5 +8,7 @@ public class ModConfig {
 
     /* 0 (<= 0) - All threads, N = Math.max(N, Runtime.getRuntime().availableProcessors()) - N threads */
     public static int threadsToConstructRails = 0;
+    public static int multiThreadBezierCurveInitThreshold = 9000;
+    public static boolean showDebugMessages = false;
 
 }

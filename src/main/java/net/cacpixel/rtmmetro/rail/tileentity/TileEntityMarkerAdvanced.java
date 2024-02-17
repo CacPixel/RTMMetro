@@ -12,7 +12,7 @@ import net.cacpixel.rtmmetro.network.PacketMarkerRPServer;
 import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.util.*;
 import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
-import net.cacpixel.rtmmetro.rail.util.construct.TaskGridConstruct;
+import net.cacpixel.rtmmetro.rail.util.construct.TaskInitNP;
 import net.cacpixel.rtmmetro.rail.util.construct.TaskMarkerUpdate;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -47,7 +47,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     public boolean shouldUpdateClientLines = false; // 其他玩家修改了Line后置true，发送数据包给所有玩家更新Line
     public RailProcessThread processor;
     public TaskMarkerUpdate task = new TaskMarkerUpdate(this);
-    public TaskGridConstruct[] gridTasks;
+    public TaskInitNP[] gridTasks;
 
     public TileEntityMarkerAdvanced() {
         this.markerState = MarkerState.DISTANCE.set(this.markerState, true);
@@ -104,10 +104,6 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         if (this.getWorld().isRemote) {
             if (processor == null) {
                 processor = RailProcessThread.getInstance();
-            }
-
-            if (!this.processor.isAlive()) {
-                this.processor.start();
             }
             this.updateStartPos();
             if (!this.isCoreMarker()) {
@@ -274,12 +270,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         this.grid = new ArrayList<>();
         try {
             for (RailMap railmap : this.railMaps) {
-                if (this.railMaps instanceof RailMapAdvanced[]) {
-                    this.grid.addAll(((RailMapAdvanced) railmap).getRailBlockList(ItemRail.getDefaultProperty(), true, this));
-                } else {
-                    // Todo：暂时不支持道岔的Grid生成多线程优化
-                    this.grid.addAll(railmap.getRailBlockList(ItemRail.getDefaultProperty(), true));
-                }
+                this.grid.addAll(((RailMapAdvanced) railmap).getRailBlockList(ItemRail.getDefaultProperty(), true));
             }
         } catch (NullPointerException e) {
             e.printStackTrace();

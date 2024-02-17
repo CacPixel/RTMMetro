@@ -10,11 +10,10 @@ import jp.ngt.rtm.modelpack.state.ResourceStateRail;
 import jp.ngt.rtm.rail.util.RailMapBasic;
 import jp.ngt.rtm.rail.util.RailPosition;
 import net.cacpixel.rtmmetro.RTMMetro;
+import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
-import net.cacpixel.rtmmetro.rail.util.construct.RailConstructTask;
 import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
-import net.cacpixel.rtmmetro.rail.util.construct.TaskGridConstruct;
-import net.minecraft.util.math.BlockPos;
+import net.cacpixel.rtmmetro.rail.util.construct.TaskInitNP;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -23,12 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class RailMapAdvanced extends RailMapBasic {
-    ConcurrentHashMap<Integer, double[]> pointMap = new ConcurrentHashMap<>();
-    CopyOnWriteArrayList<int[]> railsConcurrent = new CopyOnWriteArrayList<>();
 
     public RailMapAdvanced(RailPosition par1, RailPosition par2) {
         super(par1, par2);
@@ -71,7 +67,7 @@ public class RailMapAdvanced extends RailMapBasic {
                 double d14 = (double) (NGTMath.sin(this.startRP.anchorYaw) * this.startRP.anchorLengthHorizontal);
                 double d15 = (double) (NGTMath.cos(this.endRP.anchorYaw) * this.endRP.anchorLengthHorizontal);
                 double d16 = (double) (NGTMath.sin(this.endRP.anchorYaw) * this.endRP.anchorLengthHorizontal);
-                this.lineHorizontal = new BezierCurve(d2, d0, d2 + d18, d0 + d14, d5 + d15, d3 + d16, d5, d3);
+                this.lineHorizontal = new BezierCurveAdvanced(d2, d0, d2 + d18, d0 + d14, d5 + d15, d3 + d16, d5, d3);
             } else {
                 this.lineHorizontal = new StraightLine(d2, d0, d5, d3);
             }
@@ -85,101 +81,8 @@ public class RailMapAdvanced extends RailMapBasic {
                 double d10 = (double) (NGTMath.sin(this.startRP.anchorPitch) * this.startRP.anchorLengthVertical);
                 double d12 = (double) (NGTMath.cos(this.endRP.anchorPitch) * this.endRP.anchorLengthVertical);
                 double d20 = (double) (NGTMath.sin(this.endRP.anchorPitch) * this.endRP.anchorLengthVertical);
-                this.lineVertical = new BezierCurve(0.0D, d1, d8, d1 + d10, d17 - d12, d4 + d20, d17, d4);
+                this.lineVertical = new BezierCurveAdvanced(0.0D, d1, d8, d1 + d10, d17 - d12, d4 + d20, d17, d4);
             }
         }
     }
-
-    public List<int[]> getRailBlockList(ResourceStateRail prop, boolean regenerate, TileEntityMarkerAdvanced marker) {
-        if (this.rails.isEmpty() || regenerate) {
-            this.createRailList(prop, marker);
-        }
-
-        return new ArrayList<>(this.rails);
-    }
-
-    protected void createRailList(ResourceStateRail prop, TileEntityMarkerAdvanced marker) {
-//        super.createRailList(prop);
-
-        this.rails.clear();
-        if (this.lineHorizontal instanceof BezierCurve) {
-            try {
-                Method initNP = BezierCurve.class.getDeclaredMethod("initNP");
-                initNP.setAccessible(true);
-                initNP.invoke(this.lineHorizontal);
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        ModelSetRail modelSet = (ModelSetRail) prop.getResourceSet();
-        int halfWidth = ((RailConfig) modelSet.getConfig()).ballastWidth >> 1;
-        double halfPi = 1.5707963267948966;
-        int split = (int) (this.getLength() * 4.0);
-        RailProcessThread thread = RailProcessThread.getInstance();
-        int step = 100;
-        marker.gridTasks = new TaskGridConstruct[split / step + 1];
-        for (int order = 1; order < (split - 1); order += step) {
-            marker.gridTasks[order / step] = new TaskGridConstruct(this, prop, order);
-            try {
-                thread.addTask(marker.gridTasks[order / step]);
-//                if(order == 1){
-//                    Thread.sleep(10);
-//                }
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-            }
-        }
-
-        for (int j = 1; j < split - 1; ++j) {
-            double[] point;
-            long startTime = System.currentTimeMillis();
-            while (true) {
-                point = pointMap.get(j);
-                if (point != null) break;
-                if (System.currentTimeMillis() - startTime >= 5000) {
-                    NGTLog.debug(Thread.currentThread().getName() + " run timeout!");
-                    return;
-                }
-            }
-            double x = point[1];
-            double z = point[0];
-            double slope = (double) NGTMath.toRadians(this.getRailYaw(split, j));
-            double height = this.getRailHeight(split, j);
-            int y = (int) height;
-
-            int x0;
-            for (x0 = 0; x0 <= halfWidth; ++x0) {
-                double d0 = (double) x0 + 0.25;
-                int x1 = NGTMath.floor(x + Math.sin(slope + halfPi) * d0);
-                int z1 = NGTMath.floor(z + Math.cos(slope + halfPi) * d0);
-                this.addRailBlock(x1, y, z1);
-                int x2 = NGTMath.floor(x + Math.sin(slope - halfPi) * d0);
-                int z2 = NGTMath.floor(z + Math.cos(slope - halfPi) * d0);
-                this.addRailBlock(x2, y, z2);
-            }
-
-            x0 = NGTMath.floor(x);
-            int z0 = NGTMath.floor(z);
-            this.addRailBlock(x0, y, z0);
-        }
-        this.pointMap.clear();
-        this.pointMap = null;
-
-    }
-
-    public void createRailList0(ResourceStateRail prop, int order) {
-        int step = 100;
-        int split = (int) (this.getLength() * 4.0);
-        Map<Integer, double[]> map = new HashMap<>(128);
-        for (int i = 0; (i < step); i++) {
-            double[] point = this.getRailPos(split, order + i);
-            map.put(order + i, point);
-            if (i + order >= split - 1) {
-                break;
-            }
-        }
-        pointMap.putAll(map);
-    }
-
 }
