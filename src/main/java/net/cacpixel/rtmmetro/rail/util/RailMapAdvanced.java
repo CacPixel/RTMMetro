@@ -16,6 +16,8 @@ import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
 import net.cacpixel.rtmmetro.rail.util.construct.TaskGridConstruct;
 import net.minecraft.util.math.BlockPos;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -98,7 +100,18 @@ public class RailMapAdvanced extends RailMapBasic {
 
     protected void createRailList(ResourceStateRail prop, TileEntityMarkerAdvanced marker) {
 //        super.createRailList(prop);
+
         this.rails.clear();
+        if (this.lineHorizontal instanceof BezierCurve) {
+            try {
+                Method initNP = BezierCurve.class.getDeclaredMethod("initNP");
+                initNP.setAccessible(true);
+                initNP.invoke(this.lineHorizontal);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         ModelSetRail modelSet = (ModelSetRail) prop.getResourceSet();
         int halfWidth = ((RailConfig) modelSet.getConfig()).ballastWidth >> 1;
         double halfPi = 1.5707963267948966;
@@ -108,14 +121,27 @@ public class RailMapAdvanced extends RailMapBasic {
         marker.gridTasks = new TaskGridConstruct[split / step + 1];
         for (int order = 1; order < (split - 1); order += step) {
             marker.gridTasks[order / step] = new TaskGridConstruct(this, prop, order);
-            thread.addTask(marker.gridTasks[order / step]);
+            try {
+                thread.addTask(marker.gridTasks[order / step]);
+//                if(order == 1){
+//                    Thread.sleep(10);
+//                }
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
         }
 
         for (int j = 1; j < split - 1; ++j) {
             double[] point;
-            do {
+            long startTime = System.currentTimeMillis();
+            while (true) {
                 point = pointMap.get(j);
-            } while (point == null);
+                if (point != null) break;
+                if (System.currentTimeMillis() - startTime >= 5000) {
+                    NGTLog.debug(Thread.currentThread().getName() + " run timeout!");
+                    return;
+                }
+            }
             double x = point[1];
             double z = point[0];
             double slope = (double) NGTMath.toRadians(this.getRailYaw(split, j));
@@ -137,6 +163,9 @@ public class RailMapAdvanced extends RailMapBasic {
             int z0 = NGTMath.floor(z);
             this.addRailBlock(x0, y, z0);
         }
+        this.pointMap.clear();
+        this.pointMap = null;
+
     }
 
     public void createRailList0(ResourceStateRail prop, int order) {
@@ -151,11 +180,6 @@ public class RailMapAdvanced extends RailMapBasic {
             }
         }
         pointMap.putAll(map);
-    }
-
-    @Override
-    protected void addRailBlock(int x, int y, int z) {
-        super.addRailBlock(x, y, z);
     }
 
 }

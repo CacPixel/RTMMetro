@@ -20,6 +20,6 @@ public class TaskGridConstruct extends RailConstructTask {
 
     @Override
     public void runTask() {
-        rm.createRailList0(this, this.prop, this.order);
+        rm.createRailList0(this.prop, this.order);
     }
 }

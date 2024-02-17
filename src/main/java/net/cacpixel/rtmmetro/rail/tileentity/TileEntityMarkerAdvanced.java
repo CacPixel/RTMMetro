@@ -105,13 +105,16 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             if (processor == null) {
                 processor = RailProcessThread.getInstance();
             }
+
             if (!this.processor.isAlive()) {
                 this.processor.start();
             }
             this.updateStartPos();
             if (!this.isCoreMarker()) {
-                if (this.getCoreMarker() != null && this.getCoreMarker().task.hasProcessed()) {
-                    this.updatePrevData();
+                if (this.getCoreMarker() != null) {
+                    if (this.getCoreMarker().task.hasProcessed()) {
+                        this.updatePrevData();
+                    }
                 }
             }
             if (task.hasProcessed()) {
