@@ -1,5 +1,6 @@
 package net.cacpixel.rtmmetro.rail.util.construct;
 
+import jp.ngt.ngtlib.io.NGTLog;
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.RTMMetro;
 
@@ -57,12 +58,16 @@ public class RailProcessThread extends Thread {
                     constructTask(task);
                 }));
             } else {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ignored) {
-                    ;
-                }
+                this.waitForTasks();
             }
+        }
+    }
+
+    private void waitForTasks() {
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException ignored) {
+            ;
         }
     }
 
