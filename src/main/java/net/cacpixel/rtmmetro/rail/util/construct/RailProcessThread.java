@@ -28,23 +28,25 @@ public class RailProcessThread extends Thread {
     }
 
     public void init() {
-        this.pool = Executors.newFixedThreadPool((ModConfig.threadsToConstructRails <= 0) ?
-                        Runtime.getRuntime().availableProcessors()
-                        : Math.max(ModConfig.threadsToConstructRails, Runtime.getRuntime().availableProcessors()),
-                new ThreadFactory() {
-                    private final AtomicInteger num = new AtomicInteger(1);
+        if ((ModConfig.threadsToConstructRails <= 0)) {
+            this.pool = Executors.newWorkStealingPool();
+        } else {
+            this.pool = Executors.newFixedThreadPool(Math.max(ModConfig.threadsToConstructRails, Runtime.getRuntime().availableProcessors()),
+                    new ThreadFactory() {
+                        private final AtomicInteger num = new AtomicInteger(1);
 
-                    @Override
-                    public Thread newThread(Runnable runnable) {
-                        ThreadGroup group = System.getSecurityManager().getThreadGroup();
-                        Thread thread = new Thread(group, runnable,
-                                "Rail Construct Thread " + ((!isRemote) ? "Server " : "Client " + this.num.getAndIncrement()),
-                                0);
-                        thread.setPriority(NORM_PRIORITY);
-                        thread.setDaemon(false);
-                        return thread;
-                    }
-                });
+                        @Override
+                        public Thread newThread(Runnable runnable) {
+                            ThreadGroup group = System.getSecurityManager().getThreadGroup();
+                            Thread thread = new Thread(group, runnable,
+                                    "Rail Construct Thread " + ((!isRemote) ? "Server " : "Client " + this.num.getAndIncrement()),
+                                    0);
+                            thread.setPriority(NORM_PRIORITY);
+                            thread.setDaemon(false);
+                            return thread;
+                        }
+                    });
+        }
     }
 
     @Override
@@ -57,12 +59,16 @@ public class RailProcessThread extends Thread {
                     constructTask(task);
                 }));
             } else {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ignored) {
-                    ;
-                }
+                this.waitForTask();
             }
+        }
+    }
+
+    public void waitForTask() {
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException ignored) {
+            ;
         }
     }
 
