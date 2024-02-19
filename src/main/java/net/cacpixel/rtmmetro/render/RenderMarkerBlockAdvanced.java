@@ -77,9 +77,9 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                 float f2 = (float) (railposition.posZ - (double) railposition.blockZ);
                 if (marker.getState(MarkerState.LINE1) && marker.getPrevRailMaps() != null && marker.getPrevRailMaps().length > 0) {
                     try {
-                        if (marker.isCoreMarker()) {
-                            this.renderLine(marker, f, f1, f2);
-                        }
+//                        if (marker.isCoreMarker()) {
+                        this.renderLine(marker, f, f1, f2);
+//                        }
                     } catch (Throwable e) {
                         e.printStackTrace();
                     }

@@ -19,6 +19,7 @@ import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.RTMMetroItems;
 import net.cacpixel.rtmmetro.items.ItemRailAdvanced;
+import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityLargeRailMainCoreAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityLargeRailSwitchCoreAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
@@ -300,26 +301,51 @@ public class BlockMarkerAdvanced extends BlockMarker {
                 }
             }
         } else if (rps.size() == 2) {
-            RailPosition railposition4 = rps.get(0);
-            RailPosition railposition1 = rps.get(1);
-//            if (railposition4.switchType == 1 && railposition1.switchType == 1) {
-//                createTurntable(world, railposition4, railposition1, state, makeRail, isCreative);
+            RailPosition startRP = rps.get(0);
+            RailPosition endRP = rps.get(1);
+//            if (startRP.switchType == 1 && endRP.switchType == 1) {
+//                createTurntable(world, startRP, endRP, state, makeRail, isCreative);
 //            } else {
-            RailPosition railposition2 = railposition1.blockY >= railposition4.blockY ? railposition4 : railposition1;
-            RailPosition railposition3 = railposition1.blockY >= railposition4.blockY ? railposition1 : railposition4;
-            createNormalRail(world, railposition2, railposition3, state, makeRail, isCreative);
+//            RailPosition railposition2 = endRP.blockY >= startRP.blockY ? startRP : endRP;
+//            RailPosition railposition3 = endRP.blockY >= startRP.blockY ? endRP : startRP;
+            prepareNormalRail(world, startRP, endRP, state, makeRail, isCreative);
 //            }
         } else if (rps.size() > 2) {
             createSwitchRail(world, x, y, z, rps, state, makeRail, isCreative);
         }
 
-
         return false;
     }
 
-    private static boolean createNormalRail(World world, RailPosition start, RailPosition end, ResourceStateRail prop, boolean makeRail, boolean isCreative) {
-        RailMapAdvanced railmap = new RailMapAdvanced(start, end);
-        if (makeRail && railmap.canPlaceRail(world, isCreative, prop)) {
+    private static void prepareNormalRail(World world, RailPosition start, RailPosition end, ResourceStateRail prop, boolean makeRail, boolean isCreative) {
+        RailMapAdvanced originalRailMap = new RailMapAdvanced(start, end);
+        if (makeRail && originalRailMap.canPlaceRail(world, isCreative, prop)) {
+            TileEntity tileEntity = world.getTileEntity(new BlockPos(start.blockX, start.blockY, start.blockZ));
+            int split;
+            if (tileEntity instanceof TileEntityMarkerAdvanced) {
+                TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) tileEntity;
+                split = Math.max(1, marker.splits);
+            } else {
+                return;
+            }
+            int orderMin = 10;
+            int orderMax = (int) Math.floor(originalRailMap.getLength() - 10);
+            List<RailMapAdvanced> rmList = new ArrayList<>();
+//        for (int i = 0; i < split; i++) {
+            int length = (int) Math.floor(originalRailMap.getLength()) * 2;
+            int order = length / split;
+            RailPosition[] rps = BezierCurveAdvanced.getSplitCurveRP(originalRailMap, length, order);
+            createNormalRail(world, rps[0], rps[1], prop, makeRail, isCreative);
+            createNormalRail(world, rps[2], rps[3], prop, makeRail, isCreative);
+//        }
+        } else {
+            createNormalRail(world, start, end, prop, makeRail, isCreative);
+        }
+    }
+
+    private static void createNormalRail(World world, RailPosition start, RailPosition end, ResourceStateRail prop, boolean makeRail, boolean isCreative) {
+        RailMapAdvanced rm = new RailMapAdvanced(start, end);
+        if (makeRail && rm.canPlaceRail(world, isCreative, prop)) {
             List<RailPosition> rps = new ArrayList<>();
             rps.add(start);
             rps.add(end);
@@ -329,19 +355,17 @@ public class BlockMarkerAdvanced extends BlockMarker {
             if (!world.isRemote)
                 MarkerManager.sendPacket((TileEntityMarkerAdvanced) world.getTileEntity(new BlockPos(start.blockX, start.blockY, start.blockZ)), true);
 
-            railmap.setRail(world, RTMMetroBlock.LARGE_RAIL_BASE_ADVANCED, start.blockX, start.blockY, start.blockZ, prop);
+            rm.setRail(world, RTMMetroBlock.LARGE_RAIL_BASE_ADVANCED, start.blockX, start.blockY, start.blockZ, prop);
             BlockUtil.setBlock(world, start.blockX, start.blockY, start.blockZ, RTMMetroBlock.LARGE_RAIL_MAINCORE_ADVANCED, 0, 3);
-            TileEntityLargeRailMainCoreAdvanced TileEntityLargeRailMainCoreAdvanced = (TileEntityLargeRailMainCoreAdvanced) BlockUtil.getTileEntity(world, start.blockX, start.blockY, start.blockZ);
-            TileEntityLargeRailMainCoreAdvanced.setRailPositions(new RailPosition[]{start, end});
-            TileEntityLargeRailMainCoreAdvanced.getResourceState().readFromNBT(prop.writeToNBT());
-            TileEntityLargeRailMainCoreAdvanced.setStartPoint(start.blockX, start.blockY, start.blockZ);
-            TileEntityLargeRailMainCoreAdvanced.createRailMap();
-            TileEntityLargeRailMainCoreAdvanced.sendPacket();
+            TileEntityLargeRailMainCoreAdvanced mainCore = (TileEntityLargeRailMainCoreAdvanced) BlockUtil.getTileEntity(world, start.blockX, start.blockY, start.blockZ);
+            mainCore.setRailPositions(new RailPosition[]{start, end});
+            mainCore.getResourceState().readFromNBT(prop.writeToNBT());
+            mainCore.setStartPoint(start.blockX, start.blockY, start.blockZ);
+            mainCore.createRailMap();
+            mainCore.sendPacket();
             if (BlockUtil.getBlock(world, end.blockX, end.blockY, end.blockZ) instanceof BlockMarker) {
                 BlockUtil.setAir(world, end.blockX, end.blockY, end.blockZ);
             }
-
-            return true;
         } else {
             TileEntity tileentity = BlockUtil.getTileEntity(world, start.blockX, start.blockY, start.blockZ);
             if (tileentity instanceof TileEntityMarkerAdvanced) {
@@ -350,11 +374,9 @@ public class BlockMarkerAdvanced extends BlockMarker {
                 list.add(new BlockPos(end.blockX, end.blockY, end.blockZ));
                 ((TileEntityMarkerAdvanced) tileentity).setMarkersPos(list);
             }
-
-            return false;
         }
     }
-//
+
 //    private static boolean createCustomRail(World world, RailPosition rp, ResourceStateRail prop, boolean makeRail, boolean isCreative) {
 //        RailMap railmap = new RailMapCustom(rp, rp.scriptName, rp.scriptArgs);
 //        if (makeRail && railmap.canPlaceRail(world, isCreative, prop)) {

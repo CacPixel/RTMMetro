@@ -14,6 +14,7 @@ import net.cacpixel.rtmmetro.rail.util.*;
 import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
 import net.cacpixel.rtmmetro.rail.util.construct.TaskInitNP;
 import net.cacpixel.rtmmetro.rail.util.construct.TaskMarkerUpdate;
+import net.cacpixel.rtmmetro.util.ModLog;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
@@ -21,7 +22,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITickable {
@@ -48,6 +51,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     public RailProcessThread processor;
     public TaskMarkerUpdate task = new TaskMarkerUpdate(this);
     public TaskInitNP[] gridTasks;
+    public int splits = 2;
 
     public TileEntityMarkerAdvanced() {
         this.markerState = MarkerState.DISTANCE.set(this.markerState, true);
@@ -95,6 +99,9 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             byte b0 = BlockMarkerAdvanced.getMarkerDir(this.getBlockType(), this.getBlockMetadata());
             byte b1 = (byte) (this.getBlockType() == RTMMetroBlock.MARKER_ADVANCED_SWITCH ? 1 : 0);
             this.rp = new RailPosition(this.getPos().getX(), this.getPos().getY(), this.getPos().getZ(), b0, b1);
+            // 暂时露出橙色线，方便操作
+            this.rp.anchorLengthVertical = -2;
+            this.rp.anchorPitch = 45;
         }
 
         if (this.shouldUpdateClientLines) {
@@ -107,11 +114,11 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             }
             this.updateStartPos();
             if (!this.isCoreMarker()) {
-                if (this.getCoreMarker() != null) {
-                    if (this.getCoreMarker().task.hasProcessed()) {
-                        this.updatePrevData();
-                    }
-                }
+//                if (this.getCoreMarker() != null) {
+//                    if (this.getCoreMarker().task.hasProcessed()) {
+//                        this.updatePrevData();
+//                    }
+//                }
             }
             if (task.hasProcessed()) {
                 if (this.isCoreMarker() || this.getRailMaps() == null || this.getRailMaps().length < 1) {
@@ -123,13 +130,29 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     }
 
     private void updatePrevData() {
-        if (this.railMaps != null) {
-            this.prevRailMaps = this.railMaps.clone();
-        }
-
-        this.prevGrid = new ArrayList<>();
-        if (this.grid != null) {
-            this.prevGrid.addAll(this.grid);
+        try {
+            if (!this.isCoreMarker()) {
+                TileEntityMarkerAdvanced marker = this.getCoreMarker();
+                if (marker != null) {
+                    marker.updatePrevData();
+                }
+            } else {
+                for (BlockPos pos : this.markerPosList) {
+                    TileEntity te = BlockUtil.getTileEntity(this.getWorld(), pos);
+                    if (te instanceof TileEntityMarkerAdvanced) {
+                        TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) te;
+                        if (this.railMaps != null) {
+                            marker.prevRailMaps = this.railMaps.clone();
+                        }
+                        marker.prevGrid = new ArrayList<>();
+                        if (this.grid != null) {
+                            marker.prevGrid.addAll(this.grid);
+                        }
+                    }
+                }
+            }
+        } catch (NullPointerException e) {
+            ModLog.warn(e.toString()); // wtf
         }
     }
 
@@ -198,8 +221,8 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             for (BlockPos blockpos : this.markerPosList) {
                 TileEntity tileentity = BlockUtil.getTileEntity(this.getWorld(), blockpos);
                 if (tileentity instanceof TileEntityMarkerAdvanced) {
-                    TileEntityMarkerAdvanced TileEntityMarkerAdvanced1 = (TileEntityMarkerAdvanced) tileentity;
-                    TileEntityMarkerAdvanced1.railMaps = arailmap;
+                    TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) tileentity;
+                    marker.railMaps = arailmap;
                 }
             }
         }

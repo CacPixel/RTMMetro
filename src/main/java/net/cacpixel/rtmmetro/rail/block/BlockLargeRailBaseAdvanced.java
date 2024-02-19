@@ -26,12 +26,7 @@ public class BlockLargeRailBaseAdvanced extends BlockLargeRailBase {
         this.setResistance(6000001.0F);
         this.disableStats();
         this.setLightOpacity(0);
-        this.setSoundType(new SoundType(1.0F, 1.0F,
-                SoundEvents.BLOCK_ANVIL_DESTROY,
-                SoundEvents.BLOCK_STONE_STEP,
-                SoundEvents.BLOCK_METAL_PLACE,
-                SoundEvents.BLOCK_ANVIL_DESTROY,
-                SoundEvents.BLOCK_METAL_FALL));
+        this.setSoundType(SoundType.METAL);
         this.setAABB(new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, THICKNESS, 1.0F));
     }
 
