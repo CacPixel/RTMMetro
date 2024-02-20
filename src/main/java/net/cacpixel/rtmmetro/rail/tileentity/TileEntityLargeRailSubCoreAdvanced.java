@@ -24,13 +24,13 @@ public class TileEntityLargeRailSubCoreAdvanced extends TileEntityLargeRailNorma
 
     @Override
     public void update() {
-//        super.update(); // super.update()
-        if (this.isFirstLoad) {
-            this.isFirstLoad = false;
-            if (this.getWorld().isRemote) {
-                this.shouldRerenderRail = false;
-            }
-        }
+        super.update();
+//        if (this.isFirstLoad) {
+//            this.isFirstLoad = false;
+//            if (this.getWorld().isRemote) {
+//                this.shouldRerenderRail = false;
+//            }
+//        }
     }
 
     @Override

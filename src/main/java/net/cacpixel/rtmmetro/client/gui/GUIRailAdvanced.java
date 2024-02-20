@@ -40,11 +40,7 @@ public class GUIRailAdvanced extends GuiScreenCustom {
             default:
                 break;
         }
-        try {
-            super.actionPerformed(button);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        super.actionPerformed(button);
     }
 
     @Override
