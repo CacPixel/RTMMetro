@@ -8,6 +8,7 @@ import jp.ngt.rtm.item.ItemRail;
 import jp.ngt.rtm.rail.util.*;
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
+import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.cacpixel.rtmmetro.network.PacketMarkerRPServer;
 import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.util.*;
@@ -100,8 +101,8 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             byte b1 = (byte) (this.getBlockType() == RTMMetroBlock.MARKER_ADVANCED_SWITCH ? 1 : 0);
             this.rp = new RailPosition(this.getPos().getX(), this.getPos().getY(), this.getPos().getZ(), b0, b1);
             // 暂时露出橙色线，方便操作
-            this.rp.anchorLengthVertical = -2;
-            this.rp.anchorPitch = 45;
+//            this.rp.anchorLengthVertical = -2;
+//            this.rp.anchorPitch = 45;
         }
 
         if (this.shouldUpdateClientLines) {
@@ -245,9 +246,29 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
                 RailPosition railposition2 = this.getMarkerRP((BlockPos) list.get(0));
                 RailPosition railposition3 = this.getMarkerRP((BlockPos) list.get(1));
                 if (railposition2 != null && railposition3 != null) {
-                    RailMapAdvanced railmap1 = new RailMapAdvanced(railposition2, railposition3);
-                    this.railMaps = new RailMapAdvanced[]{railmap1};
+                    List<RailMapAdvanced> rms = new ArrayList<>();
+                    RailMapAdvanced originalRailMap = new RailMapAdvanced(railposition2, railposition3);
                     blockpos = new BlockPos(railposition2.blockX, railposition2.blockY, railposition2.blockZ);
+                    int split = 20;
+                    RailMapAdvanced next = originalRailMap;
+                    RailPosition[] rps;
+                    for(int i = 0; i < split; i++) {
+                        int length = (int) Math.floor(originalRailMap.getLength()) * 2;
+                        int order = length / split * (i + 1);
+//                    int order = length / 3;
+                        RailMapAdvanced railmap;
+                        if (i == split - 1) {
+                            railmap = next;
+                            rms.add(railmap);
+                        } else {
+                            rps = BezierCurveAdvanced.getSplitCurveRP(next, length, order);
+                            railmap = new RailMapAdvanced(rps[0], rps[1]);
+                            rms.add(railmap);
+                            next = new RailMapAdvanced(rps[2], rps[3]);
+                        }
+                    }
+                    this.railMaps = new RailMapAdvanced[split];
+                    rms.toArray(this.railMaps);
                 }
             }
         } else {

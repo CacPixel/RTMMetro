@@ -16,9 +16,11 @@ import jp.ngt.rtm.rail.util.RailMap;
 import jp.ngt.rtm.rail.util.RailPosition;
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
+import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.cacpixel.rtmmetro.network.PacketMarkerRPClient;
 import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
+import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
 import net.cacpixel.rtmmetro.util.WorldUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -32,6 +34,9 @@ import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEntityMarkerAdvanced> {
@@ -77,7 +82,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                 float f2 = (float) (railposition.posZ - (double) railposition.blockZ);
                 if (marker.getState(MarkerState.LINE1) && marker.getPrevRailMaps() != null && marker.getPrevRailMaps().length > 0) {
                     try {
-//                        if (marker.isCoreMarker()) {
+//                        if (marker.markerPosList.size() > 1) {
                         this.renderLine(marker, f, f1, f2);
 //                        }
                     } catch (Throwable e) {
@@ -213,31 +218,30 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
     }
 
     private void renderLine(TileEntityMarkerAdvanced marker, float x, float y, float z) {
-        // ArrayIndexOutOfBoundsException修复
-//        if (marker.linePos == null) {
+        List<RailMap> rms = new ArrayList<>();
         marker.linePos = new float[marker.getPrevRailMaps().length][][];
-
         for (int i = 0; i < marker.linePos.length; ++i) {
             RailMap railmap = marker.getPrevRailMaps()[i];
+            rms.add(railmap);
             RailPosition railposition = railmap.getStartRP();
-            if (marker.getMarkerRP().equals(railposition)) {
-                int j = (int) ((float) railmap.getLength() * 2.0F);
-                double[] adouble = railmap.getRailPos(j, 0);
-                double d0 = railmap.getRailHeight(j, 0);
-                float[][] afloat = new float[j + 1][5];
-                marker.linePos[i] = new float[j + 1][];
+//          if (marker.getMarkerRP().equals(railposition)) {
+            int j = (int) ((float) railmap.getLength() * 2.0F);
+            double[] adouble = railmap.getRailPos(j, 0);
+            double d0 = railmap.getRailHeight(j, 0);
+            float[][] afloat = new float[j + 1][5];
+            marker.linePos[i] = new float[j + 1][];
 
-                for (int l = 0; l < marker.linePos[i].length; ++l) {
-                    double[] adouble1 = railmap.getRailPos(j, l);
-                    marker.linePos[i][l] = new float[]{(float) (adouble1[1] - adouble[1]), (float) (railmap.getRailHeight(j, l) - d0), (float) (adouble1[0] - adouble[0])};
-                }
+            for (int l = 0; l < marker.linePos[i].length; ++l) {
+                double[] adouble1 = railmap.getRailPos(j, l);
+                marker.linePos[i][l] = new float[]{(float) (adouble1[1] - adouble[1]), (float) (railmap.getRailHeight(j, l) - d0), (float) (adouble1[0] - adouble[0])};
             }
-        }
 //        }
+        }
 
         GL11.glPushMatrix();
         GL11.glTranslatef(x, y, z);
         NGTTessellator ngttessellator = NGTTessellator.instance;
+        int[] color = new int[]{0x00F5FF, 0xFFD700, 0xFF6A6A, 0x00FF7F, 0xFFC1C1, 0xBA55D3, 0xDAA520, 0x3CB371};
         try {
             for (int i1 = 0; i1 < marker.linePos.length; ++i1) {
 //        for(int i1 = 0; i1 < marker.getPrevRailMaps().length; ++i1) {
@@ -249,13 +253,13 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                     float prevLineWidth = GL11.glGetFloat(GL11.GL_LINE_WIDTH);
                     GL11.glLineWidth(lineWidth);
 
-                    RailMap railmap1 = marker.getPrevRailMaps()[i1];
+                    RailMap railmap1 = rms.get(i1);
                     float f = (float) (railmap1.getStartRP().posX - marker.getMarkerRP().posX);
                     float f1 = (float) (railmap1.getStartRP().posY - marker.getMarkerRP().posY);
                     float f2 = (float) (railmap1.getStartRP().posZ - marker.getMarkerRP().posZ);
                     GL11.glTranslatef(f, f1, f2);
                     ngttessellator.startDrawing(3);
-                    ngttessellator.setColorOpaque_I(16384);
+                    ngttessellator.setColorOpaque_I(color[i1 % color.length]);
 
                     for (int k = 0; k < marker.linePos[i1].length; ++k) {
                         ngttessellator.addVertex(marker.linePos[i1][k][0], marker.linePos[i1][k][1], marker.linePos[i1][k][2]);

@@ -1,25 +1,21 @@
 package net.cacpixel.rtmmetro.math;
 
-import jp.ngt.ngtlib.io.NGTLog;
 import jp.ngt.ngtlib.math.ILine;
 import jp.ngt.ngtlib.math.LinePosPool;
 import jp.ngt.ngtlib.math.NGTMath;
 import jp.ngt.ngtlib.math.StraightLine;
-import jp.ngt.rtm.rail.util.RailMap;
-import jp.ngt.rtm.rail.util.RailMapBasic;
 import jp.ngt.rtm.rail.util.RailPosition;
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
 import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
 import net.cacpixel.rtmmetro.rail.util.construct.TaskInitNP;
 import net.cacpixel.rtmmetro.util.ModLog;
-import org.apache.logging.log4j.core.jackson.ListOfMapEntryDeserializer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public final class BezierCurveAdvanced implements ILine {
+public final class BezierCurveAdvanced implements ILineAdvanced {
     public static final int QUANTIZE = 32;
     public final double[] sp;
     public final double[] cpS;
@@ -94,31 +90,95 @@ public final class BezierCurveAdvanced implements ILine {
      */
     public static RailPosition[] getSplitCurveRP(ILine lineHorizontal, ILine lineVertical,
                                                  RailPosition startRP, RailPosition endRP, int length, int order) {
+        length *= QUANTIZE;
+        order *= QUANTIZE;
+        boolean isCornerOnly = lineHorizontal instanceof BezierCurveAdvanced;
         RailPosition[] result = new RailPosition[4];
         result[0] = cloneRP(startRP);
-        result[0].anchorLengthHorizontal /= 2;
-        result[0].anchorLengthVertical /= 2;
+        result[0].anchorLengthHorizontal *= ((float) order / (float) length);
+        result[0].anchorLengthVertical *= ((float) order / (float) length);
         result[3] = cloneRP(endRP);
-        result[3].anchorLengthHorizontal /= 2;
-        result[3].anchorLengthVertical /= 2;
+        result[3].anchorLengthHorizontal *= ((float) (length - order) / (float) length);
+        result[3].anchorLengthVertical *= ((float) (length - order) / (float) length);
 
         ILine[] horizontalCurves = splitCurve(lineHorizontal, length, order);
         ILine[] verticalCurves = splitCurve(lineVertical, length, order);
 
+        double px = lineHorizontal.getPoint(length, order)[1];
+        double py = lineVertical.getPoint(length, order)[1];
+        double pz = lineHorizontal.getPoint(length, order)[0];
+        List<double[]> acceptablePoints = getAcceptablePoint(lineHorizontal, 0.1);
+//        if (acceptablePoints.isEmpty()) {
+//            return new RailPosition[]{startRP, startRP, startRP, endRP};
+//        }
+        double[] point = null;
+        double minimumLength = lineHorizontal.getLength();
+        for (double[] p : acceptablePoints) {
+            if (getLength(p, lineHorizontal.getPoint(length, order)) > minimumLength) {
+                break;
+            }
+            point = p;
+            minimumLength = getLength(p, lineHorizontal.getPoint(length, order));
+        }
+        double[] point2 = lineHorizontal.getPoint(length, order);
+        if (point == null) {
+            return new RailPosition[]{startRP, startRP, startRP, endRP};
+        }
         // lineHorizontal的坐标数组[0]对应Z，[1]对应X
         // lineVertical的坐标数组[0]对应自0至两RailPositions坐标之间的直线距离中的某一点，[1]对应自startRP起上抬的坐标
-
-        result[1] = new RailPosition(
-                (int) Math.floor(lineHorizontal.getPoint(length, order - 1)[1]),
-                (int) Math.floor(lineVertical.getPoint(length, order - 1)[1]),
-                (int) Math.floor(lineHorizontal.getPoint(length, order - 1)[0]),
-                0, 0);
-        result[2] = new RailPosition(
-                (int) Math.floor(lineHorizontal.getPoint(length, order)[1]),
-                (int) Math.floor(lineVertical.getPoint(length, order)[1]),
-                (int) Math.floor(lineHorizontal.getPoint(length, order)[0]),
-                0, 0);
-
+        int realDir = getRPDirection(lineHorizontal.getPoint(length, order - 2*QUANTIZE), lineHorizontal.getPoint(length, order + 2*QUANTIZE), isCornerOnly);
+        double posX = point[1];
+        double posZ = point[0];
+        int blockX1 = (int) Math.floor(posX);
+        int blockZ1 = (int) Math.floor(posZ);
+        int direction1 = getRPDirection(blockX1, blockZ1, posX, posZ, isCornerOnly);
+        int direction2 = ((direction1 + 4) & 0x07);
+        int blockX2 = blockX1;
+        int blockZ2 = blockZ1;
+        switch (direction1) {
+        case 0:
+            blockZ2 -= 1;
+            break;
+        case 1:
+            blockX2 -= 1;
+            blockZ2 -= 1;
+            break;
+        case 2:
+            blockX2 -= 1;
+            break;
+        case 3:
+            blockX2 -= 1;
+            blockZ2 += 1;
+            break;
+        case 4:
+            blockZ2 += 1;
+            break;
+        case 5:
+            blockX2 += 1;
+            blockZ2 += 1;
+            break;
+        case 6:
+            blockX2 += 1;
+            break;
+        case 7:
+            blockX2 += 1;
+            blockZ2 -= 1;
+            break;
+        }
+        double posY = lineVertical.getPoint(length, order)[1] - 0.0625;
+        int blockY = (int) posY;
+        double pushUp = posY - Math.floor(posY);
+        if (realDir == direction1) {
+            result[1] = new RailPosition(blockX1, blockY, blockZ1, direction1, 0);
+            result[2] = new RailPosition(blockX2, blockY, blockZ2, direction2, 0);
+        } else {
+            result[2] = new RailPosition(blockX1, blockY, blockZ1, direction1, 0);
+            result[1] = new RailPosition(blockX2, blockY, blockZ2, direction2, 0);
+        }
+        result[1].addHeight(pushUp - Math.floor(pushUp));
+        result[2].addHeight(pushUp - Math.floor(pushUp));
+        result[1].init();
+        result[2].init();
         // splitPoint 被切开的点
         // endPoint 锚线，对应的贝塞尔曲线控制点，和splitPoint相同则为直线
         double[] splitPointH1;
@@ -131,14 +191,14 @@ public final class BezierCurveAdvanced implements ILine {
         double[] endPointV2;
 
         if (lineHorizontal instanceof BezierCurveAdvanced) {
-            splitPointH1 = lineHorizontal.getPoint(length, order);
+            splitPointH1 = point;
             endPointH1 = ((BezierCurveAdvanced) horizontalCurves[0]).cpE.clone();
-            splitPointH2 = lineHorizontal.getPoint(length, order);
+            splitPointH2 = point;
             endPointH2 = ((BezierCurveAdvanced) horizontalCurves[1]).cpS.clone();
         } else if (lineHorizontal instanceof StraightLine) {
-            splitPointH1 = lineHorizontal.getPoint(length, order);
+            splitPointH1 = point;
             endPointH1 = splitPointH1;
-            splitPointH2 = lineHorizontal.getPoint(length, order);
+            splitPointH2 = point;
             endPointH2 = splitPointH2;
         } else {
             return null;
@@ -157,30 +217,91 @@ public final class BezierCurveAdvanced implements ILine {
             return null;
         }
 
-        result[1].anchorLengthHorizontal = (float) getLength(splitPointH1, endPointH1) * 0.5522848F;
-        result[1].anchorYaw = getAngleD(swap(splitPointH1), swap(endPointH1));
+        result[1].anchorLengthHorizontal = (float) getLength(splitPointH1, endPointH1);
+        result[1].anchorYaw = getAngleD((splitPointH1), (endPointH1));
 
-        result[1].anchorLengthVertical = (float) getLength(splitPointV1, endPointV1) * 0.5522848F;
+        result[1].anchorLengthVertical = (float) getLength(splitPointV1, endPointV1);
         result[1].anchorPitch = Math.abs(getAngleD((splitPointV1), (endPointV1)));
         if (endPointV1[1] < splitPointV1[1]) {
             result[1].anchorPitch = -result[1].anchorPitch;
         }
 
-        result[2].anchorLengthHorizontal = (float) getLength(splitPointH2, endPointH2) * 0.5522848F;
-        result[2].anchorYaw = getAngleD(swap(splitPointH2), swap(endPointH2));
+        result[2].anchorLengthHorizontal = (float) getLength(splitPointH2, endPointH2);
+        result[2].anchorYaw = getAngleD((splitPointH2), (endPointH2));
 
-        result[2].anchorLengthVertical = (float) getLength(splitPointV2, endPointV2) * 0.5522848F;
+        result[2].anchorLengthVertical = (float) getLength(splitPointV2, endPointV2);
         result[2].anchorPitch = Math.abs(getAngleD((splitPointV2), (endPointV2)));
         if (endPointV2[1] < splitPointV2[1]) {
             result[1].anchorPitch = -result[1].anchorPitch;
         }
-
-        result[1].posX = result[2].posX = lineHorizontal.getPoint(length, order)[1];
-        result[1].posY = result[2].posY = lineVertical.getPoint(length, order)[1];
-        result[1].posZ = result[2].posZ = lineHorizontal.getPoint(length, order)[0];
-        double pushUp = lineVertical.getPoint(length, order)[1];
-        result[1].height = result[2].height = (byte) (Math.floor((pushUp - Math.floor(pushUp))) * 16);
         return result;
+    }
+
+    public static List<double[]> getAcceptablePoint(ILine line, double threshold) {
+        boolean isStraightLine = line instanceof StraightLine;
+        List<double[]> vecList = new ArrayList<>();
+        for (int i = 0; i < line.getLength() * QUANTIZE; i++) {
+            double[] point = line.getPoint((int) Math.floor(line.getLength() * QUANTIZE), i);
+            if (isStraightLine ? isPointAcceptable(point, threshold) : isPointAcceptableCorner(point, threshold)) {
+                vecList.add(point);
+            }
+        }
+        return vecList;
+    }
+
+    public static byte getRPDirection(int blockX, int blockZ, double posX, double posZ, boolean isCornerOnly) {
+        double xOffset = posX - blockX;
+        double zOffset = posZ - blockZ;
+        return getRPDirection(new double[]{0.5, 0.5}, new double[]{zOffset, xOffset}, isCornerOnly);
+    }
+
+    public static byte getRPDirection(double[] start, double[] end, boolean isCornerOnly) {
+        if (isCornerOnly) {
+            float angle = (float) NGTMath.normalizeAngle(getAngleD(start, end) + 180.0f);
+            return (byte) (Math.floor(angle / 90.0f) * 2 + 1);
+        } else {
+            float angle = (float) NGTMath.normalizeAngle(getAngleD(start, end) + 180.0f + 22.5f);
+            return (byte) Math.floor(angle / 45.0f);
+        }
+    }
+
+    public static boolean isPointAcceptable(double[] in, double threshold) {
+        double[] decimal = new double[]{in[0] - Math.floor(in[0]), in[1] - Math.floor(in[1])};
+        int[] result = new int[]{0, 0};
+        // 0 不支持
+        // 1 趋向于0
+        // 2 趋向于0.5
+        // 3 趋向于1
+        for (int i = 0; i < 2; i++) {
+            if (0.0 <= decimal[i] && decimal[i] <= threshold) {
+                result[i] = 1;
+            } else if (1.0 - threshold <= decimal[i] && decimal[i] <= 1.0) {
+                result[i] = 3;
+            } else if (0.5 - threshold <= decimal[i] && decimal[i] <= 0.5 + threshold) {
+                result[i] = 2;
+            }
+        }
+        if (result[0] == result[1] && result[0] == 2) {
+            return false; // 排除处在方块中心的情况
+        }
+        return (result[0] > 0 && result[1] > 0);
+    }
+
+    public static boolean isPointAcceptableCorner(double[] in, double threshold) {
+        double[] decimal = new double[]{in[0] - Math.floor(in[0]), in[1] - Math.floor(in[1])};
+        int[] result = new int[]{0, 0};
+        // 0 不支持
+        // 1 趋向于0
+        // 2 趋向于0.5
+        // 3 趋向于1
+        for (int i = 0; i < 2; i++) {
+            if (0.0 <= decimal[i] && decimal[i] <= threshold) {
+                result[i] = 1;
+            } else if (1.0 - threshold <= decimal[i] && decimal[i] <= 1.0) {
+                result[i] = 3;
+            }
+        }
+        return (result[0] > 0 && result[1] > 0);
     }
 
     public static double[] swap(double[] par1) {
@@ -196,10 +317,12 @@ public final class BezierCurveAdvanced implements ILine {
     }
 
     public static float getAngleD(double[] start, double[] end) {
-        if (Arrays.equals(start, end)) {
-            return 0.0f;
+        if (start[0] == end[0]) {
+            if (start[1] < end[1]) return 90.0f;
+            else if (start[1] > end[1]) return -90.0f;
+            else return 0.0f;
         } else {
-            return (float) NGTMath.getAngleD(start[0], start[1], end[0], end[1]);
+            return (float) NGTMath.toDegrees(Math.atan2(end[1] - start[1], end[0] - start[0]));
         }
     }
 
@@ -220,6 +343,7 @@ public final class BezierCurveAdvanced implements ILine {
         out.constLimitWN = in.constLimitWN;
         out.scriptName = in.scriptName;
         out.scriptArgs = in.scriptArgs;
+        out.init();
         return out;
     }
 

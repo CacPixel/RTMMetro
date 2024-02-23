@@ -79,13 +79,13 @@ public class BlockMarkerAdvanced extends BlockMarker {
     @Override
     public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
         switch (this.markerType) {
-            case STANDARD:
-                items.add(new ItemStack(this, 1, 0));
-                items.add(new ItemStack(this, 1, 4));
-                break;
-            case SWITCH:
-                items.add(new ItemStack(this, 1, 0));
-                items.add(new ItemStack(this, 1, 4));
+        case STANDARD:
+            items.add(new ItemStack(this, 1, 0));
+            items.add(new ItemStack(this, 1, 4));
+            break;
+        case SWITCH:
+            items.add(new ItemStack(this, 1, 0));
+            items.add(new ItemStack(this, 1, 4));
         }
 
     }
@@ -321,41 +321,69 @@ public class BlockMarkerAdvanced extends BlockMarker {
         RailMapAdvanced originalRailMap = new RailMapAdvanced(start, end);
         if (makeRail && originalRailMap.canPlaceRail(world, isCreative, prop)) {
             TileEntity tileEntity = world.getTileEntity(new BlockPos(start.blockX, start.blockY, start.blockZ));
-            int split;
+//            int split = Math.max((int) originalRailMap.getLength() / 50, 1);
+            int split = 2;
             if (tileEntity instanceof TileEntityMarkerAdvanced) {
                 TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) tileEntity;
-                split = Math.max(1, marker.splits);
+//                split = Math.max(1, marker.splits);
             } else {
                 return;
             }
+
+            List<RailPosition> rps2 = new ArrayList<>();
+            rps2.add(start);
+            rps2.add(end);
+            MarkerManager.getInstance().removeMarker(world, rps2);
+
+            // 是否应该遍历所有的RailPositions？
+            if (!world.isRemote) {
+                MarkerManager.sendPacket((TileEntityMarkerAdvanced) world.getTileEntity(new BlockPos(start.blockX, start.blockY, start.blockZ)), true);
+            }
+
             int orderMin = 10;
             int orderMax = (int) Math.floor(originalRailMap.getLength() - 10);
             List<RailMapAdvanced> rmList = new ArrayList<>();
-//        for (int i = 0; i < split; i++) {
-            int length = (int) Math.floor(originalRailMap.getLength()) * 2;
+            if (split == 1) {
+                createNormalRail(world, start, end, prop, makeRail, isCreative);
+                return;
+            }
+            RailMapAdvanced next = originalRailMap;
+            RailPosition[] rps;
+            int split1 = split;
+//            for (int i = 1; i < split; ++i) {
+            int length = (int) Math.floor(next.getLength()) * 2;
             int order = length / split;
-            RailPosition[] rps = BezierCurveAdvanced.getSplitCurveRP(originalRailMap, length, order);
-            createNormalRail(world, rps[0], rps[1], prop, makeRail, isCreative);
-            createNormalRail(world, rps[2], rps[3], prop, makeRail, isCreative);
-//        }
+//                int order = length / 3;
+
+            rps = BezierCurveAdvanced.getSplitCurveRP(next, length, order);
+//                if(split1 == 1) break;
+            next = new RailMapAdvanced(rps[2], rps[3]);
+            List<BlockPos> conflicts = new ArrayList<>();
+            conflicts.add(new BlockPos(rps[2].blockX, rps[2].blockY, rps[2].blockZ));
+            createNormalRail(world, rps[0], rps[1], prop, makeRail, isCreative, conflicts);
+//                if (next.getLength() < originalRailMap.getLength() / split) {
+//                    break;
+//                }
+//            }
+            createNormalRail(world, next.getStartRP(), next.getEndRP(), prop, makeRail, isCreative);
         } else {
             createNormalRail(world, start, end, prop, makeRail, isCreative);
         }
     }
 
     private static void createNormalRail(World world, RailPosition start, RailPosition end, ResourceStateRail prop, boolean makeRail, boolean isCreative) {
+        createNormalRail(world, start, end, prop, makeRail, isCreative, new ArrayList<>());
+    }
+
+    private static void createNormalRail(World world, RailPosition start, RailPosition end, ResourceStateRail prop, boolean makeRail, boolean isCreative, List<BlockPos> conflicts) {
         RailMapAdvanced rm = new RailMapAdvanced(start, end);
         if (makeRail && rm.canPlaceRail(world, isCreative, prop)) {
-            List<RailPosition> rps = new ArrayList<>();
-            rps.add(start);
-            rps.add(end);
-            MarkerManager.getInstance().removeMarker(world, rps);
-
-            // 是否应该遍历所有的RailPositions？
-            if (!world.isRemote)
-                MarkerManager.sendPacket((TileEntityMarkerAdvanced) world.getTileEntity(new BlockPos(start.blockX, start.blockY, start.blockZ)), true);
-
+            rm = new RailMapAdvanced(start, end);
             rm.setRail(world, RTMMetroBlock.LARGE_RAIL_BASE_ADVANCED, start.blockX, start.blockY, start.blockZ, prop);
+            for (BlockPos pos : conflicts) {
+                BlockUtil.setAir(world, pos.getX(), pos.getY(), pos.getZ());
+            }
+
             BlockUtil.setBlock(world, start.blockX, start.blockY, start.blockZ, RTMMetroBlock.LARGE_RAIL_MAINCORE_ADVANCED, 0, 3);
             TileEntityLargeRailMainCoreAdvanced mainCore = (TileEntityLargeRailMainCoreAdvanced) BlockUtil.getTileEntity(world, start.blockX, start.blockY, start.blockZ);
             mainCore.setRailPositions(new RailPosition[]{start, end});
@@ -363,7 +391,7 @@ public class BlockMarkerAdvanced extends BlockMarker {
             mainCore.setStartPoint(start.blockX, start.blockY, start.blockZ);
             mainCore.createRailMap();
             mainCore.sendPacket();
-            if (BlockUtil.getBlock(world, end.blockX, end.blockY, end.blockZ) instanceof BlockMarker) {
+            if (BlockUtil.getBlock(world, end.blockX, end.blockY, end.blockZ) instanceof BlockMarkerAdvanced) {
                 BlockUtil.setAir(world, end.blockX, end.blockY, end.blockZ);
             }
         } else {
