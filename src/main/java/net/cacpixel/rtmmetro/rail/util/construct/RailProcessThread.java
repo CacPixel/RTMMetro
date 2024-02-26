@@ -1,14 +1,9 @@
 package net.cacpixel.rtmmetro.rail.util.construct;
 
 import net.cacpixel.rtmmetro.ModConfig;
-import net.cacpixel.rtmmetro.RTMMetro;
-import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -17,7 +12,7 @@ public class RailProcessThread extends Thread {
     private boolean loop = true;
     private final RailConstructTaskQueue taskQueue = new RailConstructTaskQueue();
     private ExecutorService pool;
-    private List<Future<?>> futures = new ArrayList<>();
+//    private List<Future<?>> futures = new ArrayList<>();
 
     public RailProcessThread() {
         super("Rail Process Thread");
@@ -31,24 +26,22 @@ public class RailProcessThread extends Thread {
     }
 
     public void init() {
-        if ((ModConfig.threadsToConstructRails <= 0)) {
-            this.pool = Executors.newWorkStealingPool();
-        } else {
-            this.pool = Executors.newFixedThreadPool(Math.max(ModConfig.threadsToConstructRails, Runtime.getRuntime().availableProcessors()),
-                    new ThreadFactory() {
-                        private final AtomicInteger num = new AtomicInteger(1);
+        this.pool = Executors.newFixedThreadPool(ModConfig.threadsToConstructRails <= 0 ?
+                        Runtime.getRuntime().availableProcessors() * 2
+                        : Math.min(ModConfig.threadsToConstructRails, Runtime.getRuntime().availableProcessors() * 2),
+                new ThreadFactory() {
+                    private final AtomicInteger num = new AtomicInteger(1);
 
-                        @Override
-                        public Thread newThread(Runnable runnable) {
-                            ThreadGroup group = System.getSecurityManager().getThreadGroup();
-                            Thread thread = new Thread(group, runnable,
-                                    "Rail Construct Thread " + this.num.getAndIncrement());
-                            thread.setPriority(NORM_PRIORITY);
-                            thread.setDaemon(false);
-                            return thread;
-                        }
-                    });
-        }
+                    @Override
+                    public Thread newThread(Runnable runnable) {
+                        ThreadGroup group = System.getSecurityManager().getThreadGroup();
+                        Thread thread = new Thread(group, runnable,
+                                "Rail Construct Thread " + this.num.getAndIncrement());
+                        thread.setPriority(NORM_PRIORITY);
+                        thread.setDaemon(false);
+                        return thread;
+                    }
+                });
     }
 
     @Override
@@ -57,9 +50,9 @@ public class RailProcessThread extends Thread {
         while (this.loop) {
             RailConstructTask task = this.taskQueue.poll();
             if (task != null) {
-                this.futures.add(this.pool.submit(() -> {
+                this.pool.submit(() -> {
                     constructTask(task);
-                }));
+                });
             } else {
                 this.waitForTask();
             }

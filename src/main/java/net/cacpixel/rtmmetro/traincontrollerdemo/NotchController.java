@@ -21,7 +21,7 @@ public class NotchController extends Thread implements SerialPortEventListener, 
 
 
     public NotchController() {
-        this("COM9", 115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+        this("COM17", 115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
     }
 
     public NotchController(String portName, int baudRate, int dataBits, int stopBits, int parity) {

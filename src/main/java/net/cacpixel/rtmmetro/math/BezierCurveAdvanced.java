@@ -126,7 +126,7 @@ public final class BezierCurveAdvanced implements ILineAdvanced {
         }
         // lineHorizontal的坐标数组[0]对应Z，[1]对应X
         // lineVertical的坐标数组[0]对应自0至两RailPositions坐标之间的直线距离中的某一点，[1]对应自startRP起上抬的坐标
-        int realDir = getRPDirection(lineHorizontal.getPoint(length, order - 2*QUANTIZE), lineHorizontal.getPoint(length, order + 2*QUANTIZE), isCornerOnly);
+        int realDir = getRPDirection(lineHorizontal.getPoint(length, order - 2 * QUANTIZE), lineHorizontal.getPoint(length, order + 2 * QUANTIZE), isCornerOnly);
         double posX = point[1];
         double posZ = point[0];
         int blockX1 = (int) Math.floor(posX);

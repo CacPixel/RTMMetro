@@ -1,6 +1,5 @@
 package net.cacpixel.rtmmetro.math;
 
-import jp.ngt.ngtlib.math.ILine;
 import jp.ngt.ngtlib.math.LinePosPool;
 
 public class BezierCurve2ndOrder {

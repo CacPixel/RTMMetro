@@ -4,8 +4,6 @@ import jp.ngt.ngtlib.gui.GuiScreenCustom;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 
-import java.io.IOException;
-
 public class GUIRailAdvanced extends GuiScreenCustom {
 
     private static final int BUTTON_OK = 0;

@@ -1,35 +1,21 @@
 package net.cacpixel.rtmmetro.rail.util;
 
-import jp.ngt.ngtlib.block.BlockUtil;
-import jp.ngt.ngtlib.io.NGTLog;
-import jp.ngt.ngtlib.math.*;
+import jp.ngt.ngtlib.math.ILine;
+import jp.ngt.ngtlib.math.NGTMath;
+import jp.ngt.ngtlib.math.StraightLine;
+import jp.ngt.ngtlib.math.Vec3;
 import jp.ngt.rtm.modelpack.cfg.RailConfig;
 import jp.ngt.rtm.modelpack.modelset.ModelSetRail;
 import jp.ngt.rtm.modelpack.state.ResourceStateRail;
 import jp.ngt.rtm.rail.BlockLargeRailBase;
 import jp.ngt.rtm.rail.BlockMarker;
-import jp.ngt.rtm.rail.TileEntityLargeRailBase;
 import jp.ngt.rtm.rail.util.RailMapBasic;
 import jp.ngt.rtm.rail.util.RailPosition;
-import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
-import net.cacpixel.rtmmetro.rail.block.BlockLargeRailBaseAdvanced;
-import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
-import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
-import net.cacpixel.rtmmetro.rail.util.construct.TaskInitNP;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class RailMapAdvanced extends RailMapBasic {
 

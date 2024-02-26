@@ -1,6 +1,5 @@
 package net.cacpixel.rtmmetro.math;
 
-import jp.ngt.ngtlib.math.ILine;
 import jp.ngt.ngtlib.math.LinePosPool;
 import jp.ngt.ngtlib.math.NGTMath;
 import jp.ngt.ngtlib.math.StraightLine;

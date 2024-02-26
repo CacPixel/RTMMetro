@@ -2,7 +2,6 @@ package net.cacpixel.rtmmetro.rail.block;
 
 import jp.ngt.ngtlib.block.BlockArgHolder;
 import jp.ngt.ngtlib.block.BlockUtil;
-import jp.ngt.ngtlib.io.NGTLog;
 import jp.ngt.ngtlib.math.NGTMath;
 import jp.ngt.ngtlib.util.NGTUtilClient;
 import jp.ngt.ngtlib.util.PermissionManager;

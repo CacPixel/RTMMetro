@@ -1,10 +1,7 @@
 package net.cacpixel.rtmmetro.event;
 
-import jp.ngt.ngtlib.io.NGTLog;
-import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.rail.util.MarkerManager;
-import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;

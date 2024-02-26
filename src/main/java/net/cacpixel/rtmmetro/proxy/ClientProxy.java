@@ -4,7 +4,6 @@ import jp.ngt.ngtlib.util.NGTUtil;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.RTMMetroItems;
 import net.cacpixel.rtmmetro.rail.util.MarkerManager;
-import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 

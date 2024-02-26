@@ -11,7 +11,8 @@ import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.cacpixel.rtmmetro.network.PacketMarkerRPServer;
 import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
-import net.cacpixel.rtmmetro.rail.util.*;
+import net.cacpixel.rtmmetro.rail.util.MarkerManager;
+import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
 import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
 import net.cacpixel.rtmmetro.rail.util.construct.TaskInitNP;
 import net.cacpixel.rtmmetro.rail.util.construct.TaskMarkerUpdate;
@@ -23,9 +24,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITickable {

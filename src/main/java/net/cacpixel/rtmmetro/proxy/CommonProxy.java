@@ -1,7 +1,6 @@
 package net.cacpixel.rtmmetro.proxy;
 
 import net.cacpixel.rtmmetro.rail.util.MarkerManager;
-import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
 
 public class CommonProxy {
     private final MarkerManager mm = new MarkerManager(false);
