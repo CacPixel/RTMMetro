@@ -32,3 +32,4 @@ rxtx/build/gnu
 /src/main/resources/assets/ngtlib/
 /src/main/resources/assets/rtm/
 /build/
+/.profileconfig.json
