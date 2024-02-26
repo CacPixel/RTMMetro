@@ -415,29 +415,30 @@ public final class BezierCurveAdvanced implements ILineAdvanced {
     private void initNP() {
         this.normalizedParameters = new float[this.split];
         float f = 1.0F / (float) this.split;
-        float[] afloat = new float[this.split + 1];
+        float[] dd = new float[this.split + 1];
         float f1 = 0.0F;
         double[] adouble = this.sp;
         double[] adouble1 = new double[2];
-        afloat[0] = 0.0F;
+        dd[0] = 0.0F;
 
         for (int i = 1; i < this.split + 1; ++i) {
             f1 += f;
             adouble1 = this.getPointFromParameter((double) f1);
-            afloat[i] = afloat[i - 1] + (float) this.getDistance(adouble[0], adouble1[0], adouble[1], adouble1[1]);
+            dd[i] = dd[i - 1] + (float) this.getDistance(adouble[0], adouble1[0], adouble[1], adouble1[1]);
             adouble = adouble1;
         }
 
         for (int k = 1; k < this.split + 1; ++k) {
-            afloat[k] /= afloat[this.split];
+            dd[k] /= dd[this.split];
         }
 
         long start = System.currentTimeMillis();
-        if (split > ModConfig.multiThreadBezierCurveInitThreshold) {
+        // 算法已经优化过了，暂时分一个线程去计算
+        if (split > ModConfig.multiThreadBezierCurveInitThreshold * 100) {
             RailProcessThread thread = RailProcessThread.getInstance();
             int step = 100;
             for (int index = 0; index < this.split; index += step) {
-                TaskInitNP task = new TaskInitNP(this, afloat, index, (int) step);
+                TaskInitNP task = new TaskInitNP(this, dd, index, (int) step);
                 accelerateTasks.add(task);
                 thread.addTask(task);
             }
@@ -461,28 +462,63 @@ public final class BezierCurveAdvanced implements ILineAdvanced {
             }
             ModLog.debug("initNP MultiThread took " + (System.currentTimeMillis() - start) + "ms");
         } else {
-            for (int l = 0; l < this.split; ++l) {
-                float f2 = (float) l / (float) this.split;
-                int j = 0;
-                for (j = 0; j < this.split - 1 && (!(afloat[j] <= f2) || !(f2 <= afloat[j + 1])); ++j) {
+            for (int i = 0; i < this.split; ++i) {
+                float t = (float) i / (float) this.split;
+                int k = 0;
+                int searchMin = 0, searchMax = split - 1;
+                int loopTimes = 0;
+                // 二分法搜索
+                while (!(dd[k] <= t && t <= dd[k + 1])) {
+                    k = (searchMax - searchMin) / 2 + searchMin;
+                    // k in [0~half]
+                    if(dd[searchMin] <= t && t <= dd[k + 1]){
+                        searchMax = k;
+                    } else /* dd[k] <= t && t <= dd[searchMax] */ {
+                        searchMin = k;
+                    }
+
+                    if(++loopTimes >= split - 1)
+                        break;
                 }
-                float f3 = (f2 - afloat[j]) / (afloat[j + 1] - afloat[j]);
-                f3 = ((float) j * (1.0F - f3) + (float) (1 + j) * f3) * (1.0F / (float) this.split);
-                this.normalizedParameters[l] = f3;
+
+//                for (k = 0; k < split - 1; ++k) {
+//                    if (dd[k] <= t && t <= dd[k + 1]) break;
+//                }
+
+                float x = (t - dd[k]) / (dd[k + 1] - dd[k]);
+                x = ((float) k * (1.0F - x) + (float) (1 + k) * x) * (1.0F / (float) this.split);
+                this.normalizedParameters[i] = x;
             }
             ModLog.debug("initNP took " + (System.currentTimeMillis() - start) + "ms");
         }
     }
 
-    public void normalizeParams(float[] afloat, int index, int step) {
-        for (int l = index; (l < this.split && l < index + step); ++l) {
-            float f2 = (float) l / (float) this.split;
-            int j = 0;
-            for (j = 0; j < this.split - 1 && (!(afloat[j] <= f2) || !(f2 <= afloat[j + 1])); ++j) {
+    public void normalizeParams(float[] dd, int index, int step) {
+        for (int i = index; (i < this.split && i < index + step); ++i) {
+            float t = (float) i / (float) this.split;
+            int k = 0;
+            int searchMin = 0, searchMax = split - 1;
+            int loopTimes = 0;
+            while (!(dd[k] <= t && t <= dd[k + 1])) {
+                k = (searchMax - searchMin) / 2 + searchMin;
+                // k in [0~half]
+                if (dd[searchMin] <= t && t <= dd[k + 1]) {
+                    searchMax = k;
+                } else /* dd[k] <= t && t <= dd[searchMax] */ {
+                    searchMin = k;
+                }
+
+                if (++loopTimes >= split - 1)
+                    break;
             }
-            float f3 = (f2 - afloat[j]) / (afloat[j + 1] - afloat[j]);
-            f3 = ((float) j * (1.0F - f3) + (float) (1 + j) * f3) * (1.0F / (float) this.split);
-            this.normalizedParameters[l] = f3;
+
+//            for (k = 0; k < split - 1; ++k) {
+//                if (dd[k] <= t && t <= dd[k + 1]) break;
+//            }
+
+            float x = (t - dd[k]) / (dd[k + 1] - dd[k]);
+            x = ((float) k * (1.0F - x) + (float) (1 + k) * x) * (1.0F / (float) this.split);
+            this.normalizedParameters[i] = x;
         }
     }
 
