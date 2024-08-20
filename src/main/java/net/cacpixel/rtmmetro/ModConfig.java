@@ -6,9 +6,9 @@ public class ModConfig {
     public static boolean useFastMarkerSearchMethod = true;
     public static boolean useModernMarkerSortMethod = true;
 
-    /* 0 (<= 0) - All threads, N = Math.max(N, Runtime.getRuntime().availableProcessors()) - N threads */
+    /* 0 (<= 0) - All threads, N = Math.max(N, Runtime.getRuntime().availableProcessors() * 2) - N threads */
     public static int threadsToConstructRails = 24;
     public static int multiThreadBezierCurveInitThreshold = 8192;
-    public static boolean showDebugMessages = false;
+    public static boolean showDebugMessages = true;
 
 }

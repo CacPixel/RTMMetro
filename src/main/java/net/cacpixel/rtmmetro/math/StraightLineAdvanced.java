@@ -33,9 +33,17 @@ public class StraightLineAdvanced implements ILineAdvanced {
         this.slopeAngle = Math.atan2(dy, dx);
     }
 
+    public ILineAdvanced[] split(int length, int order) {
+        double[] splitPoint = this.getPoint(length, order);
+        StraightLineAdvanced[] result = new StraightLineAdvanced[2];
+        result[0] = new StraightLineAdvanced(this.startX, this.startY, splitPoint[0], splitPoint[1]);
+        result[1] = new StraightLineAdvanced(splitPoint[0], splitPoint[1], this.endX, this.endY);
+        return result;
+    }
+
     public double[] getPoint(int par1, int par2) {
         int i0 = par2 < 0 ? 0 : (par2 > par1 ? par1 : par2);
-        double d0 = (double)i0 / (double)par1;
+        double d0 = (double) i0 / (double) par1;
         double x = this.startX + (this.endX - this.startX) * d0;
         double y = this.startY + (this.endY - this.startY) * d0;
         return LinePosPool.get(x, y);
@@ -52,7 +60,7 @@ public class StraightLineAdvanced implements ILineAdvanced {
             t = (x0 - this.startX) / (this.endX - this.startX);
         }
 
-        return NGTMath.floor(t * (double)par1);
+        return NGTMath.floor(t * (double) par1);
     }
 
     public double getSlope(int par1, int par2) {
@@ -67,12 +75,24 @@ public class StraightLineAdvanced implements ILineAdvanced {
         if (!(obj instanceof StraightLine)) {
             return false;
         } else {
-            StraightLine line = (StraightLine)obj;
+            StraightLine line = (StraightLine) obj;
             return this.startX == line.startX && this.startY == line.startY && this.endX == line.endX && this.endY == line.endY;
         }
     }
 
     public int hashCode() {
         return NGTMath.floor(this.length);
+    }
+
+    public float getHomogenizedParameter(int n, int par2) {
+        if (n < 4) {
+            return 0.0F;
+        } else if (par2 <= 0) {
+            return 0.0F;
+        } else if (par2 >= n) {
+            return 1.0F;
+        } else {
+            return (float) par2 / (float) n;
+        }
     }
 }

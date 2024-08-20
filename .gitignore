@@ -33,3 +33,4 @@ rxtx/build/gnu
 /src/main/resources/assets/rtm/
 /build/
 /.profileconfig.json
+/libs/

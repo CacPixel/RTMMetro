@@ -2,21 +2,17 @@ package net.cacpixel.rtmmetro.rail.tileentity;
 
 import jp.ngt.ngtlib.block.BlockUtil;
 import jp.ngt.ngtlib.block.TileEntityCustom;
+import jp.ngt.ngtlib.io.NGTLog;
 import jp.ngt.rtm.gui.InternalButton;
 import jp.ngt.rtm.gui.InternalGUI;
 import jp.ngt.rtm.item.ItemRail;
 import jp.ngt.rtm.rail.util.*;
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
-import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.cacpixel.rtmmetro.network.PacketMarkerRPServer;
 import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.util.MarkerManager;
 import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
-import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
-import net.cacpixel.rtmmetro.rail.util.construct.TaskInitNP;
-import net.cacpixel.rtmmetro.rail.util.construct.TaskMarkerUpdate;
-import net.cacpixel.rtmmetro.util.ModLog;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
@@ -32,9 +28,9 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     private static final int SEARCH_COUNT = 40;
     public RailPosition rp;
     public BlockPos startPos;
-    private RailMap[] railMaps, prevRailMaps;
+    private RailMap[] railMaps;
     public List<BlockPos> markerPosList = new ArrayList();
-    private List<int[]> grid, prevGrid;
+    private List<int[]> grid;
     public float startPlayerPitch;
     public float startPlayerYaw;
     public byte startMarkerHeight;
@@ -48,9 +44,6 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     public float[][][] linePos;
     private int count;
     public boolean shouldUpdateClientLines = false; // 其他玩家修改了Line后置true，发送数据包给所有玩家更新Line
-    public RailProcessThread processor;
-    public TaskMarkerUpdate task = new TaskMarkerUpdate(this);
-    public TaskInitNP[] gridTasks;
     public int splits = 2;
 
     public TileEntityMarkerAdvanced() {
@@ -109,50 +102,12 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         }
 
         if (this.getWorld().isRemote) {
-            if (processor == null) {
-                processor = RailProcessThread.getInstance();
-            }
             this.updateStartPos();
-            if (!this.isCoreMarker()) {
-//                if (this.getCoreMarker() != null) {
-//                    if (this.getCoreMarker().task.hasProcessed()) {
-//                        this.updatePrevData();
-//                    }
-//                }
-            }
-            if (task.hasProcessed()) {
-                if (this.isCoreMarker() || this.getRailMaps() == null || this.getRailMaps().length < 1) {
-                    this.updatePrevData();
-                    this.processor.addTask(this.task);
-                }
-            }
-        }
-    }
 
-    private void updatePrevData() {
-        try {
-            if (!this.isCoreMarker()) {
-                TileEntityMarkerAdvanced marker = this.getCoreMarker();
-                if (marker != null) {
-                    marker.updatePrevData();
-                }
-            } else {
-                for (BlockPos pos : this.markerPosList) {
-                    TileEntity te = BlockUtil.getTileEntity(this.getWorld(), pos);
-                    if (te instanceof TileEntityMarkerAdvanced) {
-                        TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) te;
-                        if (this.railMaps != null) {
-                            marker.prevRailMaps = this.railMaps.clone();
-                        }
-                        marker.prevGrid = new ArrayList<>();
-                        if (this.grid != null) {
-                            marker.prevGrid.addAll(this.grid);
-                        }
-                    }
-                }
+            if (this.isCoreMarker() || this.getRailMaps() == null || this.getRailMaps().length < 1) {
+                this.searchOtherMarkers();
+                this.onChangeRailShape();
             }
-        } catch (NullPointerException e) {
-            ModLog.warn(e.toString()); // wtf
         }
     }
 
@@ -186,16 +141,8 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         return this.grid;
     }
 
-    public List<int[]> getPrevGrid() {
-        return this.prevGrid;
-    }
-
     public RailMap[] getRailMaps() {
         return this.railMaps;
-    }
-
-    public RailMap[] getPrevRailMaps() {
-        return this.prevRailMaps;
     }
 
     public void onChangeRailShape() {
@@ -205,25 +152,28 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
                 TileEntityMarkerAdvanced.onChangeRailShape();
             }
         } else {
-            RailMap[] arailmap = new RailMapAdvanced[this.railMaps.length];
+            try {
+                RailMap[] arailmap = new RailMapAdvanced[this.railMaps.length];
 
-            for (int i = 0; i < arailmap.length; ++i) {
-                RailPosition railposition = this.railMaps[i].getStartRP();
-                RailPosition railposition1 = this.railMaps[i].getEndRP();
-                railposition1.cantCenter = -railposition.cantCenter;
-                arailmap[i] = new RailMapAdvanced(railposition, railposition1);
-            }
-
-            this.railMaps = arailmap;
-//            this.linePos = (float[][][]) null;
-            this.createGrids();
-
-            for (BlockPos blockpos : this.markerPosList) {
-                TileEntity tileentity = BlockUtil.getTileEntity(this.getWorld(), blockpos);
-                if (tileentity instanceof TileEntityMarkerAdvanced) {
-                    TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) tileentity;
-                    marker.railMaps = arailmap;
+                for (int i = 0; i < arailmap.length; ++i) {
+                    RailPosition railposition = this.railMaps[i].getStartRP();
+                    RailPosition railposition1 = this.railMaps[i].getEndRP();
+                    railposition1.cantCenter = -railposition.cantCenter;
+                    arailmap[i] = new RailMapAdvanced(railposition, railposition1);
                 }
+                this.railMaps = arailmap;
+//            this.linePos = (float[][][]) null;
+                this.createGrids();
+
+                for (BlockPos blockpos : this.markerPosList) {
+                    TileEntity tileentity = BlockUtil.getTileEntity(this.getWorld(), blockpos);
+                    if (tileentity instanceof TileEntityMarkerAdvanced) {
+                        TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) tileentity;
+                        marker.railMaps = arailmap;
+                    }
+                }
+            } catch (NullPointerException e) {
+                e.printStackTrace();
             }
         }
 
@@ -248,25 +198,31 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
                     List<RailMapAdvanced> rms = new ArrayList<>();
                     RailMapAdvanced originalRailMap = new RailMapAdvanced(railposition2, railposition3);
                     blockpos = new BlockPos(railposition2.blockX, railposition2.blockY, railposition2.blockZ);
-                    int split = 20;
+                    int split = 2;
                     RailMapAdvanced next = originalRailMap;
-                    RailPosition[] rps;
-                    for(int i = 0; i < split; i++) {
-                        int length = (int) Math.floor(originalRailMap.getLength()) * 2;
+                    int length = (int) Math.floor(originalRailMap.getLength()) * 2;
+                    for (int i = 0; i < split; i++) {
                         int order = length / split * (i + 1);
-//                    int order = length / 3;
                         RailMapAdvanced railmap;
                         if (i == split - 1) {
-                            railmap = next;
-                            rms.add(railmap);
+                            rms.add(next);
+                            break;
                         } else {
-                            rps = BezierCurveAdvanced.getSplitCurveRP(next, length, order);
-                            railmap = new RailMapAdvanced(rps[0], rps[1]);
+                            List<RailMapAdvanced> railMaps = next.split(length, order);
+                            if (railMaps.size() == 1) {
+                                rms.add(next);
+                                break;
+                            }
+                            railmap = railMaps.get(0);
+                            try {
+                                next = railMaps.get(1);
+                            } catch (ArrayIndexOutOfBoundsException e){
+                                e.printStackTrace();
+                            }
                             rms.add(railmap);
-                            next = new RailMapAdvanced(rps[2], rps[3]);
                         }
                     }
-                    this.railMaps = new RailMapAdvanced[split];
+                    this.railMaps = new RailMapAdvanced[rms.size()];
                     rms.toArray(this.railMaps);
                 }
             }
@@ -312,11 +268,13 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     private void createGrids() {
         this.grid = new ArrayList<>();
         try {
+            NGTLog.startTimer();
             for (RailMap railmap : this.railMaps) {
                 this.grid.addAll(((RailMapAdvanced) railmap).getRailBlockList(ItemRail.getDefaultProperty(), true));
             }
+            NGTLog.stopTimer("addRailBlock");
         } catch (NullPointerException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
     }
 

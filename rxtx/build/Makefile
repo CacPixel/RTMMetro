@@ -75,7 +75,7 @@
 SRC=../src
 
 # path to the jdk directory that has include, bin, lib, ... Unix style path
-JDKHOME=D:\Program Files\Java\jdk1.8.0_131
+JDKHOME=D:\Program Files\Java\jdk1.8.0_202
 
 #path to mingw32
 MINGHOME=D:\Chocolatey\lib\mingw\tools\install\mingw64
@@ -107,9 +107,9 @@ DLLTOOL=dlltool
 DLLWRAP=dllwrap
 
 CLASSPATH=-classpath ".;C:\jdk13\lib\RXTXcomm.jar;c:\BlackBox.jar;$(JDKHOME)\lib\classes.zip;$(JDKHOME)\jre\lib\rt.jar"
-JAVAH=javah $(CLASSPATH)
-JAR=jar 
-JAVAC=$(JDKHOME)\bin\javac -source 1.2 -target 1.2 -g $(CLASSPATH)
+JAVAH="$(JDKHOME)\bin\javah" $(CLASSPATH)
+JAR="$(JDKHOME)\bin\jar"
+JAVAC="$(JDKHOME)\bin\javac" -source 1.2 -target 1.2 -g $(CLASSPATH)
 #JAVAC=$(JDKHOME)\bin\javac -g $(CLASSPATH)
 
 

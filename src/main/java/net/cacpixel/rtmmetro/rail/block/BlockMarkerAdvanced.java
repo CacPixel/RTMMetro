@@ -18,7 +18,6 @@ import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.RTMMetroItems;
 import net.cacpixel.rtmmetro.items.ItemRailAdvanced;
-import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityLargeRailMainCoreAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityLargeRailSwitchCoreAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
@@ -78,13 +77,13 @@ public class BlockMarkerAdvanced extends BlockMarker {
     @Override
     public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
         switch (this.markerType) {
-        case STANDARD:
-            items.add(new ItemStack(this, 1, 0));
-            items.add(new ItemStack(this, 1, 4));
-            break;
-        case SWITCH:
-            items.add(new ItemStack(this, 1, 0));
-            items.add(new ItemStack(this, 1, 4));
+            case STANDARD:
+                items.add(new ItemStack(this, 1, 0));
+                items.add(new ItemStack(this, 1, 4));
+                break;
+            case SWITCH:
+                items.add(new ItemStack(this, 1, 0));
+                items.add(new ItemStack(this, 1, 4));
         }
 
     }
@@ -320,15 +319,6 @@ public class BlockMarkerAdvanced extends BlockMarker {
         RailMapAdvanced originalRailMap = new RailMapAdvanced(start, end);
         if (makeRail && originalRailMap.canPlaceRail(world, isCreative, prop)) {
             TileEntity tileEntity = world.getTileEntity(new BlockPos(start.blockX, start.blockY, start.blockZ));
-//            int split = Math.max((int) originalRailMap.getLength() / 50, 1);
-            int split = 2;
-            if (tileEntity instanceof TileEntityMarkerAdvanced) {
-                TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) tileEntity;
-//                split = Math.max(1, marker.splits);
-            } else {
-                return;
-            }
-
             List<RailPosition> rps2 = new ArrayList<>();
             rps2.add(start);
             rps2.add(end);
@@ -339,32 +329,38 @@ public class BlockMarkerAdvanced extends BlockMarker {
                 MarkerManager.sendPacket((TileEntityMarkerAdvanced) world.getTileEntity(new BlockPos(start.blockX, start.blockY, start.blockZ)), true);
             }
 
-            int orderMin = 10;
-            int orderMax = (int) Math.floor(originalRailMap.getLength() - 10);
-            List<RailMapAdvanced> rmList = new ArrayList<>();
-            if (split == 1) {
-                createNormalRail(world, start, end, prop, makeRail, isCreative);
+//            int split = Math.max((int) originalRailMap.getLength() / 50, 1);
+            int split = 2;
+            if (tileEntity instanceof TileEntityMarkerAdvanced) {
+                TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) tileEntity;
+//                split = Math.max(1, marker.splits);
+            } else {
                 return;
             }
-            RailMapAdvanced next = originalRailMap;
-            RailPosition[] rps;
-            int split1 = split;
-//            for (int i = 1; i < split; ++i) {
-            int length = (int) Math.floor(next.getLength()) * 2;
-            int order = length / split;
-//                int order = length / 3;
 
-            rps = BezierCurveAdvanced.getSplitCurveRP(next, length, order);
-//                if(split1 == 1) break;
-            next = new RailMapAdvanced(rps[2], rps[3]);
-            List<BlockPos> conflicts = new ArrayList<>();
-            conflicts.add(new BlockPos(rps[2].blockX, rps[2].blockY, rps[2].blockZ));
-            createNormalRail(world, rps[0], rps[1], prop, makeRail, isCreative, conflicts);
-//                if (next.getLength() < originalRailMap.getLength() / split) {
-//                    break;
-//                }
-//            }
-            createNormalRail(world, next.getStartRP(), next.getEndRP(), prop, makeRail, isCreative);
+            List<RailMapAdvanced> rms = new ArrayList<>();
+            RailMapAdvanced next = originalRailMap;
+            int length = (int) Math.floor(originalRailMap.getLength()) * 2;
+            for (int i = 0; i < split; i++) {
+                int order = length / split * (i + 1);
+                RailMapAdvanced railmap;
+                if (i == split - 1) {
+                    rms.add(next);
+                    break;
+                } else {
+                    List<RailMapAdvanced> railMaps = next.split(length, order);
+                    if (railMaps.size() == 1) {
+                        rms.add(next);
+                        break;
+                    }
+                    railmap = railMaps.get(0);
+                    next = railMaps.get(1);
+                    rms.add(railmap);
+                }
+            }
+            for (RailMapAdvanced railmap : rms) {
+                createNormalRail(world, railmap.getStartRP(), railmap.getEndRP(), prop, makeRail, isCreative);
+            }
         } else {
             createNormalRail(world, start, end, prop, makeRail, isCreative);
         }
@@ -374,7 +370,8 @@ public class BlockMarkerAdvanced extends BlockMarker {
         createNormalRail(world, start, end, prop, makeRail, isCreative, new ArrayList<>());
     }
 
-    private static void createNormalRail(World world, RailPosition start, RailPosition end, ResourceStateRail prop, boolean makeRail, boolean isCreative, List<BlockPos> conflicts) {
+    private static void createNormalRail(World world, RailPosition start, RailPosition end, ResourceStateRail prop, boolean makeRail, boolean isCreative,
+                                         List<BlockPos> conflicts) {
         RailMapAdvanced rm = new RailMapAdvanced(start, end);
         if (makeRail && rm.canPlaceRail(world, isCreative, prop)) {
             rm = new RailMapAdvanced(start, end);

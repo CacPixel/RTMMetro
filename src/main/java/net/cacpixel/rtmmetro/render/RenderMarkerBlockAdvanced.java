@@ -78,7 +78,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                 float f = (float) (railposition.posX - (double) railposition.blockX);
                 float f1 = (float) (railposition.posY - (double) railposition.blockY);
                 float f2 = (float) (railposition.posZ - (double) railposition.blockZ);
-                if (marker.getState(MarkerState.LINE1) && marker.getPrevRailMaps() != null && marker.getPrevRailMaps().length > 0) {
+                if (marker.getState(MarkerState.LINE1) && marker.getRailMaps() != null && marker.getRailMaps().length > 0) {
                     try {
 //                        if (marker.markerPosList.size() > 1) {
                         this.renderLine(marker, f, f1, f2);
@@ -88,7 +88,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                     }
                 }
 
-                if (marker.getCoreMarker() != null && marker.getPrevRailMaps() != null && marker.getPrevRailMaps().length > 0) {
+                if (marker.getCoreMarker() != null && marker.getRailMaps() != null && marker.getRailMaps().length > 0) {
                     this.renderAnchor(marker, f, f1, f2);
                 }
             }
@@ -158,7 +158,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
         NGTTessellator ngttessellator = NGTTessellator.instance;
         ngttessellator.startDrawing(1);
         ngttessellator.setColorOpaque_I(0);
-        for (int[] aint : marker.getPrevGrid()) {
+        for (int[] aint : marker.getGrid()) {
             BlockPos blockpos = marker.getPos();
             NGTRenderer.addFrame(ngttessellator, (float) (aint[0] - blockpos.getX()), (float) (aint[1] - blockpos.getY()), (float) (aint[2] - blockpos.getZ()), 1.0F, 1.0F, 1.0F);
         }
@@ -217,11 +217,13 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
 
     private void renderLine(TileEntityMarkerAdvanced marker, float x, float y, float z) {
         List<RailMap> rms = new ArrayList<>();
-        marker.linePos = new float[marker.getPrevRailMaps().length][][];
+        marker.linePos = new float[marker.getRailMaps().length][][];
         for (int i = 0; i < marker.linePos.length; ++i) {
-            RailMap railmap = marker.getPrevRailMaps()[i];
+            RailMap railmap = marker.getRailMaps()[i];
+            if(railmap == null)
+                return;
             rms.add(railmap);
-            RailPosition railposition = railmap.getStartRP();
+//            RailPosition railposition = railmap.getStartRP();
 //          if (marker.getMarkerRP().equals(railposition)) {
             int j = (int) ((float) railmap.getLength() * 2.0F);
             double[] adouble = railmap.getRailPos(j, 0);
@@ -382,8 +384,13 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
             renderLine(0.0F, 0.0F, 0.0F, -f3, 0.0F, 0.0F, i1);
             GL11.glPopMatrix();
             GL11.glPushMatrix();
-            if (marker.isCoreMarker() && marker.getPrevRailMaps() != null && marker.getPrevRailMaps().length == 1) {
-                RailMap railmap = marker.getPrevRailMaps()[0];
+            if (marker.isCoreMarker() && marker.getRailMaps() != null && marker.getRailMaps().length == 1) {
+                RailMap railmap = marker.getRailMaps()[0];
+                if (railmap == null){
+                    GL11.glPopMatrix();
+                    GL11.glPopMatrix();
+                    return MarkerElement.NONE;
+                }
                 int k = (int) ((float) railmap.getLength() * 2.0F);
                 int l = k / 2;
                 double[] adouble = railmap.getRailPos(k, 0);
@@ -506,7 +513,8 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
             }
 
             if (marker.getState(MarkerState.LINE2)) {
-                RailMap railmap = marker.getPrevRailMaps()[0];  // ArrayIndexOutOfBoundsException
+                RailMap railmap = marker.getRailMaps()[0];  // ArrayIndexOutOfBoundsException
+                if(railmap == null) return false;
                 if (element == MarkerElement.CONST_LIMIT_HP) {
                     float f10 = 3.0F + -pitch / 10.0F;
                     f10 = f10 < 1.9F ? 1.9F : f10;
@@ -607,13 +615,16 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
     }
 
     private RailPosition getOppositeRail(TileEntityMarkerAdvanced tileEntity) {
-        if (tileEntity.getPrevRailMaps() == null) {
+        if (tileEntity.getRailMaps() == null) {
             return null;
         } else {
             RailPosition railposition = tileEntity.getMarkerRP();
             RailPosition railposition1 = null;
 
-            for (RailMap railmap : tileEntity.getPrevRailMaps()) {
+            for (RailMap railmap : tileEntity.getRailMaps()) {
+                if(railmap == null){
+                    return null;
+                }
                 if (railmap.getStartRP().equals(railposition)) {
                     railposition1 = railmap.getEndRP();
                     break;
