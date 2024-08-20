@@ -2,9 +2,7 @@ package net.cacpixel.rtmmetro.math;
 
 import jp.ngt.ngtlib.math.LinePosPool;
 import jp.ngt.ngtlib.math.NGTMath;
-import net.cacpixel.rtmmetro.ModConfig;
-import net.cacpixel.rtmmetro.rail.util.construct.RailProcessThread;
-import net.cacpixel.rtmmetro.rail.util.construct.TaskInitNP;
+import net.cacpixel.rtmmetro.rail.util.construct.InitNPTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +16,7 @@ public final class BezierCurveAdvanced implements ILineAdvanced {
     private float[] normalizedParameters;
     private final double length;
     private final int split;
-    private final List<TaskInitNP> accelerateTasks = new ArrayList<>();
+    private final List<InitNPTask> accelerateTasks = new ArrayList<>();
 
     public BezierCurveAdvanced(double p1, double p2, double p3, double p4, double p5, double p6, double p7, double p8) {
         this(new double[]{p1, p2}, new double[]{p3, p4}, new double[]{p5, p6}, new double[]{p7, p8});
@@ -71,14 +69,12 @@ public final class BezierCurveAdvanced implements ILineAdvanced {
     public int getNearlestPoint(int length, double x, double z) {
         int i = 0;
         double pd = Double.MAX_VALUE;
-        for(int j = 0; j < length; ++j)
-        {
+        for (int j = 0; j < length; ++j) {
             double[] point = this.getPoint(length, j);
             double dx = x - point[1];
             double dz = z - point[0];
             double distance = (dx * dx) + (dz * dz);
-            if(distance < pd)
-            {
+            if (distance < pd) {
                 pd = distance;
                 i = j;
             }
@@ -141,40 +137,8 @@ public final class BezierCurveAdvanced implements ILineAdvanced {
             dd[k] /= dd[this.split];
         }
 
-        long start = System.currentTimeMillis();
+        this.normalizeParams(dd, 0, this.split);
 
-        if (split > ModConfig.multiThreadBezierCurveInitThreshold * 10) {
-            RailProcessThread thread = RailProcessThread.getInstance();
-            // 算法已经优化过了，暂时分一个线程去计算
-            int step = this.split;
-            for (int index = 0; index < this.split; index += step) {
-                TaskInitNP task = new TaskInitNP(this, dd, index, (int) step);
-                accelerateTasks.add(task);
-                thread.addTask(task);
-            }
-            while (true) {
-                boolean shouldQuit = true;
-                for (int i = accelerateTasks.size() - 1; i >= 0; i--) {
-                    TaskInitNP task = accelerateTasks.get(i);
-                    if (!task.hasProcessed()) {
-                        shouldQuit = false;
-                        break;
-                    }
-                }
-                if (shouldQuit) {
-                    break;
-                }
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-//            ModLog.debug("initNP MultiThread took " + (System.currentTimeMillis() - start) + "ms");
-        } else {
-            this.normalizeParams(dd, 0, this.split);
-//            ModLog.debug("initNP took " + (System.currentTimeMillis() - start) + "ms");
-        }
     }
 
     public void normalizeParams(float[] dd, int index, int step) {
@@ -195,10 +159,6 @@ public final class BezierCurveAdvanced implements ILineAdvanced {
                 if (++loopTimes >= split - 1)
                     break;
             }
-
-//            for (k = 0; k < split - 1; ++k) {
-//                if (dd[k] <= t && t <= dd[k + 1]) break;
-//            }
 
             float x = (t - dd[k]) / (dd[k + 1] - dd[k]);
             x = ((float) k * (1.0F - x) + (float) (1 + k) * x) * (1.0F / (float) this.split);

@@ -1,25 +1,27 @@
 package net.cacpixel.rtmmetro.rail.util.construct;
 
 import net.cacpixel.rtmmetro.ModConfig;
+import net.cacpixel.rtmmetro.util.ModLog;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class RailProcessThread extends Thread {
-    private static final RailProcessThread INSTANCE = new RailProcessThread();
+public class TaskLoopThread extends Thread {
+    private static final TaskLoopThread INSTANCE = new TaskLoopThread();
     private boolean loop = true;
-    private final RailConstructTaskQueue taskQueue = new RailConstructTaskQueue();
+    private final ConcurrentLinkedQueue<RailConstructTask> taskQueue = new ConcurrentLinkedQueue<>();
     private ExecutorService pool;
-//    private List<Future<?>> futures = new ArrayList<>();
 
-    public RailProcessThread() {
-        super("Rail Process Thread");
+    public TaskLoopThread() {
+        super("TaskLoopThread");
     }
 
-    public static RailProcessThread getInstance() {
+    public static TaskLoopThread getInstance() {
         if (!INSTANCE.isAlive()) {
+            INSTANCE.loop = true;
             INSTANCE.start();
         }
         return INSTANCE;
@@ -61,37 +63,38 @@ public class RailProcessThread extends Thread {
 
     public void waitForTask() {
         try {
-            Thread.sleep(10);
+            this.join();
+            ModLog.info("Waiting for tasks...");
         } catch (InterruptedException ignored) {
-            ;
+            ModLog.info("Task start Running...");
         }
     }
 
     public static void constructTask(RailConstructTask task) {
         try {
-            task.processed = false;
             task.runTask();
         } catch (Throwable e) {
             e.printStackTrace();
         } finally {
-            task.processed = true;
+            task.stopTask();
         }
     }
 
     public void endLoop() {
         this.loop = false;
+        this.interrupt();
     }
 
-    public RailConstructTaskQueue getQueue() {
+    public ConcurrentLinkedQueue<RailConstructTask> getQueue() {
         return this.taskQueue;
     }
 
     public void addTask(RailConstructTask task) {
-        task.processed = false;
         this.getQueue().add(task);
+        this.interrupt();
     }
 
-    public void addTaskList(Iterable<RailConstructTask> tasks) {
-        tasks.forEach(task -> this.getQueue().add(task));
+    public void addTask(Iterable<RailConstructTask> tasks) {
+        tasks.forEach(task -> this.addTask(task));
     }
 }

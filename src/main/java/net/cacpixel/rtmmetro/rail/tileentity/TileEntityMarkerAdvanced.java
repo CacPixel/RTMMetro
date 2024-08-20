@@ -216,7 +216,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
                             railmap = railMaps.get(0);
                             try {
                                 next = railMaps.get(1);
-                            } catch (ArrayIndexOutOfBoundsException e){
+                            } catch (ArrayIndexOutOfBoundsException e) {
                                 e.printStackTrace();
                             }
                             rms.add(railmap);
@@ -267,14 +267,8 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
 
     private void createGrids() {
         this.grid = new ArrayList<>();
-        try {
-            NGTLog.startTimer();
-            for (RailMap railmap : this.railMaps) {
-                this.grid.addAll(((RailMapAdvanced) railmap).getRailBlockList(ItemRail.getDefaultProperty(), true));
-            }
-            NGTLog.stopTimer("addRailBlock");
-        } catch (NullPointerException e) {
-//            e.printStackTrace();
+        for (RailMap railmap : this.railMaps) {
+            this.grid.addAll(((RailMapAdvanced) railmap).getRailBlockList(ItemRail.getDefaultProperty(), true));
         }
     }
 

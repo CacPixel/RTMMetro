@@ -1,23 +1,19 @@
 package net.cacpixel.rtmmetro.rail.util.construct;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public abstract class RailConstructTask {
-    public boolean processed;
-    @Deprecated
-    protected boolean running;
+    public AtomicBoolean completed = new AtomicBoolean(false);
 
     public RailConstructTask() {
-        this.processed = true;
-//        this.running = false;
+
     }
 
     public abstract void runTask();
 
-    @Deprecated
-    public void complete() {
-        this.processed = true;
+    public void stopTask()
+    {
+        completed.getAndSet(true);
     }
 
-    public boolean hasProcessed() {
-        return this.processed;
-    }
 }

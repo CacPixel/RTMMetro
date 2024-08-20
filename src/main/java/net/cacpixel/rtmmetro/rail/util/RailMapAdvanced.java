@@ -1,6 +1,7 @@
 package net.cacpixel.rtmmetro.rail.util;
 
 import jp.ngt.ngtlib.block.BlockUtil;
+import jp.ngt.ngtlib.io.NGTLog;
 import jp.ngt.ngtlib.math.ILine;
 import jp.ngt.ngtlib.math.NGTMath;
 import jp.ngt.ngtlib.math.Vec3;
@@ -27,7 +28,6 @@ import java.util.List;
 
 public class RailMapAdvanced extends RailMapBasic {
     public final static int QUANTIZE = 32;
-    private List<int[]> rails = new LinkedList<>();
 
     public RailMapAdvanced(RailPosition par1, RailPosition par2) {
         super(par1, par2);
@@ -134,7 +134,6 @@ public class RailMapAdvanced extends RailMapBasic {
             int z0 = NGTMath.floor(z);
             this.addRailBlock(x0, y, z0);
         }
-
     }
 
     @Override
@@ -148,15 +147,16 @@ public class RailMapAdvanced extends RailMapBasic {
 
     @Override
     protected void addRailBlock(int x, int y, int z) {
-        for (int i = 0; i < this.rails.size(); ++i) {
+        int itrMax = 30;
+        for (int i = this.rails.size() - 1; (i >= 0) && (this.rails.size() - i <= itrMax); i--) {
             int[] ia = this.rails.get(i);
             if (ia[0] == x && ia[2] == z) {
                 if (ia[1] <= y) {
                     return;
                 }
-
                 this.rails.remove(i);
-                --i;
+//                --i;
+                break;
             }
         }
 
