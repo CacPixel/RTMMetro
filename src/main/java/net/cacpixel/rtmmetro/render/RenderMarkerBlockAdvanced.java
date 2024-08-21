@@ -19,6 +19,7 @@ import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.network.PacketMarkerRPClient;
 import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
+import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
 import net.cacpixel.rtmmetro.util.WorldUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -30,13 +31,18 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-
+@SideOnly(Side.CLIENT)
 public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEntityMarkerAdvanced> {
 
     public static final RenderMarkerBlockAdvanced INSTANCE = new RenderMarkerBlockAdvanced();
@@ -57,12 +63,12 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
     public void render(TileEntityMarkerAdvanced marker, double par2, double par4, double par6, float par8, int par9, float par10) {
         if (marker.getMarkerRP() != null) {
             GL11.glPushMatrix();
-            GL11.glEnable(32826);
-            GL11.glDisable(2884);
+            GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+            GL11.glDisable(GL11.GL_CULL_FACE);
             GLHelper.disableLighting();
             GL11.glTranslatef((float) par2, (float) par4, (float) par6);
             this.renderGUI(marker);
-            GL11.glDisable(3553);
+            GL11.glDisable(GL11.GL_TEXTURE_2D);
             if (marker.getState(MarkerState.GRID) && marker.getGrid() != null) {
                 try {
                     if (marker.isCoreMarker()) {
@@ -78,11 +84,13 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                 float f = (float) (railposition.posX - (double) railposition.blockX);
                 float f1 = (float) (railposition.posY - (double) railposition.blockY);
                 float f2 = (float) (railposition.posZ - (double) railposition.blockZ);
-                if (marker.getState(MarkerState.LINE1) && marker.getRailMaps() != null && marker.getRailMaps().length > 0) {
+                if (marker.getState(MarkerState.LINE1) && marker.getRailMaps() != null && marker.getRailMaps().length > 0 && marker.isCoreMarker()) {
                     try {
-//                        if (marker.markerPosList.size() > 1) {
-                        this.renderLine(marker, f, f1, f2);
-//                        }
+                        this.renderOriginalLine(marker, f, f1, f2);
+
+                        if (marker.getRailMaps().length > 1) {
+                            this.renderLine(marker, f, f1, f2);
+                        }
                     } catch (Throwable e) {
                         e.printStackTrace();
                     }
@@ -99,8 +107,8 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
 
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
             GLHelper.enableLighting();
-            GL11.glEnable(3553);
-            GL11.glEnable(2884);
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+            GL11.glEnable(GL11.GL_CULL_FACE);
             GL11.glPopMatrix();
         }
     }
@@ -174,7 +182,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
         int j = block == RTMMetroBlock.MARKER_ADVANCED ? 16711680 : 255;
         float f = (float) BlockMarkerAdvanced.getMarkerDir(marker.getBlockType(), i) * 45.0F;
         GL11.glRotatef(f, 0.0F, 1.0F, 0.0F);
-        GL11.glDisable(3553);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
         float f1 = 0.4F;
         NGTTessellator ngttessellator = NGTTessellator.instance;
         ngttessellator.startDrawingQuads();
@@ -193,7 +201,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
         }
 
         ngttessellator.draw();
-        GL11.glEnable(3553);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
         FontRenderer fontrenderer = NGTUtilClient.getMinecraft().getRenderManager().getFontRenderer();
 
         for (int j1 = 0; j1 < this.displayStrings.length; ++j1) {
@@ -219,15 +227,14 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
         List<RailMap> rms = new ArrayList<>();
         marker.linePos = new float[marker.getRailMaps().length][][];
         for (int i = 0; i < marker.linePos.length; ++i) {
-            RailMap railmap = marker.getRailMaps()[i];
-            if(railmap == null)
+            RailMapAdvanced railmap = (RailMapAdvanced) marker.getRailMaps()[i];
+            if (railmap == null)
                 return;
             rms.add(railmap);
-//            RailPosition railposition = railmap.getStartRP();
-//          if (marker.getMarkerRP().equals(railposition)) {
             int j = (int) ((float) railmap.getLength() * 2.0F);
             double[] adouble = railmap.getRailPos(j, 0);
-            double d0 = railmap.getRailHeight(j, 0);
+//            double d0 = railmap.getRailHeight(j, 0);
+            double d0 = railmap.getLineVertical().getPoint(j,0)[1];
             float[][] afloat = new float[j + 1][5];
             marker.linePos[i] = new float[j + 1][];
 
@@ -235,7 +242,6 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                 double[] adouble1 = railmap.getRailPos(j, l);
                 marker.linePos[i][l] = new float[]{(float) (adouble1[1] - adouble[1]), (float) (railmap.getRailHeight(j, l) - d0), (float) (adouble1[0] - adouble[0])};
             }
-//        }
         }
 
         GL11.glPushMatrix();
@@ -244,7 +250,6 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
         int[] color = new int[]{0x00F5FF, 0xFFD700, 0xFF6A6A, 0x00FF7F, 0xFFC1C1, 0xBA55D3, 0xDAA520, 0x3CB371};
         try {
             for (int i1 = 0; i1 < marker.linePos.length; ++i1) {
-//        for(int i1 = 0; i1 < marker.getPrevRailMaps().length; ++i1) {
                 if (marker.linePos[i1] != null) {
                     GL11.glPushMatrix();
 
@@ -260,6 +265,62 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                     GL11.glTranslatef(f, f1, f2);
                     ngttessellator.startDrawing(3);
                     ngttessellator.setColorOpaque_I(color[i1 % color.length]);
+
+                    for (int k = 0; k < marker.linePos[i1].length; ++k) {
+                        ngttessellator.addVertex(marker.linePos[i1][k][0], marker.linePos[i1][k][1], marker.linePos[i1][k][2]);
+                    }
+                    ngttessellator.draw();
+                    GL11.glLineWidth(prevLineWidth);
+                    GL11.glEnable(GL11.GL_TEXTURE_2D);
+                    GL11.glPopMatrix();
+                }
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        GL11.glPopMatrix();
+    }
+
+    private void renderOriginalLine(TileEntityMarkerAdvanced marker, float x, float y, float z) {
+        List<RailMap> rms = new ArrayList<>();
+        marker.linePos = new float[1][][];
+        RailMapAdvanced railmap = (RailMapAdvanced) marker.originalRailMap;
+        if (railmap == null)
+            return;
+        rms.add(railmap);
+        int j = (int) ((float) railmap.getLength() * 2.0F);
+        double[] adouble = railmap.getRailPos(j, 0);
+//        double d0 = railmap.getRailHeight(j, 0);
+        double d0 = railmap.getLineVertical().getPoint(j,0)[1];
+        float[][] afloat = new float[j + 1][5];
+        marker.linePos[0] = new float[j + 1][];
+
+        for (int l = 0; l < marker.linePos[0].length; ++l) {
+            double[] adouble1 = railmap.getRailPos(j, l);
+            marker.linePos[0][l] = new float[]{(float) (adouble1[1] - adouble[1]), (float) (railmap.getRailHeight(j, l) - d0), (float) (adouble1[0] - adouble[0])};
+        }
+
+        GL11.glPushMatrix();
+        GL11.glTranslatef(x, y, z);
+        NGTTessellator ngttessellator = NGTTessellator.instance;
+        try {
+            for (int i1 = 0; i1 < marker.linePos.length; ++i1) {
+                if (marker.linePos[i1] != null) {
+                    GL11.glPushMatrix();
+
+                    float lineWidth = (float) NGTUtilClient.getMinecraft().displayHeight * 0.002F;
+                    GL11.glDisable(GL11.GL_TEXTURE_2D);
+                    float prevLineWidth = GL11.glGetFloat(GL11.GL_LINE_WIDTH);
+                    GL11.glLineWidth(lineWidth);
+
+                    RailMap railmap1 = rms.get(i1);
+                    float f = (float) (railmap1.getStartRP().posX - marker.getMarkerRP().posX);
+                    float f1 = (float) (railmap1.getStartRP().posY - marker.getMarkerRP().posY);
+                    float f2 = (float) (railmap1.getStartRP().posZ - marker.getMarkerRP().posZ);
+                    GL11.glTranslatef(f, f1, f2);
+                    ngttessellator.startDrawing(3);
+                    ngttessellator.setColorOpaque_I(0x004000);
 
                     for (int k = 0; k < marker.linePos[i1].length; ++k) {
                         ngttessellator.addVertex(marker.linePos[i1][k][0], marker.linePos[i1][k][1], marker.linePos[i1][k][2]);
@@ -303,13 +364,13 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
             GLHelper.startMousePicking(f * 2.0F);
         }
 
-        GL11.glDisable(3553);
-        float f1 = GL11.glGetFloat(2833);
-        float f2 = GL11.glGetFloat(2849);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        float f1 = GL11.glGetFloat(GL11.GL_POINT_SIZE);
+        float f2 = GL11.glGetFloat(GL11.GL_LINE_WIDTH);
         GL11.glPointSize(f * 3.0F);
         GL11.glLineWidth(f);
         RailPosition railposition = marker.getMarkerRP();
-        int i = 12632256;
+        int i = 0xc0c0c0;
         if (marker.getState(MarkerState.LINE2) && marker.isCoreMarker()) {
             GL11.glPushMatrix();
             GL11.glRotatef(railposition.anchorYaw, 0.0F, 1.0F, 0.0F);
@@ -384,13 +445,13 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
             renderLine(0.0F, 0.0F, 0.0F, -f3, 0.0F, 0.0F, i1);
             GL11.glPopMatrix();
             GL11.glPushMatrix();
-            if (marker.isCoreMarker() && marker.getRailMaps() != null && marker.getRailMaps().length == 1) {
-                RailMap railmap = marker.getRailMaps()[0];
-                if (railmap == null){
-                    GL11.glPopMatrix();
-                    GL11.glPopMatrix();
-                    return MarkerElement.NONE;
-                }
+            if (marker.isCoreMarker() && marker.markerPosList.size() == 2 && marker.originalRailMap != null) {
+                RailMap railmap = marker.originalRailMap;
+//                if (railmap == null){
+//                    GL11.glPopMatrix();
+//                    GL11.glPopMatrix();
+//                    return MarkerElement.NONE;
+//                }
                 int k = (int) ((float) railmap.getLength() * 2.0F);
                 int l = k / 2;
                 double[] adouble = railmap.getRailPos(k, 0);
@@ -419,7 +480,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
 
         GL11.glPointSize(f1);
         GL11.glLineWidth(f2);
-        GL11.glEnable(3553);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
         if (marker.getState(MarkerState.LINE1) && !isPickMode) {
             FontRenderer fontrenderer = NGTUtilClient.getMinecraft().getRenderManager().getFontRenderer();
             float f6 = 0.04F;
@@ -514,7 +575,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
 
             if (marker.getState(MarkerState.LINE2)) {
                 RailMap railmap = marker.getRailMaps()[0];  // ArrayIndexOutOfBoundsException
-                if(railmap == null) return false;
+                if (railmap == null) return false;
                 if (element == MarkerElement.CONST_LIMIT_HP) {
                     float f10 = 3.0F + -pitch / 10.0F;
                     f10 = f10 < 1.9F ? 1.9F : f10;
@@ -622,7 +683,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
             RailPosition railposition1 = null;
 
             for (RailMap railmap : tileEntity.getRailMaps()) {
-                if(railmap == null){
+                if (railmap == null) {
                     return null;
                 }
                 if (railmap.getStartRP().equals(railposition)) {
@@ -674,16 +735,16 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
     }
 
     public enum MarkerElement {
-        NONE(0),
-        HORIZONTIAL(65312),
-        VERTICAL(16746496),
-        CANT_EDGE(16711935),
-        CANT_CENTER(16711935),
-        HEIGHT(16715776),
-        CONST_LIMIT_HP(1073407),
-        CONST_LIMIT_HN(1073407),
-        CONST_LIMIT_WP(1073407),
-        CONST_LIMIT_WN(1073407);
+        NONE(0x000000),
+        HORIZONTIAL(0x00FF20),
+        VERTICAL(0xFF8800),
+        CANT_EDGE(0xFF00FF),
+        CANT_CENTER(0xFF00FF),
+        HEIGHT(0xFF1000),
+        CONST_LIMIT_HP(0x1060FF),
+        CONST_LIMIT_HN(0x1060FF),
+        CONST_LIMIT_WP(0x1060FF),
+        CONST_LIMIT_WN(0x1060FF);
 
         public final int color;
 

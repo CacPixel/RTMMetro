@@ -29,6 +29,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     public RailPosition rp;
     public BlockPos startPos;
     private RailMap[] railMaps;
+    public RailMapAdvanced originalRailMap;
     public List<BlockPos> markerPosList = new ArrayList();
     private List<int[]> grid;
     public float startPlayerPitch;
@@ -132,7 +133,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         this.rp = par1;
     }
 
-    private RailPosition getMarkerRP(BlockPos pos) {
+    public RailPosition getMarkerRP(BlockPos pos) {
         TileEntity tileentity = BlockUtil.getTileEntity(this.getWorld(), pos);
         return tileentity instanceof TileEntityMarkerAdvanced ? ((TileEntityMarkerAdvanced) tileentity).rp : null;
     }
@@ -196,7 +197,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
                 RailPosition railposition3 = this.getMarkerRP((BlockPos) list.get(1));
                 if (railposition2 != null && railposition3 != null) {
                     List<RailMapAdvanced> rms = new ArrayList<>();
-                    RailMapAdvanced originalRailMap = new RailMapAdvanced(railposition2, railposition3);
+                    originalRailMap = new RailMapAdvanced(railposition2, railposition3);
                     blockpos = new BlockPos(railposition2.blockX, railposition2.blockY, railposition2.blockZ);
                     int split = 2;
                     RailMapAdvanced next = originalRailMap;

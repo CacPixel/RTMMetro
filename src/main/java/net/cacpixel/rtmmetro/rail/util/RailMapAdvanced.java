@@ -23,7 +23,6 @@ import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 public class RailMapAdvanced extends RailMapBasic {
@@ -230,17 +229,13 @@ public class RailMapAdvanced extends RailMapBasic {
         int length = lengthIn * QUANTIZE;
         int order = orderIn * QUANTIZE;
         // true则只使用对角坐标
-        double startX = this.startRP.posX;
-        double startZ = this.startRP.posZ;
-        double endX = this.endRP.posX;
-        double endZ = this.endRP.posZ;
-        boolean isInSameAxis = startZ == endZ || startX == endX;
-        boolean isCornerOnly = lineHorizontal instanceof BezierCurveAdvanced; // && isInSameAxis;
+        boolean isCornerOnly = lineHorizontal instanceof BezierCurveAdvanced;
         RailPosition[] result = new RailPosition[4];
         result[0] = cloneRP(startRP);
         result[3] = cloneRP(endRP);
+
         // 获取可用点
-        List<double[]> acceptablePoints = this.getAcceptablePoint(lineHorizontal, 0.15, isCornerOnly);
+        List<double[]> acceptablePoints = this.getAcceptablePoint(lineHorizontal, 0.1, isCornerOnly);
         // point将会是最终的分割点
         double[] point = null;
         double minimumLength = lineHorizontal.getLength();
@@ -374,6 +369,15 @@ public class RailMapAdvanced extends RailMapBasic {
         result[3].anchorLengthHorizontal = (float) getLength(lineHorizontal.getPoint(length, length), controlPointEndH3);
         result[3].anchorLengthVertical = (float) getLength(lineVertical.getPoint(length, length), controlPointEndV3);
 
+        result[0].cantEdge = this.startRP.cantEdge;
+        result[0].cantCenter = this.getRailRoll(length, order / 2);
+        result[1].cantEdge = -this.getRailRoll(length, order);
+        result[1].cantCenter = -result[0].cantCenter;
+        result[2].cantEdge = this.getRailRoll(length, order);
+        result[2].cantCenter = this.getRailRoll(length, (length - order) / 2 + order);
+        result[3].cantEdge = this.endRP.cantEdge;
+        result[3].cantCenter = -result[2].cantCenter;
+
         ret.add(new RailMapAdvanced(result[0], result[1]));
         ret.add(new RailMapAdvanced(result[2], result[3]));
         return ret;
@@ -489,8 +493,8 @@ public class RailMapAdvanced extends RailMapBasic {
         out.anchorPitch = in.anchorPitch;
         out.anchorLengthHorizontal = in.anchorLengthHorizontal;
         out.anchorLengthVertical = in.anchorLengthVertical;
-        out.cantCenter = in.cantCenter;
-        out.cantEdge = in.cantEdge;
+//        out.cantCenter = in.cantCenter;
+//        out.cantEdge = in.cantEdge;
         out.cantRandom = in.cantRandom;
         out.constLimitHP = in.constLimitHP;
         out.constLimitHN = in.constLimitHN;

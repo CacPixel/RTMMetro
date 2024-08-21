@@ -56,19 +56,7 @@ public class TileEntityLargeRailSubCoreAdvanced extends TileEntityLargeRailNorma
 
     public void readAdditionalData(NBTTagCompound tag) {
         if (tag.hasKey("RTMMetroAdditional")) {
-//            NBTTagCompound additional = tag.getCompoundTag("RTMMetroAdditional");
-//            if (tag.hasKey("StartRP")) {
-//                NBTTagCompound startRP = additional.getCompoundTag("StartRP");
-//                this.railPositions[0].posX = startRP.getDouble("AccuratePosX");
-//                this.railPositions[0].posY = startRP.getDouble("AccuratePosY");
-//                this.railPositions[0].posZ = startRP.getDouble("AccuratePosZ");
-//            }
-//            if (tag.hasKey("EndRP")) {
-//                NBTTagCompound endRP = additional.getCompoundTag("EndRP");
-//                this.railPositions[1].posX = endRP.getDouble("AccuratePosX");
-//                this.railPositions[1].posY = endRP.getDouble("AccuratePosY");
-//                this.railPositions[1].posZ = endRP.getDouble("AccuratePosZ");
-//            }
+
         }
     }
 
@@ -80,21 +68,7 @@ public class TileEntityLargeRailSubCoreAdvanced extends TileEntityLargeRailNorma
     }
 
     public void writeAdditionalData(NBTTagCompound tag) {
-//        NBTTagCompound additional = new NBTTagCompound();
-//
-//        NBTTagCompound startRP = new NBTTagCompound();
-//        startRP.setDouble("AccuratePosX", this.railPositions[0].posX);
-//        startRP.setDouble("AccuratePosY", this.railPositions[0].posY);
-//        startRP.setDouble("AccuratePosZ", this.railPositions[0].posZ);
-//        additional.setTag("StartRP", startRP);
-//
-//        NBTTagCompound endRP = new NBTTagCompound();
-//        endRP.setDouble("AccuratePosX", this.railPositions[1].posX);
-//        endRP.setDouble("AccuratePosY", this.railPositions[1].posY);
-//        endRP.setDouble("AccuratePosZ", this.railPositions[1].posZ);
-//        additional.setTag("EndRP", endRP);
-//
-//        tag.setTag("RTMMetroAdditional", additional);
+
     }
 
 }
