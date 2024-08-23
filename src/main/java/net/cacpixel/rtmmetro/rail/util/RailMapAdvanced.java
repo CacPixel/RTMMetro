@@ -73,7 +73,7 @@ public class RailMapAdvanced extends RailMapBasic {
             if (this.startRP.anchorLengthHorizontal <= 0.0F) {
                 boolean isNot45 = this.startRP.direction % 2 == 0;
                 double d13 = isNot45 ? d9 : d11;
-                this.startRP.anchorLengthHorizontal = (float) (d13 * (double) 0.5522848F);
+                this.startRP.anchorLengthHorizontal = (float) (d13 * (double) 0.5522848F); // 0.5522848F 用来计算绘制圆形贝塞尔曲线控制点的位置的常数
             }
 
             if (this.endRP.anchorLengthHorizontal <= 0.0F) {
@@ -170,14 +170,14 @@ public class RailMapAdvanced extends RailMapBasic {
         this.createRailList(prop);
         this.setBaseBlock(world, x0, y0, z0);
 
-        for(int i = 0; i < this.rails.size(); ++i) {
-            int x = ((int[])this.rails.get(i))[0];
-            int y = ((int[])this.rails.get(i))[1];
-            int z = ((int[])this.rails.get(i))[2];
+        for (int i = 0; i < this.rails.size(); ++i) {
+            int x = ((int[]) this.rails.get(i))[0];
+            int y = ((int[]) this.rails.get(i))[1];
+            int z = ((int[]) this.rails.get(i))[2];
             Block block2 = BlockUtil.getBlock(world, x, y, z);
             if (!(block2 instanceof BlockLargeRailBase) || block2 == block) {
                 BlockUtil.setBlock(world, x, y, z, block, 0, 2);
-                TileEntityLargeRailBase tile = (TileEntityLargeRailBase)BlockUtil.getTileEntity(world, x, y, z);
+                TileEntityLargeRailBase tile = (TileEntityLargeRailBase) BlockUtil.getTileEntity(world, x, y, z);
                 tile.setStartPoint(x0, y0, z0);
             }
         }
@@ -225,6 +225,10 @@ public class RailMapAdvanced extends RailMapBasic {
 
     public List<RailMapAdvanced> split(int lengthIn, int orderIn) {
         List<RailMapAdvanced> ret = new ArrayList<>();
+        if (lengthIn <= 10) {
+            ret.add(this);
+            return ret;
+        }
         // 同乘QUANTIZE细分方便运算
         int length = lengthIn * QUANTIZE;
         int order = orderIn * QUANTIZE;
@@ -235,7 +239,7 @@ public class RailMapAdvanced extends RailMapBasic {
         result[3] = cloneRP(endRP);
 
         // 获取可用点
-        List<double[]> acceptablePoints = this.getAcceptablePoint(lineHorizontal, 0.1, isCornerOnly);
+        List<double[]> acceptablePoints = this.getAcceptablePoint(lineHorizontal, 1.5, isCornerOnly);
         // point将会是最终的分割点
         double[] point = null;
         double minimumLength = lineHorizontal.getLength();
@@ -326,7 +330,8 @@ public class RailMapAdvanced extends RailMapBasic {
             controlPointStartH0 = lineHorizontal.getPoint(length, 0);
             controlPointEndH3 = lineHorizontal.getPoint(length, length);
         } else {
-            return null;
+            ret.add(this);
+            return ret;
         }
         if (lineVertical instanceof BezierCurveAdvanced) {
             splitPointV1 = lineVertical.getPoint(length, order);
@@ -343,11 +348,14 @@ public class RailMapAdvanced extends RailMapBasic {
             controlPointStartV0 = lineVertical.getPoint(length, 0);
             controlPointEndV3 = lineVertical.getPoint(length, length);
         } else {
-            return null;
+            ret.add(this);
+            return ret;
         }
 
         result[1].anchorLengthHorizontal = (float) getLength(splitPointH1, endPointH1);
-        result[1].anchorYaw = getAngleD((splitPointH1), (endPointH1));
+        if (lineHorizontal instanceof BezierCurveAdvanced) {
+            result[1].anchorYaw = getAngleD((splitPointH1), (endPointH1));
+        }
 
         result[1].anchorLengthVertical = (float) getLength(splitPointV1, endPointV1);
         result[1].anchorPitch = Math.abs(getAngleD((splitPointV1), (endPointV1)));
@@ -356,7 +364,9 @@ public class RailMapAdvanced extends RailMapBasic {
         }
 
         result[2].anchorLengthHorizontal = (float) getLength(splitPointH2, endPointH2);
-        result[2].anchorYaw = getAngleD((splitPointH2), (endPointH2));
+        if (lineHorizontal instanceof BezierCurveAdvanced) {
+            result[2].anchorYaw = getAngleD((splitPointH2), (endPointH2));
+        }
 
         result[2].anchorLengthVertical = (float) getLength(splitPointV2, endPointV2);
         result[2].anchorPitch = Math.abs(getAngleD((splitPointV2), (endPointV2)));

@@ -574,7 +574,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
             }
 
             if (marker.getState(MarkerState.LINE2)) {
-                RailMap railmap = marker.getRailMaps()[0];  // ArrayIndexOutOfBoundsException
+                RailMap railmap = marker.originalRailMap;
                 if (railmap == null) return false;
                 if (element == MarkerElement.CONST_LIMIT_HP) {
                     float f10 = 3.0F + -pitch / 10.0F;
