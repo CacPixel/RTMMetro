@@ -19,6 +19,7 @@ import net.cacpixel.rtmmetro.math.StraightLineAdvanced;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -358,9 +359,9 @@ public class RailMapAdvanced extends RailMapBasic {
         }
 
         result[1].anchorLengthVertical = (float) getLength(splitPointV1, endPointV1);
-        result[1].anchorPitch = Math.abs(getAngleD((splitPointV1), (endPointV1)));
-        if (endPointV1[1] < splitPointV1[1]) {
-            result[1].anchorPitch = -result[1].anchorPitch;
+        result[1].anchorPitch = MathHelper.wrapDegrees(getAngleD((splitPointV1), (endPointV1)));
+        if (result[1].anchorPitch > 90.0F || result[1].anchorPitch < -90.0F) {
+            result[1].anchorPitch = -MathHelper.wrapDegrees(result[1].anchorPitch + 180.0f);
         }
 
         result[2].anchorLengthHorizontal = (float) getLength(splitPointH2, endPointH2);
@@ -369,9 +370,9 @@ public class RailMapAdvanced extends RailMapBasic {
         }
 
         result[2].anchorLengthVertical = (float) getLength(splitPointV2, endPointV2);
-        result[2].anchorPitch = Math.abs(getAngleD((splitPointV2), (endPointV2)));
-        if (endPointV2[1] < splitPointV2[1]) {
-            result[2].anchorPitch = -result[2].anchorPitch;
+        result[2].anchorPitch = MathHelper.wrapDegrees(getAngleD((splitPointV2), (endPointV2)));
+        if (result[2].anchorPitch > 90.0F || result[2].anchorPitch < -90.0F) {
+            result[2].anchorPitch = -MathHelper.wrapDegrees(result[2].anchorPitch + 180.0f);
         }
 
         result[0].anchorLengthHorizontal = (float) getLength(lineHorizontal.getPoint(length, 0), controlPointStartH0);
