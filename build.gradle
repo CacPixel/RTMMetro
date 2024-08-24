@@ -132,7 +132,11 @@ dependencies {
 
 //    implementation fg.deobf("curse.maven:ngtlib-288989:4641592")
 //    implementation fg.deobf("curse.maven:realtrainmod-288988:4641603")
-    compileOnly(fileTree(dir: 'libs', includes: ['*.jar']))
+//    compileOnly(fileTree(dir: 'libs', includes: ['*.jar']))
+
+    implementation 'com.formdev:flatlaf:3.5.1'
+    implementation 'com.miglayout:miglayout-swing:5.3'
+
 
     implementation ("curse.maven:ngtlib-288989:4641592")
     implementation ("curse.maven:realtrainmod-288988:4641603")
