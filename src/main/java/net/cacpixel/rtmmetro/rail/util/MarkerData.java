@@ -3,37 +3,45 @@ package net.cacpixel.rtmmetro.rail.util;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
 import net.minecraft.util.math.BlockPos;
 
-public class MarkerData {
+public class MarkerData
+{
     private final BlockPos pos;
     private final String worldName;
 
-    public MarkerData(BlockPos pos, String worldName) {
+    public MarkerData(BlockPos pos, String worldName)
+    {
         this.pos = pos;
         this.worldName = worldName;
     }
 
-    public MarkerData(TileEntityMarkerAdvanced marker) {
+    public MarkerData(TileEntityMarkerAdvanced marker)
+    {
         this.pos = marker.getPos();
         this.worldName = MarkerManager.getWorldName(marker.getWorld());
     }
 
-    public int getX() {
+    public int getX()
+    {
         return pos.getX();
     }
 
-    public int getY() {
+    public int getY()
+    {
         return pos.getY();
     }
 
-    public int getZ() {
+    public int getZ()
+    {
         return pos.getZ();
     }
 
-    public String getWorldName() {
+    public String getWorldName()
+    {
         return this.worldName;
     }
 
-    public BlockPos getPos() {
+    public BlockPos getPos()
+    {
         return this.pos;
     }
 }

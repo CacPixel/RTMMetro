@@ -4,7 +4,8 @@ import jp.ngt.rtm.item.ItemWithModel;
 import jp.ngt.rtm.modelpack.cfg.ResourceConfig;
 import jp.ngt.rtm.modelpack.modelset.ResourceSet;
 
-public abstract class ItemAdvancedWithModel<S extends ResourceSet<C>, C extends ResourceConfig> extends ItemWithModel<S> {
+public abstract class ItemAdvancedWithModel<S extends ResourceSet<C>, C extends ResourceConfig> extends ItemWithModel<S>
+{
 
 //    @Override
 //    protected ActionResult<ItemStack> onItemRightClick(ItemArgHolderBase.ItemArgHolder holder) {
@@ -12,7 +13,8 @@ public abstract class ItemAdvancedWithModel<S extends ResourceSet<C>, C extends 
 //    }
 //
 //    @Override
-//    protected ActionResult<ItemStack> onItemUse(ItemArgHolderBase.ItemArgHolder holder, float hitX, float hitY, float hitZ) {
+//    protected ActionResult<ItemStack> onItemUse(ItemArgHolderBase.ItemArgHolder holder, float hitX, float hitY,
+//    float hitZ) {
 //        return new ActionResult(EnumActionResult.PASS, holder.getItemStack());
 //    }
 //

@@ -20,7 +20,9 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
-public class PacketLargeRailCoreAdvanced extends PacketCustom implements IMessageHandler<PacketLargeRailCoreAdvanced, IMessage> {
+public class PacketLargeRailCoreAdvanced extends PacketCustom
+        implements IMessageHandler<PacketLargeRailCoreAdvanced, IMessage>
+{
     public static final byte TYPE_NORMAL = 0;
     public static final byte TYPE_SWITCH = 2;
     private byte dataType;
@@ -31,10 +33,12 @@ public class PacketLargeRailCoreAdvanced extends PacketCustom implements IMessag
     private byte type;
     private RailPosition[] railPositions;
 
-    public PacketLargeRailCoreAdvanced() {
+    public PacketLargeRailCoreAdvanced()
+    {
     }
 
-    public PacketLargeRailCoreAdvanced(TileEntityLargeRailCore tile, byte par2Type) {
+    public PacketLargeRailCoreAdvanced(TileEntityLargeRailCore tile, byte par2Type)
+    {
         super(tile);
         this.dataType = par2Type;
         this.sX = tile.getStartPoint()[0];
@@ -44,17 +48,19 @@ public class PacketLargeRailCoreAdvanced extends PacketCustom implements IMessag
         tile.writeRailStates(nbt);
         this.property = nbt;
         this.railPositions = tile.getRailPositions();
-        switch (par2Type) {
-            case 2:
-                TileEntityLargeRailSwitchCore tile1 = (TileEntityLargeRailSwitchCore)tile;
-                SwitchType st = tile1.getSwitch();
-                this.type = st != null ? st.id : -1;
-            case 0:
-            default:
+        switch (par2Type)
+        {
+        case 2:
+            TileEntityLargeRailSwitchCore tile1 = (TileEntityLargeRailSwitchCore) tile;
+            SwitchType st = tile1.getSwitch();
+            this.type = st != null ? st.id : -1;
+        case 0:
+        default:
         }
     }
 
-    public void toBytes(ByteBuf buffer) {
+    public void toBytes(ByteBuf buffer)
+    {
         super.toBytes(buffer);
         buffer.writeByte(this.dataType);
         buffer.writeInt(this.sX);
@@ -66,14 +72,16 @@ public class PacketLargeRailCoreAdvanced extends PacketCustom implements IMessag
         RailPosition[] var2 = this.railPositions;
         int var3 = var2.length;
 
-        for(int var4 = 0; var4 < var3; ++var4) {
+        for (int var4 = 0; var4 < var3; ++var4)
+        {
             RailPosition rp = var2[var4];
             ByteBufUtils.writeTag(buffer, rp.writeToNBT());
         }
 
     }
 
-    public void fromBytes(ByteBuf buffer) {
+    public void fromBytes(ByteBuf buffer)
+    {
         super.fromBytes(buffer);
         this.dataType = buffer.readByte();
         this.sX = buffer.readInt();
@@ -82,10 +90,12 @@ public class PacketLargeRailCoreAdvanced extends PacketCustom implements IMessag
         this.property = ByteBufUtils.readTag(buffer);
         this.type = buffer.readByte();
         byte size = buffer.readByte();
-        if (size > 0) {
+        if (size > 0)
+        {
             this.railPositions = new RailPosition[size];
 
-            for(int i = 0; i < size; ++i) {
+            for (int i = 0; i < size; ++i)
+            {
                 NBTTagCompound nbt = ByteBufUtils.readTag(buffer);
                 this.railPositions[i] = RailPosition.readFromNBT(nbt);
             }
@@ -93,27 +103,36 @@ public class PacketLargeRailCoreAdvanced extends PacketCustom implements IMessag
 
     }
 
-    public IMessage onMessage(final PacketLargeRailCoreAdvanced message, MessageContext ctx) {
-        TickProcessQueue.getInstance(Side.CLIENT).add(new TickProcessEntry() {
-            public boolean process(World world) {
+    public IMessage onMessage(final PacketLargeRailCoreAdvanced message, MessageContext ctx)
+    {
+        TickProcessQueue.getInstance(Side.CLIENT).add(new TickProcessEntry()
+        {
+            public boolean process(World world)
+            {
                 return PacketLargeRailCoreAdvanced.this.processPacket(message);
             }
         }, 50, 5);
         return null;
     }
 
-    public boolean processPacket(PacketLargeRailCoreAdvanced message) {
+    public boolean processPacket(PacketLargeRailCoreAdvanced message)
+    {
         World world = NGTUtil.getClientWorld();
         TileEntity tile = message.getTileEntity(world);
-        if (!(tile instanceof TileEntityLargeRailCore)) {
+        if (!(tile instanceof TileEntityLargeRailCore))
+        {
             return false;
-        } else {
-            TileEntityLargeRailCore tile0 = (TileEntityLargeRailCore)tile;
+        }
+        else
+        {
+            TileEntityLargeRailCore tile0 = (TileEntityLargeRailCore) tile;
             tile0.setStartPoint(message.sX, message.sY, message.sZ);
             tile0.readRailStates(message.property);
             tile0.setRailPositions(message.railPositions);
-            if ((message.dataType != 0 || !(tile instanceof TileEntityLargeRailNormalCore)) && message.dataType == 2 && tile instanceof TileEntityLargeRailSwitchCore) {
-                TileEntityLargeRailSwitchCore var5 = (TileEntityLargeRailSwitchCore)tile;
+            if ((message.dataType != 0 || !(tile instanceof TileEntityLargeRailNormalCore)) && message.dataType == 2 &&
+                    tile instanceof TileEntityLargeRailSwitchCore)
+            {
+                TileEntityLargeRailSwitchCore var5 = (TileEntityLargeRailSwitchCore) tile;
             }
 
             tile0.updateResourceState();

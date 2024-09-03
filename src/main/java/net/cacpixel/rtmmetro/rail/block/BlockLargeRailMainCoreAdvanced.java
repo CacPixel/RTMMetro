@@ -4,9 +4,11 @@ import net.cacpixel.rtmmetro.rail.tileentity.TileEntityLargeRailMainCoreAdvanced
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
-public class BlockLargeRailMainCoreAdvanced extends BlockLargeRailBaseAdvanced {
+public class BlockLargeRailMainCoreAdvanced extends BlockLargeRailBaseAdvanced
+{
 
-    public BlockLargeRailMainCoreAdvanced(){
+    public BlockLargeRailMainCoreAdvanced()
+    {
         super();
     }
 
@@ -15,5 +17,5 @@ public class BlockLargeRailMainCoreAdvanced extends BlockLargeRailBaseAdvanced {
     {
         return new TileEntityLargeRailMainCoreAdvanced();
     }
-    
+
 }

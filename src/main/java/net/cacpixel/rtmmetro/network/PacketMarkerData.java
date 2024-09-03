@@ -10,7 +10,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-public class PacketMarkerData implements IMessage, IMessageHandler<PacketMarkerData, IMessage> {
+public class PacketMarkerData implements IMessage, IMessageHandler<PacketMarkerData, IMessage>
+{
     private int x;
     private int y;
     private int z;
@@ -19,10 +20,12 @@ public class PacketMarkerData implements IMessage, IMessageHandler<PacketMarkerD
 
     private boolean readyToRemove;
 
-    public PacketMarkerData() {
+    public PacketMarkerData()
+    {
     }
 
-    public PacketMarkerData(MarkerData marker, boolean readyToRemove) {
+    public PacketMarkerData(MarkerData marker, boolean readyToRemove)
+    {
         this.x = marker.getX();
         this.y = marker.getY();
         this.z = marker.getZ();
@@ -33,7 +36,8 @@ public class PacketMarkerData implements IMessage, IMessageHandler<PacketMarkerD
     }
 
     @Override
-    public void toBytes(ByteBuf buf) {
+    public void toBytes(ByteBuf buf)
+    {
         buf.writeInt(this.x);
         buf.writeInt(this.y);
         buf.writeInt(this.z);
@@ -44,7 +48,8 @@ public class PacketMarkerData implements IMessage, IMessageHandler<PacketMarkerD
     }
 
     @Override
-    public void fromBytes(ByteBuf buf) {
+    public void fromBytes(ByteBuf buf)
+    {
         this.x = buf.readInt();
         this.y = buf.readInt();
         this.z = buf.readInt();
@@ -54,13 +59,17 @@ public class PacketMarkerData implements IMessage, IMessageHandler<PacketMarkerD
     }
 
     @Override
-    public IMessage onMessage(PacketMarkerData message, MessageContext ctx) {
-        if (message.readyToRemove) {
+    public IMessage onMessage(PacketMarkerData message, MessageContext ctx)
+    {
+        if (message.readyToRemove)
+        {
             MarkerManager.getInstance().removeMarker(
                     message.worldName.toString(0, message.worldNameLen, CharsetUtil.UTF_8),
                     new BlockPos(message.x, message.y, message.z
                     ));
-        } else {
+        }
+        else
+        {
             MarkerManager.getInstance().createMarker(
                     message.worldName.toString(0, message.worldNameLen, CharsetUtil.UTF_8),
                     new BlockPos(message.x, message.y, message.z

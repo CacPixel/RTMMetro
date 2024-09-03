@@ -9,33 +9,40 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TaskLoopThread extends Thread {
+public class TaskLoopThread extends Thread
+{
     private static final TaskLoopThread INSTANCE = new TaskLoopThread();
     private boolean loop = true;
     private final ConcurrentLinkedQueue<RailConstructTask> taskQueue = new ConcurrentLinkedQueue<>();
     private ExecutorService pool;
 
-    public TaskLoopThread() {
+    public TaskLoopThread()
+    {
         super("TaskLoopThread");
     }
 
-    public static TaskLoopThread getInstance() {
-        if (!INSTANCE.isAlive()) {
+    public static TaskLoopThread getInstance()
+    {
+        if (!INSTANCE.isAlive())
+        {
             INSTANCE.loop = true;
             INSTANCE.start();
         }
         return INSTANCE;
     }
 
-    public void init() {
+    public void init()
+    {
         this.pool = Executors.newFixedThreadPool(ModConfig.threadsToConstructRails <= 0 ?
                         Runtime.getRuntime().availableProcessors() * 2
                         : Math.min(ModConfig.threadsToConstructRails, Runtime.getRuntime().availableProcessors() * 2),
-                new ThreadFactory() {
+                new ThreadFactory()
+                {
                     private final AtomicInteger num = new AtomicInteger(1);
 
                     @Override
-                    public Thread newThread(Runnable runnable) {
+                    public Thread newThread(Runnable runnable)
+                    {
                         ThreadGroup group = System.getSecurityManager().getThreadGroup();
                         Thread thread = new Thread(group, runnable,
                                 "Rail Construct Thread " + this.num.getAndIncrement());
@@ -47,54 +54,73 @@ public class TaskLoopThread extends Thread {
     }
 
     @Override
-    public void run() {
+    public void run()
+    {
         this.init();
-        while (this.loop) {
+        while (this.loop)
+        {
             RailConstructTask task = this.taskQueue.poll();
-            if (task != null) {
+            if (task != null)
+            {
                 this.pool.submit(() -> {
                     constructTask(task);
                 });
-            } else {
+            }
+            else
+            {
                 this.waitForTask();
             }
         }
     }
 
-    public void waitForTask() {
-        try {
+    public void waitForTask()
+    {
+        try
+        {
             this.join();
             ModLog.info("Waiting for tasks...");
-        } catch (InterruptedException ignored) {
+        }
+        catch (InterruptedException ignored)
+        {
             ModLog.info("Task start Running...");
         }
     }
 
-    public static void constructTask(RailConstructTask task) {
-        try {
+    public static void constructTask(RailConstructTask task)
+    {
+        try
+        {
             task.runTask();
-        } catch (Throwable e) {
+        }
+        catch (Throwable e)
+        {
             e.printStackTrace();
-        } finally {
+        }
+        finally
+        {
             task.stopTask();
         }
     }
 
-    public void endLoop() {
+    public void endLoop()
+    {
         this.loop = false;
         this.interrupt();
     }
 
-    public ConcurrentLinkedQueue<RailConstructTask> getQueue() {
+    public ConcurrentLinkedQueue<RailConstructTask> getQueue()
+    {
         return this.taskQueue;
     }
 
-    public void addTask(RailConstructTask task) {
+    public void addTask(RailConstructTask task)
+    {
         this.getQueue().add(task);
         this.interrupt();
     }
 
-    public void addTask(Iterable<RailConstructTask> tasks) {
+    public void addTask(Iterable<RailConstructTask> tasks)
+    {
         tasks.forEach(task -> this.addTask(task));
     }
 }

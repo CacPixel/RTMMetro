@@ -4,22 +4,29 @@ import com.formdev.flatlaf.themes.FlatMacLightLaf;
 
 import javax.swing.*;
 
-public class RTMToolBox {
+public class RTMToolBox
+{
     public static RTMToolBox instance = new RTMToolBox();
     public MainForm mainForm;
 
-    public RTMToolBox() {
+    public RTMToolBox()
+    {
 
     }
 
-    public static RTMToolBox getInstance() {
+    public static RTMToolBox getInstance()
+    {
         return instance;
     }
 
-    public void init() {
-        try {
+    public void init()
+    {
+        try
+        {
             UIManager.setLookAndFeel(new FlatMacLightLaf());
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             System.err.println("Failed to initialize LaF");
         }
 

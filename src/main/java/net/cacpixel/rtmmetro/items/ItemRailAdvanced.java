@@ -25,29 +25,35 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
-public class ItemRailAdvanced extends ItemRail {
-    public ItemRailAdvanced() {
+public class ItemRailAdvanced extends ItemRail
+{
+    public ItemRailAdvanced()
+    {
         super();
         this.maxStackSize = 1;
     }
 
-    public int getGuiId(ItemStack stack) {
+    public int getGuiId(ItemStack stack)
+    {
 //        return RTMMetro.guiIdRailAdvanced;
         return RTMCore.guiIdSelectItemModel;
     }
 
     @Override
-    protected ResourceType getModelType(ItemStack itemStack) {
+    protected ResourceType getModelType(ItemStack itemStack)
+    {
         return RTMResource.RAIL;
     }
 
     @Override
-    protected ResourceState getNewState(ItemStack itemStack, ResourceType resourceType) {
+    protected ResourceState getNewState(ItemStack itemStack, ResourceType resourceType)
+    {
         return new ResourceStateRail(resourceType, null);
     }
 
     @Override
-    protected ActionResult<ItemStack> onItemRightClick(ItemArgHolderBase.ItemArgHolder holder) {
+    protected ActionResult<ItemStack> onItemRightClick(ItemArgHolderBase.ItemArgHolder holder)
+    {
 //        if (!holder.getPlayer().capabilities.isCreativeMode) {
 //            return holder.pass();
 //        }
@@ -60,18 +66,23 @@ public class ItemRailAdvanced extends ItemRail {
     }
 
     @Override
-    protected ActionResult<ItemStack> onItemUse(ItemArgHolderBase.ItemArgHolder holder, float hitX, float hitY, float hitZ) {
-        if (!holder.getPlayer().capabilities.isCreativeMode) {
+    protected ActionResult<ItemStack> onItemUse(ItemArgHolderBase.ItemArgHolder holder, float hitX, float hitY,
+                                                float hitZ)
+    {
+        if (!holder.getPlayer().capabilities.isCreativeMode)
+        {
             return holder.pass();
         }
 
         World world = holder.getWorld();
         IBlockState blockState = world.getBlockState(holder.getBlockPos());
         TileEntityLargeRailCore core = BlockLargeRailBase.getCore(world, holder.getBlockPos());
-        if (core == null) {
+        if (core == null)
+        {
             return holder.pass();
         }
-        if (!world.isRemote) {
+        if (!world.isRemote)
+        {
 //            NGTLog.debug("rigid catenary on item use !");
             ResourceStateRail state = ItemRail.getDefaultProperty();
             //值得注意的是，我们的轨道是一个新的东西，继承BlockLargeRailXXX，TileEntity也是新的
@@ -82,7 +93,8 @@ public class ItemRailAdvanced extends ItemRail {
     }
 
     @Override
-    protected void addInformation(ItemArgHolderBase.ItemArgHolder holder, List list, ITooltipFlag flag) {
+    protected void addInformation(ItemArgHolderBase.ItemArgHolder holder, List list, ITooltipFlag flag)
+    {
         super.addInformation(holder, list, flag);
 //        ResourceStateRail state = (ResourceStateRail) this.getModelState(holder.getItemStack());
 //        if (state == null) {
@@ -96,17 +108,22 @@ public class ItemRailAdvanced extends ItemRail {
 //        }
     }
 
-    public static ItemStack getRailItem(ResourceStateRail prop) {
+    public static ItemStack getRailItem(ResourceStateRail prop)
+    {
         ItemStack itemStack = new ItemStack(RTMMetroItems.railAdvanced, 1, 0);
-        if (RTMMetroItems.railAdvanced instanceof ItemRailAdvanced) {
+        if (RTMMetroItems.railAdvanced instanceof ItemRailAdvanced)
+        {
             ((ItemRailAdvanced) RTMMetroItems.railAdvanced).setModelState(itemStack, prop);
             return itemStack;
-        } else {
+        }
+        else
+        {
             return new ItemStack(Blocks.AIR);
         }
     }
 
-    public static ItemStack copyItemFromRail(TileEntityLargeRailCore core) {
+    public static ItemStack copyItemFromRail(TileEntityLargeRailCore core)
+    {
         ItemStack stack = getRailItem(core.getResourceState());
         RailPosition[] rps = core.getRailPositions();
         setRPToItem(stack, rps);
@@ -115,22 +132,27 @@ public class ItemRailAdvanced extends ItemRail {
         return stack;
     }
 
-    private static void setRPToItem(ItemStack stack, RailPosition[] rps) {
-        if (!stack.hasTagCompound()) {
+    private static void setRPToItem(ItemStack stack, RailPosition[] rps)
+    {
+        if (!stack.hasTagCompound())
+        {
             stack.setTagCompound(new NBTTagCompound());
         }
         NBTTagCompound nbt = stack.getTagCompound();
 
         nbt.setByte("Size", (byte) rps.length);
-        for (int i = 0; i < rps.length; ++i) {
+        for (int i = 0; i < rps.length; ++i)
+        {
             nbt.setTag("RP" + i, rps[i].writeToNBT());
         }
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list) {
-        if (!this.isInCreativeTab(tab)) {
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
+    {
+        if (!this.isInCreativeTab(tab))
+        {
             return;
         }
         ItemStack itemStack = new ItemStack(RTMMetroItems.railAdvanced, 1, 0);

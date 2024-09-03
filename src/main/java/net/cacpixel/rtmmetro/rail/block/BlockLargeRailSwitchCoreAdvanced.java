@@ -4,14 +4,17 @@ import net.cacpixel.rtmmetro.rail.tileentity.TileEntityLargeRailSwitchCoreAdvanc
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
-public class BlockLargeRailSwitchCoreAdvanced extends BlockLargeRailBaseAdvanced {
+public class BlockLargeRailSwitchCoreAdvanced extends BlockLargeRailBaseAdvanced
+{
 
-    public BlockLargeRailSwitchCoreAdvanced() {
+    public BlockLargeRailSwitchCoreAdvanced()
+    {
         super();
     }
 
     @Override
-    public TileEntity createNewTileEntity(World world, int par2) {
+    public TileEntity createNewTileEntity(World world, int par2)
+    {
         return new TileEntityLargeRailSwitchCoreAdvanced();
     }
 }

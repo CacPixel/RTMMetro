@@ -4,27 +4,30 @@
 
 package net.cacpixel.rtmmetro.client.rtmtoolbox;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-
 import net.cacpixel.rtmmetro.util.ModLog;
-import net.miginfocom.swing.*;
+import net.miginfocom.swing.MigLayout;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 
 /**
  * @author CacPixel
  */
-public class MainForm extends JFrame {
-    public MainForm() {
+public class MainForm extends JFrame
+{
+    public MainForm()
+    {
         initComponents();
     }
 
-    private void button6(ActionEvent e) {
+    private void button6(ActionEvent e)
+    {
         ModLog.debug("test button pressed!");
     }
 
-    private void initComponents() {
+    private void initComponents()
+    {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         menuBar1 = new JMenuBar();
         menuFile = new JMenu();

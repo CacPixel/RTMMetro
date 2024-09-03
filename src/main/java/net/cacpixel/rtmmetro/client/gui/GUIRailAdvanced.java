@@ -4,17 +4,20 @@ import jp.ngt.ngtlib.gui.GuiScreenCustom;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 
-public class GUIRailAdvanced extends GuiScreenCustom {
+public class GUIRailAdvanced extends GuiScreenCustom
+{
 
     private static final int BUTTON_OK = 0;
     private static final int BUTTON_CANCEL = 1;
 
-    public GUIRailAdvanced() {
+    public GUIRailAdvanced()
+    {
 
     }
 
     @Override
-    public void initGui() {
+    public void initGui()
+    {
         super.initGui();
 
         int hw = this.width / 2;
@@ -26,27 +29,33 @@ public class GUIRailAdvanced extends GuiScreenCustom {
     }
 
     @Override
-    protected void actionPerformed(GuiButton button) {
-        switch (button.id) {
-            case BUTTON_OK:
-                this.sendPacket();
-                this.mc.setIngameFocus();
-                break;
-            case BUTTON_CANCEL:
-                this.mc.setIngameFocus();
-                break;
-            default:
-                break;
+    protected void actionPerformed(GuiButton button)
+    {
+        switch (button.id)
+        {
+        case BUTTON_OK:
+            this.sendPacket();
+            this.mc.setIngameFocus();
+            break;
+        case BUTTON_CANCEL:
+            this.mc.setIngameFocus();
+            break;
+        default:
+            break;
         }
-        try {
+        try
+        {
             super.actionPerformed(button);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void drawScreen(int par1, int par2, float par3) {
+    public void drawScreen(int par1, int par2, float par3)
+    {
         this.drawDefaultBackground();
         super.drawScreen(par1, par2, par3);
 
@@ -61,12 +70,14 @@ public class GUIRailAdvanced extends GuiScreenCustom {
         this.drawCenteredString(this.fontRenderer, "中文测试", this.width - 70, 190, 0xFFFFFF);
     }
 
-    private void sendPacket() {
+    private void sendPacket()
+    {
         this.updateValues();
 //        RTMMetro.NETWORK_WRAPPER.sendToServer(new PacketRigidCatenarySettings());
     }
 
-    private void updateValues() {
+    private void updateValues()
+    {
         ;
     }
 

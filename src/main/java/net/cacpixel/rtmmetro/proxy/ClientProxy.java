@@ -8,30 +8,36 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class ClientProxy extends CommonProxy {
+public class ClientProxy extends CommonProxy
+{
     private final MarkerManager mmClient = new MarkerManager(true);
 
-    public ClientProxy() {
+    public ClientProxy()
+    {
     }
 
     @Override
-    public void preInit() {
+    public void preInit()
+    {
         RTMMetroBlock.initClient();
         RTMMetroItems.initClient();
     }
 
     @Override
-    public void init() {
+    public void init()
+    {
         RTMMetroBlock.initClient2();
         RTMMetroItems.initClient2();
     }
 
     @Override
-    public void complete() {
+    public void complete()
+    {
     }
 
     @Override
-    public MarkerManager getMarkerManager() {
+    public MarkerManager getMarkerManager()
+    {
         return NGTUtil.isServer() ? super.getMarkerManager() : this.mmClient;
     }
 

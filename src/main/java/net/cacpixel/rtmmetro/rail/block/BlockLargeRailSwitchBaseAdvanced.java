@@ -4,9 +4,11 @@ import jp.ngt.rtm.rail.TileEntityLargeRailSwitchBase;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
-public class BlockLargeRailSwitchBaseAdvanced extends BlockLargeRailBaseAdvanced {
+public class BlockLargeRailSwitchBaseAdvanced extends BlockLargeRailBaseAdvanced
+{
 
-    public BlockLargeRailSwitchBaseAdvanced(){
+    public BlockLargeRailSwitchBaseAdvanced()
+    {
         super();
     }
 

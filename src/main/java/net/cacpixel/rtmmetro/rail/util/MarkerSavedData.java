@@ -7,20 +7,25 @@ import net.minecraft.world.storage.WorldSavedData;
 
 import java.util.List;
 
-public final class MarkerSavedData extends WorldSavedData {
+public final class MarkerSavedData extends WorldSavedData
+{
 
-    public MarkerSavedData(String name) {
+    public MarkerSavedData(String name)
+    {
         super(name);
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound nbt) {
+    public void readFromNBT(NBTTagCompound nbt)
+    {
         MarkerManager.getInstance().clear();
         NBTTagList tagList = nbt.getTagList("RTMMetroAdvancedMarkers", 10);
 
-        for (int i = 0; i <= tagList.tagCount(); ++i) {
+        for (int i = 0; i <= tagList.tagCount(); ++i)
+        {
             NBTTagCompound tag = tagList.getCompoundTagAt(i);
-            if (tag.hasNoTags()) {
+            if (tag.hasNoTags())
+            {
                 continue;
             }
             String str = tag.getString("worldName");
@@ -34,10 +39,12 @@ public final class MarkerSavedData extends WorldSavedData {
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+    {
         NBTTagList tagList = new NBTTagList();
         List<MarkerData> markers = MarkerManager.getInstance().getMarkerList();
-        for (MarkerData marker : markers) {
+        for (MarkerData marker : markers)
+        {
             NBTTagCompound tag = new NBTTagCompound();
             String str = marker.getWorldName();
             tag.setString("worldName", str);

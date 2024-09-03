@@ -12,27 +12,31 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-public class WorldUtils {
+public class WorldUtils
+{
 
-    public static RayTraceResult getMOPFromPlayer(EntityPlayer player, double distance, boolean liquid) {
+    public static RayTraceResult getMOPFromPlayer(EntityPlayer player, double distance, boolean liquid)
+    {
         float f = 1.0F;
         float f1 = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * f;
         float f2 = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * f;
-        double d0 = player.prevPosX + (player.posX - player.prevPosX) * (double)f;
-        double d1 = player.prevPosY + (player.posY - player.prevPosY) * (double)f + 1.62D - player.getYOffset();
-        double d2 = player.prevPosZ + (player.posZ - player.prevPosZ) * (double)f;
+        double d0 = player.prevPosX + (player.posX - player.prevPosX) * (double) f;
+        double d1 = player.prevPosY + (player.posY - player.prevPosY) * (double) f + 1.62D - player.getYOffset();
+        double d2 = player.prevPosZ + (player.posZ - player.prevPosZ) * (double) f;
         Vec3d vec3d = new Vec3d(d0, d1, d2);
-        float f3 = MathHelper.cos(-f2 * ((float)Math.PI / 180F) - NGTMath.PI);
-        float f4 = MathHelper.sin(-f2 * ((float)Math.PI / 180F) - NGTMath.PI);
-        float f5 = -MathHelper.cos(-f1 * ((float)Math.PI / 180F));
-        float f6 = MathHelper.sin(-f1 * ((float)Math.PI / 180F));
+        float f3 = MathHelper.cos(-f2 * ((float) Math.PI / 180F) - NGTMath.PI);
+        float f4 = MathHelper.sin(-f2 * ((float) Math.PI / 180F) - NGTMath.PI);
+        float f5 = -MathHelper.cos(-f1 * ((float) Math.PI / 180F));
+        float f6 = MathHelper.sin(-f1 * ((float) Math.PI / 180F));
         float f7 = f4 * f5;
         float f8 = f3 * f5;
-        Vec3d vec3d1 = vec3d.addVector((double)f7 * distance, (double)f6 * distance, (double)f8 * distance);
+        Vec3d vec3d1 = vec3d.addVector((double) f7 * distance, (double) f6 * distance, (double) f8 * distance);
         return rayTraceBlocks(player.world, (int) Math.floor(distance), vec3d, vec3d1, liquid, false, false);
     }
 
-    public static RayTraceResult rayTraceBlocks(World world, int distance, Vec3d vec31, Vec3d vec32, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox, boolean returnLastUncollidableBlock)
+    public static RayTraceResult rayTraceBlocks(World world, int distance, Vec3d vec31, Vec3d vec32,
+                                                boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox,
+                                                boolean returnLastUncollidableBlock)
     {
         if (!Double.isNaN(vec31.x) && !Double.isNaN(vec31.y) && !Double.isNaN(vec31.z))
         {
@@ -48,7 +52,9 @@ public class WorldUtils {
                 IBlockState iblockstate = world.getBlockState(blockpos);
                 Block block = iblockstate.getBlock();
 
-                if ((!ignoreBlockWithoutBoundingBox || iblockstate.getCollisionBoundingBox(world, blockpos) != Block.NULL_AABB) && block.canCollideCheck(iblockstate, stopOnLiquid))
+                if ((!ignoreBlockWithoutBoundingBox ||
+                        iblockstate.getCollisionBoundingBox(world, blockpos) != Block.NULL_AABB) &&
+                        block.canCollideCheck(iblockstate, stopOnLiquid))
                 {
                     RayTraceResult raytraceresult = iblockstate.collisionRayTrace(world, blockpos, vec31, vec32);
 
@@ -82,11 +88,11 @@ public class WorldUtils {
 
                     if (i > l)
                     {
-                        d0 = (double)l + 1.0D;
+                        d0 = (double) l + 1.0D;
                     }
                     else if (i < l)
                     {
-                        d0 = (double)l + 0.0D;
+                        d0 = (double) l + 0.0D;
                     }
                     else
                     {
@@ -95,11 +101,11 @@ public class WorldUtils {
 
                     if (j > i1)
                     {
-                        d1 = (double)i1 + 1.0D;
+                        d1 = (double) i1 + 1.0D;
                     }
                     else if (j < i1)
                     {
-                        d1 = (double)i1 + 0.0D;
+                        d1 = (double) i1 + 0.0D;
                     }
                     else
                     {
@@ -108,11 +114,11 @@ public class WorldUtils {
 
                     if (k > j1)
                     {
-                        d2 = (double)j1 + 1.0D;
+                        d2 = (double) j1 + 1.0D;
                     }
                     else if (k < j1)
                     {
-                        d2 = (double)j1 + 0.0D;
+                        d2 = (double) j1 + 0.0D;
                     }
                     else
                     {
@@ -181,11 +187,13 @@ public class WorldUtils {
                     IBlockState iblockstate1 = world.getBlockState(blockpos);
                     Block block1 = iblockstate1.getBlock();
 
-                    if (!ignoreBlockWithoutBoundingBox || iblockstate1.getMaterial() == Material.PORTAL || iblockstate1.getCollisionBoundingBox(world, blockpos) != Block.NULL_AABB)
+                    if (!ignoreBlockWithoutBoundingBox || iblockstate1.getMaterial() == Material.PORTAL ||
+                            iblockstate1.getCollisionBoundingBox(world, blockpos) != Block.NULL_AABB)
                     {
                         if (block1.canCollideCheck(iblockstate1, stopOnLiquid))
                         {
-                            RayTraceResult raytraceresult1 = iblockstate1.collisionRayTrace(world, blockpos, vec31, vec32);
+                            RayTraceResult raytraceresult1 = iblockstate1.collisionRayTrace(world, blockpos, vec31,
+                                    vec32);
 
                             if (raytraceresult1 != null)
                             {

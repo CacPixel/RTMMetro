@@ -23,33 +23,41 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
-public class ItemRigidCatenary extends ItemAdvancedWithModel<ModelSetRigidCatenary, RigidCatenaryConfig> {
-    public ItemRigidCatenary() {
+public class ItemRigidCatenary extends ItemAdvancedWithModel<ModelSetRigidCatenary, RigidCatenaryConfig>
+{
+    public ItemRigidCatenary()
+    {
         super();
         this.maxStackSize = 1;
     }
 
-    public int getGuiId(ItemStack stack) {
+    public int getGuiId(ItemStack stack)
+    {
         return RTMMetro.guiIdRigidCatenary;
 //        return RTMCore.guiIdSelectItemModel;
     }
 
     @Override
-    protected ResourceType getModelType(ItemStack itemStack) {
+    protected ResourceType getModelType(ItemStack itemStack)
+    {
         return RTMMetroResource.RIGID_CATENARY;
     }
 
     @Override
-    protected ResourceState getNewState(ItemStack itemStack, ResourceType resourceType) {
+    protected ResourceState getNewState(ItemStack itemStack, ResourceType resourceType)
+    {
         return new ResourceState(resourceType, null);
     }
 
     @Override
-    protected ActionResult<ItemStack> onItemRightClick(ItemArgHolderBase.ItemArgHolder holder) {
-        if (!holder.getPlayer().capabilities.isCreativeMode) {
+    protected ActionResult<ItemStack> onItemRightClick(ItemArgHolderBase.ItemArgHolder holder)
+    {
+        if (!holder.getPlayer().capabilities.isCreativeMode)
+        {
             return holder.pass();
         }
-        if (holder.getWorld().isRemote) {
+        if (holder.getWorld().isRemote)
+        {
 //            super.onItemRightClick(holder);
             holder.getPlayer().openGui(RTMMetro.INSTANCE,
                     this.getGuiId(holder.getItemStack()), holder.getWorld(), 0, 0, 0);
@@ -58,18 +66,23 @@ public class ItemRigidCatenary extends ItemAdvancedWithModel<ModelSetRigidCatena
     }
 
     @Override
-    protected ActionResult<ItemStack> onItemUse(ItemArgHolderBase.ItemArgHolder holder, float hitX, float hitY, float hitZ) {
-        if (!holder.getPlayer().capabilities.isCreativeMode) {
+    protected ActionResult<ItemStack> onItemUse(ItemArgHolderBase.ItemArgHolder holder, float hitX, float hitY,
+                                                float hitZ)
+    {
+        if (!holder.getPlayer().capabilities.isCreativeMode)
+        {
             return holder.pass();
         }
 
         World world = holder.getWorld();
         IBlockState blockState = world.getBlockState(holder.getBlockPos());
         TileEntityLargeRailCore core = BlockLargeRailBase.getCore(world, holder.getBlockPos());
-        if (core == null) {
+        if (core == null)
+        {
             return holder.pass();
         }
-        if (!world.isRemote) {
+        if (!world.isRemote)
+        {
 //            NGTLog.debug("rigid catenary on item use !");
             ResourceStateRail state = ItemRail.getDefaultProperty();
             //值得注意的是，我们的轨道是一个新的东西，继承BlockLargeRailXXX，TileEntity也是新的
@@ -80,9 +93,11 @@ public class ItemRigidCatenary extends ItemAdvancedWithModel<ModelSetRigidCatena
     }
 
     @SideOnly(Side.CLIENT)
-    protected void addInformation(ItemArgHolderBase.ItemArgHolder holder, List<String> list, ITooltipFlag flag) {
+    protected void addInformation(ItemArgHolderBase.ItemArgHolder holder, List<String> list, ITooltipFlag flag)
+    {
         super.addInformation(holder, list, flag);
-        if (ModelPackManager.INSTANCE.modelLoaded) {
+        if (ModelPackManager.INSTANCE.modelLoaded)
+        {
             list.add(TextFormatting.GRAY + "这里放一点刚性接触网的各种参数, get nbt获取...");
         }
 

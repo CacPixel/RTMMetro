@@ -10,7 +10,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TileEntityLargeRailSubCoreAdvanced extends TileEntityLargeRailNormalCore {
+public class TileEntityLargeRailSubCoreAdvanced extends TileEntityLargeRailNormalCore
+{
 
     private TileEntityLargeRailMainCoreAdvanced mainCore;
     public List<IRailComponent> railComponents = new ArrayList<>();
@@ -18,7 +19,8 @@ public class TileEntityLargeRailSubCoreAdvanced extends TileEntityLargeRailNorma
     protected RailMapAdvanced railMapAdvanced;
     public boolean isFirstLoad = true;
 
-    public TileEntityLargeRailMainCoreAdvanced getMainCore() {
+    public TileEntityLargeRailMainCoreAdvanced getMainCore()
+    {
         return this.mainCore;
     }
 
@@ -34,40 +36,49 @@ public class TileEntityLargeRailSubCoreAdvanced extends TileEntityLargeRailNorma
 //    }
 
     @Override
-    public void createRailMap() {
-        if (this.isLoaded()) {
+    public void createRailMap()
+    {
+        if (this.isLoaded())
+        {
             this.railMapAdvanced = new RailMapAdvanced(this.railPositions[0], this.railPositions[1]);
         }
     }
 
     @Override
-    public RailMap getRailMap(Entity entity) {
-        if (this.railMapAdvanced == null) {
+    public RailMap getRailMap(Entity entity)
+    {
+        if (this.railMapAdvanced == null)
+        {
             this.createRailMap();
         }
         return this.railMapAdvanced;
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(NBTTagCompound tag)
+    {
         super.readFromNBT(tag);
         this.readAdditionalData(tag);
     }
 
-    public void readAdditionalData(NBTTagCompound tag) {
-        if (tag.hasKey("RTMMetroAdditional")) {
+    public void readAdditionalData(NBTTagCompound tag)
+    {
+        if (tag.hasKey("RTMMetroAdditional"))
+        {
 
         }
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
+    public NBTTagCompound writeToNBT(NBTTagCompound tag)
+    {
         super.writeToNBT(tag);
         this.writeAdditionalData(tag);
         return tag;
     }
 
-    public void writeAdditionalData(NBTTagCompound tag) {
+    public void writeAdditionalData(NBTTagCompound tag)
+    {
 
     }
 

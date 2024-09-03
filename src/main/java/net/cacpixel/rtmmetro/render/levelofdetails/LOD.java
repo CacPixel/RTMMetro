@@ -1,4 +1,5 @@
 package net.cacpixel.rtmmetro.render.levelofdetails;
 
-public interface LOD {
+public interface LOD
+{
 }

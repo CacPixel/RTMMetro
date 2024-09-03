@@ -1,6 +1,8 @@
 package net.cacpixel.rtmmetro.traincontrollerdemo;
 
-public interface IUartDevice {
+public interface IUartDevice
+{
     void init();
+
     void deInit();
 }

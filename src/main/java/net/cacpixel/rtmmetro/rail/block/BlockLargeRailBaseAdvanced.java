@@ -18,8 +18,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
-public class BlockLargeRailBaseAdvanced extends BlockLargeRailBase {
-    public BlockLargeRailBaseAdvanced() {
+public class BlockLargeRailBaseAdvanced extends BlockLargeRailBase
+{
+    public BlockLargeRailBaseAdvanced()
+    {
         super();
         this.setBlockUnbreakable();
         this.setResistance(6000001.0F);
@@ -30,46 +32,62 @@ public class BlockLargeRailBaseAdvanced extends BlockLargeRailBase {
     }
 
     @Override
-    public TileEntity createNewTileEntity(World world, int par2) {
+    public TileEntity createNewTileEntity(World world, int par2)
+    {
         return new TileEntityLargeRailBase();
     }
 
     @Override
-    public void breakBlock(World world, BlockPos pos, IBlockState state) {
+    public void breakBlock(World world, BlockPos pos, IBlockState state)
+    {
         TileEntityLargeRailCore core1 = getCore(world, pos);
-        if(core1 instanceof TileEntityLargeRailSubCoreAdvanced){
+        if (core1 instanceof TileEntityLargeRailSubCoreAdvanced)
+        {
             TileEntityLargeRailSubCoreAdvanced core = ((TileEntityLargeRailSubCoreAdvanced) core1);
-            if (!world.isRemote && !core.isRailBreaking) {
+            if (!world.isRemote && !core.isRailBreaking)
+            {
                 core.isRailBreaking = true;
                 RailMap[] railmaps = core.getAllRailMaps();
-                if (railmaps != null) {
-                    for (RailMap rm : railmaps) {
+                if (railmaps != null)
+                {
+                    for (RailMap rm : railmaps)
+                    {
                         rm.breakRail(world, core.getResourceState(), core);
                         super.breakBlock(world, pos, state);
                     }
                 }
             }
-        } else if(core1 instanceof TileEntityLargeRailSwitchCoreAdvanced){
+        }
+        else if (core1 instanceof TileEntityLargeRailSwitchCoreAdvanced)
+        {
             TileEntityLargeRailSwitchCoreAdvanced core = ((TileEntityLargeRailSwitchCoreAdvanced) core1);
-            if (!world.isRemote && !core.isRailBreaking) {
+            if (!world.isRemote && !core.isRailBreaking)
+            {
                 core.isRailBreaking = true;
                 RailMap[] railmaps = core.getAllRailMaps();
-                if (railmaps != null) {
-                    for (RailMap rm : railmaps) {
+                if (railmaps != null)
+                {
+                    for (RailMap rm : railmaps)
+                    {
                         rm.breakRail(world, core.getResourceState(), core);
                         super.breakBlock(world, pos, state);
                     }
                 }
             }
-        } else {
+        }
+        else
+        {
             super.breakBlock(world, pos, state);
         }
     }
 
     @Override
-    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
+    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos,
+                                  EntityPlayer player)
+    {
         TileEntityLargeRailCore core = this.getCore(world, pos);
-        if (core != null) {
+        if (core != null)
+        {
             return ItemRailAdvanced.copyItemFromRail(core);
         }
         //return null;
