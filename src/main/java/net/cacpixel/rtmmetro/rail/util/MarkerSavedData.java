@@ -24,7 +24,7 @@ public final class MarkerSavedData extends WorldSavedData
         for (int i = 0; i <= tagList.tagCount(); ++i)
         {
             NBTTagCompound tag = tagList.getCompoundTagAt(i);
-            if (tag.hasNoTags())
+            if (tag.isEmpty())
             {
                 continue;
             }

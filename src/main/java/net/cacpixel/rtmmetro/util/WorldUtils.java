@@ -30,7 +30,7 @@ public class WorldUtils
         float f6 = MathHelper.sin(-f1 * ((float) Math.PI / 180F));
         float f7 = f4 * f5;
         float f8 = f3 * f5;
-        Vec3d vec3d1 = vec3d.addVector((double) f7 * distance, (double) f6 * distance, (double) f8 * distance);
+        Vec3d vec3d1 = vec3d.add((double) f7 * distance, (double) f6 * distance, (double) f8 * distance);
         return rayTraceBlocks(player.world, (int) Math.floor(distance), vec3d, vec3d1, liquid, false, false);
     }
 

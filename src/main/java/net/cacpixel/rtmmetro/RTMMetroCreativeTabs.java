@@ -19,7 +19,7 @@ public class RTMMetroCreativeTabs extends CreativeTabs
 
     @Override
     @SideOnly(Side.CLIENT)
-    public ItemStack getTabIconItem()
+    public ItemStack createIcon()
     {
         if (this == RTM_METRO_TAB_ITEMS)
         {
