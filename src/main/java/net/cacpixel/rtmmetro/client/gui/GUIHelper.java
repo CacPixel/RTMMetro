@@ -4,23 +4,26 @@ import jp.ngt.ngtlib.gui.GuiTextFieldCustom;
 
 public class GUIHelper
 {
-    public static float getFieldValueFloat(GuiTextFieldCustom field, float defaultVal)
+    public static <T> T getFieldValue(GuiTextFieldCustom field, T defaultVal)
     {
         try
         {
-            return Float.valueOf(field.getText());
-        }
-        catch (NumberFormatException e)
-        {
-            return defaultVal;
-        }
-    }
-
-    public static int getFieldValueInt(GuiTextFieldCustom field, int defaultVal)
-    {
-        try
-        {
-            return Integer.valueOf(field.getText());
+            if (defaultVal instanceof Integer)
+            {
+                return (T)Integer.valueOf(field.getText());
+            }
+            else if (defaultVal instanceof Float)
+            {
+                return (T)Float.valueOf(field.getText());
+            }
+            else if (defaultVal instanceof Double)
+            {
+                return (T)Double.valueOf(field.getText());
+            }
+            else
+            {
+                return defaultVal;
+            }
         }
         catch (NumberFormatException e)
         {

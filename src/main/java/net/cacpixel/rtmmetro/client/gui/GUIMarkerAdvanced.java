@@ -1,5 +1,6 @@
 package net.cacpixel.rtmmetro.client.gui;
 
+import jp.ngt.ngtlib.gui.GuiTextFieldCustom;
 import jp.ngt.rtm.rail.util.RailPosition;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
 import net.minecraft.client.gui.GuiButton;
@@ -8,8 +9,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class GUIMarkerAdvanced extends GuiScreenAdvanced
@@ -17,14 +16,13 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
     public final TileEntityMarkerAdvanced marker;
     private RailPosition currentRP;
     private GuiTextFieldAdvanced fieldGroup;
-    private GuiTextFieldAdvanced fieldAnchorLengthHorizontal;
-    private GuiTextFieldAdvanced fieldAnchorPitch;
-    private GuiTextFieldAdvanced fieldAnchorLengthVertical;
-    private GuiTextFieldAdvanced fieldAnchorYaw;
-    private GuiTextFieldAdvanced fieldCantCenter;
-    private GuiTextFieldAdvanced fieldCantEdge;
-    private GuiTextFieldAdvanced fieldCantRandom;
-    private List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
+    private GuiTextFieldAdvancedFloat fieldAnchorLengthHorizontal;
+    private GuiTextFieldAdvancedFloat fieldAnchorPitch;
+    private GuiTextFieldAdvancedFloat fieldAnchorLengthVertical;
+    private GuiTextFieldAdvancedFloat fieldAnchorYaw;
+    private GuiTextFieldAdvancedFloat fieldCantCenter;
+    private GuiTextFieldAdvancedFloat fieldCantEdge;
+    private GuiTextFieldAdvancedFloat fieldCantRandom;
     private static final int BUTTON_OK = 0;
     private static final int BUTTON_CANCEL = 1;
 
@@ -53,34 +51,25 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
                 String.valueOf(this.marker.groupNumber));
         fieldYpos += 20;
         this.fieldAnchorLengthHorizontal = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                String.valueOf(this.currentRP.anchorLengthHorizontal));
+                this.currentRP.anchorLengthHorizontal);
         fieldYpos += 20;
         this.fieldAnchorYaw = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                String.valueOf(this.currentRP.anchorYaw));
+                this.currentRP.anchorYaw);
         fieldYpos += 20;
         this.fieldAnchorLengthVertical = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                String.valueOf(this.currentRP.anchorLengthVertical));
+                this.currentRP.anchorLengthVertical);
         fieldYpos += 20;
         this.fieldAnchorPitch = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                String.valueOf(this.currentRP.anchorPitch));
+                this.currentRP.anchorPitch);
         fieldYpos += 20;
         this.fieldCantCenter = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                String.valueOf(this.currentRP.cantCenter));
+                this.currentRP.cantCenter);
         fieldYpos += 20;
         this.fieldCantEdge = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                String.valueOf(this.currentRP.cantEdge));
+                this.currentRP.cantEdge);
         fieldYpos += 20;
         this.fieldCantRandom = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                String.valueOf(this.currentRP.cantRandom));
-
-        this.textFields.add(this.fieldGroup);
-        this.textFields.add(this.fieldAnchorLengthHorizontal);
-        this.textFields.add(this.fieldAnchorYaw);
-        this.textFields.add(this.fieldAnchorLengthVertical);
-        this.textFields.add(this.fieldAnchorPitch);
-        this.textFields.add(this.fieldCantCenter);
-        this.textFields.add(this.fieldCantEdge);
-        this.textFields.add(this.fieldCantRandom);
+                this.currentRP.cantRandom);
     }
 
     @Override
@@ -125,10 +114,35 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
-        this.updateValues();
-        for (GuiTextFieldAdvanced field : this.textFields)
+        for (GuiTextFieldCustom field : this.textFields)
         {
-            field.handleMouseInput();
+            if (field instanceof GuiTextFieldAdvanced)
+            {
+                ((GuiTextFieldAdvanced) field).handleMouseInput();
+            }
+        }
+        if (this.hasValueUpdated)
+        {
+            this.updateValues();
+            this.hasValueUpdated = false;
+        }
+    }
+
+    @Override
+    public void handleKeyboardInput() throws IOException
+    {
+        super.handleKeyboardInput();
+        for (GuiTextFieldCustom field : this.textFields)
+        {
+            if (field instanceof GuiTextFieldAdvanced)
+            {
+                ((GuiTextFieldAdvanced) field).handleKeyboardInput();
+            }
+        }
+        if (this.hasValueUpdated)
+        {
+            this.updateValues();
+            this.hasValueUpdated = false;
         }
     }
 
@@ -171,15 +185,24 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
 
     private void updateValues()
     {
-        this.marker.groupNumber = GUIHelper.getFieldValueInt(this.fieldGroup, this.marker.groupNumber);
-        this.currentRP.anchorLengthHorizontal = GUIHelper.getFieldValueFloat(this.fieldAnchorLengthHorizontal,
+        this.marker.groupNumber = GUIHelper.getFieldValue(this.fieldGroup, this.marker.groupNumber);
+        this.currentRP.anchorLengthHorizontal = GUIHelper.getFieldValue(this.fieldAnchorLengthHorizontal,
                 this.currentRP.anchorLengthHorizontal);
-        this.currentRP.anchorLengthVertical = GUIHelper.getFieldValueFloat(this.fieldAnchorLengthVertical,
+        this.currentRP.anchorLengthVertical = GUIHelper.getFieldValue(this.fieldAnchorLengthVertical,
                 this.currentRP.anchorLengthVertical);
-        this.currentRP.anchorYaw = GUIHelper.getFieldValueFloat(this.fieldAnchorYaw, this.currentRP.anchorYaw);
-        this.currentRP.anchorPitch = GUIHelper.getFieldValueFloat(this.fieldAnchorPitch, this.currentRP.anchorPitch);
-        this.currentRP.cantCenter = GUIHelper.getFieldValueFloat(this.fieldCantCenter, this.currentRP.cantCenter);
-        this.currentRP.cantEdge = GUIHelper.getFieldValueFloat(this.fieldCantEdge, this.currentRP.cantEdge);
-        this.currentRP.cantRandom = GUIHelper.getFieldValueFloat(this.fieldCantRandom, this.currentRP.cantRandom);
+        this.currentRP.anchorYaw = GUIHelper.getFieldValue(this.fieldAnchorYaw, this.currentRP.anchorYaw);
+        this.currentRP.anchorPitch = GUIHelper.getFieldValue(this.fieldAnchorPitch, this.currentRP.anchorPitch);
+        this.currentRP.cantCenter = GUIHelper.getFieldValue(this.fieldCantCenter, this.currentRP.cantCenter);
+        this.currentRP.cantEdge = GUIHelper.getFieldValue(this.fieldCantEdge, this.currentRP.cantEdge);
+        this.currentRP.cantRandom = GUIHelper.getFieldValue(this.fieldCantRandom, this.currentRP.cantRandom);
+        /*
+        this.currentRP.anchorLengthHorizontal = fieldAnchorLengthHorizontal.fieldValue;
+        this.currentRP.anchorLengthVertical = fieldAnchorLengthVertical.fieldValue;
+        this.currentRP.anchorYaw = fieldAnchorYaw.fieldValue;
+        this.currentRP.anchorPitch = fieldAnchorPitch.fieldValue;
+        this.currentRP.cantCenter = fieldCantCenter.fieldValue;
+        this.currentRP.cantEdge = fieldCantEdge.fieldValue;
+        this.currentRP.cantRandom = fieldCantRandom.fieldValue;
+        */
     }
 }
