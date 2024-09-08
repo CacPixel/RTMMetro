@@ -14,6 +14,7 @@ import org.lwjgl.input.Mouse;
 public class GuiTextFieldAdvanced extends GuiTextFieldCustom
 {
     protected final GuiScreen pScr;
+    public static final int DEFAULT_SCROLL_VALUE = 120;
 
     public GuiTextFieldAdvanced(int id, FontRenderer par1, int x, int y, int w, int h, GuiScreen pScr)
     {
@@ -29,6 +30,11 @@ public class GuiTextFieldAdvanced extends GuiTextFieldCustom
     public void handleKeyboardInput()
     {
         this.setScrValueUpdated();
+    }
+
+    public boolean isValueValid()
+    {
+        return true;
     }
 
     // NoSuchFieldError guiResponder with optifine in dev env

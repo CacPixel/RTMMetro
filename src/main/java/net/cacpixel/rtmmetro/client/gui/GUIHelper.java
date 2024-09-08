@@ -10,15 +10,15 @@ public class GUIHelper
         {
             if (defaultVal instanceof Integer)
             {
-                return (T)Integer.valueOf(field.getText());
+                return (T) Integer.valueOf(field.getText());
             }
             else if (defaultVal instanceof Float)
             {
-                return (T)Float.valueOf(field.getText());
+                return (T) Float.valueOf(field.getText());
             }
             else if (defaultVal instanceof Double)
             {
-                return (T)Double.valueOf(field.getText());
+                return (T) Double.valueOf(field.getText());
             }
             else
             {

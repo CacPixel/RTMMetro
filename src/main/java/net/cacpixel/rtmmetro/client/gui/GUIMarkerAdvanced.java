@@ -2,6 +2,7 @@ package net.cacpixel.rtmmetro.client.gui;
 
 import jp.ngt.ngtlib.gui.GuiTextFieldCustom;
 import jp.ngt.rtm.rail.util.RailPosition;
+import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
@@ -34,10 +35,10 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
     @Override
     public void initGui()
     {
-        int stringXpos = this.width - 200;
-        int fieldYpos = 16;
-        int fieldWidth = 80;
+        int fieldWidth = 75;
         int fieldHeight = 16;
+        int stringXpos = this.width - fieldWidth - 10;
+        int fieldYpos = 9;
 
         super.initGui();
         this.currentRP = this.marker.getMarkerRP();
@@ -45,31 +46,58 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         int hw = this.width / 2;
 
         this.buttonList.clear();
-        this.buttonList.add(new GuiButton(BUTTON_OK, hw - 75, this.height - 28, 150, 20, I18n.format("gui.done")));
+        this.buttonList.add(new GuiButton(BUTTON_OK, this.width - 150, this.height - 30, 120, 20, I18n.format("gui.done")));
 
         this.fieldGroup = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
                 String.valueOf(this.marker.groupNumber));
         fieldYpos += 20;
         this.fieldAnchorLengthHorizontal = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.currentRP.anchorLengthHorizontal);
+                this.currentRP.anchorLengthHorizontal, 0.0f, (float) ModConfig.railGeneratingDistance);
         fieldYpos += 20;
         this.fieldAnchorYaw = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.currentRP.anchorYaw);
+                this.currentRP.anchorYaw, -180.0f, 180.0f);
         fieldYpos += 20;
         this.fieldAnchorLengthVertical = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.currentRP.anchorLengthVertical);
+                this.currentRP.anchorLengthVertical, 0.0f, (float) ModConfig.railGeneratingDistance);
         fieldYpos += 20;
         this.fieldAnchorPitch = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.currentRP.anchorPitch);
+                this.currentRP.anchorPitch, -180.0f, 180.0f);
         fieldYpos += 20;
         this.fieldCantCenter = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.currentRP.cantCenter);
+                this.currentRP.cantCenter, -90.0f, 90.0f);
         fieldYpos += 20;
         this.fieldCantEdge = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.currentRP.cantEdge);
+                this.currentRP.cantEdge, -90.0f, 90.0f);
         fieldYpos += 20;
         this.fieldCantRandom = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.currentRP.cantRandom);
+                this.currentRP.cantRandom, -90.0f, 90.0f);
+    }
+
+    @Override
+    public void drawScreen(int par1, int par2, float par3)
+    {
+        int stringXpos = this.width - 180;
+        int stringYpos = 13;
+
+//        this.drawDefaultBackground();
+        this.drawGradientRect(Math.max(0, stringXpos - 10), 0, this.width, this.height, -1072689136, -804253680);
+
+        super.drawScreen(par1, par2, par3);
+        this.drawString(this.fontRenderer, "Marker Group", stringXpos, stringYpos, 0xFFFFFF);
+        stringYpos += 20;
+        this.drawString(this.fontRenderer, "Horizontal Length", stringXpos, stringYpos, 0xFFFFFF);
+        stringYpos += 20;
+        this.drawString(this.fontRenderer, "Anchor Yaw", stringXpos, stringYpos, 0xFFFFFF);
+        stringYpos += 20;
+        this.drawString(this.fontRenderer, "Vertical Length", stringXpos, stringYpos, 0xFFFFFF);
+        stringYpos += 20;
+        this.drawString(this.fontRenderer, "Anchor Pitch", stringXpos, stringYpos, 0xFFFFFF);
+        stringYpos += 20;
+        this.drawString(this.fontRenderer, "Cant Center", stringXpos, stringYpos, 0xFFFFFF);
+        stringYpos += 20;
+        this.drawString(this.fontRenderer, "Cant Edge", stringXpos, stringYpos, 0xFFFFFF);
+        stringYpos += 20;
+        this.drawString(this.fontRenderer, "Cant Random", stringXpos, stringYpos, 0xFFFFFF);
     }
 
     @Override
@@ -116,7 +144,7 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         super.handleMouseInput();
         for (GuiTextFieldCustom field : this.textFields)
         {
-            if (field instanceof GuiTextFieldAdvanced)
+            if (field instanceof GuiTextFieldAdvanced && ((GuiTextFieldAdvanced) field).isMouseInside())
             {
                 ((GuiTextFieldAdvanced) field).handleMouseInput();
             }
@@ -134,7 +162,7 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         super.handleKeyboardInput();
         for (GuiTextFieldCustom field : this.textFields)
         {
-            if (field instanceof GuiTextFieldAdvanced)
+            if (field instanceof GuiTextFieldAdvanced && field.getVisible() && field.isFocused())
             {
                 ((GuiTextFieldAdvanced) field).handleKeyboardInput();
             }
@@ -144,31 +172,6 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
             this.updateValues();
             this.hasValueUpdated = false;
         }
-    }
-
-    @Override
-    public void drawScreen(int par1, int par2, float par3)
-    {
-        int stringXpos = this.width - 300;
-        int stringYpos = 20;
-
-        this.drawDefaultBackground();
-        super.drawScreen(par1, par2, par3);
-        this.drawString(this.fontRenderer, "Marker Group", stringXpos, stringYpos, 0xFFFFFF);
-        stringYpos += 20;
-        this.drawString(this.fontRenderer, "Horizontal Length", stringXpos, stringYpos, 0xFFFFFF);
-        stringYpos += 20;
-        this.drawString(this.fontRenderer, "Anchor Yaw", stringXpos, stringYpos, 0xFFFFFF);
-        stringYpos += 20;
-        this.drawString(this.fontRenderer, "Vertical Length", stringXpos, stringYpos, 0xFFFFFF);
-        stringYpos += 20;
-        this.drawString(this.fontRenderer, "Anchor Pitch", stringXpos, stringYpos, 0xFFFFFF);
-        stringYpos += 20;
-        this.drawString(this.fontRenderer, "Cant Center", stringXpos, stringYpos, 0xFFFFFF);
-        stringYpos += 20;
-        this.drawString(this.fontRenderer, "Cant Edge", stringXpos, stringYpos, 0xFFFFFF);
-        stringYpos += 20;
-        this.drawString(this.fontRenderer, "Cant Random", stringXpos, stringYpos, 0xFFFFFF);
     }
 
     @Override

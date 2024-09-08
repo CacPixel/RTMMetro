@@ -1,17 +1,12 @@
 package net.cacpixel.rtmmetro.client.gui;
 
 import jp.ngt.ngtlib.gui.GuiScreenCustom;
-import jp.ngt.ngtlib.gui.GuiSlotCustom;
 import jp.ngt.ngtlib.gui.GuiTextFieldCustom;
-import jp.ngt.ngtlib.util.NGTUtilClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.io.IOException;
 
 @SideOnly(Side.CLIENT)
 public abstract class GuiScreenAdvanced extends GuiScreenCustom
@@ -39,14 +34,35 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
         return field;
     }
 
-    protected GuiTextFieldAdvancedFloat setTextField(int xPos, int yPos, int w, int h, float value)
+    protected GuiTextFieldAdvancedFloat setTextField(int xPos, int yPos, int w, int h, float value,
+                                                     float min, float max)
     {
-        GuiTextFieldAdvancedFloat field = new GuiTextFieldAdvancedFloat(NEXT_FIELD_ID++, this.fontRenderer, xPos, yPos, w, h,
-                this, value);
+        GuiTextFieldAdvancedFloat field = new GuiTextFieldAdvancedFloat(NEXT_FIELD_ID++, this.fontRenderer, xPos, yPos,
+                w, h, this, value).setMinMax(min, max);
         field.setMaxStringLength(32767);
         field.setFocused(false);
         field.setText(String.valueOf(value));
         this.textFields.add(field);
         return field;
+    }
+
+    protected GuiTextFieldAdvancedFloat setTextField(int xPos, int yPos, int w, int h, float value)
+    {
+        return this.setTextField(xPos, yPos, w, h, value, Float.MIN_VALUE, Float.MAX_VALUE);
+    }
+
+    @Override
+    protected void mouseClicked(int x, int y, int button) throws IOException
+    {
+        super.mouseClicked(x, y, button);
+        for (GuiTextFieldCustom textField : this.textFields)
+        {
+            textField.mouseClicked(x, y, button);
+            if (textField.isFocused())
+            {
+                this.currentTextField = textField;
+                this.onTextFieldClicked(textField);
+            }
+        }
     }
 }
