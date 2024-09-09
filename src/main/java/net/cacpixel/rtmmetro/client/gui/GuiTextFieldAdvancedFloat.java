@@ -10,22 +10,15 @@ import java.text.DecimalFormat;
 public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
 {
     public float fieldValue;
-    public float step;
+    public float step = 0.100000000001F;
     public float minValue = Float.MIN_VALUE;
     public float maxValue = Float.MAX_VALUE;
 
     public GuiTextFieldAdvancedFloat(int id, FontRenderer par1, int x, int y, int w, int h,
                                      GuiScreen pScr, float fieldValue)
     {
-        this(id, par1, x, y, w, h, pScr, fieldValue, 0.100000000001F);
-    }
-
-    public GuiTextFieldAdvancedFloat(int id, FontRenderer par1, int x, int y, int w, int h,
-                                     GuiScreen pScr, float fieldValue, float step)
-    {
         super(id, par1, x, y, w, h, pScr);
         this.fieldValue = fieldValue;
-        this.step = step;
     }
 
     public GuiTextFieldAdvancedFloat setMinMax(float min, float max)
@@ -34,6 +27,13 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
         this.maxValue = max;
         return this;
     }
+
+    public GuiTextFieldAdvancedFloat setStep(float step)
+    {
+        this.step = step;
+        return this;
+    }
+
 
     @Override
     public void handleMouseInput()
@@ -103,7 +103,8 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
         {
             step /= 10;
         }
-        this.fieldValue += ((scroll > 0) ? step : -step);
+        step = step * scroll / DEFAULT_SCROLL_VALUE;
+        this.fieldValue += step;
         this.checkValue();
     }
 
