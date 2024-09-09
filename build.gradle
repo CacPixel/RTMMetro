@@ -207,7 +207,7 @@ jar {
                 "Implementation-Version"     : "${version}",
                 "Implementation-Vendor"      : "cacpixel",
                 "Implementation-Timestamp"   : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                'FMLCorePlugin'              : "net.cacpixel.rtmmetro.asm.FixNgtPacketCustomPlugin",
+                'FMLCorePlugin'              : "net.cacpixel.rtmmetro.asm.RtmAsmPlugin", //-Dfml.coreMods.load=net.cacpixel.rtmmetro.asm.RtmAsmPlugin
                 'FMLCorePluginContainsFMLMod': true
         ])
     }
