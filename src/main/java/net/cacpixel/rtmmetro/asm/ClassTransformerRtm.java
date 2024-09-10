@@ -64,11 +64,11 @@ public class ClassTransformerRtm implements IClassTransformer
         }
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         cn.accept(cw);
-            try {
-                FileUtils.writeByteArrayToFile(new File("./MPLAdButton.class"), cw.toByteArray());
-            } catch (IOException ignored) {
-                ;
-            }
+//            try {
+//                FileUtils.writeByteArrayToFile(new File("./MPLAdButton.class"), cw.toByteArray());
+//            } catch (IOException ignored) {
+//                ;
+//            }
         return cw.toByteArray();
     }
 
