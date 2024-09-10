@@ -63,4 +63,14 @@ public class GuiTextFieldAdvanced extends GuiTextFieldCustom
             ((GuiScreenAdvanced) this.pScr).hasValueUpdated = true;
         }
     }
+
+    public void checkValue()
+    {
+
+    }
+
+    public void incValue(int scroll)
+    {
+
+    }
 }

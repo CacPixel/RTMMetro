@@ -5,30 +5,28 @@ import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-import java.text.DecimalFormat;
-
-public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
+public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
 {
-    public float fieldValue;
-    public float step = 0.100000000001F;
-    public float minValue = Float.MIN_VALUE;
-    public float maxValue = Float.MAX_VALUE;
+    public int fieldValue;
+    public int step = 1;
+    public int minValue = Integer.MIN_VALUE;
+    public int maxValue = Integer.MAX_VALUE;
 
-    public GuiTextFieldAdvancedFloat(int id, FontRenderer par1, int x, int y, int w, int h,
-                                     GuiScreen pScr, float fieldValue)
+    public GuiTextFieldAdvancedInt(int id, FontRenderer par1, int x, int y, int w, int h,
+                                   GuiScreen pScr, int fieldValue)
     {
         super(id, par1, x, y, w, h, pScr);
         this.fieldValue = fieldValue;
     }
 
-    public GuiTextFieldAdvancedFloat setMinMax(float min, float max)
+    public GuiTextFieldAdvancedInt setMinMax(int min, int max)
     {
         this.minValue = min;
         this.maxValue = max;
         return this;
     }
 
-    public GuiTextFieldAdvancedFloat setStep(float step)
+    public GuiTextFieldAdvancedInt setStep(int step)
     {
         this.step = step;
         return this;
@@ -89,7 +87,7 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
     @Override
     public void incValue(int scroll)
     {
-        float step = this.step;
+        int step = this.step;
         if (GuiScreen.isShiftKeyDown())
         {
             step *= 10;
@@ -106,8 +104,7 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
     @Override
     public boolean isValueValid()
     {
-        if (this.fieldValue < this.minValue || this.fieldValue > this.maxValue
-                || Float.isNaN(this.fieldValue) || Float.isInfinite(this.fieldValue))
+        if (this.fieldValue < this.minValue || this.fieldValue > this.maxValue)
         {
             return false;
         }
@@ -117,17 +114,9 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
     @Override
     public void checkValue()
     {
-        if (Float.isNaN(fieldValue) || Float.isInfinite(fieldValue))
-        {
-            this.fieldValue = 0.0f;
-        }
-        if (-0.0000001f < this.fieldValue && this.fieldValue < 0.0000001f)
-        {
-            this.fieldValue = 0.0f;
-        }
         this.fieldValue = Math.max(this.fieldValue, this.minValue);
         this.fieldValue = Math.min(this.fieldValue, this.maxValue);
-        this.setText(new DecimalFormat("0.0##").format(this.fieldValue));
+        this.setText(String.valueOf(this.fieldValue));
         this.setScrValueUpdated();
     }
 }

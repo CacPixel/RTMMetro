@@ -46,9 +46,16 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
         return field;
     }
 
-    protected GuiTextFieldAdvancedFloat setTextField(int xPos, int yPos, int w, int h, float value)
+    protected GuiTextFieldAdvancedInt setTextField(int xPos, int yPos, int w, int h, int value,
+                                                   int min, int max)
     {
-        return this.setTextField(xPos, yPos, w, h, value, Float.MIN_VALUE, Float.MAX_VALUE);
+        GuiTextFieldAdvancedInt field = new GuiTextFieldAdvancedInt(NEXT_FIELD_ID++, this.fontRenderer, xPos, yPos,
+                w, h, this, value).setMinMax(min, max);
+        field.setMaxStringLength(32767);
+        field.setFocused(false);
+        field.setText(String.valueOf(value));
+        this.textFields.add(field);
+        return field;
     }
 
     @Override
