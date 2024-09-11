@@ -16,6 +16,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 /**
  * 注意：原先RTM里面PacketMarker不再使用，这个类我们可完全自定义，玩家点击完毕标记后服务端向客户端发送此数据包同步Line的位置
  * 这里应该只需要把RailPosition封装进去即可
+ * <p>
+ * TODO: use IMessageHandler REPLY
  */
 public class PacketMarkerRPServer extends PacketCustom
         implements IMessage, IMessageHandler<PacketMarkerRPServer, IMessage>

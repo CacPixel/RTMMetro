@@ -16,7 +16,7 @@ import jp.ngt.rtm.rail.util.RailMap;
 import jp.ngt.rtm.rail.util.RailPosition;
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
-import net.cacpixel.rtmmetro.network.PacketMarkerRPClient;
+import net.cacpixel.rtmmetro.network.PacketMarkerClient;
 import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
@@ -623,7 +623,11 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
             if (marker.editMode > 0 && Mouse.isButtonDown(1))
             {
                 marker.editMode = 0;
-                RTMMetro.NETWORK_WRAPPER.sendToServer(new PacketMarkerRPClient(marker.getCoreMarker()));
+                TileEntityMarkerAdvanced core = marker.getCoreMarker();
+                if (core != null)
+                {
+                    RTMMetro.NETWORK_WRAPPER.sendToServer(new PacketMarkerClient(core));
+                }
             }
 
             MarkerElement element = MarkerElement.values()[marker.editMode];

@@ -4,11 +4,14 @@ import jp.ngt.ngtlib.gui.GuiTextFieldCustom;
 import jp.ngt.rtm.rail.RenderMarkerBlock;
 import jp.ngt.rtm.rail.util.RailPosition;
 import net.cacpixel.rtmmetro.ModConfig;
+import net.cacpixel.rtmmetro.RTMMetro;
+import net.cacpixel.rtmmetro.network.PacketMarkerClient;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Keyboard;
 
 import java.io.IOException;
 
@@ -163,7 +166,14 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         super.keyTyped(typedChar, keyCode);
-        this.updateValues();
+        if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE)
+        {
+            this.sendPacket();
+        }
+        else
+        {
+            this.updateValues();
+        }
     }
 
     @Override
@@ -217,7 +227,7 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
     private void sendPacket()
     {
         this.updateValues();
-        //TODO: send packet to server
+        RTMMetro.NETWORK_WRAPPER.sendToServer(new PacketMarkerClient(marker));
     }
 
     private void updateValues()
