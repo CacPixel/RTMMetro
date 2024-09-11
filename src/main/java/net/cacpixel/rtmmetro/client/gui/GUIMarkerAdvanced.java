@@ -172,7 +172,7 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         }
         else
         {
-            this.updateValues();
+//            this.updateValues();
         }
     }
 
