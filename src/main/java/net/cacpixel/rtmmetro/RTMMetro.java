@@ -30,7 +30,7 @@ import java.util.Set;
         modid = RTMMetro.MODID,
         name = RTMMetro.NAME,
         version = RTMMetro.VERSION,
-        dependencies = "required-after:rtm@[2.4.24,);required-after:ngtlib@[2.4.21,)"
+        dependencies = "required-after:rtm@[2.4.24,);required-after:ngtlib@[2.4.21,);required-after:mixinbooter"
 )
 public class RTMMetro
 {
