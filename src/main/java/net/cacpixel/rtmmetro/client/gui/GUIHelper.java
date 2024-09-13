@@ -5,6 +5,7 @@ import net.cacpixel.rtmmetro.util.ModLog;
 
 public class GUIHelper
 {
+    @SuppressWarnings("unchecked")
     public static <T> T getFieldValue(GuiTextFieldCustom field, T defaultVal)
     {
         try

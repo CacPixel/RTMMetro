@@ -26,7 +26,7 @@ public class ClassTransformerRtm implements IClassTransformer
         }
         else if (transformedName.equals("jp.ngt.rtm.modelpack.init.MPLAdButton"))
         {
-            return this.fixRTMPackLoadAds(name, transformedName, basicClass);
+//            return this.fixRTMPackLoadAds(name, transformedName, basicClass);
         }
         return basicClass;
     }

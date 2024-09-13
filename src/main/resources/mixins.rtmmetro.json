@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "compatibilityLevel": "JAVA_8",
+  "package": "net.cacpixel.rtmmetro.mixin",
+  "minVersion": "0.8",
+  "setSourceFile": true,
+  "priority": 0,
+  "refmap": "mixins.rtmmetro.refmap.json",
+  "mixins": [
+
+  ],
+  "client": [
+    "MixinMPLAdButton"
+  ],
+  "server": [
+
+  ]
+}
