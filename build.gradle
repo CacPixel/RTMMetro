@@ -4,13 +4,12 @@ buildscript {
         maven { url = "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
         maven { url = "https://maven.aliyun.com/nexus/content/groups/public" }
         maven { url = "https://maven.aliyun.com/nexus/content/repositories/google" }
-//        maven { url = "https://repo.spongepowered.org/maven" }
+        maven { url = "https://repo.spongepowered.org/maven" }
         maven { url = "https://files.minecraftforge.net/maven" }
-
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:5.+' //2.3-SNAPSHOT
-//        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.7.+'
     }
 }
 
@@ -18,12 +17,14 @@ apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
-//apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'org.spongepowered.mixin'
 
-//mixin {
-//    add sourceSets.main, "mixins." + property("modid").toString() + ".refmap.json"
-//    //生成一个refmap json，上方是文件名称的推荐格式
-//}
+mixin {
+    add sourceSets.main, "mixins." + property("modid").toString() + ".refmap.json"
+    config 'mixins.' + property("modid").toString() + ".json"
+    debug.verbose = true
+    debug.export = true
+}
 
 repositories {
     mavenCentral()
@@ -32,8 +33,9 @@ repositories {
     maven { url = "https://maven.aliyun.com/nexus/content/repositories/google" }
 
     maven { url = "https://cursemaven.com" }
-//    maven { url = "https://repo.spongepowered.org/maven" }
-//    maven { url = "https://api.modrinth.com/maven" }
+    maven { url = "https://repo.spongepowered.org/maven" }
+    maven { url = "https://api.modrinth.com/maven" }
+    maven { url = 'https://maven.cleanroommc.com' }
 }
 
 version = property("version").toString()
@@ -72,12 +74,15 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
-
+            property 'mixin.env.disableRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
+            jvmArgs '-Dfml.coreMods.load=net.cacpixel.rtmmetro.asm.RtmAsmPlugin',
+                    '-Xmx4G'
         }
 
         server {
@@ -95,6 +100,18 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2852'
 //    implementation ("net.minecraftforge:mergetool:0.2.3.3") { force = true }
 //    compileOnly(fileTree(dir: 'lib', includes: ['*.jar']))
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    annotationProcessor 'org.ow2.asm:asm-debug-all:5.2'
+    annotationProcessor 'com.google.guava:guava:32.1.2-jre'
+    annotationProcessor 'com.google.code.gson:gson:2.8.9'
+
+    implementation ('zone.rong:mixinbooter:9.3') {
+        transitive = false
+    }
+    annotationProcessor ('zone.rong:mixinbooter:9.3') {
+        transitive = false
+    }
+
     implementation fg.deobf('curse.maven' + ':' +
             ngtlibModName + '-' +
             ngtlibProjectID + ':' +
