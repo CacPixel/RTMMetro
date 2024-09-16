@@ -12,6 +12,7 @@ import net.cacpixel.rtmmetro.network.PacketMarkerRPServer;
 import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.util.MarkerManager;
 import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
+import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
@@ -138,7 +139,11 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
 
     public void searchOtherMarkers()
     {
-        ((BlockMarkerAdvanced) this.getBlockType()).makeRailMap(this, this.getX(), this.getY(), this.getZ());
+        Block block = this.getBlockType();
+        if (block instanceof BlockMarkerAdvanced)
+        {
+            ((BlockMarkerAdvanced) this.getBlockType()).makeRailMap(this, this.getX(), this.getY(), this.getZ());
+        }
     }
 
     private void updateStartPos()
