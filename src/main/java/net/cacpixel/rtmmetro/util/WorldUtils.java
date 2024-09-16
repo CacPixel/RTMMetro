@@ -14,7 +14,6 @@ import net.minecraft.world.World;
 
 public class WorldUtils
 {
-
     public static RayTraceResult getMOPFromPlayer(EntityPlayer player, double distance, boolean liquid)
     {
         float f = 1.0F;
