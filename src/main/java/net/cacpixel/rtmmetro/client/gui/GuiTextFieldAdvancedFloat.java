@@ -13,6 +13,7 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
     public float step = 0.100000000001F;
     public float minValue = Float.MIN_VALUE;
     public float maxValue = Float.MAX_VALUE;
+    public boolean loop = false;
 
     public GuiTextFieldAdvancedFloat(int id, FontRenderer par1, int x, int y, int w, int h,
                                      GuiScreen pScr, float fieldValue)
@@ -21,10 +22,11 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
         this.fieldValue = fieldValue;
     }
 
-    public GuiTextFieldAdvancedFloat setMinMax(float min, float max)
+    public GuiTextFieldAdvancedFloat setMinMax(float min, float max, boolean loop)
     {
         this.minValue = min;
         this.maxValue = max;
+        this.loop = loop;
         return this;
     }
 
@@ -33,7 +35,6 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
         this.step = step;
         return this;
     }
-
 
     @Override
     public void handleMouseInput()
@@ -125,8 +126,23 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
         {
             this.fieldValue = 0.0f;
         }
-        this.fieldValue = Math.max(this.fieldValue, this.minValue);
-        this.fieldValue = Math.min(this.fieldValue, this.maxValue);
+        if (!loop)
+        {
+            this.fieldValue = Math.max(this.fieldValue, this.minValue);
+            this.fieldValue = Math.min(this.fieldValue, this.maxValue);
+        }
+        else
+        {
+            float div = maxValue - minValue;
+            while (fieldValue > maxValue)
+            {
+                fieldValue -= div;
+            }
+            while (fieldValue < minValue)
+            {
+                fieldValue += div;
+            }
+        }
         this.setText(new DecimalFormat("0.0##").format(this.fieldValue));
         this.setScrValueUpdated();
     }

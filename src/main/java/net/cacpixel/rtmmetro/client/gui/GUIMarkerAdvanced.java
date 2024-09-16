@@ -55,31 +55,31 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
                 120, 20, I18n.format("gui.done")));
 
         this.fieldGroup = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.marker.groupNumber, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                this.marker.groupNumber, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
         fieldYpos += 20;
         this.fieldRailHeight = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.currentRP.height, 0, 15);
+                this.currentRP.height, 0, 15, false);
         fieldYpos += 20;
         this.fieldAnchorLengthHorizontal = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.currentRP.anchorLengthHorizontal, 0.0f, (float) ModConfig.railGeneratingDistance);
+                this.currentRP.anchorLengthHorizontal, 0.0f, (float) ModConfig.railGeneratingDistance, false);
         fieldYpos += 20;
         this.fieldAnchorYaw = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.currentRP.anchorYaw, -180.0f, 180.0f);
+                this.currentRP.anchorYaw, -180.0f, 180.0f, true);
         fieldYpos += 20;
         this.fieldAnchorLengthVertical = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.currentRP.anchorLengthVertical, 0.0f, (float) ModConfig.railGeneratingDistance);
+                this.currentRP.anchorLengthVertical, 0.0f, (float) ModConfig.railGeneratingDistance, false);
         fieldYpos += 20;
         this.fieldAnchorPitch = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.currentRP.anchorPitch, -180.0f, 180.0f);
+                this.currentRP.anchorPitch, -90.0f, 90.0f, false);
         fieldYpos += 20;
         this.fieldCantCenter = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.currentRP.cantCenter, -90.0f, 90.0f);
+                this.currentRP.cantCenter, -90.0f, 90.0f, false);
         fieldYpos += 20;
         this.fieldCantEdge = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.currentRP.cantEdge, -90.0f, 90.0f);
+                this.currentRP.cantEdge, -90.0f, 90.0f, false);
         fieldYpos += 20;
         this.fieldCantRandom = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.currentRP.cantRandom, -90.0f, 90.0f);
+                this.currentRP.cantRandom, 0.0f, 100.0f, false);
     }
 
     @Override

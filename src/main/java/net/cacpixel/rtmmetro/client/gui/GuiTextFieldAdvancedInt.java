@@ -11,6 +11,7 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
     public int step = 1;
     public int minValue = Integer.MIN_VALUE;
     public int maxValue = Integer.MAX_VALUE;
+    public boolean loop = false;
 
     public GuiTextFieldAdvancedInt(int id, FontRenderer par1, int x, int y, int w, int h,
                                    GuiScreen pScr, int fieldValue)
@@ -19,10 +20,11 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
         this.fieldValue = fieldValue;
     }
 
-    public GuiTextFieldAdvancedInt setMinMax(int min, int max)
+    public GuiTextFieldAdvancedInt setMinMax(int min, int max, boolean loop)
     {
         this.minValue = min;
         this.maxValue = max;
+        this.loop = loop;
         return this;
     }
 
@@ -114,8 +116,23 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
     @Override
     public void checkValue()
     {
-        this.fieldValue = Math.max(this.fieldValue, this.minValue);
-        this.fieldValue = Math.min(this.fieldValue, this.maxValue);
+        if (!loop)
+        {
+            this.fieldValue = Math.max(this.fieldValue, this.minValue);
+            this.fieldValue = Math.min(this.fieldValue, this.maxValue);
+        }
+        else
+        {
+            int div = maxValue - minValue;
+            while (fieldValue > maxValue)
+            {
+                fieldValue -= div;
+            }
+            while (fieldValue < minValue)
+            {
+                fieldValue += div;
+            }
+        }
         this.setText(String.valueOf(this.fieldValue));
         this.setScrValueUpdated();
     }

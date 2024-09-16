@@ -7,6 +7,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 
 import java.io.IOException;
+import java.util.ListIterator;
 
 @SideOnly(Side.CLIENT)
 public abstract class GuiScreenAdvanced extends GuiScreenCustom
@@ -35,10 +36,10 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
     }
 
     protected GuiTextFieldAdvancedFloat setTextField(int xPos, int yPos, int w, int h, float value,
-                                                     float min, float max)
+                                                     float min, float max, boolean loop)
     {
         GuiTextFieldAdvancedFloat field = new GuiTextFieldAdvancedFloat(NEXT_FIELD_ID++, this.fontRenderer, xPos, yPos,
-                w, h, this, value).setMinMax(min, max);
+                w, h, this, value).setMinMax(min, max, loop);
         field.setMaxStringLength(32767);
         field.setFocused(false);
         field.setText(String.valueOf(value));
@@ -47,10 +48,10 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
     }
 
     protected GuiTextFieldAdvancedInt setTextField(int xPos, int yPos, int w, int h, int value,
-                                                   int min, int max)
+                                                   int min, int max, boolean loop)
     {
         GuiTextFieldAdvancedInt field = new GuiTextFieldAdvancedInt(NEXT_FIELD_ID++, this.fontRenderer, xPos, yPos,
-                w, h, this, value).setMinMax(min, max);
+                w, h, this, value).setMinMax(min, max, loop);
         field.setMaxStringLength(32767);
         field.setFocused(false);
         field.setText(String.valueOf(value));
@@ -71,5 +72,82 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
                 this.onTextFieldClicked(textField);
             }
         }
+    }
+
+    @Override
+    protected void keyTyped(char typedChar, int keyCode) throws IOException
+    {
+        super.keyTyped(typedChar, keyCode);
+        if (Keyboard.getEventKey() == Keyboard.KEY_RETURN)
+        {
+            GuiTextFieldCustom field = this.getFocusedTextField();
+            if (field != null)
+                field.setFocused(false);
+            field = this.getNextTextField(field, true);
+            if (field != null)
+                field.setFocused(true);
+        }
+    }
+
+    public GuiTextFieldCustom getFocusedTextField()
+    {
+        if (this.textFields == null || this.textFields.isEmpty())
+        {
+            return null;
+        }
+        for (GuiTextFieldCustom field : this.textFields)
+        {
+            if (field.isFocused())
+            {
+                return field;
+            }
+        }
+        return null;
+    }
+
+    public GuiTextFieldCustom getNextTextField(GuiTextFieldCustom fieldIn, boolean loop)
+    {
+        if (this.textFields == null || this.textFields.isEmpty())
+        {
+            return null;
+        }
+        ListIterator<GuiTextFieldCustom> it = this.textFields.listIterator();
+        while (it.hasNext())
+        {
+            GuiTextFieldCustom field = it.next();
+            if (field == fieldIn)
+            {
+                if (it.hasNext())
+                    return it.next();
+                else if (loop)
+                    return this.textFields.get(0);
+                else
+                    return null;
+            }
+        }
+        return null;
+    }
+
+    public GuiTextFieldCustom getPrevTextField(GuiTextFieldCustom fieldIn, boolean loop)
+    {
+        if (this.textFields == null || this.textFields.isEmpty())
+        {
+            return null;
+        }
+        ListIterator<GuiTextFieldCustom> it = this.textFields.listIterator();
+        while (it.hasPrevious())
+        {
+            GuiTextFieldCustom field = it.previous();
+            if (field == fieldIn)
+            {
+                if (it.hasPrevious())
+                    return it.previous();
+                else if (loop)
+                    return this.textFields.get(this.textFields.size() - 1);
+                else
+                    return null;
+            }
+        }
+        return null;
     }
 }
