@@ -36,7 +36,7 @@ public class RTMMetro
 {
     public static final String MODID = "rtmmetro";
     public static final String NAME = "RTM Metro";
-    public static final String VERSION = "0.1.0";
+    public static final String VERSION = "0.1.1";
     private static boolean HAS_FIXRTM_MOD = false;
     public static short guiIdRigidCatenary = getNextGuiID();
     public static short guiIdRailAdvanced = getNextGuiID();
