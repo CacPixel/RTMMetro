@@ -73,11 +73,15 @@ public class RailMapAdvanced extends RailMapBasic
                 this.endRP.direction % 2 != 0;
         boolean lineMoved = (startRP.anchorYaw != NGTMath.wrapAngle(startRP.direction * 45.0F)
                 || endRP.anchorYaw != NGTMath.wrapAngle(endRP.direction * 45.0F));
-        boolean isValueValid = startRP.anchorLengthHorizontal != 0.0f && endRP.anchorLengthHorizontal != 0.0f;
+        boolean isHorizontalLengthZero = startRP.anchorLengthHorizontal == 0.0f && endRP.anchorLengthHorizontal == 0.0f;
 //            if ((!isOppositeMarker || !isInSameAxis && !isOpposite45) || lineMoved) {
-        if (((isOppositeMarker && (isInSameAxis || isOpposite45)) && !lineMoved) || !isValueValid)
+        if (((isOppositeMarker && (isInSameAxis || isOpposite45)) && !lineMoved) || isHorizontalLengthZero)
         {
             this.lineHorizontal = new StraightLineAdvanced(startZ, startX, endZ, endX);
+            this.startRP.anchorYaw = (float) MathHelper.wrapDegrees(
+                    NGTMath.toDegrees(this.lineHorizontal.getSlope(0, 0)));
+            this.endRP.anchorYaw = (float) MathHelper.wrapDegrees(
+                    180.0 + NGTMath.toDegrees(this.lineHorizontal.getSlope(0, 0)));
         }
         else
         {
@@ -85,7 +89,7 @@ public class RailMapAdvanced extends RailMapBasic
             double d7 = Math.abs(endX - startX);
             double d9 = Math.max(d6, d7);
             double d11 = Math.min(d6, d7);
-            if (this.startRP.anchorLengthHorizontal <= 0.0F)
+            if (this.startRP.anchorLengthHorizontal < 0.0F)
             {
                 boolean isNot45 = this.startRP.direction % 2 == 0;
                 double d13 = isNot45 ? d9 : d11;
@@ -93,7 +97,7 @@ public class RailMapAdvanced extends RailMapBasic
                         (double) 0.5522848F); // 0.5522848F 用来计算绘制圆形贝塞尔曲线控制点的位置的常数
             }
 
-            if (this.endRP.anchorLengthHorizontal <= 0.0F)
+            if (this.endRP.anchorLengthHorizontal < 0.0F)
             {
                 boolean flag5 = this.endRP.direction % 2 == 0;
                 double d19 = flag5 ? d9 : d11;
