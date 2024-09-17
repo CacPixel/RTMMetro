@@ -1,6 +1,8 @@
 package net.cacpixel.rtmmetro.items;
 
+import jp.ngt.ngtlib.block.BlockUtil;
 import jp.ngt.ngtlib.item.ItemArgHolderBase;
+import jp.ngt.ngtlib.util.NGTUtil;
 import jp.ngt.rtm.RTMCore;
 import jp.ngt.rtm.RTMResource;
 import jp.ngt.rtm.item.ItemRail;
@@ -11,6 +13,10 @@ import jp.ngt.rtm.rail.BlockLargeRailBase;
 import jp.ngt.rtm.rail.TileEntityLargeRailCore;
 import jp.ngt.rtm.rail.util.RailPosition;
 import net.cacpixel.rtmmetro.RTMMetroItems;
+import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
+import net.cacpixel.rtmmetro.util.ModLog;
+import net.cacpixel.rtmmetro.util.WorldUtils;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
@@ -19,6 +25,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -62,6 +71,31 @@ public class ItemRailAdvanced extends ItemRail
 //                    this.getGuiId(holder.getItemStack()), holder.getWorld(), 0, 0, 0);
 //        }
 //        return holder.success();
+        if (!holder.getPlayer().capabilities.isCreativeMode)
+        {
+            super.onItemRightClick(holder);
+        }
+
+        float ADD_FIX = 1.6f;
+        int height = (int) Math.floor(holder.getPlayer().posY) + 1;
+        int length = (int) Math.floor((NGTUtil.getServer().getPlayerList().getViewDistance() * 16.0D) *
+                (double) MathHelper.SQRT_2) + 1;
+        int distance = (int) Math.sqrt(height * height + length * length);
+        RayTraceResult raytraceresult = WorldUtils.getMOPFromPlayer(holder.getPlayer(),
+                (distance > 128.0D) ? ADD_FIX * distance : 128.0D, true);
+        if (raytraceresult != null && raytraceresult.typeOfHit == RayTraceResult.Type.BLOCK)
+        {
+            BlockPos pos = raytraceresult.getBlockPos();
+            ModLog.debug("hitted result: %s", pos.toString());
+            Block block = BlockUtil.getBlock(holder.getWorld(), pos);
+            if (block instanceof BlockMarkerAdvanced)
+            {
+                ((BlockMarkerAdvanced) block).onMarkerActivated(holder.getWorld(), pos.getX(), pos.getY(), pos.getZ(),
+                        holder.getPlayer(), true);
+                return holder.success();
+            }
+        }
+
         return super.onItemRightClick(holder);
     }
 
