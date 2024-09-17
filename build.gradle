@@ -81,8 +81,7 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
-            jvmArgs '-Dfml.coreMods.load=net.cacpixel.rtmmetro.asm.RtmAsmPlugin',
-                    '-Xmx4G'
+            jvmArgs '-Dfml.coreMods.load=net.cacpixel.rtmmetro.asm.RtmAsmPlugin'
         }
 
         server {

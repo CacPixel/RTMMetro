@@ -490,13 +490,18 @@ public class RailMapAdvanced extends RailMapBasic
 
     public List<double[]> getAcceptablePoint(ILine line, double threshold, boolean isCornerOnly)
     {
-        boolean isStraightLineAdvanced = line instanceof StraightLineAdvanced;
         List<double[]> vecList = new ArrayList<>();
         double[] prevPoint = null;
         for (int i = 0; i < line.getLength() * QUANTIZE; i++)
         {
             double[] point = line.getPoint((int) Math.floor(line.getLength() * QUANTIZE), i);
-            if (isCornerOnly ? isPointAcceptableCorner(point, threshold) : isPointAcceptable(point, threshold))
+            if (prevPoint == null)
+            {
+                prevPoint = point;
+                continue;
+            }
+            boolean isAcceptable = isCornerOnly ? isPointAcceptableCorner(point, threshold) : isPointAcceptable(point, threshold);
+            if (isAcceptable)
             {
                 double posX = point[1];
                 double posZ = point[0];
@@ -504,7 +509,7 @@ public class RailMapAdvanced extends RailMapBasic
                 int blockZ1 = (int) Math.floor(posZ);
                 int direction1 = getRPDirection(blockX1, blockZ1, posX, posZ, isCornerOnly);
                 int direction2 = ((direction1 + 4) & 0x07);
-                int realDir = getRPDirection(prevPoint, point, isCornerOnly);
+                int realDir = getRPDirection(prevPoint, point, isCornerOnly);   // jvm crash
                 if (realDir != -1 && (realDir == direction1 || realDir == direction2))
                 {
                     vecList.add(point);
