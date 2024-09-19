@@ -134,11 +134,12 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
         else
         {
             float div = maxValue - minValue;
-            while (fieldValue > maxValue)
+            fieldValue = fieldValue % div;
+            if (fieldValue > maxValue)
             {
                 fieldValue -= div;
             }
-            while (fieldValue < minValue)
+            if (fieldValue < minValue)
             {
                 fieldValue += div;
             }
