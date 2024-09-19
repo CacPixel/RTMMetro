@@ -402,7 +402,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
         GL11.glPushMatrix();
         GL11.glTranslatef(x, y, z);
         MarkerElement element = MarkerElement.values()[marker.editMode];
-        if (marker.editMode == 0)
+        if (marker.editMode == 0 && NGTUtilClient.getMinecraft().inGameHasFocus)
         {
             element = this.renderAnchorLine(marker, true, (MarkerElement) null);
         }
