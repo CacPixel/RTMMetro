@@ -10,5 +10,8 @@ public class ModConfig
     /* 0 (<= 0) - All threads, N = Math.max(N, Runtime.getRuntime().availableProcessors() * 2) - N threads */
     public static int threadsToConstructRails = 24;
     public static boolean showDebugMessages = true;
+    public static double railSplitThreshold = 1.5;
+    public static double railSplitThresholdStraight = 0.01;
+    public static int railSplitMinimumLength = 10;
 
 }

@@ -12,6 +12,7 @@ import jp.ngt.rtm.rail.BlockMarker;
 import jp.ngt.rtm.rail.TileEntityLargeRailBase;
 import jp.ngt.rtm.rail.util.RailMapBasic;
 import jp.ngt.rtm.rail.util.RailPosition;
+import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.cacpixel.rtmmetro.math.ILineAdvanced;
 import net.cacpixel.rtmmetro.math.StraightLineAdvanced;
@@ -74,8 +75,11 @@ public class RailMapAdvanced extends RailMapBasic
         boolean lineMoved = (startRP.anchorYaw != NGTMath.wrapAngle(startRP.direction * 45.0F)
                 || endRP.anchorYaw != NGTMath.wrapAngle(endRP.direction * 45.0F));
         boolean isHorizontalLengthZero = startRP.anchorLengthHorizontal == 0.0f && endRP.anchorLengthHorizontal == 0.0f;
-//            if ((!isOppositeMarker || !isInSameAxis && !isOpposite45) || lineMoved) {
-        if (((isOppositeMarker && (isInSameAxis || isOpposite45)) && !lineMoved) || isHorizontalLengthZero)
+        double angleWhileStraight = NGTMath.toDegrees(Math.atan2(endX - startX, endZ - startZ));
+
+        if (((isOppositeMarker && (isInSameAxis || isOpposite45)) && !lineMoved) || isHorizontalLengthZero
+                || (Math.abs(angleWhileStraight - this.startRP.anchorYaw) < 0.0001F
+                && Math.abs(MathHelper.wrapDegrees(angleWhileStraight + 180.0) - this.endRP.anchorYaw) < 0.0001F))
         {
             this.lineHorizontal = new StraightLineAdvanced(startZ, startX, endZ, endX);
             this.startRP.anchorYaw = (float) MathHelper.wrapDegrees(
@@ -275,7 +279,7 @@ public class RailMapAdvanced extends RailMapBasic
     public List<RailMapAdvanced> split(int lengthIn, int orderIn)
     {
         List<RailMapAdvanced> ret = new ArrayList<>();
-        if (lengthIn <= 10)
+        if (lengthIn <= ModConfig.railSplitMinimumLength)
         {
             ret.add(this);
             return ret;
@@ -284,13 +288,14 @@ public class RailMapAdvanced extends RailMapBasic
         int length = lengthIn * QUANTIZE;
         int order = orderIn * QUANTIZE;
         // true则只使用对角坐标
-        boolean isCornerOnly = lineHorizontal instanceof BezierCurveAdvanced;
+        boolean isBezier = lineHorizontal instanceof BezierCurveAdvanced;
         RailPosition[] result = new RailPosition[4];
         result[0] = cloneRP(startRP);
         result[3] = cloneRP(endRP);
 
         // 获取可用点
-        List<double[]> acceptablePoints = this.getAcceptablePoint(lineHorizontal, 1.5, isCornerOnly);
+        List<double[]> acceptablePoints = this.getAcceptablePoint(lineHorizontal,
+                isBezier ? ModConfig.railSplitThreshold : ModConfig.railSplitThresholdStraight, isBezier);
         // point将会是最终的分割点
         double[] point = null;
         double minimumLength = lineHorizontal.getLength();
@@ -316,11 +321,11 @@ public class RailMapAdvanced extends RailMapBasic
         double posZ = point[0];
         int blockX1 = (int) Math.floor(posX);
         int blockZ1 = (int) Math.floor(posZ);
-        int direction1 = getRPDirection(blockX1, blockZ1, posX, posZ, isCornerOnly);
+        int direction1 = getRPDirection(blockX1, blockZ1, posX, posZ, isBezier);
         int direction2 = ((direction1 + 4) & 0x07);
         // 实际的方向，随曲线增长方向一致
         int realDir = getRPDirection(lineHorizontal.getPoint(length, order - 2 * QUANTIZE),
-                lineHorizontal.getPoint(length, order + 2 * QUANTIZE), isCornerOnly);
+                lineHorizontal.getPoint(length, order + 2 * QUANTIZE), isBezier);
         int blockX2 = blockX1;
         int blockZ2 = blockZ1;
         switch (direction1)
@@ -485,10 +490,17 @@ public class RailMapAdvanced extends RailMapBasic
 
         ret.add(new RailMapAdvanced(result[0], result[1]));
         ret.add(new RailMapAdvanced(result[2], result[3]));
+        if (ret.get(0).getLength() < ModConfig.railSplitMinimumLength ||
+                ret.get(1).getLength() < ModConfig.railSplitMinimumLength)
+        {
+            ret.clear();
+            ret.add(this);
+            return ret;
+        }
         return ret;
     }
 
-    public List<double[]> getAcceptablePoint(ILine line, double threshold, boolean isCornerOnly)
+    public List<double[]> getAcceptablePoint(ILine line, double threshold, boolean isBezier)
     {
         List<double[]> vecList = new ArrayList<>();
         double[] prevPoint = null;
@@ -500,17 +512,23 @@ public class RailMapAdvanced extends RailMapBasic
                 prevPoint = point;
                 continue;
             }
-            boolean isAcceptable = isCornerOnly ? isPointAcceptableCorner(point, threshold) : isPointAcceptable(point, threshold);
+            boolean isAcceptable =
+                    isBezier ? isPointAcceptableCorner(point, threshold) : isPointAcceptable(point, threshold);
             if (isAcceptable)
             {
                 double posX = point[1];
                 double posZ = point[0];
                 int blockX1 = (int) Math.floor(posX);
                 int blockZ1 = (int) Math.floor(posZ);
-                int direction1 = getRPDirection(blockX1, blockZ1, posX, posZ, isCornerOnly);
+                int direction1 = getRPDirection(blockX1, blockZ1, posX, posZ, isBezier);
                 int direction2 = ((direction1 + 4) & 0x07);
-                int realDir = getRPDirection(prevPoint, point, isCornerOnly);   // jvm crash
+                int realDir = getRPDirection(prevPoint, point, isBezier);   // jvm crash
                 if (realDir != -1 && (realDir == direction1 || realDir == direction2))
+                {
+                    vecList.add(point);
+                }
+                else if (!isBezier && (direction1 == this.startRP.direction || direction1 == this.endRP.direction
+                        || direction2 == this.startRP.direction || direction2 == this.endRP.direction))
                 {
                     vecList.add(point);
                 }
