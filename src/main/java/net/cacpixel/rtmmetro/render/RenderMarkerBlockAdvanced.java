@@ -737,11 +737,11 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                 if (railposition1 != null)
                 {
                     double d0 = NGTMath.getDistanceSq(vec3d.x, vec3d.z, railposition1.posX, railposition1.posZ);
-                    if (d0 <= 4.0D)
-                    {
-                        vec3d = new Vec3d(railposition1.posX, railposition1.posY, railposition1.posZ);
-                        flag = true;
-                    }
+//                    if (d0 <= 4.0D)
+//                    {
+//                        vec3d = new Vec3d(railposition1.posX, railposition1.posY, railposition1.posZ);
+//                        flag = true;
+//                    }
                 }
 
                 if (marker.getState(MarkerState.ANCHOR21))
