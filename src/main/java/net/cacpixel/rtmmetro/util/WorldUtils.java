@@ -1,6 +1,7 @@
 package net.cacpixel.rtmmetro.util;
 
 import jp.ngt.ngtlib.math.NGTMath;
+import net.cacpixel.rtmmetro.RTMMetro;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -14,13 +15,24 @@ import net.minecraft.world.World;
 
 public class WorldUtils
 {
+    public static RayTraceResult getRayTraceResult(EntityPlayer player, World world)
+    {
+        float ADD_FIX = 1.6f;
+        int height = (int) Math.floor(player.posY) + 1;
+        int length = (int) Math.floor((RTMMetro.proxy.getViewDistance() * 16.0D) *
+                (double) MathHelper.SQRT_2) + 1;
+        int distance = (int) Math.sqrt(height * height + length * length);
+        return WorldUtils.getMOPFromPlayer(player,
+                (distance > 128.0D) ? ADD_FIX * distance : 128.0D, true);
+    }
+
     public static RayTraceResult getMOPFromPlayer(EntityPlayer player, double distance, boolean liquid)
     {
         float f = 1.0F;
         float f1 = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * f;
         float f2 = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * f;
         double d0 = player.prevPosX + (player.posX - player.prevPosX) * (double) f;
-        double d1 = player.prevPosY + (player.posY - player.prevPosY) * (double) f + 1.62D - player.getYOffset();
+        double d1 = player.prevPosY + (player.posY - player.prevPosY) * (double) f + (double) player.getEyeHeight();
         double d2 = player.prevPosZ + (player.posZ - player.prevPosZ) * (double) f;
         Vec3d vec3d = new Vec3d(d0, d1, d2);
         float f3 = MathHelper.cos(-f2 * ((float) Math.PI / 180F) - NGTMath.PI);

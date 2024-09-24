@@ -1,6 +1,7 @@
 package net.cacpixel.rtmmetro.proxy;
 
 import jp.ngt.ngtlib.util.NGTUtil;
+import jp.ngt.ngtlib.util.NGTUtilClient;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.RTMMetroItems;
 import net.cacpixel.rtmmetro.rail.util.MarkerManager;
@@ -41,4 +42,9 @@ public class ClientProxy extends CommonProxy
         return NGTUtil.isServer() ? super.getMarkerManager() : this.mmClient;
     }
 
+    @Override
+    public int getViewDistance()
+    {
+        return NGTUtilClient.getMinecraft().gameSettings.renderDistanceChunks;
+    }
 }

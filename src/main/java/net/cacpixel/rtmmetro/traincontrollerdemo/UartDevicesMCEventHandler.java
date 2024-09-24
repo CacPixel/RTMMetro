@@ -1,6 +1,5 @@
 package net.cacpixel.rtmmetro.traincontrollerdemo;
 
-import jp.ngt.ngtlib.io.NGTLog;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 

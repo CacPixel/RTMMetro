@@ -1,5 +1,6 @@
 package net.cacpixel.rtmmetro.proxy;
 
+import jp.ngt.ngtlib.util.NGTUtil;
 import net.cacpixel.rtmmetro.rail.util.MarkerManager;
 
 public class CommonProxy
@@ -27,4 +28,8 @@ public class CommonProxy
         return this.mm;
     }
 
+    public int getViewDistance()
+    {
+        return NGTUtil.getServer().getPlayerList().getViewDistance();
+    }
 }
