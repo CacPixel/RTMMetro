@@ -1,6 +1,7 @@
 package net.cacpixel.rtmmetro.rail.util;
 
 import jp.ngt.ngtlib.block.BlockUtil;
+import jp.ngt.ngtlib.io.NGTLog;
 import jp.ngt.ngtlib.math.ILine;
 import jp.ngt.ngtlib.math.NGTMath;
 import jp.ngt.ngtlib.math.Vec3;
@@ -523,14 +524,20 @@ public class RailMapAdvanced extends RailMapBasic
                 int direction1 = getRPDirection(blockX1, blockZ1, posX, posZ, isBezier);
                 int direction2 = ((direction1 + 4) & 0x07);
                 int realDir = getRPDirection(prevPoint, point, isBezier);   // jvm crash
-                if (realDir != -1 && (realDir == direction1 || realDir == direction2))
+                if ((realDir != -1 && (realDir == direction1 || realDir == direction2))
+                        || (!isBezier && (direction1 == this.startRP.direction || direction1 == this.endRP.direction
+                        || direction2 == this.startRP.direction || direction2 == this.endRP.direction)))
                 {
-                    vecList.add(point);
-                }
-                else if (!isBezier && (direction1 == this.startRP.direction || direction1 == this.endRP.direction
-                        || direction2 == this.startRP.direction || direction2 == this.endRP.direction))
-                {
-                    vecList.add(point);
+                    double[] normalizedPoint = normalizePoint(point);
+                    double[] p = vecList.isEmpty() ? null : vecList.get(vecList.size() - 1);
+                    if (p != null && p[0] == normalizedPoint[0] && p[1] == normalizedPoint[1])
+                    {
+                        ;
+                    }
+                    else
+                    {
+                        vecList.add(normalizedPoint);
+                    }
                 }
             }
             prevPoint = point;
@@ -613,6 +620,28 @@ public class RailMapAdvanced extends RailMapBasic
             }
         }
         return ((result[0] > 0) && (result[1] > 0));
+    }
+
+    public static double[] normalizePoint(double[] in)
+    {
+        double[] decimal = new double[]{in[0] - Math.floor(in[0]), in[1] - Math.floor(in[1])};
+        double[] ret = new double[2];
+        for (int i = 0; i < 2; i++)
+        {
+            if (decimal[i] <= 0.25)
+            {
+                ret[i] = Math.floor(in[i]) + 0.0;
+            }
+            else if (0.75 <= decimal[i])
+            {
+                ret[i] = Math.floor(in[i]) + 1.0;
+            }
+            else // if (0.25 <= decimal[i] && decimal[i] <= 0.75)
+            {
+                ret[i] = Math.floor(in[i]) + 0.5;
+            }
+        }
+        return ret;
     }
 
     private static double[] swap(double[] par1)
