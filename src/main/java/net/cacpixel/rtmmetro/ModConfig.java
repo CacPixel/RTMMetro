@@ -11,7 +11,7 @@ public class ModConfig
     public static int threadsToConstructRails = 24;
     public static boolean showDebugMessages = true;
     public static double railSplitThreshold = 1.5;
-    public static double railSplitThresholdStraight = 0.01;
+    public static double railSplitThresholdStraight = 0.02;
     public static int railSplitMinimumLength = 10;
 
 }
