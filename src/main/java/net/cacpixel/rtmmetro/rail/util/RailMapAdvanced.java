@@ -280,224 +280,226 @@ public class RailMapAdvanced extends RailMapBasic
     public List<RailMapAdvanced> split(int lengthIn, int orderIn)
     {
         List<RailMapAdvanced> ret = new ArrayList<>();
-        if (lengthIn <= ModConfig.railSplitMinimumLength)
+        label_success:
         {
-            ret.add(this);
-            return ret;
-        }
-        // 同乘QUANTIZE细分方便运算
-        int length = lengthIn * QUANTIZE;
-        int order = orderIn * QUANTIZE;
-        // true则只使用对角坐标
-        boolean isBezier = lineHorizontal instanceof BezierCurveAdvanced;
-        RailPosition[] result = new RailPosition[4];
-        result[0] = cloneRP(startRP);
-        result[3] = cloneRP(endRP);
-
-        // 获取可用点
-        List<double[]> acceptablePoints = this.getAcceptablePoint(lineHorizontal,
-                isBezier ? ModConfig.railSplitThreshold : ModConfig.railSplitThresholdStraight, isBezier);
-        // point将会是最终的分割点
-        double[] point = null;
-        double minimumLength = lineHorizontal.getLength();
-        // 寻找距离期望分割点最近的可用点
-        for (double[] p : acceptablePoints)
-        {
-            if (getLength(p, lineHorizontal.getPoint(length, order)) < minimumLength)
+            if (lengthIn <= ModConfig.railSplitMinimumLength)
             {
-                minimumLength = getLength(p, lineHorizontal.getPoint(length, order));
-                point = p;
+                break label_success;
             }
-        }
-        if (point == null)
-        {
-            ret.add(this);
+            // 同乘QUANTIZE细分方便运算
+            int length = lengthIn * QUANTIZE;
+            int order = orderIn * QUANTIZE;
+            // true则只使用对角坐标
+            boolean isBezier = lineHorizontal instanceof BezierCurveAdvanced;
+            RailPosition[] result = new RailPosition[4];
+            result[0] = cloneRP(startRP);
+            result[3] = cloneRP(endRP);
+
+            // 获取可用点
+            List<double[]> acceptablePoints = this.getAcceptablePoint(lineHorizontal,
+                    isBezier ? ModConfig.railSplitThreshold : ModConfig.railSplitThresholdStraight, isBezier);
+            // point将会是最终的分割点
+            double[] point = null;
+            double minimumLength = lineHorizontal.getLength();
+            // 寻找距离期望分割点最近的可用点
+            for (double[] p : acceptablePoints)
+            {
+                if (getLength(p, lineHorizontal.getPoint(length, order)) < minimumLength)
+                {
+                    minimumLength = getLength(p, lineHorizontal.getPoint(length, order));
+                    point = p;
+                }
+            }
+            if (point == null)
+            {
+                break label_success;
+            }
+            // lineHorizontal的坐标数组[0]对应Z，[1]对应X
+            // lineVertical的坐标数组[0]对应自0至两RailPositions坐标之间的直线距离中的某一点，[1]对应自startRP起上抬的坐标
+
+            // 计算对面方向需要的block坐标
+            double posX = point[1];
+            double posZ = point[0];
+            int blockX1 = (int) Math.floor(posX);
+            int blockZ1 = (int) Math.floor(posZ);
+            int direction1 = getRPDirection(blockX1, blockZ1, posX, posZ, isBezier);
+            int direction2 = ((direction1 + 4) & 0x07);
+            // 实际的方向，随曲线增长方向一致
+            int realDir = getRPDirection(lineHorizontal.getPoint(length, order - 2 * QUANTIZE),
+                    lineHorizontal.getPoint(length, order + 2 * QUANTIZE), isBezier);
+            int blockX2 = blockX1;
+            int blockZ2 = blockZ1;
+            switch (direction1)
+            {
+            case 0:
+                blockZ2--;
+                break;
+            case 1:
+                blockX2--;
+                blockZ2--;
+                break;
+            case 2:
+                blockX2--;
+                break;
+            case 3:
+                blockX2--;
+                blockZ2++;
+                break;
+            case 4:
+                blockZ2++;
+                break;
+            case 5:
+                blockX2++;
+                blockZ2++;
+                break;
+            case 6:
+                blockX2++;
+                break;
+            case 7:
+                blockX2++;
+                blockZ2--;
+                break;
+            default:
+                break;
+            }
+            double posY = lineVertical.getPoint(length, order)[1] - 0.0625;
+            int blockY = (int) posY;
+            double pushUp = posY - Math.floor(posY);
+            // 依照实际朝向创建RP并初始化
+            if (realDir == direction1)
+            {
+                result[1] = new RailPosition(blockX1, blockY, blockZ1, direction1, 0);
+                result[2] = new RailPosition(blockX2, blockY, blockZ2, direction2, 0);
+            }
+            else
+            {
+                result[2] = new RailPosition(blockX1, blockY, blockZ1, direction1, 0);
+                result[1] = new RailPosition(blockX2, blockY, blockZ2, direction2, 0);
+            }
+            result[1].addHeight(pushUp - Math.floor(pushUp));
+            result[2].addHeight(pushUp - Math.floor(pushUp));
+            result[1].init();
+            result[2].init();
+
+            // 获得分割后曲线
+            ILineAdvanced[] horizontalCurves = this.getLineHorizontal().split(length, order);
+            ILineAdvanced[] verticalCurves = this.getLineVertical().split(length, order);
+
+            // splitPoint 被切开的点
+            // endPoint 锚线，对应的贝塞尔曲线控制点，和splitPoint相同则为直线
+            double[] splitPointH1;
+            double[] endPointH1;
+            double[] splitPointV1;
+            double[] endPointV1;
+            double[] splitPointH2;
+            double[] endPointH2;
+            double[] splitPointV2;
+            double[] endPointV2;
+            // 计算起始和终点两边的anchor长度用的点
+            double[] controlPointStartH0;
+            double[] controlPointEndH3;
+            double[] controlPointStartV0;
+            double[] controlPointEndV3;
+
+            if (lineHorizontal instanceof BezierCurveAdvanced)
+            {
+                splitPointH1 = point;
+                endPointH1 = ((BezierCurveAdvanced) horizontalCurves[0]).cpE.clone();
+                splitPointH2 = point;
+                endPointH2 = ((BezierCurveAdvanced) horizontalCurves[1]).cpS.clone();
+                controlPointStartH0 = ((BezierCurveAdvanced) horizontalCurves[0]).cpS.clone();
+                controlPointEndH3 = ((BezierCurveAdvanced) horizontalCurves[1]).cpE.clone();
+            }
+            else if (lineHorizontal instanceof StraightLineAdvanced)
+            {
+                splitPointH1 = point;
+                endPointH1 = splitPointH1;
+                splitPointH2 = point;
+                endPointH2 = splitPointH2;
+                controlPointStartH0 = lineHorizontal.getPoint(length, 0);
+                controlPointEndH3 = lineHorizontal.getPoint(length, length);
+            }
+            else
+            {
+                break label_success;
+            }
+            if (lineVertical instanceof BezierCurveAdvanced)
+            {
+                splitPointV1 = lineVertical.getPoint(length, order);
+                endPointV1 = ((BezierCurveAdvanced) verticalCurves[0]).cpE.clone();
+                splitPointV2 = lineVertical.getPoint(length, order);
+                endPointV2 = ((BezierCurveAdvanced) verticalCurves[1]).cpS.clone();
+                controlPointStartV0 = ((BezierCurveAdvanced) verticalCurves[0]).cpS.clone();
+                controlPointEndV3 = ((BezierCurveAdvanced) verticalCurves[1]).cpE.clone();
+            }
+            else if (lineVertical instanceof StraightLineAdvanced)
+            {
+                splitPointV1 = lineVertical.getPoint(length, order);
+                endPointV1 = lineVertical.getPoint(length, order);
+                splitPointV2 = lineVertical.getPoint(length, order);
+                endPointV2 = lineVertical.getPoint(length, order);
+                controlPointStartV0 = lineVertical.getPoint(length, 0);
+                controlPointEndV3 = lineVertical.getPoint(length, length);
+            }
+            else
+            {
+                break label_success;
+            }
+
+            result[1].anchorLengthHorizontal = (float) getLength(splitPointH1, endPointH1);
+            if (lineHorizontal instanceof BezierCurveAdvanced)
+            {
+                result[1].anchorYaw = getAngleD((splitPointH1), (endPointH1));
+            }
+
+            result[1].anchorLengthVertical = (float) getLength(splitPointV1, endPointV1);
+            result[1].anchorPitch = MathHelper.wrapDegrees(getAngleD((splitPointV1), (endPointV1)));
+            if (result[1].anchorPitch > 90.0F || result[1].anchorPitch < -90.0F)
+            {
+                result[1].anchorPitch = -MathHelper.wrapDegrees(result[1].anchorPitch + 180.0f);
+            }
+
+            result[2].anchorLengthHorizontal = (float) getLength(splitPointH2, endPointH2);
+            if (lineHorizontal instanceof BezierCurveAdvanced)
+            {
+                result[2].anchorYaw = getAngleD((splitPointH2), (endPointH2));
+            }
+
+            result[2].anchorLengthVertical = (float) getLength(splitPointV2, endPointV2);
+            result[2].anchorPitch = MathHelper.wrapDegrees(getAngleD((splitPointV2), (endPointV2)));
+            if (result[2].anchorPitch > 90.0F || result[2].anchorPitch < -90.0F)
+            {
+                result[2].anchorPitch = -MathHelper.wrapDegrees(result[2].anchorPitch + 180.0f);
+            }
+
+            result[0].anchorLengthHorizontal = (float) getLength(lineHorizontal.getPoint(length, 0),
+                    controlPointStartH0);
+            result[0].anchorLengthVertical = (float) getLength(lineVertical.getPoint(length, 0), controlPointStartV0);
+            result[3].anchorLengthHorizontal = (float) getLength(lineHorizontal.getPoint(length, length),
+                    controlPointEndH3);
+            result[3].anchorLengthVertical = (float) getLength(lineVertical.getPoint(length, length),
+                    controlPointEndV3);
+
+            result[0].cantEdge = this.startRP.cantEdge;
+            result[0].cantCenter = this.getRailRoll(length, order / 2);
+            result[1].cantEdge = -this.getRailRoll(length, order);
+            result[1].cantCenter = -result[0].cantCenter;
+            result[2].cantEdge = this.getRailRoll(length, order);
+            result[2].cantCenter = this.getRailRoll(length, (length - order) / 2 + order);
+            result[3].cantEdge = this.endRP.cantEdge;
+            result[3].cantCenter = -result[2].cantCenter;
+
+            ret.add(new RailMapAdvanced(result[0], result[1]));
+            ret.add(new RailMapAdvanced(result[2], result[3]));
+            if (ret.get(0).getLength() < ModConfig.railSplitMinimumLength ||
+                    ret.get(1).getLength() < ModConfig.railSplitMinimumLength)
+            {
+                break label_success;
+            }
             return ret;
         }
-        // lineHorizontal的坐标数组[0]对应Z，[1]对应X
-        // lineVertical的坐标数组[0]对应自0至两RailPositions坐标之间的直线距离中的某一点，[1]对应自startRP起上抬的坐标
-
-        // 计算对面方向需要的block坐标
-        double posX = point[1];
-        double posZ = point[0];
-        int blockX1 = (int) Math.floor(posX);
-        int blockZ1 = (int) Math.floor(posZ);
-        int direction1 = getRPDirection(blockX1, blockZ1, posX, posZ, isBezier);
-        int direction2 = ((direction1 + 4) & 0x07);
-        // 实际的方向，随曲线增长方向一致
-        int realDir = getRPDirection(lineHorizontal.getPoint(length, order - 2 * QUANTIZE),
-                lineHorizontal.getPoint(length, order + 2 * QUANTIZE), isBezier);
-        int blockX2 = blockX1;
-        int blockZ2 = blockZ1;
-        switch (direction1)
-        {
-        case 0:
-            blockZ2--;
-            break;
-        case 1:
-            blockX2--;
-            blockZ2--;
-            break;
-        case 2:
-            blockX2--;
-            break;
-        case 3:
-            blockX2--;
-            blockZ2++;
-            break;
-        case 4:
-            blockZ2++;
-            break;
-        case 5:
-            blockX2++;
-            blockZ2++;
-            break;
-        case 6:
-            blockX2++;
-            break;
-        case 7:
-            blockX2++;
-            blockZ2--;
-            break;
-        default:
-            break;
-        }
-        double posY = lineVertical.getPoint(length, order)[1] - 0.0625;
-        int blockY = (int) posY;
-        double pushUp = posY - Math.floor(posY);
-        // 依照实际朝向创建RP并初始化
-        if (realDir == direction1)
-        {
-            result[1] = new RailPosition(blockX1, blockY, blockZ1, direction1, 0);
-            result[2] = new RailPosition(blockX2, blockY, blockZ2, direction2, 0);
-        }
-        else
-        {
-            result[2] = new RailPosition(blockX1, blockY, blockZ1, direction1, 0);
-            result[1] = new RailPosition(blockX2, blockY, blockZ2, direction2, 0);
-        }
-        result[1].addHeight(pushUp - Math.floor(pushUp));
-        result[2].addHeight(pushUp - Math.floor(pushUp));
-        result[1].init();
-        result[2].init();
-
-        // 获得分割后曲线
-        ILineAdvanced[] horizontalCurves = this.getLineHorizontal().split(length, order);
-        ILineAdvanced[] verticalCurves = this.getLineVertical().split(length, order);
-
-        // splitPoint 被切开的点
-        // endPoint 锚线，对应的贝塞尔曲线控制点，和splitPoint相同则为直线
-        double[] splitPointH1;
-        double[] endPointH1;
-        double[] splitPointV1;
-        double[] endPointV1;
-        double[] splitPointH2;
-        double[] endPointH2;
-        double[] splitPointV2;
-        double[] endPointV2;
-        // 计算起始和终点两边的anchor长度用的点
-        double[] controlPointStartH0;
-        double[] controlPointEndH3;
-        double[] controlPointStartV0;
-        double[] controlPointEndV3;
-
-        if (lineHorizontal instanceof BezierCurveAdvanced)
-        {
-            splitPointH1 = point;
-            endPointH1 = ((BezierCurveAdvanced) horizontalCurves[0]).cpE.clone();
-            splitPointH2 = point;
-            endPointH2 = ((BezierCurveAdvanced) horizontalCurves[1]).cpS.clone();
-            controlPointStartH0 = ((BezierCurveAdvanced) horizontalCurves[0]).cpS.clone();
-            controlPointEndH3 = ((BezierCurveAdvanced) horizontalCurves[1]).cpE.clone();
-        }
-        else if (lineHorizontal instanceof StraightLineAdvanced)
-        {
-            splitPointH1 = point;
-            endPointH1 = splitPointH1;
-            splitPointH2 = point;
-            endPointH2 = splitPointH2;
-            controlPointStartH0 = lineHorizontal.getPoint(length, 0);
-            controlPointEndH3 = lineHorizontal.getPoint(length, length);
-        }
-        else
-        {
-            ret.add(this);
-            return ret;
-        }
-        if (lineVertical instanceof BezierCurveAdvanced)
-        {
-            splitPointV1 = lineVertical.getPoint(length, order);
-            endPointV1 = ((BezierCurveAdvanced) verticalCurves[0]).cpE.clone();
-            splitPointV2 = lineVertical.getPoint(length, order);
-            endPointV2 = ((BezierCurveAdvanced) verticalCurves[1]).cpS.clone();
-            controlPointStartV0 = ((BezierCurveAdvanced) verticalCurves[0]).cpS.clone();
-            controlPointEndV3 = ((BezierCurveAdvanced) verticalCurves[1]).cpE.clone();
-        }
-        else if (lineVertical instanceof StraightLineAdvanced)
-        {
-            splitPointV1 = lineVertical.getPoint(length, order);
-            endPointV1 = lineVertical.getPoint(length, order);
-            splitPointV2 = lineVertical.getPoint(length, order);
-            endPointV2 = lineVertical.getPoint(length, order);
-            controlPointStartV0 = lineVertical.getPoint(length, 0);
-            controlPointEndV3 = lineVertical.getPoint(length, length);
-        }
-        else
-        {
-            ret.add(this);
-            return ret;
-        }
-
-        result[1].anchorLengthHorizontal = (float) getLength(splitPointH1, endPointH1);
-        if (lineHorizontal instanceof BezierCurveAdvanced)
-        {
-            result[1].anchorYaw = getAngleD((splitPointH1), (endPointH1));
-        }
-
-        result[1].anchorLengthVertical = (float) getLength(splitPointV1, endPointV1);
-        result[1].anchorPitch = MathHelper.wrapDegrees(getAngleD((splitPointV1), (endPointV1)));
-        if (result[1].anchorPitch > 90.0F || result[1].anchorPitch < -90.0F)
-        {
-            result[1].anchorPitch = -MathHelper.wrapDegrees(result[1].anchorPitch + 180.0f);
-        }
-
-        result[2].anchorLengthHorizontal = (float) getLength(splitPointH2, endPointH2);
-        if (lineHorizontal instanceof BezierCurveAdvanced)
-        {
-            result[2].anchorYaw = getAngleD((splitPointH2), (endPointH2));
-        }
-
-        result[2].anchorLengthVertical = (float) getLength(splitPointV2, endPointV2);
-        result[2].anchorPitch = MathHelper.wrapDegrees(getAngleD((splitPointV2), (endPointV2)));
-        if (result[2].anchorPitch > 90.0F || result[2].anchorPitch < -90.0F)
-        {
-            result[2].anchorPitch = -MathHelper.wrapDegrees(result[2].anchorPitch + 180.0f);
-        }
-
-        result[0].anchorLengthHorizontal = (float) getLength(lineHorizontal.getPoint(length, 0), controlPointStartH0);
-        result[0].anchorLengthVertical = (float) getLength(lineVertical.getPoint(length, 0), controlPointStartV0);
-        result[3].anchorLengthHorizontal = (float) getLength(lineHorizontal.getPoint(length, length),
-                controlPointEndH3);
-        result[3].anchorLengthVertical = (float) getLength(lineVertical.getPoint(length, length), controlPointEndV3);
-
-        result[0].cantEdge = this.startRP.cantEdge;
-        result[0].cantCenter = this.getRailRoll(length, order / 2);
-        result[1].cantEdge = -this.getRailRoll(length, order);
-        result[1].cantCenter = -result[0].cantCenter;
-        result[2].cantEdge = this.getRailRoll(length, order);
-        result[2].cantCenter = this.getRailRoll(length, (length - order) / 2 + order);
-        result[3].cantEdge = this.endRP.cantEdge;
-        result[3].cantCenter = -result[2].cantCenter;
-
-        ret.add(new RailMapAdvanced(result[0], result[1]));
-        ret.add(new RailMapAdvanced(result[2], result[3]));
-        if (ret.get(0).getLength() < ModConfig.railSplitMinimumLength ||
-                ret.get(1).getLength() < ModConfig.railSplitMinimumLength)
-        {
-            ret.clear();
-            ret.add(this);
-            return ret;
-        }
+        ret.clear();
+        ret.add(this);
         return ret;
     }
 
