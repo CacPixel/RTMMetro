@@ -526,20 +526,14 @@ public class RailMapAdvanced extends RailMapBasic
                 int direction1 = getRPDirection(blockX1, blockZ1, posX, posZ, isBezier);
                 int direction2 = ((direction1 + 4) & 0x07);
                 int realDir = getRPDirection(prevPoint, point, isBezier);   // jvm crash
-                if ((realDir != -1 && (realDir == direction1 || realDir == direction2))
-                        || (!isBezier && (direction1 == this.startRP.direction || direction1 == this.endRP.direction
-                        || direction2 == this.startRP.direction || direction2 == this.endRP.direction)))
+                if (realDir != -1 && (realDir == direction1 || realDir == direction2))
                 {
-                    double[] normalizedPoint = normalizePoint(point);
-                    double[] p = vecList.isEmpty() ? null : vecList.get(vecList.size() - 1);
-                    if (p != null && p[0] == normalizedPoint[0] && p[1] == normalizedPoint[1])
-                    {
-                        ;
-                    }
-                    else
-                    {
-                        vecList.add(normalizedPoint);
-                    }
+                    vecList.add(point);
+                }
+                else if (!isBezier && (direction1 == this.startRP.direction || direction1 == this.endRP.direction
+                        || direction2 == this.startRP.direction || direction2 == this.endRP.direction))
+                {
+                    vecList.add(point);
                 }
             }
             prevPoint = point;
