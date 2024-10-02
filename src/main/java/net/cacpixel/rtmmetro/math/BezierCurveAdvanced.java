@@ -3,6 +3,7 @@ package net.cacpixel.rtmmetro.math;
 import jp.ngt.ngtlib.math.LinePosPool;
 import jp.ngt.ngtlib.math.NGTMath;
 import net.cacpixel.rtmmetro.rail.util.construct.InitNPTask;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +97,17 @@ public final class BezierCurveAdvanced implements ILineAdvanced
     {
         return this.getSlopeFromParameter((double) this.getHomogenizedParameter(par1, par2));
     }
+
+    public double getSlopeD(int par1, int par2)
+    {
+        return NGTMath.toDegrees(this.getSlope(par1, par2));
+    }
+
+    public double getWrappedSlopeD(int par1, int par2)
+    {
+        return MathHelper.wrapDegrees(this.getSlopeD(par1, par2));
+    }
+
 
     private double getSlopeFromParameter(double par1)
     {

@@ -25,7 +25,6 @@ import java.util.List;
 
 public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITickable
 {
-
     private static final int SEARCH_COUNT = 40;
     public static int defaultGroupNumber = 0;
     public int groupNumber;

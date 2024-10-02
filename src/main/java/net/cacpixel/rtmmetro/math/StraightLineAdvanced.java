@@ -3,6 +3,7 @@ package net.cacpixel.rtmmetro.math;
 import jp.ngt.ngtlib.math.LinePosPool;
 import jp.ngt.ngtlib.math.NGTMath;
 import jp.ngt.ngtlib.math.StraightLine;
+import net.minecraft.util.math.MathHelper;
 
 public class StraightLineAdvanced implements ILineAdvanced
 {
@@ -11,7 +12,7 @@ public class StraightLineAdvanced implements ILineAdvanced
     public final double endX;
     public final double endY;
     private final double length;
-    private final double slopeAngle;
+    private final double slopeAngle; // in radians
     private final double slope;
     private final double intercept;
 
@@ -77,6 +78,16 @@ public class StraightLineAdvanced implements ILineAdvanced
     public double getSlope(int par1, int par2)
     {
         return this.slopeAngle;
+    }
+
+    public double getSlopeD(int par1, int par2)
+    {
+        return NGTMath.toDegrees(this.getSlope(par1, par2));
+    }
+
+    public double getWrappedSlopeD(int par1, int par2)
+    {
+        return MathHelper.wrapDegrees(this.getSlopeD(par1, par2));
     }
 
     public double getLength()

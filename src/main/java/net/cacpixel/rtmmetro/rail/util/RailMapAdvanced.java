@@ -1,8 +1,6 @@
 package net.cacpixel.rtmmetro.rail.util;
 
 import jp.ngt.ngtlib.block.BlockUtil;
-import jp.ngt.ngtlib.io.NGTLog;
-import jp.ngt.ngtlib.math.ILine;
 import jp.ngt.ngtlib.math.NGTMath;
 import jp.ngt.ngtlib.math.Vec3;
 import jp.ngt.rtm.modelpack.cfg.RailConfig;
@@ -14,9 +12,7 @@ import jp.ngt.rtm.rail.TileEntityLargeRailBase;
 import jp.ngt.rtm.rail.util.RailMapBasic;
 import jp.ngt.rtm.rail.util.RailPosition;
 import net.cacpixel.rtmmetro.ModConfig;
-import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
-import net.cacpixel.rtmmetro.math.ILineAdvanced;
-import net.cacpixel.rtmmetro.math.StraightLineAdvanced;
+import net.cacpixel.rtmmetro.math.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
@@ -24,7 +20,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class RailMapAdvanced extends RailMapBasic
@@ -289,6 +284,7 @@ public class RailMapAdvanced extends RailMapBasic
             // 同乘QUANTIZE细分方便运算
             int length = lengthIn * QUANTIZE;
             int order = orderIn * QUANTIZE;
+            int targetLength = (int) Math.floor(this.getLineHorizontal().getLength() * QUANTIZE / 2);
             // true则只使用对角坐标
             boolean isBezier = lineHorizontal instanceof BezierCurveAdvanced;
             RailPosition[] result = new RailPosition[4];
@@ -296,37 +292,39 @@ public class RailMapAdvanced extends RailMapBasic
             result[3] = cloneRP(endRP);
 
             // 获取可用点
-            List<double[]> acceptablePoints = this.getAcceptablePoint(lineHorizontal,
+            List<LinePointWithOrder> acceptablePoints = this.getAcceptablePoint(this.getLineHorizontal(), targetLength,
                     isBezier ? ModConfig.railSplitThreshold : ModConfig.railSplitThresholdStraight, isBezier);
-            // point将会是最终的分割点
-            double[] point = null;
+            // targetPoint 将会是最终的分割点
+            LinePointWithOrder targetPoint = null;
             double minimumLength = lineHorizontal.getLength();
             // 寻找距离期望分割点最近的可用点
-            for (double[] p : acceptablePoints)
+            for (LinePointWithOrder p : acceptablePoints)
             {
-                if (getLength(p, lineHorizontal.getPoint(length, order)) < minimumLength)
+                double len = CacMath.getLength(p.getPoint(), lineHorizontal.getPoint(length, order));
+                if (len < minimumLength)
                 {
-                    minimumLength = getLength(p, lineHorizontal.getPoint(length, order));
-                    point = p;
+                    minimumLength = len;
+                    targetPoint = p;
                 }
             }
-            if (point == null)
+            if (targetPoint == null)
             {
                 break label_success;
             }
+            int targetOrder = targetPoint.getOrder();
             // lineHorizontal的坐标数组[0]对应Z，[1]对应X
             // lineVertical的坐标数组[0]对应自0至两RailPositions坐标之间的直线距离中的某一点，[1]对应自startRP起上抬的坐标
 
             // 计算对面方向需要的block坐标
-            double posX = point[1];
-            double posZ = point[0];
+            double posX = targetPoint.getPoint()[1];
+            double posZ = targetPoint.getPoint()[0];
             int blockX1 = (int) Math.floor(posX);
             int blockZ1 = (int) Math.floor(posZ);
-            int direction1 = getRPDirection(blockX1, blockZ1, posX, posZ, isBezier);
+            int direction1 = CacMath.getRPDirection(blockX1, blockZ1, posX, posZ, isBezier);
             int direction2 = ((direction1 + 4) & 0x07);
             // 实际的方向，随曲线增长方向一致
-            int realDir = getRPDirection(lineHorizontal.getPoint(length, order - 2 * QUANTIZE),
-                    lineHorizontal.getPoint(length, order + 2 * QUANTIZE), isBezier);
+            int realDir = CacMath.getRPDirection(lineHorizontal.getPoint(targetLength, targetOrder - 2 * QUANTIZE),
+                    lineHorizontal.getPoint(targetLength, targetOrder + 2 * QUANTIZE), isBezier);
             int blockX2 = blockX1;
             int blockZ2 = blockZ1;
             switch (direction1)
@@ -362,7 +360,7 @@ public class RailMapAdvanced extends RailMapBasic
             default:
                 break;
             }
-            double posY = lineVertical.getPoint(length, order)[1] - 0.0625;
+            double posY = lineVertical.getPoint(targetLength, targetOrder)[1] - 0.0625;
             int blockY = (int) posY;
             double pushUp = posY - Math.floor(posY);
             // 依照实际朝向创建RP并初始化
@@ -382,8 +380,8 @@ public class RailMapAdvanced extends RailMapBasic
             result[2].init();
 
             // 获得分割后曲线
-            ILineAdvanced[] horizontalCurves = this.getLineHorizontal().split(length, order);
-            ILineAdvanced[] verticalCurves = this.getLineVertical().split(length, order);
+            ILineAdvanced[] horizontalCurves = this.getLineHorizontal().split(targetLength, targetOrder);
+            ILineAdvanced[] verticalCurves = this.getLineVertical().split(targetLength, targetOrder);
 
             // splitPoint 被切开的点
             // endPoint 锚线，对应的贝塞尔曲线控制点，和splitPoint相同则为直线
@@ -403,21 +401,21 @@ public class RailMapAdvanced extends RailMapBasic
 
             if (lineHorizontal instanceof BezierCurveAdvanced)
             {
-                splitPointH1 = point;
+                splitPointH1 = targetPoint.getPoint();
                 endPointH1 = ((BezierCurveAdvanced) horizontalCurves[0]).cpE.clone();
-                splitPointH2 = point;
+                splitPointH2 = targetPoint.getPoint();
                 endPointH2 = ((BezierCurveAdvanced) horizontalCurves[1]).cpS.clone();
                 controlPointStartH0 = ((BezierCurveAdvanced) horizontalCurves[0]).cpS.clone();
                 controlPointEndH3 = ((BezierCurveAdvanced) horizontalCurves[1]).cpE.clone();
             }
             else if (lineHorizontal instanceof StraightLineAdvanced)
             {
-                splitPointH1 = point;
+                splitPointH1 = targetPoint.getPoint();
                 endPointH1 = splitPointH1;
-                splitPointH2 = point;
+                splitPointH2 = targetPoint.getPoint();
                 endPointH2 = splitPointH2;
-                controlPointStartH0 = lineHorizontal.getPoint(length, 0);
-                controlPointEndH3 = lineHorizontal.getPoint(length, length);
+                controlPointStartH0 = lineHorizontal.getPoint(targetLength, 0);
+                controlPointEndH3 = lineHorizontal.getPoint(targetLength, targetOrder);
             }
             else
             {
@@ -425,67 +423,73 @@ public class RailMapAdvanced extends RailMapBasic
             }
             if (lineVertical instanceof BezierCurveAdvanced)
             {
-                splitPointV1 = lineVertical.getPoint(length, order);
+                splitPointV1 = lineVertical.getPoint(targetLength, targetOrder);
                 endPointV1 = ((BezierCurveAdvanced) verticalCurves[0]).cpE.clone();
-                splitPointV2 = lineVertical.getPoint(length, order);
+                splitPointV2 = lineVertical.getPoint(targetLength, targetOrder);
                 endPointV2 = ((BezierCurveAdvanced) verticalCurves[1]).cpS.clone();
                 controlPointStartV0 = ((BezierCurveAdvanced) verticalCurves[0]).cpS.clone();
                 controlPointEndV3 = ((BezierCurveAdvanced) verticalCurves[1]).cpE.clone();
             }
             else if (lineVertical instanceof StraightLineAdvanced)
             {
-                splitPointV1 = lineVertical.getPoint(length, order);
-                endPointV1 = lineVertical.getPoint(length, order);
-                splitPointV2 = lineVertical.getPoint(length, order);
-                endPointV2 = lineVertical.getPoint(length, order);
-                controlPointStartV0 = lineVertical.getPoint(length, 0);
-                controlPointEndV3 = lineVertical.getPoint(length, length);
+                splitPointV1 = lineVertical.getPoint(targetLength, targetOrder);
+                endPointV1 = lineVertical.getPoint(targetLength, targetOrder);
+                splitPointV2 = lineVertical.getPoint(targetLength, targetOrder);
+                endPointV2 = lineVertical.getPoint(targetLength, targetOrder);
+                controlPointStartV0 = lineVertical.getPoint(targetLength, 0);
+                controlPointEndV3 = lineVertical.getPoint(targetLength, targetOrder);
             }
             else
             {
                 break label_success;
             }
 
-            result[1].anchorLengthHorizontal = (float) getLength(splitPointH1, endPointH1);
+            result[1].anchorLengthHorizontal = (float) CacMath.getLength(splitPointH1, endPointH1);
             if (lineHorizontal instanceof BezierCurveAdvanced)
             {
-                result[1].anchorYaw = getAngleD((splitPointH1), (endPointH1));
+                result[1].anchorYaw = MathHelper.wrapDegrees(
+                        NGTMath.toDegrees((float) lineHorizontal.getSlope(targetLength, targetOrder)) +
+                                180.0F);//getAngleD((splitPointH1), (endPointH1));
             }
 
-            result[1].anchorLengthVertical = (float) getLength(splitPointV1, endPointV1);
-            result[1].anchorPitch = MathHelper.wrapDegrees(getAngleD((splitPointV1), (endPointV1)));
+            result[1].anchorLengthVertical = (float) CacMath.getLength(splitPointV1, endPointV1);
+            result[1].anchorPitch = MathHelper.wrapDegrees(CacMath.getAngleD((splitPointV1), (endPointV1)));
             if (result[1].anchorPitch > 90.0F || result[1].anchorPitch < -90.0F)
             {
                 result[1].anchorPitch = -MathHelper.wrapDegrees(result[1].anchorPitch + 180.0f);
             }
 
-            result[2].anchorLengthHorizontal = (float) getLength(splitPointH2, endPointH2);
+            result[2].anchorLengthHorizontal = (float) CacMath.getLength(splitPointH2, endPointH2);
             if (lineHorizontal instanceof BezierCurveAdvanced)
             {
-                result[2].anchorYaw = getAngleD((splitPointH2), (endPointH2));
+                result[2].anchorYaw = MathHelper.wrapDegrees(
+                        result[1].anchorYaw + 180.0f);// getAngleD((splitPointH2), (endPointH2));
             }
 
-            result[2].anchorLengthVertical = (float) getLength(splitPointV2, endPointV2);
-            result[2].anchorPitch = MathHelper.wrapDegrees(getAngleD((splitPointV2), (endPointV2)));
+            result[2].anchorLengthVertical = (float) CacMath.getLength(splitPointV2, endPointV2);
+            result[2].anchorPitch = MathHelper.wrapDegrees(CacMath.getAngleD((splitPointV2), (endPointV2)));
             if (result[2].anchorPitch > 90.0F || result[2].anchorPitch < -90.0F)
             {
                 result[2].anchorPitch = -MathHelper.wrapDegrees(result[2].anchorPitch + 180.0f);
             }
 
-            result[0].anchorLengthHorizontal = (float) getLength(lineHorizontal.getPoint(length, 0),
+            result[0].anchorLengthHorizontal = (float) CacMath.getLength(lineHorizontal.getPoint(targetLength, 0),
                     controlPointStartH0);
-            result[0].anchorLengthVertical = (float) getLength(lineVertical.getPoint(length, 0), controlPointStartV0);
-            result[3].anchorLengthHorizontal = (float) getLength(lineHorizontal.getPoint(length, length),
+            result[0].anchorLengthVertical = (float) CacMath.getLength(lineVertical.getPoint(targetLength, 0),
+                    controlPointStartV0);
+            result[3].anchorLengthHorizontal = (float) CacMath.getLength(
+                    lineHorizontal.getPoint(targetLength, targetLength),
                     controlPointEndH3);
-            result[3].anchorLengthVertical = (float) getLength(lineVertical.getPoint(length, length),
+            result[3].anchorLengthVertical = (float) CacMath.getLength(
+                    lineVertical.getPoint(targetLength, targetLength),
                     controlPointEndV3);
 
             result[0].cantEdge = this.startRP.cantEdge;
-            result[0].cantCenter = this.getRailRoll(length, order / 2);
-            result[1].cantEdge = -this.getRailRoll(length, order);
+            result[0].cantCenter = this.getRailRoll(targetLength, targetOrder / 2);
+            result[1].cantEdge = -this.getRailRoll(targetLength, targetOrder);
             result[1].cantCenter = -result[0].cantCenter;
-            result[2].cantEdge = this.getRailRoll(length, order);
-            result[2].cantCenter = this.getRailRoll(length, (length - order) / 2 + order);
+            result[2].cantEdge = this.getRailRoll(targetLength, targetOrder);
+            result[2].cantCenter = this.getRailRoll(targetLength, (targetLength - targetOrder) / 2 + targetOrder);
             result[3].cantEdge = this.endRP.cantEdge;
             result[3].cantCenter = -result[2].cantCenter;
 
@@ -503,172 +507,43 @@ public class RailMapAdvanced extends RailMapBasic
         return ret;
     }
 
-    public List<double[]> getAcceptablePoint(ILine line, double threshold, boolean isBezier)
+    public List<LinePointWithOrder> getAcceptablePoint(ILineAdvanced line, int length, double threshold,
+                                                       boolean isBezier)
     {
-        List<double[]> vecList = new ArrayList<>();
+        List<LinePointWithOrder> vecList = new ArrayList<>();
+        if (line == null) return vecList;
         double[] prevPoint = null;
-        for (int i = 0; i < line.getLength() * QUANTIZE; i++)
+        for (int i = 0; i < length; i++)
         {
-            double[] point = line.getPoint((int) Math.floor(line.getLength() * QUANTIZE), i);
+            double[] point = line.getPoint(length, i);
             if (prevPoint == null)
             {
                 prevPoint = point;
                 continue;
             }
-            boolean isAcceptable =
-                    isBezier ? isPointAcceptableCorner(point, threshold) : isPointAcceptable(point, threshold);
-            if (isAcceptable)
+            if (isBezier ? CacMath.isPointAcceptableCorner(point, threshold) :
+                    CacMath.isPointAcceptable(point, threshold))
             {
                 double posX = point[1];
                 double posZ = point[0];
                 int blockX1 = (int) Math.floor(posX);
                 int blockZ1 = (int) Math.floor(posZ);
-                int direction1 = getRPDirection(blockX1, blockZ1, posX, posZ, isBezier);
+                int direction1 = CacMath.getRPDirection(blockX1, blockZ1, posX, posZ, isBezier);
                 int direction2 = ((direction1 + 4) & 0x07);
-                int realDir = getRPDirection(prevPoint, point, isBezier);   // jvm crash
+                int realDir = CacMath.getRPDirection(prevPoint, point, isBezier);   // jvm crash
                 if (realDir != -1 && (realDir == direction1 || realDir == direction2))
                 {
-                    vecList.add(point);
+                    vecList.add(new LinePointWithOrder(point, i, line));
                 }
                 else if (!isBezier && (direction1 == this.startRP.direction || direction1 == this.endRP.direction
                         || direction2 == this.startRP.direction || direction2 == this.endRP.direction))
                 {
-                    vecList.add(point);
+                    vecList.add(new LinePointWithOrder(point, i, line));
                 }
             }
             prevPoint = point;
         }
         return vecList;
-    }
-
-    public static int getRPDirection(int blockX, int blockZ, double posX, double posZ, boolean isCornerOnly)
-    {
-        double xOffset = posX - blockX;
-        double zOffset = posZ - blockZ;
-        return getRPDirection(new double[]{0.5, 0.5}, new double[]{zOffset, xOffset}, isCornerOnly);
-    }
-
-    public static int getRPDirection(double[] start, double[] end, boolean isCornerOnly)
-    {
-        if (start == null || end == null || start.length != 2 || end.length != 2)
-        {
-            return -1;
-        }
-        if (isCornerOnly)
-        {
-            float angle = (float) NGTMath.normalizeAngle(getAngleD(start, end) + 180.0f);
-            return (byte) (Math.floor(angle / 90.0f) * 2 + 1) & 0x7;
-        }
-        else
-        {
-            float angle = (float) NGTMath.normalizeAngle(getAngleD(start, end) + 180.0f + 22.5f);
-            return (byte) Math.floor(angle / 45.0f) & 0x7;
-        }
-    }
-
-    public static boolean isPointAcceptable(double[] in, double threshold)
-    {
-        double[] decimal = new double[]{in[0] - Math.floor(in[0]), in[1] - Math.floor(in[1])};
-        int[] result = new int[]{0, 0};
-        // 0 不支持
-        // 1 趋向于0
-        // 2 趋向于0.5
-        // 3 趋向于1
-        for (int i = 0; i < 2; i++)
-        {
-            if (0.0 <= decimal[i] && decimal[i] <= threshold)
-            {
-                result[i] = 1;
-            }
-            else if (1.0 - threshold <= decimal[i] && decimal[i] <= 1.0)
-            {
-                result[i] = 3;
-            }
-            else if (0.5 - threshold <= decimal[i] && decimal[i] <= 0.5 + threshold)
-            {
-                result[i] = 2;
-            }
-        }
-        if (result[0] == result[1] && result[0] == 2)
-        {
-            return false; // 排除处在方块中心的情况
-        }
-        return ((result[0] > 0) && (result[1] > 0));
-    }
-
-    public static boolean isPointAcceptableCorner(double[] in, double threshold)
-    {
-        double[] decimal = new double[]{in[0] - Math.floor(in[0]), in[1] - Math.floor(in[1])};
-        int[] result = new int[]{0, 0};
-        // 0 不支持
-        // 1 趋向于0
-        // 2 趋向于0.5
-        // 3 趋向于1
-        for (int i = 0; i < 2; i++)
-        {
-            if (0.0 <= decimal[i] && decimal[i] <= threshold)
-            {
-                result[i] = 1;
-            }
-            else if (1.0 - threshold <= decimal[i] && decimal[i] <= 1.0)
-            {
-                result[i] = 3;
-            }
-        }
-        return ((result[0] > 0) && (result[1] > 0));
-    }
-
-    public static double[] normalizePoint(double[] in)
-    {
-        double[] decimal = new double[]{in[0] - Math.floor(in[0]), in[1] - Math.floor(in[1])};
-        double[] ret = new double[2];
-        for (int i = 0; i < 2; i++)
-        {
-            if (decimal[i] <= 0.25)
-            {
-                ret[i] = Math.floor(in[i]) + 0.0;
-            }
-            else if (0.75 <= decimal[i])
-            {
-                ret[i] = Math.floor(in[i]) + 1.0;
-            }
-            else // if (0.25 <= decimal[i] && decimal[i] <= 0.75)
-            {
-                ret[i] = Math.floor(in[i]) + 0.5;
-            }
-        }
-        return ret;
-    }
-
-    private static double[] swap(double[] par1)
-    {
-        return new double[]{par1[1], par1[0]};
-    }
-
-    public static double getLength(double[] start, double[] end)
-    {
-        if (Arrays.equals(start, end))
-        {
-            return 0.0f;
-        }
-        else
-        {
-            return Math.sqrt(Math.pow(start[0] - end[0], 2) + Math.pow(start[1] - end[1], 2));
-        }
-    }
-
-    private static float getAngleD(double[] start, double[] end)
-    {
-        if (start[0] == end[0])
-        {
-            if (start[1] < end[1]) return 90.0f;
-            else if (start[1] > end[1]) return -90.0f;
-            else return 0.0f;
-        }
-        else
-        {
-            return (float) NGTMath.toDegrees(Math.atan2(end[1] - start[1], end[0] - start[0]));
-        }
     }
 
     public static RailPosition cloneRP(RailPosition in)

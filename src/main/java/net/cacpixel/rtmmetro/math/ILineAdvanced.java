@@ -8,4 +8,7 @@ public interface ILineAdvanced extends ILine
 
     float getHomogenizedParameter(int n, int par2);
 
+    double getSlopeD(int var1, int var2);
+
+    double getWrappedSlopeD(int var1, int var2);
 }

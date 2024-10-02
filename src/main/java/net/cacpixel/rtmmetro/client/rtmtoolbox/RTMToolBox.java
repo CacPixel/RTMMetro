@@ -30,8 +30,8 @@ public class RTMToolBox
             System.err.println("Failed to initialize LaF");
         }
 
-        this.mainForm = new MainForm();
-        this.mainForm.setVisible(true);
+//        this.mainForm = new MainForm();
+//        this.mainForm.setVisible(true);
 
     }
 }
