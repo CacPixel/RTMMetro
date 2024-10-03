@@ -50,6 +50,8 @@ rtmModName = property("rtmModName").toString()
 rtmProjectID = property("rtmProjectID").toString()
 rtmFileID = property("rtmFileID").toString()
 
+jarLibList = property("jarLibList").toString()
+
 //sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
@@ -104,10 +106,10 @@ dependencies {
     annotationProcessor 'com.google.guava:guava:32.1.2-jre'
     annotationProcessor 'com.google.code.gson:gson:2.8.9'
 
-    implementation ('zone.rong:mixinbooter:9.3') {
+    implementation('zone.rong:mixinbooter:9.3') {
         transitive = false
     }
-    annotationProcessor ('zone.rong:mixinbooter:9.3') {
+    annotationProcessor('zone.rong:mixinbooter:9.3') {
         transitive = false
     }
 
@@ -235,6 +237,19 @@ jar {
     exclude 'assets/hoge/**'
     exclude 'rtm/**'
     exclude 'dummyThing'
+
+    String classPath = System.getProperty("java.class.path")
+    String gradleCachePath = classPath.replaceAll('\\\\', "/").split("/wrapper")[0]
+    String libPath = new File(gradleCachePath + "\\caches\\modules-2\\files-2.1")
+    fileTree(dir: libPath).each { file ->
+        jarLibList.split(",").toList().forEach { str ->
+            if (file.getName() == str) {
+                println("Add jar dependency to artifact: " + file.toString())
+                from { project.zipTree(file.toString()) }
+            }
+        }
+    }
+
 //    String runtimePath = ''
 //    configurations.runtime.each { runtimePath = runtimePath + " rxtx//" + it.name } // 本地lib
 //    from {
