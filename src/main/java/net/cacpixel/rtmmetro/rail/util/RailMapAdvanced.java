@@ -447,30 +447,29 @@ public class RailMapAdvanced extends RailMapBasic
             result[1].anchorLengthHorizontal = (float) CacMath.getLength(splitPointH1, endPointH1);
             if (lineHorizontal instanceof BezierCurveAdvanced)
             {
-                result[1].anchorYaw = MathHelper.wrapDegrees(
-                        NGTMath.toDegrees((float) lineHorizontal.getSlope(targetLength, targetOrder)) +
-                                180.0F);//getAngleD((splitPointH1), (endPointH1));
+                result[1].anchorYaw = (float) CacMath.getWrappedAngleAndReverse(this.getLineHorizontal()
+                        .getSlopeD(targetLength, targetOrder));//getAngleD((splitPointH1), (endPointH1));
             }
 
             result[1].anchorLengthVertical = (float) CacMath.getLength(splitPointV1, endPointV1);
             result[1].anchorPitch = MathHelper.wrapDegrees(CacMath.getAngleD((splitPointV1), (endPointV1)));
             if (result[1].anchorPitch > 90.0F || result[1].anchorPitch < -90.0F)
             {
-                result[1].anchorPitch = -MathHelper.wrapDegrees(result[1].anchorPitch + 180.0f);
+                result[1].anchorPitch = -CacMath.getWrappedAngleAndReverse(result[1].anchorPitch);
             }
 
             result[2].anchorLengthHorizontal = (float) CacMath.getLength(splitPointH2, endPointH2);
             if (lineHorizontal instanceof BezierCurveAdvanced)
             {
-                result[2].anchorYaw = MathHelper.wrapDegrees(
-                        result[1].anchorYaw + 180.0f);// getAngleD((splitPointH2), (endPointH2));
+                result[2].anchorYaw = CacMath.getWrappedAngleAndReverse(
+                        result[1].anchorYaw);// getAngleD((splitPointH2), (endPointH2));
             }
 
             result[2].anchorLengthVertical = (float) CacMath.getLength(splitPointV2, endPointV2);
             result[2].anchorPitch = MathHelper.wrapDegrees(CacMath.getAngleD((splitPointV2), (endPointV2)));
             if (result[2].anchorPitch > 90.0F || result[2].anchorPitch < -90.0F)
             {
-                result[2].anchorPitch = -MathHelper.wrapDegrees(result[2].anchorPitch + 180.0f);
+                result[2].anchorPitch = -CacMath.getWrappedAngleAndReverse(result[2].anchorPitch);
             }
 
             result[0].anchorLengthHorizontal = (float) CacMath.getLength(lineHorizontal.getPoint(targetLength, 0),
