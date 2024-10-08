@@ -272,45 +272,21 @@ public class RailMapAdvanced extends RailMapBasic
         }
     }
 
-    public List<RailMapAdvanced> split(int lengthIn, int orderIn)
+    public List<RailMapAdvanced> split(LinePointWithOrder targetPoint)
     {
         List<RailMapAdvanced> ret = new ArrayList<>();
         label_success:
         {
-            if (lengthIn <= ModConfig.railSplitMinimumLength)
+            if (targetPoint == null)
             {
                 break label_success;
             }
-            // 同乘QUANTIZE细分方便运算
-            int length = lengthIn * QUANTIZE;
-            int order = orderIn * QUANTIZE;
             int targetLength = (int) Math.floor(this.getLineHorizontal().getLength() * QUANTIZE / 2);
             // true则只使用对角坐标
             boolean isBezier = lineHorizontal instanceof BezierCurveAdvanced;
             RailPosition[] result = new RailPosition[4];
             result[0] = cloneRP(startRP);
             result[3] = cloneRP(endRP);
-
-            // 获取可用点
-            List<LinePointWithOrder> acceptablePoints = this.getAcceptablePoint(this.getLineHorizontal(), targetLength,
-                    isBezier ? ModConfig.railSplitThreshold : ModConfig.railSplitThresholdStraight, isBezier);
-            // targetPoint 将会是最终的分割点
-            LinePointWithOrder targetPoint = null;
-            double minimumLength = lineHorizontal.getLength();
-            // 寻找距离期望分割点最近的可用点
-            for (LinePointWithOrder p : acceptablePoints)
-            {
-                double len = CacMath.getLength(p.getPoint(), lineHorizontal.getPoint(length, order));
-                if (len < minimumLength)
-                {
-                    minimumLength = len;
-                    targetPoint = p;
-                }
-            }
-            if (targetPoint == null)
-            {
-                break label_success;
-            }
             int targetOrder = targetPoint.getOrder();
             // lineHorizontal的坐标数组[0]对应Z，[1]对应X
             // lineVertical的坐标数组[0]对应自0至两RailPositions坐标之间的直线距离中的某一点，[1]对应自startRP起上抬的坐标
@@ -502,6 +478,43 @@ public class RailMapAdvanced extends RailMapBasic
             return ret;
         }
         ret.clear();
+        ret.add(this);
+        return ret;
+    }
+
+    public List<RailMapAdvanced> split(int lengthIn, int orderIn)
+    {
+        List<RailMapAdvanced> ret = new ArrayList<>();
+        label_success:
+        {
+            if (lengthIn <= ModConfig.railSplitMinimumLength)
+            {
+                break label_success;
+            }
+            // 同乘QUANTIZE细分方便运算
+            int length = lengthIn * QUANTIZE;
+            int order = orderIn * QUANTIZE;
+            int targetLength = (int) Math.floor(this.getLineHorizontal().getLength() * QUANTIZE / 2);
+            // true则只使用对角坐标
+            boolean isBezier = lineHorizontal instanceof BezierCurveAdvanced;
+            // 获取可用点
+            List<LinePointWithOrder> acceptablePoints = this.getAcceptablePoint(this.getLineHorizontal(), targetLength,
+                    isBezier ? ModConfig.railSplitThreshold : ModConfig.railSplitThresholdStraight, isBezier);
+            // targetPoint 将会是最终的分割点
+            LinePointWithOrder targetPoint = null;
+            double minimumLength = lineHorizontal.getLength();
+            // 寻找距离期望分割点最近的可用点
+            for (LinePointWithOrder p : acceptablePoints)
+            {
+                double len = CacMath.getLength(p.getPoint(), lineHorizontal.getPoint(length, order));
+                if (len < minimumLength)
+                {
+                    minimumLength = len;
+                    targetPoint = p;
+                }
+            }
+            return this.split(targetPoint);
+        }
         ret.add(this);
         return ret;
     }
