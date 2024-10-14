@@ -7,7 +7,6 @@ import net.cacpixel.rtmmetro.client.gui.RTMMetroGUIHandler;
 import net.cacpixel.rtmmetro.client.rtmtoolbox.RTMToolBox;
 import net.cacpixel.rtmmetro.event.RTMMetroEventHandler;
 import net.cacpixel.rtmmetro.proxy.CommonProxy;
-import net.cacpixel.rtmmetro.traincontrollerdemo.UartDevicesMCEventHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
@@ -58,7 +57,6 @@ public class RTMMetro
     public void preInit(FMLPreInitializationEvent event)
     {
         logger = event.getModLog();
-//        LibRxtxLoader.load();
         RTMMetroResource.init();
         RTMMetroBlock.init();
         RTMMetroItems.init();
@@ -75,7 +73,6 @@ public class RTMMetro
         proxy.init();
         RTMMetroToolTip.init();
         MinecraftForge.EVENT_BUS.register(new RTMMetroEventHandler());
-        MinecraftForge.EVENT_BUS.register(new UartDevicesMCEventHandler());
     }
 
     @EventHandler
