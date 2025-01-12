@@ -1,6 +1,7 @@
 package net.cacpixel.rtmmetro.client.gui;
 
 import jp.ngt.ngtlib.gui.GuiTextFieldCustom;
+import jp.ngt.rtm.rail.BlockMarker;
 import jp.ngt.rtm.rail.RenderMarkerBlock;
 import jp.ngt.rtm.rail.util.RailPosition;
 import net.cacpixel.rtmmetro.ModConfig;
@@ -9,6 +10,7 @@ import net.cacpixel.rtmmetro.network.PacketMarkerClient;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
@@ -87,6 +89,13 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
     {
         int stringXpos = this.width - 220;
         int stringYpos = 13;
+
+        // 这么操作其实不好，但是目前只能想到这个办法，就先这样吧
+        if (!(marker.getWorld().getBlockState(new BlockPos(marker.getX(),marker.getY(),marker.getZ()))
+                .getBlock() instanceof BlockMarker))
+        {
+            this.mc.displayGuiScreen(null);
+        }
 
         this.drawGradientRect(Math.max(0, stringXpos - 20), 0, this.width, this.height,
                 0xC0101010, 0xD0101010);
