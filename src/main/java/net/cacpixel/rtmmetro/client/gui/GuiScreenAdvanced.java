@@ -78,12 +78,21 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         super.keyTyped(typedChar, keyCode);
-        if (Keyboard.getEventKey() == Keyboard.KEY_RETURN)
+        if (Keyboard.getEventKey() == Keyboard.KEY_RETURN || Keyboard.getEventKey() == Keyboard.KEY_DOWN)
         {
             GuiTextFieldCustom field = this.getFocusedTextField();
             if (field != null)
                 field.setFocused(false);
             field = this.getNextTextField(field, true);
+            if (field != null)
+                field.setFocused(true);
+        }
+        else if (Keyboard.getEventKey() == Keyboard.KEY_UP)
+        {
+            GuiTextFieldCustom field = this.getFocusedTextField();
+            if (field != null)
+                field.setFocused(false);
+            field = this.getPrevTextField(field, true);
             if (field != null)
                 field.setFocused(true);
         }
