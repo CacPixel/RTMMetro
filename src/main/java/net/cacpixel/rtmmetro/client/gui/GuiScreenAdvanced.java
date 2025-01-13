@@ -143,7 +143,7 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
         {
             return null;
         }
-        ListIterator<GuiTextFieldCustom> it = this.textFields.listIterator();
+        ListIterator<GuiTextFieldCustom> it = this.textFields.listIterator(this.textFields.size());
         while (it.hasPrevious())
         {
             GuiTextFieldCustom field = it.previous();
