@@ -29,6 +29,11 @@ public class RailMapAdvanced extends RailMapBasic
     public RailMapAdvanced(RailPosition par1, RailPosition par2)
     {
         super(par1, par2);
+        if (startRP.cantCenter > 0 && startRP.cantEdge < 0 || startRP.cantCenter < 0 && startRP.cantEdge > 0)
+        {
+            startRP.cantCenter = -startRP.cantCenter;
+            endRP.cantCenter = startRP.cantCenter;
+        }
     }
 
     public ILineAdvanced getLineHorizontal()

@@ -201,10 +201,10 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
 
                 for (int i = 0; i < arailmap.length; ++i)
                 {
-                    RailPosition railposition = this.railMaps[i].getStartRP();
-                    RailPosition railposition1 = this.railMaps[i].getEndRP();
-                    railposition1.cantCenter = -railposition.cantCenter;
-                    arailmap[i] = new RailMapAdvanced(railposition, railposition1);
+                    RailPosition startRP = this.railMaps[i].getStartRP();
+                    RailPosition endRP = this.railMaps[i].getEndRP();
+                    endRP.cantCenter = -startRP.cantCenter;
+                    arailmap[i] = new RailMapAdvanced(startRP, endRP);
                 }
                 this.railMaps = arailmap;
 //            this.linePos = (float[][][]) null;
