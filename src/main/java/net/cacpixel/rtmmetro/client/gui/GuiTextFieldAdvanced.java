@@ -73,4 +73,9 @@ public class GuiTextFieldAdvanced extends GuiTextFieldCustom
     {
 
     }
+
+    public boolean isEnabled()
+    {
+        return this.isEnabled;
+    }
 }

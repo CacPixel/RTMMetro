@@ -6,6 +6,7 @@ import jp.ngt.rtm.rail.RenderMarkerBlock;
 import jp.ngt.rtm.rail.util.RailPosition;
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.RTMMetro;
+import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.network.PacketMarkerClient;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
 import net.minecraft.client.gui.GuiButton;
@@ -82,6 +83,16 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         fieldYpos += 20;
         this.fieldCantRandom = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.cantRandom, 0.0f, 100.0f, false);
+
+        if (this.marker.getBlockType() == RTMMetroBlock.MARKER_ADVANCED_SWITCH) {
+            this.fieldAnchorPitch.setEnabled(false);
+            this.fieldAnchorLengthVertical.setEnabled(false);
+            this.fieldCantCenter.setEnabled(false);
+            this.fieldCantEdge.setEnabled(false);
+        } else if (!this.marker.isCoreMarker()) {
+            this.fieldCantCenter.setEnabled(false);
+            this.fieldCantRandom.setEnabled(false);
+        }
     }
 
     @Override
@@ -197,7 +208,8 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         super.handleMouseInput();
         for (GuiTextFieldCustom field : this.textFields)
         {
-            if (field instanceof GuiTextFieldAdvanced && ((GuiTextFieldAdvanced) field).isMouseInside())
+            if (field instanceof GuiTextFieldAdvanced && ((GuiTextFieldAdvanced) field).isMouseInside()
+                && ((GuiTextFieldAdvanced) field).isEnabled() && field.getVisible())
             {
                 ((GuiTextFieldAdvanced) field).handleMouseInput();
             }
@@ -215,7 +227,8 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         super.handleKeyboardInput();
         for (GuiTextFieldCustom field : this.textFields)
         {
-            if (field instanceof GuiTextFieldAdvanced && field.getVisible() && field.isFocused())
+            if (field instanceof GuiTextFieldAdvanced && field.getVisible() && field.isFocused()
+                    && ((GuiTextFieldAdvanced) field).isEnabled())
             {
                 ((GuiTextFieldAdvanced) field).handleKeyboardInput();
             }
