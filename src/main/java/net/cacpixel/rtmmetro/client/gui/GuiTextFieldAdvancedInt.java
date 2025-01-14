@@ -62,11 +62,11 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
         super.handleKeyboardInput();
         if (this.isFocused())
         {
-            if (Keyboard.getEventKey() == Keyboard.KEY_RIGHT && Keyboard.isKeyDown(Keyboard.KEY_RIGHT))
+            if (Keyboard.getEventKey() == Keyboard.KEY_UP && Keyboard.isKeyDown(Keyboard.KEY_UP))
             {
                 this.incValue(DEFAULT_SCROLL_VALUE);
             }
-            else if (Keyboard.getEventKey() == Keyboard.KEY_LEFT && Keyboard.isKeyDown(Keyboard.KEY_LEFT))
+            else if (Keyboard.getEventKey() == Keyboard.KEY_DOWN && Keyboard.isKeyDown(Keyboard.KEY_DOWN))
             {
                 this.incValue(-DEFAULT_SCROLL_VALUE);
             }
