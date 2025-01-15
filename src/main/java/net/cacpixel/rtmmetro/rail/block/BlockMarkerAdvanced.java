@@ -252,7 +252,7 @@ public class BlockMarkerAdvanced extends BlockMarker
                     if (railposition != null)
                     {
                         TileEntityMarkerAdvanced marker = this.getTileEntity(world, xx, yy, zz);
-                        if (marker != null && marker.groupNumber == thisMarker.groupNumber)
+                        if (marker != null && marker.groupId == thisMarker.groupId)
                             list.add(railposition);
                     }
                 }
@@ -297,7 +297,7 @@ public class BlockMarkerAdvanced extends BlockMarker
                 {
                     TileEntityMarkerAdvanced m1 = (TileEntityMarkerAdvanced) world.getTileEntity(
                             new BlockPos(m.getX(), m.getY(), m.getZ()));
-                    if (m1 != null && m1.groupNumber == thisMarker.groupNumber)
+                    if (m1 != null && m1.groupId == thisMarker.groupId)
                     {
                         list.add(m1.getMarkerRP());
                     }

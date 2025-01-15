@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 
 public class PacketMarkerClient extends PacketCustom implements IMessage, IMessageHandler<PacketMarkerClient, IMessage>
 {
-    private int groupNumber;
+    private int groupId;
     private String name;
     private RailPosition[] railPositions;
 
@@ -30,14 +30,14 @@ public class PacketMarkerClient extends PacketCustom implements IMessage, IMessa
     {
         super(marker);
         this.name = marker.name;
-        this.groupNumber = marker.groupNumber;
+        this.groupId = marker.groupId;
         this.railPositions = marker.getAllRP();
     }
 
     public void toBytes(ByteBuf buffer)
     {
         super.toBytes(buffer);
-        buffer.writeInt(this.groupNumber);
+        buffer.writeInt(this.groupId);
         buffer.writeInt(this.name.length());
         buffer.writeBytes(this.name.getBytes(StandardCharsets.UTF_8));
 
@@ -53,7 +53,7 @@ public class PacketMarkerClient extends PacketCustom implements IMessage, IMessa
     public void fromBytes(ByteBuf buffer)
     {
         super.fromBytes(buffer);
-        this.groupNumber = buffer.readInt();
+        this.groupId = buffer.readInt();
         int strlen = buffer.readInt();
         this.name = buffer.readBytes(strlen).toString(0, strlen, StandardCharsets.UTF_8);
         byte b0 = buffer.readByte();
@@ -80,7 +80,7 @@ public class PacketMarkerClient extends PacketCustom implements IMessage, IMessa
         if (core instanceof TileEntityMarkerAdvanced)
         {
             TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) core;
-            marker.groupNumber = message.groupNumber;
+            marker.groupId = message.groupId;
             marker.name = message.name;
         }
 

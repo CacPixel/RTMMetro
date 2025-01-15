@@ -26,8 +26,8 @@ import java.util.List;
 public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITickable
 {
     private static final int SEARCH_COUNT = 40;
-    public static int defaultGroupNumber = 0;
-    public int groupNumber;
+    public static int defaultGroupId = 0;
+    public int groupId;
     public static String defaultName = "marker";
     public String name;
     public RailPosition rp;
@@ -54,7 +54,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     public TileEntityMarkerAdvanced()
     {
         this.name = defaultName + (MarkerManager.getInstance().getMarkerList().size() + 1);
-        this.groupNumber = defaultGroupNumber;
+        this.groupId = defaultGroupId;
         this.markerState = MarkerState.DISTANCE.set(this.markerState, true);
         this.markerState = MarkerState.GRID.set(this.markerState, false);
         this.markerState = MarkerState.LINE1.set(this.markerState, false);
@@ -66,7 +66,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     {
         super.readFromNBT(nbt);
         this.name = nbt.getString("name");
-        this.groupNumber = nbt.getInteger("groupNumber");
+        this.groupId = nbt.getInteger("groupNumber");
         if (nbt.hasKey("RP"))
         {
             this.rp = RailPosition.readFromNBT(nbt.getCompoundTag("RP"));
@@ -78,7 +78,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     {
         super.writeToNBT(nbt);
         nbt.setString("name", this.name);
-        nbt.setInteger("groupNumber", this.groupNumber);
+        nbt.setInteger("groupNumber", this.groupId);
         if (this.rp != null)
         {
             nbt.setTag("RP", this.rp.writeToNBT());

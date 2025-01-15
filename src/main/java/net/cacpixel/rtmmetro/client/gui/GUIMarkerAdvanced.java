@@ -45,7 +45,7 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
     {
         int fieldWidth = 75;
         int fieldHeight = 16;
-        int stringXpos = this.width - fieldWidth - 50;
+        int fieldXpos = 120;
         int fieldYpos = 9;
 
         super.initGui();
@@ -54,42 +54,45 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         int hw = this.width / 2;
 
         this.buttonList.clear();
-        this.buttonList.add(new GuiButton(BUTTON_OK, this.width - 180, this.height - 30,
-                120, 20, I18n.format("gui.done")));
+        this.buttonList.add(new GuiButton(BUTTON_OK, hw - 80, this.height - 40,
+                160, 20, I18n.format("gui.done")));
 
-        this.fieldGroup = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
-                this.marker.groupNumber, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
+        this.fieldGroup = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
+                this.marker.groupId, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
         fieldYpos += 20;
-        this.fieldRailHeight = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
+        this.fieldRailHeight = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.height, 0, 15, false);
         fieldYpos += 20;
-        this.fieldAnchorLengthHorizontal = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
+        this.fieldAnchorLengthHorizontal = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.anchorLengthHorizontal, 0.0f, (float) ModConfig.railGeneratingDistance, false);
         fieldYpos += 20;
-        this.fieldAnchorYaw = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
+        this.fieldAnchorYaw = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.anchorYaw, -180.0f, 180.0f, true);
         fieldYpos += 20;
-        this.fieldAnchorLengthVertical = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
+        this.fieldAnchorLengthVertical = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.anchorLengthVertical, 0.0f, (float) ModConfig.railGeneratingDistance, false);
         fieldYpos += 20;
-        this.fieldAnchorPitch = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
+        this.fieldAnchorPitch = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.anchorPitch, -90.0f, 90.0f, false);
         fieldYpos += 20;
-        this.fieldCantCenter = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
+        this.fieldCantCenter = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.cantCenter, -90.0f, 90.0f, false);
         fieldYpos += 20;
-        this.fieldCantEdge = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
+        this.fieldCantEdge = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.cantEdge, -90.0f, 90.0f, false);
         fieldYpos += 20;
-        this.fieldCantRandom = this.setTextField(stringXpos, fieldYpos, fieldWidth, fieldHeight,
+        this.fieldCantRandom = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.cantRandom, 0.0f, 100.0f, false);
 
-        if (this.marker.getBlockType() == RTMMetroBlock.MARKER_ADVANCED_SWITCH) {
+        if (this.marker.getBlockType() == RTMMetroBlock.MARKER_ADVANCED_SWITCH)
+        {
             this.fieldAnchorPitch.setEnabled(false);
             this.fieldAnchorLengthVertical.setEnabled(false);
             this.fieldCantCenter.setEnabled(false);
             this.fieldCantEdge.setEnabled(false);
-        } else if (!this.marker.isCoreMarker()) {
+        }
+        else if (!this.marker.isCoreMarker())
+        {
             this.fieldCantCenter.setEnabled(false);
             this.fieldCantRandom.setEnabled(false);
         }
@@ -98,17 +101,17 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
     @Override
     public void drawScreen(int par1, int par2, float par3)
     {
-        int stringXpos = this.width - 220;
+        int stringXpos = 25;
         int stringYpos = 13;
 
         // 这么操作其实不好，但是目前只能想到这个办法，就先这样吧
-        if (!(marker.getWorld().getBlockState(new BlockPos(marker.getX(),marker.getY(),marker.getZ()))
+        if (!(marker.getWorld().getBlockState(new BlockPos(marker.getX(), marker.getY(), marker.getZ()))
                 .getBlock() instanceof BlockMarker))
         {
             this.mc.displayGuiScreen(null);
         }
 
-        this.drawGradientRect(Math.max(0, stringXpos - 20), 0, this.width, this.height,
+        this.drawGradientRect(0, 0, this.width, this.height,
                 0xC0101010, 0xD0101010);
         super.drawScreen(par1, par2, par3);
 
@@ -209,7 +212,7 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         for (GuiTextFieldCustom field : this.textFields)
         {
             if (field instanceof GuiTextFieldAdvanced && ((GuiTextFieldAdvanced) field).isMouseInside()
-                && ((GuiTextFieldAdvanced) field).isEnabled() && field.getVisible())
+                    && ((GuiTextFieldAdvanced) field).isEnabled() && field.getVisible())
             {
                 ((GuiTextFieldAdvanced) field).handleMouseInput();
             }
@@ -254,7 +257,7 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
 
     private void updateValues()
     {
-        this.marker.groupNumber = GUIHelper.getFieldValue(this.fieldGroup, this.marker.groupNumber);
+        this.marker.groupId = GUIHelper.getFieldValue(this.fieldGroup, this.marker.groupId);
         this.currentRP.height = GUIHelper.getFieldValue(this.fieldRailHeight, this.currentRP.height);
         this.currentRP.anchorLengthHorizontal = GUIHelper.getFieldValue(this.fieldAnchorLengthHorizontal,
                 this.currentRP.anchorLengthHorizontal);
