@@ -237,7 +237,7 @@ public class BlockMarkerAdvanced extends BlockMarker
         int k = ModConfig.railGeneratingHeight;
         int l = k * 2;
         TileEntityMarkerAdvanced thisMarker = this.getTileEntity(world, x, y, z);
-        if (thisMarker == null) return list;
+        if (thisMarker == null || thisMarker.getGroupId() == TileEntityMarkerAdvanced.GROUP_ID_INDIVIDUAL) return list;
 
         for (int i1 = 0; i1 < j; ++i1)
         {
@@ -252,7 +252,7 @@ public class BlockMarkerAdvanced extends BlockMarker
                     if (railposition != null)
                     {
                         TileEntityMarkerAdvanced marker = this.getTileEntity(world, xx, yy, zz);
-                        if (marker != null && marker.groupId == thisMarker.groupId)
+                        if (marker != null && marker.getGroupId() == thisMarker.getGroupId())
                             list.add(railposition);
                     }
                 }
@@ -276,7 +276,7 @@ public class BlockMarkerAdvanced extends BlockMarker
         {
             List<RailPosition> list = new ArrayList<>();
             TileEntityMarkerAdvanced thisMarker = this.getTileEntity(world, x, y, z);
-            if (thisMarker == null) return list;
+            if (thisMarker == null || thisMarker.getGroupId() == TileEntityMarkerAdvanced.GROUP_ID_INDIVIDUAL) return list;
             //if(!world.isRemote)
 //            MarkerManager.getInstance().validate(world);
 
@@ -297,7 +297,7 @@ public class BlockMarkerAdvanced extends BlockMarker
                 {
                     TileEntityMarkerAdvanced m1 = (TileEntityMarkerAdvanced) world.getTileEntity(
                             new BlockPos(m.getX(), m.getY(), m.getZ()));
-                    if (m1 != null && m1.groupId == thisMarker.groupId)
+                    if (m1 != null && m1.getGroupId() == thisMarker.getGroupId())
                     {
                         list.add(m1.getMarkerRP());
                     }

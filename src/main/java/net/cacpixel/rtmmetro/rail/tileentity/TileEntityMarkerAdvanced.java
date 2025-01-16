@@ -26,10 +26,11 @@ import java.util.List;
 public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITickable
 {
     private static final int SEARCH_COUNT = 40;
-    public static int defaultGroupId = 0;
-    public int groupId;
-    public static String defaultName = "marker";
-    public String name;
+    public static final int DEFAULT_GROUP_ID = 1;
+    public static final int GROUP_ID_INDIVIDUAL = 0;
+    private int groupId; // groupId=0 则为未分组的marker
+    public static final String DEFAULT_NAME = "marker";
+    private String name;
     public RailPosition rp;
     public BlockPos startPos;
     private RailMap[] railMaps;
@@ -53,8 +54,8 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
 
     public TileEntityMarkerAdvanced()
     {
-        this.name = defaultName + (MarkerManager.getInstance().getMarkerList().size() + 1);
-        this.groupId = defaultGroupId;
+        this.name = DEFAULT_NAME + (MarkerManager.getInstance().getMarkerList().size() + 1);
+        this.groupId = DEFAULT_GROUP_ID;
         this.markerState = MarkerState.DISTANCE.set(this.markerState, true);
         this.markerState = MarkerState.GRID.set(this.markerState, false);
         this.markerState = MarkerState.LINE1.set(this.markerState, false);
@@ -114,9 +115,6 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             byte b0 = BlockMarkerAdvanced.getMarkerDir(this.getBlockType(), this.getBlockMetadata());
             byte b1 = (byte) (this.getBlockType() == RTMMetroBlock.MARKER_ADVANCED_SWITCH ? 1 : 0);
             this.rp = new RailPosition(this.getPos().getX(), this.getPos().getY(), this.getPos().getZ(), b0, b1);
-            // 暂时露出橙色线，方便操作
-//            this.rp.anchorLengthVertical = -2;
-//            this.rp.anchorPitch = 45;
         }
 
         if (this.shouldUpdateClientLines)
@@ -460,4 +458,59 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         return String.format("%s : %s", state.toString(), flag ? "ON" : "OFF");
     }
 
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name.trim();
+    }
+
+    public int getGroupId()
+    {
+        return groupId;
+    }
+
+    public void setGroupId(int groupId)
+    {
+        if (groupId >= 1 && groupId <= 1000)
+            this.groupId = groupId;
+        else
+            this.groupId = 0;
+    }
+
+    public static class MarkerCriticalValues
+    {
+        public String name;
+        public int groupId;
+        public BlockPos pos;
+        public RailPosition[] rps;
+
+        public MarkerCriticalValues(TileEntityMarkerAdvanced marker)
+        {
+            this.name = marker.getName();
+            this.groupId = marker.groupId;
+            this.pos = marker.pos;
+            this.rps = marker.getAllRP();
+        }
+
+        public MarkerCriticalValues() {}
+
+        @Override
+        public MarkerCriticalValues clone()
+        {
+            MarkerCriticalValues value = new MarkerCriticalValues();
+            value.name = new String(this.name);
+            value.groupId = this.groupId;
+            value.pos = new BlockPos(this.pos.getX(), this.pos.getY(), this.pos.getZ());
+            value.rps = new RailPosition[this.rps.length];
+            for (int i = 0; i < value.rps.length; i++)
+            {
+                value.rps[i] = RailMapAdvanced.cloneRP(this.rps[i]);
+            }
+            return value;
+        }
+    }
 }

@@ -14,6 +14,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fml.client.config.GuiUnicodeGlyphButton;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -25,6 +26,7 @@ import java.io.IOException;
 public class GUIMarkerAdvanced extends GuiScreenAdvanced
 {
     public final TileEntityMarkerAdvanced marker;
+    private final TileEntityMarkerAdvanced.MarkerCriticalValues undoValues;
     private RailPosition currentRP;
     private GuiTextFieldAdvanced fieldMarkerName;
     private GuiTextFieldAdvancedInt fieldGroup;
@@ -37,19 +39,22 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
     private GuiTextFieldAdvancedFloat fieldCantCenter;
     private GuiTextFieldAdvancedFloat fieldCantRandom;
     private GuiButton buttonOK;
-    private GuiButton buttonResetHeight;
-    private GuiButton buttonResetLengthH;
-    private GuiButton buttonResetAnchorYaw;
-    private GuiButton buttonResetLengthV;
-    private GuiButton buttonResetAnchorPitch;
-    private GuiButton buttonResetCantEdge;
-    private GuiButton buttonResetCantCenter;
-    private GuiButton buttonResetCantRandom;
+    private GuiButton buttonCancel;
+    private GuiUnicodeGlyphButton buttonResetHeight;
+    private GuiUnicodeGlyphButton buttonResetLengthH;
+    private GuiUnicodeGlyphButton buttonResetAnchorYaw;
+    private GuiUnicodeGlyphButton buttonResetLengthV;
+    private GuiUnicodeGlyphButton buttonResetAnchorPitch;
+    private GuiUnicodeGlyphButton buttonResetCantEdge;
+    private GuiUnicodeGlyphButton buttonResetCantCenter;
+    private GuiUnicodeGlyphButton buttonResetCantRandom;
 
     public GUIMarkerAdvanced(TileEntityMarkerAdvanced marker)
     {
         super();
         this.marker = marker;
+        this.undoValues = new TileEntityMarkerAdvanced.MarkerCriticalValues(marker).clone();
+        this.currentRP = this.marker.getMarkerRP();
         this.pLastScreen = null;
     }
 
@@ -68,65 +73,74 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         int fieldYpos = 50;
 
         super.initGui();
-        this.currentRP = this.marker.getMarkerRP();
         int hw = this.width / 2;
         //groupId
-        this.fieldGroup = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight, this.marker.groupId, Integer.MIN_VALUE,
-                Integer.MAX_VALUE, false);
+        this.fieldGroup = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight, this.marker.getGroupId(), 1,
+                1000, false);
         fieldYpos += 18;
         //name
-        this.fieldMarkerName = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight, this.marker.name);
+        this.fieldMarkerName = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight, this.marker.getName());
         fieldYpos += 18;
         //rail height
         this.fieldRailHeight = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight, this.currentRP.height, 0, 15, false);
-        this.buttonResetHeight = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4, fieldHeight + 4, GuiUtils.UNDO_CHAR,
+        this.buttonResetHeight = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4, fieldHeight + 4,
+                GuiUtils.UNDO_CHAR,
                 2.0F);
         fieldYpos += 18;
         //anchor length horizontal
         this.fieldAnchorLengthHorizontal = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.anchorLengthHorizontal, 0.0f, (float) ModConfig.railGeneratingDistance, false);
-        this.buttonResetLengthH = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4, fieldHeight + 4, GuiUtils.UNDO_CHAR,
+        this.buttonResetLengthH = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4, fieldHeight + 4,
+                GuiUtils.UNDO_CHAR,
                 2.0F);
         fieldYpos += 18;
         //anchor yaw
         this.fieldAnchorYaw = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight, this.currentRP.anchorYaw, -180.0f, 180.0f,
                 true);
-        this.buttonResetAnchorYaw = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4, fieldHeight + 4, GuiUtils.UNDO_CHAR,
+        this.buttonResetAnchorYaw = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4, fieldHeight + 4,
+                GuiUtils.UNDO_CHAR,
                 2.0F);
         fieldYpos += 18;
         //anchor length vertical
         this.fieldAnchorLengthVertical = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.anchorLengthVertical, 0.0f, (float) ModConfig.railGeneratingDistance, false);
-        this.buttonResetLengthV = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4, fieldHeight + 4, GuiUtils.UNDO_CHAR,
+        this.buttonResetLengthV = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4, fieldHeight + 4,
+                GuiUtils.UNDO_CHAR,
                 2.0F);
         fieldYpos += 18;
         //anchor pitch
         this.fieldAnchorPitch = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight, this.currentRP.anchorPitch, -90.0f, 90.0f,
                 false);
-        this.buttonResetAnchorPitch = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4, fieldHeight + 4, GuiUtils.UNDO_CHAR,
+        this.buttonResetAnchorPitch = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4,
+                fieldHeight + 4, GuiUtils.UNDO_CHAR,
                 2.0F);
         fieldYpos += 18;
         //cant edge
         this.fieldCantEdge = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight, this.currentRP.cantEdge, -90.0f, 90.0f,
                 false);
-        this.buttonResetCantEdge = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4, fieldHeight + 4, GuiUtils.UNDO_CHAR,
+        this.buttonResetCantEdge = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4, fieldHeight + 4,
+                GuiUtils.UNDO_CHAR,
                 2.0F);
         fieldYpos += 18;
         //cant center
         this.fieldCantCenter = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight, this.currentRP.cantCenter, -90.0f, 90.0f,
                 false);
-        this.buttonResetCantCenter = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4, fieldHeight + 4, GuiUtils.UNDO_CHAR,
+        this.buttonResetCantCenter = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4, fieldHeight + 4,
+                GuiUtils.UNDO_CHAR,
                 2.0F);
         fieldYpos += 18;
         //cant random
         this.fieldCantRandom = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight, this.currentRP.cantRandom, 0.0f, 100.0f,
                 false);
-        this.buttonResetCantRandom = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4, fieldHeight + 4, GuiUtils.UNDO_CHAR,
+        this.buttonResetCantRandom = this.addUnicodeGlyphButton(fieldXpos + fieldWidth + 2, fieldYpos - 2, fieldHeight + 4, fieldHeight + 4,
+                GuiUtils.UNDO_CHAR,
                 2.0F);
         fieldYpos += 18;
 
         //ok
-        this.buttonOK = this.addButton(hw - 80, this.height - 40, 160, 20, I18n.format("gui.done"));
+        this.buttonOK = this.addButton(hw - 80 + 90, this.height - 30, 160, 20, I18n.format("gui.done"));
+        //cancel
+        this.buttonCancel = this.addButton(hw - 80 - 90, this.height - 30, 160, 20, I18n.format("gui.cancel"));
         if (this.marker.getBlockType() == RTMMetroBlock.MARKER_ADVANCED_SWITCH)
         {
             this.fieldAnchorPitch.setEnabled(false);
@@ -159,7 +173,7 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         //title line
         this.drawString(this.fontRenderer,
                 String.format(TextFormatting.BOLD + "Editing values of rail marker" + TextFormatting.RESET + " \"%s\" (%d, %d, %d)",
-                        this.marker.name, this.marker.getX(), this.marker.getY(), this.marker.getZ()), stringXpos, stringYpos, 0xFFFFFF);
+                        this.marker.getName(), this.marker.getX(), this.marker.getY(), this.marker.getZ()), stringXpos, stringYpos, 0xFFFFFF);
         stringYpos += 12;
         this.drawString(this.fontRenderer,
                 TextFormatting.GRAY + TextFormatting.ITALIC.toString() + "Tips: You can use arrow keys or mouse wheel to adjust values.",
@@ -234,19 +248,22 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
     {
         if (button.id == buttonOK.id)
         {
+            this.updateValues();
             this.sendPacket();
             if (pLastScreen == null)
                 this.mc.displayGuiScreen(null);
             else
                 this.mc.displayGuiScreen(this.pLastScreen);
         }
-//        else if (button.id == buttonCancel.id)
-//        {
-//            if (pLastScreen == null)
-//                this.mc.displayGuiScreen(null);
-//            else
-//                this.mc.displayGuiScreen(this.pLastScreen);
-//        }
+        else if (button.id == buttonCancel.id)
+        {
+            this.restoreValues();
+            this.sendPacket();
+            if (pLastScreen == null)
+                this.mc.displayGuiScreen(null);
+            else
+                this.mc.displayGuiScreen(this.pLastScreen);
+        }
         else if (button.id == buttonResetHeight.id)
         {
             fieldRailHeight.fieldValue = 0;
@@ -365,14 +382,13 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
 
     private void sendPacket()
     {
-        this.updateValues();
         RTMMetro.NETWORK_WRAPPER.sendToServer(new PacketMarkerClient(marker));
     }
 
     private void updateValues()
     {
-        this.marker.groupId = GUIHelper.getFieldValue(this.fieldGroup, this.marker.groupId);
-        this.marker.name = this.fieldMarkerName.getText().trim();
+        this.marker.setGroupId(GUIHelper.getFieldValue(this.fieldGroup, this.marker.getGroupId()));
+        this.marker.setName(this.fieldMarkerName.getText());
         this.currentRP.height = GUIHelper.getFieldValue(this.fieldRailHeight, this.currentRP.height);
         this.currentRP.anchorLengthHorizontal = GUIHelper.getFieldValue(this.fieldAnchorLengthHorizontal,
                 this.currentRP.anchorLengthHorizontal);
@@ -383,4 +399,19 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         this.currentRP.cantEdge = GUIHelper.getFieldValue(this.fieldCantEdge, this.currentRP.cantEdge);
         this.currentRP.cantRandom = GUIHelper.getFieldValue(this.fieldCantRandom, this.currentRP.cantRandom);
     }
+
+    private void restoreValues()
+    {
+        this.marker.setGroupId(this.undoValues.groupId);
+        this.marker.setName(this.undoValues.name);
+        this.marker.getMarkerRP().height = this.undoValues.rps[0].height;
+        this.marker.getMarkerRP().anchorLengthHorizontal = this.undoValues.rps[0].anchorLengthHorizontal;
+        this.marker.getMarkerRP().anchorLengthVertical = this.undoValues.rps[0].anchorLengthVertical;
+        this.marker.getMarkerRP().anchorYaw = this.undoValues.rps[0].anchorYaw;
+        this.marker.getMarkerRP().anchorPitch = this.undoValues.rps[0].anchorPitch;
+        this.marker.getMarkerRP().cantCenter = this.undoValues.rps[0].cantCenter;
+        this.marker.getMarkerRP().cantEdge = this.undoValues.rps[0].cantEdge;
+        this.marker.getMarkerRP().cantRandom = this.undoValues.rps[0].cantRandom;
+    }
 }
+

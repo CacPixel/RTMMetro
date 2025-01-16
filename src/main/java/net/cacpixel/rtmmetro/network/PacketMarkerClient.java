@@ -29,8 +29,8 @@ public class PacketMarkerClient extends PacketCustom implements IMessage, IMessa
     public PacketMarkerClient(TileEntityMarkerAdvanced marker)
     {
         super(marker);
-        this.name = marker.name;
-        this.groupId = marker.groupId;
+        this.name = marker.getName();
+        this.groupId = marker.getGroupId();
         this.railPositions = marker.getAllRP();
     }
 
@@ -80,8 +80,8 @@ public class PacketMarkerClient extends PacketCustom implements IMessage, IMessa
         if (core instanceof TileEntityMarkerAdvanced)
         {
             TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) core;
-            marker.groupId = message.groupId;
-            marker.name = message.name;
+            marker.setGroupId(message.groupId);
+            marker.setName(message.name);
         }
 
         // each Marker
