@@ -23,6 +23,7 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
 {
     public final TileEntityMarkerAdvanced marker;
     private RailPosition currentRP;
+    private GuiTextFieldAdvanced fieldMarkerName;
     private GuiTextFieldAdvancedInt fieldGroup;
     private GuiTextFieldAdvancedInt fieldRailHeight;
     private GuiTextFieldAdvancedFloat fieldAnchorLengthHorizontal;
@@ -54,35 +55,49 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         int hw = this.width / 2;
 
         this.buttonList.clear();
+        //ok
         this.buttonList.add(new GuiButton(BUTTON_OK, hw - 80, this.height - 40,
                 160, 20, I18n.format("gui.done")));
-
+        //groupId
         this.fieldGroup = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.marker.groupId, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
         fieldYpos += 20;
+        //name
+        this.fieldMarkerName = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
+                this.marker.name);
+        fieldYpos += 20;
+        //rail height
         this.fieldRailHeight = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.height, 0, 15, false);
         fieldYpos += 20;
+        //anchor length horizontal
         this.fieldAnchorLengthHorizontal = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.anchorLengthHorizontal, 0.0f, (float) ModConfig.railGeneratingDistance, false);
         fieldYpos += 20;
+        //anchor yaw
         this.fieldAnchorYaw = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.anchorYaw, -180.0f, 180.0f, true);
         fieldYpos += 20;
+        //anchor length vertical
         this.fieldAnchorLengthVertical = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.anchorLengthVertical, 0.0f, (float) ModConfig.railGeneratingDistance, false);
         fieldYpos += 20;
+        //anchor pitch
         this.fieldAnchorPitch = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.anchorPitch, -90.0f, 90.0f, false);
         fieldYpos += 20;
+        //cant center
         this.fieldCantCenter = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.cantCenter, -90.0f, 90.0f, false);
         fieldYpos += 20;
+        //cant edge
         this.fieldCantEdge = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.cantEdge, -90.0f, 90.0f, false);
         fieldYpos += 20;
+        //cant random
         this.fieldCantRandom = this.setTextField(fieldXpos, fieldYpos, fieldWidth, fieldHeight,
                 this.currentRP.cantRandom, 0.0f, 100.0f, false);
+        fieldYpos += 20;
 
         if (this.marker.getBlockType() == RTMMetroBlock.MARKER_ADVANCED_SWITCH)
         {
@@ -114,50 +129,65 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         this.drawGradientRect(0, 0, this.width, this.height,
                 0xC0101010, 0xD0101010);
         super.drawScreen(par1, par2, par3);
-
+        //groupId
         this.drawString(this.fontRenderer, "Marker Group", stringXpos, stringYpos, 0xFFFFFF);
         this.drawGradientRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
                 0xFFFFFFFF, 0xFFFFFFFF);
         stringYpos += 20;
+        //name
+        this.drawString(this.fontRenderer, "Marker Name", stringXpos, stringYpos, 0xFFFFFF);
+        this.drawGradientRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
+                0xFFFFFFFF, 0xFFFFFFFF);
+        stringYpos += 20;
+        //rail height
         this.drawString(this.fontRenderer, "Rail Height", stringXpos, stringYpos, 0xFFFFFF);
         this.drawGradientRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
                 RenderMarkerBlock.MarkerElement.HEIGHT.getColor() | 0xFF000000,
                 RenderMarkerBlock.MarkerElement.HEIGHT.getColor() | 0xFF000000);
         stringYpos += 20;
+        //anchor length horizontal
         this.drawString(this.fontRenderer, "Horizontal Length", stringXpos, stringYpos, 0xFFFFFF);
         this.drawGradientRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
                 RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | 0xFF000000,
                 RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | 0xFF000000);
         stringYpos += 20;
+        //anchor yaw
         this.drawString(this.fontRenderer, "Anchor Yaw", stringXpos, stringYpos, 0xFFFFFF);
         this.drawGradientRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
                 RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | 0xFF000000,
                 RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | 0xFF000000);
         stringYpos += 20;
+        //anchor length vertical
         this.drawString(this.fontRenderer, "Vertical Length", stringXpos, stringYpos, 0xFFFFFF);
         this.drawGradientRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
                 RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | 0xFF000000,
                 RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | 0xFF000000);
         stringYpos += 20;
+        //anchor pitch
         this.drawString(this.fontRenderer, "Anchor Pitch", stringXpos, stringYpos, 0xFFFFFF);
         this.drawGradientRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
                 RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | 0xFF000000,
                 RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | 0xFF000000);
         stringYpos += 20;
+        //cant center
         this.drawString(this.fontRenderer, "Cant Center", stringXpos, stringYpos, 0xFFFFFF);
         this.drawGradientRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
                 RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor() | 0xFF000000,
                 RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor() | 0xFF000000);
         stringYpos += 20;
+        //cant edge
         this.drawString(this.fontRenderer, "Cant Edge", stringXpos, stringYpos, 0xFFFFFF);
         this.drawGradientRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
                 RenderMarkerBlock.MarkerElement.CANT_EDGE.getColor() | 0xFF000000,
                 RenderMarkerBlock.MarkerElement.CANT_EDGE.getColor() | 0xFF000000);
         stringYpos += 20;
+        //cant random
         this.drawString(this.fontRenderer, "Cant Random", stringXpos, stringYpos, 0xFFFFFF);
         this.drawGradientRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
                 RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor() | 0xFF000000,
                 RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor() | 0xFF000000);
+        stringYpos += 20;
+
     }
 
     @Override
@@ -258,6 +288,7 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
     private void updateValues()
     {
         this.marker.groupId = GUIHelper.getFieldValue(this.fieldGroup, this.marker.groupId);
+        this.marker.name = this.fieldMarkerName.getText().trim();
         this.currentRP.height = GUIHelper.getFieldValue(this.fieldRailHeight, this.currentRP.height);
         this.currentRP.anchorLengthHorizontal = GUIHelper.getFieldValue(this.fieldAnchorLengthHorizontal,
                 this.currentRP.anchorLengthHorizontal);
