@@ -7,10 +7,10 @@
   "priority": 0,
   "refmap": "mixins.rtmmetro.refmap.json",
   "mixins": [
+    "MixinPlayerControllerMP"
   ],
   "client": [
-    "MixinMPLAdButton",
-    "MixinPlayerControllerMP"
+    "MixinMPLAdButton"
   ],
   "server": [
   ]
