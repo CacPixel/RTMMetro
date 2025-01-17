@@ -30,6 +30,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -37,6 +38,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -64,6 +66,19 @@ public class BlockMarkerAdvanced extends BlockMarker
 //        this.setAABB(new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 0.0625F, 1.0F));
 //    }
 
+    @Override
+    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player)
+    {
+        switch (this.markerType)
+        {
+        case STANDARD:
+            return new ItemStack(RTMMetroBlock.MARKER_ADVANCED);
+        case SWITCH:
+            return new ItemStack(RTMMetroBlock.MARKER_ADVANCED_SWITCH);
+        default:
+            return new ItemStack(Blocks.AIR);
+        }
+    }
 
     @Override
     public EnumBlockRenderType getRenderType(IBlockState state)
