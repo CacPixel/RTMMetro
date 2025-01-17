@@ -51,9 +51,7 @@ public class GuiTextFieldAdvanced extends GuiTextFieldCustom
     @Override
     public boolean textboxKeyTyped(char word, int code)
     {
-        boolean ret = super.textboxKeyTyped(word, code);
-        this.setScrValueUpdated();
-        return ret;
+        return super.textboxKeyTyped(word, code);
     }
 
     public void setScrValueUpdated()

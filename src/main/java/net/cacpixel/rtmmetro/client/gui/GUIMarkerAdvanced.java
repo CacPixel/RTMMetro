@@ -387,17 +387,16 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
 
     private void updateValues()
     {
-        this.marker.setGroupId(GUIHelper.getFieldValue(this.fieldGroup, this.marker.getGroupId()));
+        this.marker.setGroupId(this.fieldGroup.fieldValue);
         this.marker.setName(this.fieldMarkerName.getText());
-        this.currentRP.height = GUIHelper.getFieldValue(this.fieldRailHeight, this.currentRP.height);
-        this.currentRP.anchorLengthHorizontal = GUIHelper.getFieldValue(this.fieldAnchorLengthHorizontal,
-                this.currentRP.anchorLengthHorizontal);
-        this.currentRP.anchorLengthVertical = GUIHelper.getFieldValue(this.fieldAnchorLengthVertical, this.currentRP.anchorLengthVertical);
-        this.currentRP.anchorYaw = GUIHelper.getFieldValue(this.fieldAnchorYaw, this.currentRP.anchorYaw);
-        this.currentRP.anchorPitch = GUIHelper.getFieldValue(this.fieldAnchorPitch, this.currentRP.anchorPitch);
-        this.currentRP.cantCenter = GUIHelper.getFieldValue(this.fieldCantCenter, this.currentRP.cantCenter);
-        this.currentRP.cantEdge = GUIHelper.getFieldValue(this.fieldCantEdge, this.currentRP.cantEdge);
-        this.currentRP.cantRandom = GUIHelper.getFieldValue(this.fieldCantRandom, this.currentRP.cantRandom);
+        this.currentRP.height = (byte) this.fieldRailHeight.fieldValue;
+        this.currentRP.anchorLengthHorizontal = this.fieldAnchorLengthHorizontal.fieldValue;
+        this.currentRP.anchorLengthVertical = this.fieldAnchorLengthVertical.fieldValue;
+        this.currentRP.anchorYaw = this.fieldAnchorYaw.fieldValue;
+        this.currentRP.anchorPitch = this.fieldAnchorPitch.fieldValue;
+        this.currentRP.cantCenter = this.fieldCantCenter.fieldValue;
+        this.currentRP.cantEdge = this.fieldCantEdge.fieldValue;
+        this.currentRP.cantRandom = this.fieldCantRandom.fieldValue;
     }
 
     private void restoreValues()
