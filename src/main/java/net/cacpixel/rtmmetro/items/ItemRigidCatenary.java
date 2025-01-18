@@ -10,6 +10,7 @@ import jp.ngt.rtm.rail.BlockLargeRailBase;
 import jp.ngt.rtm.rail.TileEntityLargeRailCore;
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroResource;
+import net.cacpixel.rtmmetro.client.gui.RTMMetroGUIHandler;
 import net.cacpixel.rtmmetro.modelpack.config.RigidCatenaryConfig;
 import net.cacpixel.rtmmetro.modelpack.modelset.ModelSetRigidCatenary;
 import net.minecraft.block.state.IBlockState;
@@ -33,7 +34,7 @@ public class ItemRigidCatenary extends ItemAdvancedWithModel<ModelSetRigidCatena
 
     public int getGuiId(ItemStack stack)
     {
-        return RTMMetro.guiIdRigidCatenary;
+        return RTMMetroGUIHandler.guiIdRigidCatenary;
 //        return RTMCore.guiIdSelectItemModel;
     }
 

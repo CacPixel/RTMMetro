@@ -18,6 +18,7 @@ import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.RTMMetroItems;
+import net.cacpixel.rtmmetro.client.gui.RTMMetroGUIHandler;
 import net.cacpixel.rtmmetro.items.ItemRailAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityLargeRailMainCoreAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityLargeRailSwitchCoreAdvanced;
@@ -182,7 +183,7 @@ public class BlockMarkerAdvanced extends BlockMarker
         {
             if (world.isRemote)
             {
-                entityplayer.openGui(RTMMetro.INSTANCE, RTMMetro.guiIdMarkerAdvanced, world, i, j, k);
+                entityplayer.openGui(RTMMetro.INSTANCE, RTMMetroGUIHandler.guiIdMarkerAdvanced, world, i, j, k);
             }
             return true;
         }

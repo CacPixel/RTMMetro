@@ -2,8 +2,10 @@ package net.cacpixel.rtmmetro.client.gui;
 
 import jp.ngt.ngtlib.gui.GuiScreenCustom;
 import jp.ngt.ngtlib.gui.GuiTextFieldCustom;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraftforge.fml.client.config.GuiButtonExt;
 import net.minecraftforge.fml.client.config.GuiCheckBox;
 import net.minecraftforge.fml.client.config.GuiUnicodeGlyphButton;
 import net.minecraftforge.fml.relauncher.Side;
@@ -16,7 +18,7 @@ import java.util.ListIterator;
 @SideOnly(Side.CLIENT)
 public abstract class GuiScreenAdvanced extends GuiScreenCustom
 {
-    public GuiScreen pLastScreen;
+    public GuiScreen parentScreen;
     public boolean hasValueUpdated;
     private static int NEXT_FIELD_ID;
     private static int NEXT_BUTTON_ID;
@@ -71,7 +73,7 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
 
     protected GuiButton addButton(int x, int y, int w, int h, String text)
     {
-        GuiButton button = new GuiButton(NEXT_BUTTON_ID++, x, y, w, h, text);
+        GuiButton button = new GuiButtonExt(NEXT_BUTTON_ID++, x, y, w, h, text);
         this.buttonList.add(button);
         return button;
     }
@@ -95,6 +97,11 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
         return this.addUnicodeGlyphButton(x, y, w, h, "", glyph, glyphScale);
     }
 
+    public void drawRightAlignedString(FontRenderer fontRendererIn, String text, int x, int y, int color)
+    {
+        this.drawString(fontRendererIn, text, x - fontRendererIn.getStringWidth(text), y, color);
+    }
+
     @Override
     protected void mouseClicked(int x, int y, int button) throws IOException
     {
@@ -116,11 +123,73 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
         super.keyTyped(typedChar, keyCode);
         if (Keyboard.getEventKey() == Keyboard.KEY_RETURN)
         {
+            this.onPressingEnter();
             GuiTextFieldCustom field = this.getFocusedTextField();
             if (field != null) field.setFocused(false);
             field = this.getNextTextField(field, true);
             if (field != null) field.setFocused(true);
         }
+        else if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE)
+        {
+            this.onPressingEsc();
+        }
+    }
+
+    @Override
+    public void handleMouseInput() throws IOException
+    {
+        super.handleMouseInput();
+        for (GuiTextFieldCustom field : this.textFields)
+        {
+            if (field instanceof GuiTextFieldAdvanced && ((GuiTextFieldAdvanced) field).isMouseInside() &&
+                    ((GuiTextFieldAdvanced) field).isEnabled() && field.getVisible())
+            {
+                ((GuiTextFieldAdvanced) field).handleMouseInput();
+            }
+        }
+    }
+
+    @Override
+    public void handleKeyboardInput() throws IOException
+    {
+        super.handleKeyboardInput();
+        for (GuiTextFieldCustom field : this.textFields)
+        {
+            if (field instanceof GuiTextFieldAdvanced && field.getVisible() && field.isFocused() &&
+                    ((GuiTextFieldAdvanced) field).isEnabled())
+            {
+                ((GuiTextFieldAdvanced) field).handleKeyboardInput();
+            }
+        }
+    }
+
+    protected void onPressingEsc()
+    {
+    }
+
+    protected void onPressingEnter()
+    {
+    }
+
+    @Override
+    protected void actionPerformed(GuiButton button)
+    {
+        try
+        {
+            super.actionPerformed(button);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    protected void displayPrevScreen()
+    {
+        if (parentScreen == null)
+            this.mc.displayGuiScreen(null);
+        else
+            this.mc.displayGuiScreen(this.parentScreen);
     }
 
     public GuiTextFieldCustom getFocusedTextField()

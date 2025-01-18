@@ -334,7 +334,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
     {
         List<RailMap> rms = new ArrayList<>();
         marker.linePos = new float[1][][];
-        RailMapAdvanced railmap = (RailMapAdvanced) marker.originalRailMap;
+        RailMapAdvanced railmap = (RailMapAdvanced) marker.getOriginalRailMap();
         if (railmap == null)
             return;
         rms.add(railmap);
@@ -523,9 +523,9 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
             renderLine(0.0F, 0.0F, 0.0F, -f3, 0.0F, 0.0F, i1);
             GL11.glPopMatrix();
             GL11.glPushMatrix();
-            if (marker.isCoreMarker() && marker.markerPosList.size() == 2 && marker.originalRailMap != null)
+            if (marker.isCoreMarker() && marker.markerPosList.size() == 2 && marker.getOriginalRailMap() != null)
             {
-                RailMap railmap = marker.originalRailMap;
+                RailMap railmap = marker.getOriginalRailMap();
 //                if (railmap == null){
 //                    GL11.glPopMatrix();
 //                    GL11.glPopMatrix();
@@ -679,7 +679,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
 
             if (marker.getState(MarkerState.LINE2))
             {
-                RailMap railmap = marker.originalRailMap;
+                RailMap railmap = marker.getOriginalRailMap();
                 if (railmap == null) return false;
                 if (element == MarkerElement.CONST_LIMIT_HP)
                 {

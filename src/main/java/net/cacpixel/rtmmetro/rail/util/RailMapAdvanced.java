@@ -571,8 +571,8 @@ public class RailMapAdvanced extends RailMapBasic
         out.anchorPitch = in.anchorPitch;
         out.anchorLengthHorizontal = in.anchorLengthHorizontal;
         out.anchorLengthVertical = in.anchorLengthVertical;
-//        out.cantCenter = in.cantCenter;
-//        out.cantEdge = in.cantEdge;
+        out.cantCenter = in.cantCenter;
+        out.cantEdge = in.cantEdge;
         out.cantRandom = in.cantRandom;
         out.constLimitHP = in.constLimitHP;
         out.constLimitHN = in.constLimitHN;

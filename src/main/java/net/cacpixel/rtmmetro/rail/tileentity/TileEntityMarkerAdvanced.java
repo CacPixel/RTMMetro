@@ -34,7 +34,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     public RailPosition rp;
     public BlockPos startPos;
     private RailMap[] railMaps;
-    public RailMapAdvanced originalRailMap;
+    private RailMapAdvanced originalRailMap; // don't use when switch rail
     public List<BlockPos> markerPosList = new ArrayList();
     private List<int[]> grid;
     public float startPlayerPitch;
@@ -248,13 +248,13 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         {
             if (list.get(0) != null && list.get(1) != null)
             {
-                RailPosition railposition2 = this.getMarkerRP((BlockPos) list.get(0));
-                RailPosition railposition3 = this.getMarkerRP((BlockPos) list.get(1));
-                if (railposition2 != null && railposition3 != null)
+                RailPosition startRP = this.getMarkerRP((BlockPos) list.get(0));
+                RailPosition endRP = this.getMarkerRP((BlockPos) list.get(1));
+                if (startRP != null && endRP != null)
                 {
                     List<RailMapAdvanced> rms = new ArrayList<>();
-                    originalRailMap = new RailMapAdvanced(railposition2, railposition3);
-                    blockpos = new BlockPos(railposition2.blockX, railposition2.blockY, railposition2.blockZ);
+                    originalRailMap = new RailMapAdvanced(startRP, endRP);
+                    blockpos = new BlockPos(startRP.blockX, startRP.blockY, startRP.blockZ);
                     int split = 2;
                     RailMapAdvanced next = originalRailMap;
                     int length = (int) Math.floor(originalRailMap.getLength()) * 2;
@@ -481,6 +481,11 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             this.groupId = 0;
     }
 
+    public RailMapAdvanced getOriginalRailMap()
+    {
+        return originalRailMap;
+    }
+
     public static class MarkerCriticalValues
     {
         public String name;
@@ -494,6 +499,10 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             this.groupId = marker.groupId;
             this.pos = marker.pos;
             this.rps = marker.getAllRP();
+            if (this.rps.length == 0)
+            {
+                throw new IllegalArgumentException("TileEntityMarkerAdvanced has no RailPosition.");
+            }
         }
 
         public MarkerCriticalValues() {}

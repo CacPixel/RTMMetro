@@ -36,9 +36,6 @@ public class RTMMetro
     public static final String NAME = "RTM Metro";
     public static final String VERSION = "0.1.2";
     private static boolean HAS_FIXRTM_MOD = false;
-    public static short guiIdRigidCatenary = getNextGuiID();
-    public static short guiIdRailAdvanced = getNextGuiID();
-    public static short guiIdMarkerAdvanced = getNextGuiID();
 
     @Mod.Instance(MODID)
     public static RTMMetro INSTANCE;
@@ -87,13 +84,6 @@ public class RTMMetro
     public static boolean hasFixrtm()
     {
         return HAS_FIXRTM_MOD;
-    }
-
-    private static short guiId;
-
-    private static short getNextGuiID()
-    {
-        return guiId++;
     }
 
     private static void printTagMap()
