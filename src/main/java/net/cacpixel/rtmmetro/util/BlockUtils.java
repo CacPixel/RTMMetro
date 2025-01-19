@@ -1,11 +1,15 @@
 package net.cacpixel.rtmmetro.util;
 
 import jp.ngt.ngtlib.NGTCore;
+import jp.ngt.ngtlib.block.BlockUtil;
+import jp.ngt.rtm.rail.util.RailPosition;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.RTMMetroItems;
+import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Loader;
@@ -17,6 +21,48 @@ import java.util.stream.Stream;
 public class BlockUtils
 {
     public static int worldEditWandId = 0;
+
+    public static boolean isPosEqual(BlockPos pos1, BlockPos pos2)
+    {
+        return pos1.getX() == pos2.getX() && pos1.getY() == pos2.getY() && pos1.getZ() == pos2.getZ();
+    }
+
+    public static boolean isPosEqual(BlockPos pos1, RailPosition rp)
+    {
+        return pos1.getX() == rp.blockX && pos1.getY() == rp.blockY && pos1.getZ() == rp.blockZ;
+    }
+
+    public static boolean isPosEqual(RailPosition rp1, RailPosition rp2)
+    {
+        return rp1.blockX == rp2.blockX && rp1.blockY == rp2.blockY && rp1.blockZ == rp2.blockZ;
+    }
+
+    public static TileEntityMarkerAdvanced getMarkerFromPos(World world, RailPosition rp)
+    {
+        TileEntity te = BlockUtil.getTileEntity(world, new BlockPos(rp.blockX, rp.blockY, rp.blockZ));
+        if (te instanceof TileEntityMarkerAdvanced)
+            return ((TileEntityMarkerAdvanced) te);
+        else
+            return null;
+    }
+
+    public static TileEntityMarkerAdvanced getMarkerFromPos(World world, BlockPos pos)
+    {
+        TileEntity te = BlockUtil.getTileEntity(world, new BlockPos(pos.getX(), pos.getY(), pos.getZ()));
+        if (te instanceof TileEntityMarkerAdvanced)
+            return ((TileEntityMarkerAdvanced) te);
+        else
+            return null;
+    }
+
+    public static RailPosition getRPFromPos(World world, BlockPos pos)
+    {
+        TileEntity te = BlockUtil.getTileEntity(world, new BlockPos(pos.getX(), pos.getY(), pos.getZ()));
+        if (te instanceof TileEntityMarkerAdvanced)
+            return ((TileEntityMarkerAdvanced) te).getMarkerRP();
+        else
+            return null;
+    }
 
     public static boolean cancelRailBlockBreak(World world, EntityPlayer player, BlockPos pos)
     {

@@ -5,9 +5,12 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.config.GuiCheckBox;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.function.DoubleConsumer;
 
+@SideOnly(Side.CLIENT)
 public class GuiCalculateCant extends GuiScreenAdvanced
 {
     private final DoubleConsumer consumer;
@@ -16,7 +19,7 @@ public class GuiCalculateCant extends GuiScreenAdvanced
     private GuiTextFieldAdvancedInt fieldGauge;
     private GuiButton buttonOK;
     private GuiButton buttonCancel;
-    private GuiCheckBox checkBoxReversed;
+    private GuiCheckBox checkBoxFlip;
     private float addedHeight;
     private float cant;
 
@@ -30,6 +33,7 @@ public class GuiCalculateCant extends GuiScreenAdvanced
     @Override
     public void initGui()
     {
+        parentScreen.initGui();
         super.initGui();
         int hw = this.width / 2;
         int hh = this.height / 2;
@@ -42,23 +46,30 @@ public class GuiCalculateCant extends GuiScreenAdvanced
         //gauge
         this.fieldGauge = this.setTextField(hw, hh - 10, fieldWidth, fieldHeight, 1435, 500, 3000, false);
         //reversed
-        this.checkBoxReversed = this.addCheckBox(hw, hh + 10, fieldWidth, fieldHeight, "Inverted", false);
+        this.checkBoxFlip = this.addCheckBox(hw, hh + 10, fieldWidth, fieldHeight, "Flip", false, button -> {});
         //ok
-        this.buttonOK = this.addButton(hw - 80 + 90, hh + 70, 160, 20, I18n.format("gui.done"));
+        this.buttonOK = this.addButton(hw - 80 + 90, hh + 70, 160, 20, I18n.format("gui.done"), b -> {
+            if (!(Float.isNaN(cant) || Float.isInfinite(cant)))
+                this.consumer.accept(this.cant);
+            this.displayPrevScreen();
+        });
         //cancel
-        this.buttonCancel = this.addButton(hw - 80 - 90, hh + 70, 160, 20, I18n.format("gui.cancel"));
+        this.buttonCancel = this.addButton(hw - 80 - 90, hh + 70, 160, 20, I18n.format("gui.cancel"), b -> {
+            this.displayPrevScreen();
+        });
     }
 
     @Override
     public void drawScreen(int par1, int par2, float par3)
     {
-        this.drawDefaultBackground();
-        super.drawScreen(par1, par2, par3);
         int hw = this.width / 2;
         int hh = this.height / 2;
+        parentScreen.drawScreen(par1, par2, par3);
+        this.drawGradientRect(hw - 250, hh - 150, hw + 250, hh + 150, 0xC0101010, 0xD0101010);
+        super.drawScreen(par1, par2, par3);
         addedHeight = getAddHeight(fieldSpeed.fieldValue, fieldRadius.fieldValue);
         cant = getCantValue(fieldGauge.fieldValue, addedHeight);
-        cant = this.checkBoxReversed.isChecked() ? -cant : cant;
+        cant = this.checkBoxFlip.isChecked() ? -cant : cant;
         String colorPrefix = addedHeight > 0.150F ? TextFormatting.RED.toString() : TextFormatting.GREEN.toString();
         this.drawCenteredString(this.fontRenderer, TextFormatting.BOLD + "Calculate Rail Cant", hw, hh - 80 + 4, 0xFFFFFF);
         this.drawRightAlignedString(this.fontRenderer, "Speed (km/h)", hw - 5, hh - 50 + 4, 0xFFFFFF);
@@ -86,16 +97,6 @@ public class GuiCalculateCant extends GuiScreenAdvanced
     @Override
     protected void actionPerformed(GuiButton button)
     {
-        if (button.id == buttonOK.id)
-        {
-            if (!(Float.isNaN(cant) || Float.isInfinite(cant)))
-                this.consumer.accept(this.cant);
-            this.displayPrevScreen();
-        }
-        else if (button.id == buttonCancel.id)
-        {
-            this.displayPrevScreen();
-        }
         super.actionPerformed(button);
     }
 

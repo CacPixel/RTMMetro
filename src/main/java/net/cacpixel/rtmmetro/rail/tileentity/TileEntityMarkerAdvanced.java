@@ -22,6 +22,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITickable
 {
@@ -185,42 +187,34 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     {
         if (!this.isCoreMarker())
         {
-            TileEntityMarkerAdvanced TileEntityMarkerAdvanced = this.getCoreMarker();
-            if (TileEntityMarkerAdvanced != null)
+            TileEntityMarkerAdvanced core = this.getCoreMarker();
+            if (core != null)
             {
-                TileEntityMarkerAdvanced.onChangeRailShape();
+                core.onChangeRailShape();
             }
         }
         else
         {
-            try
+            RailMap[] arailmap = new RailMapAdvanced[this.railMaps.length];
+            for (int i = 0; i < arailmap.length; ++i)
             {
-                RailMap[] arailmap = new RailMapAdvanced[this.railMaps.length];
-
-                for (int i = 0; i < arailmap.length; ++i)
-                {
-                    RailPosition startRP = this.railMaps[i].getStartRP();
-                    RailPosition endRP = this.railMaps[i].getEndRP();
-                    endRP.cantCenter = -startRP.cantCenter;
-                    arailmap[i] = new RailMapAdvanced(startRP, endRP);
-                }
-                this.railMaps = arailmap;
-//            this.linePos = (float[][][]) null;
-                this.createGrids();
-
-                for (BlockPos blockpos : this.markerPosList)
-                {
-                    TileEntity tileentity = BlockUtil.getTileEntity(this.getWorld(), blockpos);
-                    if (tileentity instanceof TileEntityMarkerAdvanced)
-                    {
-                        TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) tileentity;
-                        marker.railMaps = arailmap;
-                    }
-                }
+                RailPosition startRP = this.railMaps[i].getStartRP();
+                RailPosition endRP = this.railMaps[i].getEndRP();
+                endRP.cantCenter = -startRP.cantCenter;
+                arailmap[i] = new RailMapAdvanced(startRP, endRP);
             }
-            catch (NullPointerException e)
+            this.railMaps = arailmap;
+//            this.linePos = (float[][][]) null;
+            this.createGrids();
+
+            for (BlockPos blockpos : this.markerPosList)
             {
-                e.printStackTrace();
+                TileEntity tileentity = BlockUtil.getTileEntity(this.getWorld(), blockpos);
+                if (tileentity instanceof TileEntityMarkerAdvanced)
+                {
+                    TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) tileentity;
+                    marker.railMaps = arailmap;
+                }
             }
         }
 
@@ -321,7 +315,8 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
 
         if (this.railMaps != null)
         {
-            this.markerPosList = list;
+            this.markerPosList.clear();
+            this.markerPosList.addAll(list);
 //            this.createGrids();
             if (blockpos != null)
             {
@@ -332,11 +327,22 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
                     if (tileentity instanceof TileEntityMarkerAdvanced)
                     {
                         TileEntityMarkerAdvanced ma = (TileEntityMarkerAdvanced) tileentity;
-                        ma.setStartPos(blockpos, this.railMaps);
+                        ma.setStartPos(blockpos, this.railMaps, list);
                     }
                 }
             }
+        }
+    }
 
+    private void setStartPos(BlockPos pos, RailMap[] maps, List<BlockPos> list)
+    {
+        this.startPos = pos;
+        this.railMaps = maps;
+        if (!this.isCoreMarker())
+        {
+            this.grid = null;
+            this.markerPosList.clear();
+            this.markerPosList.addAll(list);
         }
     }
 
@@ -346,18 +352,6 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         for (RailMap railmap : this.railMaps)
         {
             this.grid.addAll(((RailMapAdvanced) railmap).getRailBlockList(ItemRail.getDefaultProperty(), true));
-        }
-    }
-
-    private void setStartPos(BlockPos pos, RailMap[] maps)
-    {
-//        NGTLog.debug("[Marker] Start pos %s", new Object[]{pos.toString()});
-        this.startPos = pos;
-        this.railMaps = maps;
-        if (!this.isCoreMarker())
-        {
-            this.markerPosList.clear();
-            this.grid = null;
         }
     }
 
@@ -407,6 +401,28 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             }
 
             return list.toArray(new RailPosition[list.size()]);
+        }
+    }
+
+    public List<RailPosition> getAllRPList()
+    {
+        if (this.markerPosList.isEmpty())
+        {
+            return Stream.of(this.rp).collect(Collectors.toList());
+        }
+        else
+        {
+            List<RailPosition> list = new ArrayList<>();
+
+            for (BlockPos blockpos : this.markerPosList)
+            {
+                RailPosition railposition = this.getMarkerRP(blockpos);
+                if (railposition != null)
+                {
+                    list.add(railposition);
+                }
+            }
+            return list;
         }
     }
 
@@ -491,18 +507,16 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         public String name;
         public int groupId;
         public BlockPos pos;
-        public RailPosition[] rps;
+        public RailPosition rp;
+        public List<BlockPos> markerPosList;
 
         public MarkerCriticalValues(TileEntityMarkerAdvanced marker)
         {
             this.name = marker.getName();
             this.groupId = marker.groupId;
             this.pos = marker.pos;
-            this.rps = marker.getAllRP();
-            if (this.rps.length == 0)
-            {
-                throw new IllegalArgumentException("TileEntityMarkerAdvanced has no RailPosition.");
-            }
+            this.rp = marker.getMarkerRP();
+            this.markerPosList = marker.markerPosList;
         }
 
         public MarkerCriticalValues() {}
@@ -514,10 +528,12 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             value.name = new String(this.name);
             value.groupId = this.groupId;
             value.pos = new BlockPos(this.pos.getX(), this.pos.getY(), this.pos.getZ());
-            value.rps = new RailPosition[this.rps.length];
-            for (int i = 0; i < value.rps.length; i++)
+            value.rp = RailMapAdvanced.cloneRP(this.rp);
+            value.markerPosList = new ArrayList<>();
+            for (int i = 0; i < this.markerPosList.size(); i++)
             {
-                value.rps[i] = RailMapAdvanced.cloneRP(this.rps[i]);
+                BlockPos pos = this.markerPosList.get(i);
+                value.markerPosList.add(i, new BlockPos(pos.getX(), pos.getY(), pos.getZ()));
             }
             return value;
         }
