@@ -111,7 +111,7 @@ public final class BezierCurveAdvanced implements ILineAdvanced
 
     private double getSlopeFromParameter(double par1)
     {
-        double d0 = par1 < 0.0D ? 0.0D : (Math.min(par1, 1.0D));
+        double d0 = par1 < 1.0E-12 ? 1.0E-12 : (Math.min(par1, 0.999999999999D));
         double d1 = 1.0D - d0;
         double d2 = d0 * d0;
         double d3 = 2.0D * d0 * d1;
@@ -123,17 +123,17 @@ public final class BezierCurveAdvanced implements ILineAdvanced
         return Math.atan2(d6, d5);
     }
 
-    public float getHomogenizedParameter(int n, int par2)
+    public float getHomogenizedParameter(int length, int order)
     {
-        if (n < 4)
+        if (length < 4)
         {
             return 0.0F;
         }
-        else if (par2 <= 0)
+        else if (order <= 0)
         {
             return 0.0F;
         }
-        else if (par2 >= n)
+        else if (order >= length)
         {
             return 1.0F;
         }
@@ -148,7 +148,7 @@ public final class BezierCurveAdvanced implements ILineAdvanced
                 return 0.0F;
             }
 
-            int i = NGTMath.floor((float) par2 * (float) this.split / (float) n);
+            int i = NGTMath.floor((float) order * (float) this.split / (float) length);
             return this.normalizedParameters[i];
         }
     }
