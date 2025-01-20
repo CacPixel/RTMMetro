@@ -3,7 +3,7 @@ package net.cacpixel.rtmmetro.client.gui;
 import jp.ngt.ngtlib.gui.GuiTextFieldCustom;
 import net.cacpixel.rtmmetro.util.ModLog;
 
-public class GUIHelper
+public class GuiHelper
 {
     @SuppressWarnings("unchecked")
     public static <T> T getFieldValue(GuiTextFieldCustom field, T defaultVal)
@@ -28,7 +28,7 @@ public class GUIHelper
             }
             else
             {
-                ModLog.debug("GUIHelper.getFieldValue : Type not supported : %s", defaultVal.getClass().toString());
+                ModLog.debug("GuiHelper.getFieldValue : Type not supported : %s", defaultVal.getClass().toString());
                 return defaultVal;
             }
         }

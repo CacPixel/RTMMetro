@@ -32,15 +32,15 @@ public class RTMMetroGUIHandler implements IGuiHandler
         {
             if (ID == guiIdRigidCatenary)
             {
-                return new GUIRigidCatenarySettings(player, world, x, y, z);
+                return new GuiRigidCatenarySettings(player, world, x, y, z);
             }
             else if (ID == guiIdRailAdvanced)
             {
-                return new GUIRailAdvanced();
+                return new GuiRailAdvanced();
             }
             else if (ID == guiIdMarkerAdvanced)
             {
-                return new GUIMarkerAdvanced((TileEntityMarkerAdvanced) BlockUtil.getTileEntity(world, x, y, z));
+                return new GuiMarkerAdvanced((TileEntityMarkerAdvanced) BlockUtil.getTileEntity(world, x, y, z));
             }
         }
         catch (ClassCastException e)

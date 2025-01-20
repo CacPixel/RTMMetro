@@ -4,13 +4,13 @@ import jp.ngt.ngtlib.gui.GuiScreenCustom;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 
-public class GUIRailAdvanced extends GuiScreenCustom
+public class GuiRailAdvanced extends GuiScreenCustom
 {
 
     private static final int BUTTON_OK = 0;
     private static final int BUTTON_CANCEL = 1;
 
-    public GUIRailAdvanced()
+    public GuiRailAdvanced()
     {
 
     }

@@ -12,7 +12,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GUIRigidCatenarySettings extends GuiScreenCustom
+public class GuiRigidCatenarySettings extends GuiScreenCustom
 {
 
     private static final int BUTTON_OK = 0;
@@ -21,11 +21,11 @@ public class GUIRigidCatenarySettings extends GuiScreenCustom
     GuiTextField testField1;
 
 
-    public GUIRigidCatenarySettings()
+    public GuiRigidCatenarySettings()
     {
     }
 
-    public GUIRigidCatenarySettings(EntityPlayer player, World world, int x, int y, int z)
+    public GuiRigidCatenarySettings(EntityPlayer player, World world, int x, int y, int z)
     {
         ;
     }

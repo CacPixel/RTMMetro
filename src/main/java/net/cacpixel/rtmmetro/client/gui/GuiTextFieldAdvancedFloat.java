@@ -14,6 +14,7 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
     public float minValue = Float.MIN_VALUE;
     public float maxValue = Float.MAX_VALUE;
     public boolean loop = false;
+    public String formatPattern = "0.0##";
 
     public GuiTextFieldAdvancedFloat(int id, FontRenderer par1, int x, int y, int w, int h,
                                      GuiScreen pScr, float fieldValue)
@@ -66,16 +67,16 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
             if (Keyboard.getEventKey() == Keyboard.KEY_UP && Keyboard.isKeyDown(Keyboard.KEY_UP))
             {
                 this.incValue(DEFAULT_SCROLL_VALUE);
-                this.fieldValue = GUIHelper.getFieldValue(this, this.fieldValue);
+                this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
                 this.checkValue();
             }
             else if (Keyboard.getEventKey() == Keyboard.KEY_DOWN && Keyboard.isKeyDown(Keyboard.KEY_DOWN))
             {
                 this.incValue(-DEFAULT_SCROLL_VALUE);
-                this.fieldValue = GUIHelper.getFieldValue(this, this.fieldValue);
+                this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
                 this.checkValue();
             }
-//            this.fieldValue = GUIHelper.getFieldValue(this, this.fieldValue);
+//            this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
         }
     }
 
@@ -84,7 +85,7 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
     {
         boolean ret = super.textboxKeyTyped(word, code);
         float prevValue = fieldValue;
-        this.fieldValue = GUIHelper.getFieldValue(this, this.fieldValue);
+        this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
         if (!this.isValueValid())
             this.fieldValue = prevValue;
         else
@@ -149,7 +150,7 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
                 fieldValue += div;
             }
         }
-        this.setText(new DecimalFormat("0.0##").format(this.fieldValue));
+        this.setText(new DecimalFormat(this.formatPattern).format(this.fieldValue));
         this.setScrValueUpdated();
     }
 }

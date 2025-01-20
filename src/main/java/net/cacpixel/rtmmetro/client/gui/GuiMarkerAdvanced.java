@@ -26,11 +26,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SideOnly(Side.CLIENT)
-public class GUIMarkerAdvanced extends GuiScreenAdvanced
+public class GuiMarkerAdvanced extends GuiScreenAdvanced
 {
     public final TileEntityMarkerAdvanced marker;
     private final List<TileEntityMarkerAdvanced.MarkerCriticalValues> undoValues = new ArrayList<>();
+    private final TileEntityMarkerAdvanced.MarkerCriticalValues currentMarkerUndoValue;
     private final List<TileEntityMarkerAdvanced.MarkerCriticalValues> currentValues = new ArrayList<>();
+    private final TileEntityMarkerAdvanced.MarkerCriticalValues currentMarkerValue;
     private RailPosition currentRP;
     private GuiCalculateCant guiCalculateCant;
     private GuiTextFieldAdvanced fieldMarkerName;
@@ -53,12 +55,12 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
     private GuiUnicodeGlyphButton buttonResetCantEdge;
     private GuiUnicodeGlyphButton buttonResetCantCenter;
     private GuiUnicodeGlyphButton buttonResetCantRandom;
-    private GuiButton buttonZeroLengthH;
-    private GuiButton buttonZeroLengthV;
-    private GuiButton buttonStraightLineH;
-    private GuiButton buttonStraightLineV;
     private GuiButton buttonMagicNumberH;
     private GuiButton buttonMagicNumberV;
+    private GuiButton buttonStraightLineH;
+    private GuiButton buttonStraightLineV;
+    private GuiButton buttonCopyNeighborYaw;
+    private GuiButton buttonCopyNeighborPitch;
     private GuiButton buttonCalcCantCenter;
     private GuiButton buttonCalcCantEdge;
     private GuiButton buttonCopyCantEdgeToCenter;
@@ -66,17 +68,17 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
     private GuiButton buttonFlipCantCenter;
     private GuiButton buttonFlipCantEdge;
 
-    public GUIMarkerAdvanced(TileEntityMarkerAdvanced marker)
+    public GuiMarkerAdvanced(TileEntityMarkerAdvanced marker)
     {
         super();
         this.marker = marker;
-        this.undoValues.add(0, new TileEntityMarkerAdvanced.MarkerCriticalValues(marker).clone());
-        this.currentValues.add(0, new TileEntityMarkerAdvanced.MarkerCriticalValues(marker));
+        this.currentMarkerUndoValue = new TileEntityMarkerAdvanced.MarkerCriticalValues(marker).clone();
+        this.currentMarkerValue = new TileEntityMarkerAdvanced.MarkerCriticalValues(marker);
         this.currentRP = marker.getMarkerRP();
         this.parentScreen = null;
     }
 
-    public GUIMarkerAdvanced(GuiScreen parentScreen, TileEntityMarkerAdvanced marker)
+    public GuiMarkerAdvanced(GuiScreen parentScreen, TileEntityMarkerAdvanced marker)
     {
         this(marker);
         this.parentScreen = parentScreen;
@@ -116,6 +118,15 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         this.fieldAnchorLengthHorizontal = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorLengthHorizontal, 0.0f,
                 (float) ModConfig.railGeneratingDistance, false);
         this.buttonResetLengthH = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
+            fieldAnchorLengthHorizontal.fieldValue = 0;
+            fieldAnchorLengthHorizontal.checkValue();
+        });
+        this.buttonMagicNumberH = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Magic Number", b -> {
+
+        });
+        this.buttonStraightLineH = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "Straight Line", b -> {
+            this.currentValues.forEach(v -> v.rp.anchorLengthHorizontal = 0);
+            fieldAnchorLengthHorizontal.fieldValue = 0;
             fieldAnchorLengthHorizontal.checkValue();
         });
         fieldY += lineHeight;
@@ -123,7 +134,10 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         //anchor yaw
         this.fieldAnchorYaw = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorYaw, -180.0f, 180.0f, true);
         this.buttonResetAnchorYaw = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
-            fieldAnchorYaw.checkValue();
+
+        });
+        this.buttonCopyNeighborYaw = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "=Neighbor", b -> {
+
         });
         fieldY += lineHeight;
 
@@ -131,6 +145,15 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         this.fieldAnchorLengthVertical = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorLengthVertical, 0.0f,
                 (float) ModConfig.railGeneratingDistance, false);
         this.buttonResetLengthV = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
+            fieldAnchorLengthVertical.fieldValue = 0;
+            fieldAnchorLengthVertical.checkValue();
+        });
+        this.buttonMagicNumberV = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Magic Number", b -> {
+
+        });
+        this.buttonStraightLineV = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "Straight Line", b -> {
+            this.currentValues.forEach(v -> v.rp.anchorLengthVertical = 0);
+            fieldAnchorLengthVertical.fieldValue = 0;
             fieldAnchorLengthVertical.checkValue();
         });
         fieldY += lineHeight;
@@ -138,7 +161,10 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         //anchor pitch
         this.fieldAnchorPitch = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorPitch, -90.0f, 90.0f, false);
         this.buttonResetAnchorPitch = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
-            fieldAnchorPitch.checkValue();
+
+        });
+        this.buttonCopyNeighborPitch = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "=Neighbor", b -> {
+
         });
         fieldY += lineHeight;
 
@@ -147,19 +173,17 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         this.buttonResetCantEdge = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
             fieldCantEdge.fieldValue = 0;
             fieldCantEdge.checkValue();
-            this.updateValues();
         });
         this.buttonCalcCantEdge = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Calculate", b -> {
             guiCalculateCant = new GuiCalculateCant(this, x -> getCurrentMarkerValue().rp.cantEdge = (float) x);
             this.mc.displayGuiScreen(guiCalculateCant);
         });
         this.buttonCopyCantEdgeToAll = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "CopyToAll", b -> {
-            this.currentValues.stream().skip(1).forEach(v -> v.rp.cantEdge = -this.getCurrentMarkerValue().rp.cantEdge);
+            this.currentValues.forEach(v -> v.rp.cantEdge = -this.getCurrentMarkerValue().rp.cantEdge);
         });
-        this.buttonFlipCantEdge = this.addButton(buttX + buttH + 2 * buttW, fieldY - 2, buttW, buttH, "Flip", b -> {
+        this.buttonFlipCantEdge = this.addButton(buttX - fieldW - buttH - 4, fieldY - 2, buttH, buttH, "-", b -> {
             this.fieldCantEdge.fieldValue = -this.fieldCantEdge.fieldValue;
             this.fieldCantEdge.checkValue();
-            this.updateValues();
         });
         fieldY += lineHeight;
 
@@ -168,7 +192,6 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         this.buttonResetCantCenter = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
             fieldCantCenter.fieldValue = 0;
             fieldCantCenter.checkValue();
-            this.updateValues();
         });
         this.buttonCalcCantCenter = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Calculate", b -> {
             guiCalculateCant = new GuiCalculateCant(this, x -> getCurrentMarkerValue().rp.cantCenter = (float) x);
@@ -178,10 +201,9 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
             fieldCantCenter.fieldValue = fieldCantEdge.fieldValue;
             fieldCantCenter.checkValue();
         });
-        this.buttonFlipCantCenter = this.addButton(buttX + buttH + 2 * buttW, fieldY - 2, buttW, buttH, "Flip", b -> {
+        this.buttonFlipCantCenter = this.addButton(buttX - fieldW - buttH - 4, fieldY - 2, buttH, buttH, "-", b -> {
             this.fieldCantCenter.fieldValue = -this.fieldCantCenter.fieldValue;
             this.fieldCantCenter.checkValue();
-            this.updateValues();
         });
         fieldY += lineHeight;
 
@@ -195,7 +217,7 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
 
         //ok
         this.buttonOK = this.addButton(hw - 80 + 90, this.height - 30, 160, 20, I18n.format("gui.done"), b -> {
-            this.updateValues();
+            this.updateFromFields();
             this.sendPacket();
             this.displayPrevScreen();
         });
@@ -230,29 +252,19 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
             this.displayPrevScreen();
             return;
         }
-        this.currentValues.removeIf(v -> {
-            if (this.getCurrentMarkerValue().markerPosList.isEmpty())
-                return false;
-            else
-                return this.getCurrentMarkerValue().markerPosList.stream().noneMatch(x ->
-                        BlockUtils.getMarkerFromPos(marker.getWorld(), v.rp) == this.marker ||
-                                BlockUtils.getMarkerFromPos(marker.getWorld(), x) == BlockUtils.getMarkerFromPos(marker.getWorld(), v.rp));
-        });
-        this.undoValues.removeIf(v -> {
-            if (this.getCurrentMarkerValue().markerPosList.isEmpty())
-                return false;
-            else
-                return this.getCurrentMarkerUndoValue().markerPosList.stream().noneMatch(x ->
-                        BlockUtils.getMarkerFromPos(marker.getWorld(), v.rp) == this.marker ||
-                                BlockUtils.getMarkerFromPos(marker.getWorld(), x) == BlockUtils.getMarkerFromPos(marker.getWorld(), v.rp));
-        });
-        this.getCurrentMarkerValue().markerPosList.stream().forEach(pos -> {
+        this.currentValues.removeIf(v -> this.getCurrentMarkerValue().markerPosList.stream().noneMatch(markerPos ->
+                BlockUtils.getMarkerFromPos(marker.getWorld(), markerPos) == BlockUtils.getMarkerFromPos(marker.getWorld(), v.rp))
+        );
+        this.undoValues.removeIf(v -> this.getCurrentMarkerUndoValue().markerPosList.stream().noneMatch(markerPos ->
+                BlockUtils.getMarkerFromPos(marker.getWorld(), markerPos) == BlockUtils.getMarkerFromPos(marker.getWorld(), v.rp))
+        );
+        this.getCurrentMarkerValue().markerPosList.stream().filter(p -> BlockUtils.isPosEqual(p, this.currentRP)).forEach(pos -> {
             TileEntity te = BlockUtil.getTileEntity(this.marker.getWorld(), pos);
             if (te instanceof TileEntityMarkerAdvanced && this.currentValues.stream().noneMatch(x ->
                     BlockUtils.getMarkerFromPos(marker.getWorld(), x.rp) == BlockUtils.getMarkerFromPos(marker.getWorld(), pos)))
                 this.currentValues.add(new TileEntityMarkerAdvanced.MarkerCriticalValues((TileEntityMarkerAdvanced) te));
         });
-        this.getCurrentMarkerUndoValue().markerPosList.stream().forEach(pos -> {
+        this.getCurrentMarkerUndoValue().markerPosList.stream().filter(p -> BlockUtils.isPosEqual(p, this.currentRP)).forEach(pos -> {
             TileEntity te = BlockUtil.getTileEntity(this.marker.getWorld(), pos);
             if (te instanceof TileEntityMarkerAdvanced && this.undoValues.stream().noneMatch(x ->
                     BlockUtils.getMarkerFromPos(marker.getWorld(), x.rp) == BlockUtils.getMarkerFromPos(marker.getWorld(), pos)))
@@ -277,7 +289,7 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
 
         //title line
         this.drawString(this.fontRenderer,
-                String.format(TextFormatting.BOLD + "Editing values of rail marker" + TextFormatting.RESET + " \"%s\" (%d, %d, %d)",
+                String.format(TextFormatting.BOLD + "Editing rail marker" + TextFormatting.RESET + " \"%s\" (%d, %d, %d)",
                         this.marker.getName(), this.marker.getX(), this.marker.getY(), this.marker.getZ()), stringXpos, stringYpos,
                 0xFFFFFF);
         stringYpos += 12;
@@ -353,6 +365,11 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
     protected void actionPerformed(GuiButton button)
     {
         super.actionPerformed(button);
+        if (this.hasValueUpdated)
+        {
+            this.updateFromFields();
+            this.hasValueUpdated = false;
+        }
     }
 
     @Override
@@ -381,7 +398,7 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         super.handleMouseInput();
         if (this.hasValueUpdated)
         {
-            this.updateValues();
+            this.updateFromFields();
             this.hasValueUpdated = false;
         }
     }
@@ -392,7 +409,7 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         super.handleKeyboardInput();
         if (this.hasValueUpdated)
         {
-            this.updateValues();
+            this.updateFromFields();
             this.hasValueUpdated = false;
         }
     }
@@ -412,7 +429,7 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         });
     }
 
-    private void updateValues()
+    private void updateFromFields()
     {
         this.getCurrentMarkerValue().groupId = this.fieldGroup.fieldValue;
         this.getCurrentMarkerValue().name = this.fieldMarkerName.getText();
@@ -424,7 +441,10 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
         this.getCurrentMarkerValue().rp.cantCenter = this.fieldCantCenter.fieldValue;
         this.getCurrentMarkerValue().rp.cantEdge = this.fieldCantEdge.fieldValue;
         this.getCurrentMarkerValue().rp.cantRandom = this.fieldCantRandom.fieldValue;
-        this.updateValues(this.currentValues);
+        List<TileEntityMarkerAdvanced.MarkerCriticalValues> list = new ArrayList<>();
+        list.add(this.currentMarkerValue);
+        list.addAll(this.currentValues);
+        this.updateValues(list);
     }
 
     private void updateValues(List<TileEntityMarkerAdvanced.MarkerCriticalValues> values)
@@ -449,16 +469,19 @@ public class GUIMarkerAdvanced extends GuiScreenAdvanced
 
     private void restoreValues()
     {
-        this.updateValues(this.undoValues);
+        List<TileEntityMarkerAdvanced.MarkerCriticalValues> list = new ArrayList<>();
+        list.add(this.currentMarkerUndoValue);
+        list.addAll(this.undoValues);
+        this.updateValues(list);
     }
 
     private TileEntityMarkerAdvanced.MarkerCriticalValues getCurrentMarkerValue()
     {
-        return this.currentValues.get(0);
+        return this.currentMarkerValue;
     }
 
     private TileEntityMarkerAdvanced.MarkerCriticalValues getCurrentMarkerUndoValue()
     {
-        return this.undoValues.get(0);
+        return this.currentMarkerUndoValue;
     }
 }

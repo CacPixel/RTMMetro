@@ -65,16 +65,16 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
             if (Keyboard.getEventKey() == Keyboard.KEY_UP && Keyboard.isKeyDown(Keyboard.KEY_UP))
             {
                 this.incValue(DEFAULT_SCROLL_VALUE);
-                this.fieldValue = GUIHelper.getFieldValue(this, this.fieldValue);
+                this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
                 this.checkValue();
             }
             else if (Keyboard.getEventKey() == Keyboard.KEY_DOWN && Keyboard.isKeyDown(Keyboard.KEY_DOWN))
             {
                 this.incValue(-DEFAULT_SCROLL_VALUE);
-                this.fieldValue = GUIHelper.getFieldValue(this, this.fieldValue);
+                this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
                 this.checkValue();
             }
-//            this.fieldValue = GUIHelper.getFieldValue(this, this.fieldValue);
+//            this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
         }
     }
 
@@ -83,7 +83,7 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
     {
         boolean ret = super.textboxKeyTyped(word, code);
         int prevValue = fieldValue;
-        this.fieldValue = GUIHelper.getFieldValue(this, this.fieldValue);
+        this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
         if (!this.isValueValid())
             this.fieldValue = prevValue;
         else
