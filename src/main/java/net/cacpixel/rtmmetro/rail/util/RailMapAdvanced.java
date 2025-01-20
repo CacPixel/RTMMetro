@@ -69,18 +69,31 @@ public class RailMapAdvanced extends RailMapBasic
         double endX = this.endRP.posX;
         double endY = this.endRP.posY;
         double endZ = this.endRP.posZ;
-        boolean isOppositeMarker = (this.endRP.direction - this.startRP.direction) % 4 == 0;
+        boolean isOppositeMarker = Math.abs(this.endRP.direction - this.startRP.direction) == 4;
         boolean isInSameAxis = startZ == endZ || startX == endX;
         boolean isOpposite45 = Math.abs(startZ - endZ) == Math.abs(startX - endX) && this.startRP.direction % 2 != 0 &&
                 this.endRP.direction % 2 != 0;
+        boolean isFaceToFace = (isOppositeMarker && (isInSameAxis || isOpposite45));
         boolean lineMoved = (startRP.anchorYaw != NGTMath.wrapAngle(startRP.direction * 45.0F)
                 || endRP.anchorYaw != NGTMath.wrapAngle(endRP.direction * 45.0F));
-        boolean isHorizontalLengthZero = startRP.anchorLengthHorizontal == 0.0f && endRP.anchorLengthHorizontal == 0.0f;
+        boolean isHorizontalLengthZero = startRP.anchorLengthHorizontal <= 0.0f && endRP.anchorLengthHorizontal <= 0.0f
+                && startRP.anchorLengthHorizontal != -1.0f && endRP.anchorLengthHorizontal != -1.0f;
         double angleWhileStraight = NGTMath.toDegrees(Math.atan2(endX - startX, endZ - startZ));
+        double angleWhileStraightV = NGTMath.toDegrees(
+                Math.atan2(endY - startY, CacMath.getLength(new double[]{startX, startZ}, new double[]{endX, endZ})));
+        boolean yawApproachingStraight = (Math.abs(angleWhileStraight - this.startRP.anchorYaw) < 0.0001F
+                && Math.abs(MathHelper.wrapDegrees(angleWhileStraight + 180.0) - this.endRP.anchorYaw) < 0.0001F);
+        boolean pitchApproachingStraight = (Math.abs(angleWhileStraightV - this.startRP.anchorPitch) < 0.0001F &&
+                Math.abs(-angleWhileStraightV - this.endRP.anchorPitch) < 0.0001F);
+        boolean isSwitch = this.startRP.switchType == 1 || this.endRP.switchType == 1;
 
-        if (((isOppositeMarker && (isInSameAxis || isOpposite45)) && !lineMoved) || isHorizontalLengthZero
-                || (Math.abs(angleWhileStraight - this.startRP.anchorYaw) < 0.0001F
-                && Math.abs(MathHelper.wrapDegrees(angleWhileStraight + 180.0) - this.endRP.anchorYaw) < 0.0001F))
+        boolean shouldCreateStraightLine = !lineMoved && isFaceToFace;
+        if (isHorizontalLengthZero || yawApproachingStraight)
+            shouldCreateStraightLine = true;
+        if (isSwitch)
+            shouldCreateStraightLine = false;
+
+        if (shouldCreateStraightLine)
         {
             this.lineHorizontal = new StraightLineAdvanced(startZ, startX, endZ, endX);
             this.startRP.anchorYaw = (float) MathHelper.wrapDegrees(
@@ -119,7 +132,7 @@ public class RailMapAdvanced extends RailMapBasic
 
         double d17 = Math.sqrt(NGTMath.pow(endX - startX, 2) + NGTMath.pow(endZ - startZ, 2));
         boolean flag4 = this.startRP.anchorLengthVertical <= 0.0F && this.endRP.anchorLengthVertical <= 0.0F;
-        if (flag4)
+        if (flag4 || pitchApproachingStraight || isSwitch)
         {
             this.lineVertical = new StraightLineAdvanced(0.0D, startY, d17, endY);
         }
