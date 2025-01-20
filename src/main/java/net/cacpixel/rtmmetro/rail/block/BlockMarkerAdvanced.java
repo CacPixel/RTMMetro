@@ -405,13 +405,14 @@ public class BlockMarkerAdvanced extends BlockMarker
         {
             RailPosition startRP = rps.get(0);
             RailPosition endRP = rps.get(1);
-//            if (startRP.switchType == 1 && endRP.switchType == 1) {
-//                createTurntable(world, startRP, endRP, state, makeRail, isCreative);
-//            } else {
-//            RailPosition railposition2 = endRP.blockY >= startRP.blockY ? startRP : endRP;
-//            RailPosition railposition3 = endRP.blockY >= startRP.blockY ? endRP : startRP;
-            prepareNormalRail(world, startRP, endRP, state, makeRail, isCreative);
-//            }
+            if (startRP.switchType == 1 && endRP.switchType == 1)
+            {
+//                    createTurntable(world, startRP, endRP, state, makeRail, isCreative);
+            }
+            else
+            {
+                prepareNormalRail(world, startRP, endRP, state, makeRail, isCreative);
+            }
         }
         else if (rps.size() > 2)
         {
