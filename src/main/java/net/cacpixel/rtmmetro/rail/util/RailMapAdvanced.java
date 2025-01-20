@@ -132,6 +132,10 @@ public class RailMapAdvanced extends RailMapBasic
             this.lineVertical = new BezierCurveAdvanced(0.0D, startY, d8, startY + d10, d17 - d12, endY + d20, d17,
                     endY);
         }
+        this.startRP.anchorPitch = Math.min(this.startRP.anchorPitch, 89.9F);
+        this.startRP.anchorPitch = Math.max(this.startRP.anchorPitch, -89.9F);
+        this.endRP.anchorPitch = Math.min(this.endRP.anchorPitch, 89.9F);
+        this.endRP.anchorPitch = Math.max(this.endRP.anchorPitch, -89.9F);
     }
 
     @Override
