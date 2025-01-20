@@ -96,10 +96,9 @@ public class RailMapAdvanced extends RailMapBasic
         if (shouldCreateStraightLine)
         {
             this.lineHorizontal = new StraightLineAdvanced(startZ, startX, endZ, endX);
-            this.startRP.anchorYaw = (float) MathHelper.wrapDegrees(
-                    NGTMath.toDegrees(this.lineHorizontal.getSlope(0, 0)));
-            this.endRP.anchorYaw = (float) MathHelper.wrapDegrees(
-                    180.0 + NGTMath.toDegrees(this.lineHorizontal.getSlope(0, 0)));
+            this.startRP.anchorYaw = (float) MathHelper.wrapDegrees(NGTMath.toDegrees(this.lineHorizontal.getSlope(0, 0)));
+            this.endRP.anchorYaw = (float) MathHelper.wrapDegrees(180.0 + NGTMath.toDegrees(this.lineHorizontal.getSlope(0, 0)));
+            this.startRP.anchorLengthHorizontal = this.endRP.anchorLengthHorizontal = -0.75F;
         }
         else
         {
@@ -135,6 +134,12 @@ public class RailMapAdvanced extends RailMapBasic
         if (flag4 || pitchApproachingStraight || isSwitch)
         {
             this.lineVertical = new StraightLineAdvanced(0.0D, startY, d17, endY);
+            this.startRP.anchorPitch = (float) MathHelper.wrapDegrees(NGTMath.toDegrees(this.lineVertical.getSlope(0, 0)));
+            this.endRP.anchorPitch = (float) MathHelper.wrapDegrees(-NGTMath.toDegrees(this.lineVertical.getSlope(0, 0)));
+            if (!isSwitch)
+                this.startRP.anchorLengthVertical = this.endRP.anchorLengthVertical = -1.5F;
+            else
+                this.startRP.anchorLengthVertical = this.endRP.anchorLengthVertical = 0;
         }
         else
         {
