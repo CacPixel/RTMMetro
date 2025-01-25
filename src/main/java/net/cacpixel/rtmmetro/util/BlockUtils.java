@@ -98,8 +98,7 @@ public class BlockUtils
         Item item = player.getHeldItemMainhand().getItem();
         Item worldEditWand = worldEditWandId <= 0 ? null : Item.getItemById(271);
         if (block == RTMMetroBlock.LARGE_RAIL_BASE_ADVANCED
-                || block == RTMMetroBlock.LARGE_RAIL_MAINCORE_ADVANCED
-                || block == RTMMetroBlock.LARGE_RAIL_SUBCORE_ADVANCED
+                || block == RTMMetroBlock.LARGE_RAIL_CORE_ADVANCED
                 || block == RTMMetroBlock.LARGE_RAIL_SWITCH_CORE_ADVANCED
                 || block == RTMMetroBlock.LARGE_RAIL_SWITCH_BASE_ADVANCED)
         {

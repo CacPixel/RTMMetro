@@ -5,7 +5,6 @@ import jp.ngt.ngtlib.network.PacketCustom;
 import jp.ngt.ngtlib.util.NGTUtil;
 import jp.ngt.rtm.rail.util.RailPosition;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
-import net.cacpixel.rtmmetro.util.ModLog;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -14,9 +13,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-/**
- * TODO: use IMessageHandler REPLY
- */
 public class PacketMarkerServer extends PacketCustom implements IMessage, IMessageHandler<PacketMarkerServer, IMessage>
 {
     private NBTTagCompound markerTag;

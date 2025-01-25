@@ -20,7 +20,7 @@ import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.RTMMetroItems;
 import net.cacpixel.rtmmetro.client.gui.RTMMetroGUIHandler;
 import net.cacpixel.rtmmetro.items.ItemRailAdvanced;
-import net.cacpixel.rtmmetro.rail.tileentity.TileEntityLargeRailMainCoreAdvanced;
+import net.cacpixel.rtmmetro.rail.tileentity.TileEntityLargeRailCoreAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityLargeRailSwitchCoreAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.util.MarkerData;
@@ -55,17 +55,6 @@ public class BlockMarkerAdvanced extends BlockMarker
     {
         super(type);
     }
-
-//    public BlockMarkerAdvanced(MarkerType type) {
-//        super(Material.GLASS);
-//        this.markerType = type;
-//        this.setLightOpacity(1);
-//        this.setLightLevel(1.0F);
-//        this.setHardness(1.0F);
-//        this.setResistance(5.0F);
-//        this.setSoundType(SoundType.GLASS);
-//        this.setAABB(new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 0.0625F, 1.0F));
-//    }
 
     @Override
     public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player)
@@ -510,9 +499,9 @@ public class BlockMarkerAdvanced extends BlockMarker
             }
 
             BlockUtil.setBlock(world, start.blockX, start.blockY, start.blockZ,
-                    RTMMetroBlock.LARGE_RAIL_MAINCORE_ADVANCED, 0, 3);
-            TileEntityLargeRailMainCoreAdvanced mainCore =
-                    (TileEntityLargeRailMainCoreAdvanced) BlockUtil.getTileEntity(
+                    RTMMetroBlock.LARGE_RAIL_CORE_ADVANCED, 0, 3);
+            TileEntityLargeRailCoreAdvanced mainCore =
+                    (TileEntityLargeRailCoreAdvanced) BlockUtil.getTileEntity(
                             world, start.blockX, start.blockY, start.blockZ);
             mainCore.setRailPositions(new RailPosition[]{start, end});
             mainCore.getResourceState().readFromNBT(prop.writeToNBT());
@@ -553,13 +542,13 @@ public class BlockMarkerAdvanced extends BlockMarker
 //            railmap.setRail(world, RTMMetroBlock.LARGE_RAIL_BASE_ADVANCED, rp.blockX, rp.blockY, rp.blockZ, prop);
 //            BlockUtil.setBlock(world, rp.blockX, rp.blockY, rp.blockZ, RTMMetroBlock.LARGE_RAIL_MAINCORE_ADVANCED,
 //            0, 3);
-//            TileEntityLargeRailMainCoreAdvanced TileEntityLargeRailMainCoreAdvanced =
-//            (TileEntityLargeRailMainCoreAdvanced) BlockUtil.getTileEntity(world, rp.blockX, rp.blockY, rp.blockZ);
-//            TileEntityLargeRailMainCoreAdvanced.setRailPositions(new RailPosition[]{rp, railmap.getEndRP()});
-//            TileEntityLargeRailMainCoreAdvanced.getResourceState().readFromNBT(prop.writeToNBT());
-//            TileEntityLargeRailMainCoreAdvanced.setStartPoint(rp.blockX, rp.blockY, rp.blockZ);
-//            TileEntityLargeRailMainCoreAdvanced.createRailMap();
-//            TileEntityLargeRailMainCoreAdvanced.sendPacket();
+//            TileEntityLargeRailCoreAdvanced TileEntityLargeRailCoreAdvanced =
+//            (TileEntityLargeRailCoreAdvanced) BlockUtil.getTileEntity(world, rp.blockX, rp.blockY, rp.blockZ);
+//            TileEntityLargeRailCoreAdvanced.setRailPositions(new RailPosition[]{rp, railmap.getEndRP()});
+//            TileEntityLargeRailCoreAdvanced.getResourceState().readFromNBT(prop.writeToNBT());
+//            TileEntityLargeRailCoreAdvanced.setStartPoint(rp.blockX, rp.blockY, rp.blockZ);
+//            TileEntityLargeRailCoreAdvanced.createRailMap();
+//            TileEntityLargeRailCoreAdvanced.sendPacket();
 //            return true;
 //        } else {
 //            TileEntity tileentity = BlockUtil.getTileEntity(world, rp.blockX, rp.blockY, rp.blockZ);

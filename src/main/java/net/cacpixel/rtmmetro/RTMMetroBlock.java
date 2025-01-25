@@ -5,8 +5,7 @@ import jp.ngt.ngtlib.util.NGTRegHandler;
 import jp.ngt.ngtlib.util.NGTUtilClient;
 import jp.ngt.rtm.rail.BlockMarker;
 import net.cacpixel.rtmmetro.rail.block.*;
-import net.cacpixel.rtmmetro.rail.tileentity.TileEntityLargeRailMainCoreAdvanced;
-import net.cacpixel.rtmmetro.rail.tileentity.TileEntityLargeRailSubCoreAdvanced;
+import net.cacpixel.rtmmetro.rail.tileentity.TileEntityLargeRailCoreAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityLargeRailSwitchCoreAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
 import net.cacpixel.rtmmetro.render.RenderLargeRailAdvanced;
@@ -27,8 +26,7 @@ public class RTMMetroBlock
     public static BlockMarkerAdvanced MARKER_ADVANCED;
     public static BlockMarkerAdvanced MARKER_ADVANCED_SWITCH;
     public static Block LARGE_RAIL_BASE_ADVANCED;
-    public static Block LARGE_RAIL_MAINCORE_ADVANCED;
-    public static Block LARGE_RAIL_SUBCORE_ADVANCED;
+    public static Block LARGE_RAIL_CORE_ADVANCED;
     public static Block LARGE_RAIL_SWITCH_BASE_ADVANCED;
     public static Block LARGE_RAIL_SWITCH_CORE_ADVANCED;
 
@@ -37,10 +35,8 @@ public class RTMMetroBlock
 //        try {
         LARGE_RAIL_BASE_ADVANCED = NGTRegHandler.register(new BlockLargeRailBaseAdvanced(), "large_rail_base_advanced",
                 "rtmmetro.LRBaseAdvanced", null, RTMMetro.MODID);
-        LARGE_RAIL_MAINCORE_ADVANCED = NGTRegHandler.register(new BlockLargeRailMainCoreAdvanced(),
+        LARGE_RAIL_CORE_ADVANCED = NGTRegHandler.register(new BlockLargeRailCoreAdvanced(),
                 "large_rail_main_core_advanced", "rtmmetro.LRMainCoreAdvanced", null, RTMMetro.MODID);
-        LARGE_RAIL_SUBCORE_ADVANCED = NGTRegHandler.register(new BlockLargeRailSubCoreAdvanced(),
-                "large_rail_sub_core_advanced", "rtmmetro.LRSubCoreAdvanced", null, RTMMetro.MODID);
         LARGE_RAIL_SWITCH_BASE_ADVANCED = NGTRegHandler.register(new BlockLargeRailSwitchBaseAdvanced(),
                 "large_rail_switch_base_advanced", "rtmmetro.LRSBaseAdvanced", null, RTMMetro.MODID);
         LARGE_RAIL_SWITCH_CORE_ADVANCED = NGTRegHandler.register(new BlockLargeRailSwitchCoreAdvanced(),
@@ -53,13 +49,9 @@ public class RTMMetroBlock
                 "marker_switch_advanced", "rtmmetro.marker_switch_advanced", RTMMetroCreativeTabs.RTM_METRO_TAB_TOOLS,
                 ItemColoredBlock.class, RTMMetro.MODID);
 
-        GameRegistry.registerTileEntity(TileEntityLargeRailMainCoreAdvanced.class, "TERailMainCoreAdvanced");
-        GameRegistry.registerTileEntity(TileEntityLargeRailSubCoreAdvanced.class, "TERailSubCoreAdvanced");
+        GameRegistry.registerTileEntity(TileEntityLargeRailCoreAdvanced.class, "TERailMainCoreAdvanced");
         GameRegistry.registerTileEntity(TileEntityLargeRailSwitchCoreAdvanced.class, "TERailSwitchCoreAdvanced");
         GameRegistry.registerTileEntity(TileEntityMarkerAdvanced.class, "TEMarkerAdvanced");
-//        } catch (Throwable e){
-//            e.printStackTrace();
-//        }
     }
 
     @SideOnly(Side.CLIENT)
@@ -82,9 +74,7 @@ public class RTMMetroBlock
         registerBlockModel(MARKER_ADVANCED_SWITCH, 6, "marker22");
         registerBlockModel(MARKER_ADVANCED_SWITCH, 7, "marker23");
 
-        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLargeRailMainCoreAdvanced.class,
-                RenderLargeRailAdvanced.INSTANCE);
-        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLargeRailSubCoreAdvanced.class,
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLargeRailCoreAdvanced.class,
                 RenderLargeRailAdvanced.INSTANCE);
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLargeRailSwitchCoreAdvanced.class,
                 RenderLargeRailAdvanced.INSTANCE);
@@ -92,8 +82,7 @@ public class RTMMetroBlock
                 RenderMarkerBlockAdvanced.INSTANCE);
 
         NGTUtilClient.registerBuildinModel(RTMMetroBlock.LARGE_RAIL_BASE_ADVANCED, true);
-        NGTUtilClient.registerBuildinModel(RTMMetroBlock.LARGE_RAIL_MAINCORE_ADVANCED, true);
-        NGTUtilClient.registerBuildinModel(RTMMetroBlock.LARGE_RAIL_SUBCORE_ADVANCED, true);
+        NGTUtilClient.registerBuildinModel(RTMMetroBlock.LARGE_RAIL_CORE_ADVANCED, true);
         NGTUtilClient.registerBuildinModel(RTMMetroBlock.LARGE_RAIL_SWITCH_BASE_ADVANCED, true);
         NGTUtilClient.registerBuildinModel(RTMMetroBlock.LARGE_RAIL_SWITCH_CORE_ADVANCED, true);
 
