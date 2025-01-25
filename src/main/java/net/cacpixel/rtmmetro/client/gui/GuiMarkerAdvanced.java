@@ -258,13 +258,13 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
         this.undoValues.removeIf(v -> this.getCurrentMarkerUndoValue().markerPosList.stream().noneMatch(markerPos ->
                 BlockUtils.getMarkerFromPos(marker.getWorld(), markerPos) == BlockUtils.getMarkerFromPos(marker.getWorld(), v.rp))
         );
-        this.getCurrentMarkerValue().markerPosList.stream().filter(p -> BlockUtils.isPosEqual(p, this.currentRP)).forEach(pos -> {
+        this.getCurrentMarkerValue().markerPosList.stream().filter(p -> !BlockUtils.isPosEqual(p, this.currentRP)).forEach(pos -> {
             TileEntity te = BlockUtil.getTileEntity(this.marker.getWorld(), pos);
             if (te instanceof TileEntityMarkerAdvanced && this.currentValues.stream().noneMatch(x ->
                     BlockUtils.getMarkerFromPos(marker.getWorld(), x.rp) == BlockUtils.getMarkerFromPos(marker.getWorld(), pos)))
                 this.currentValues.add(new TileEntityMarkerAdvanced.MarkerCriticalValues((TileEntityMarkerAdvanced) te));
         });
-        this.getCurrentMarkerUndoValue().markerPosList.stream().filter(p -> BlockUtils.isPosEqual(p, this.currentRP)).forEach(pos -> {
+        this.getCurrentMarkerUndoValue().markerPosList.stream().filter(p -> !BlockUtils.isPosEqual(p, this.currentRP)).forEach(pos -> {
             TileEntity te = BlockUtil.getTileEntity(this.marker.getWorld(), pos);
             if (te instanceof TileEntityMarkerAdvanced && this.undoValues.stream().noneMatch(x ->
                     BlockUtils.getMarkerFromPos(marker.getWorld(), x.rp) == BlockUtils.getMarkerFromPos(marker.getWorld(), pos)))
@@ -422,7 +422,10 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
 
     private void sendPacket()
     {
-        this.currentValues.forEach(v -> {
+        List<TileEntityMarkerAdvanced.MarkerCriticalValues> list = new ArrayList<>();
+        list.add(this.currentMarkerValue);
+        list.addAll(this.currentValues);
+        list.forEach(v -> {
             TileEntityMarkerAdvanced marker = BlockUtils.getMarkerFromPos(this.marker.getWorld(), v.rp);
             if (marker != null)
                 RTMMetro.NETWORK_WRAPPER.sendToServer(new PacketMarkerClient(marker));
