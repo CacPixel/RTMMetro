@@ -14,12 +14,12 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-import java.nio.charset.StandardCharsets;
-
+/**
+ * 修改自原先的 PacketMarkerRPClient
+ */
 public class PacketMarkerClient extends PacketCustom implements IMessage, IMessageHandler<PacketMarkerClient, IMessage>
 {
-    private int groupId;
-    private String name;
+    private NBTTagCompound markerTag;
     private RailPosition[] railPositions;
 
     public PacketMarkerClient()
@@ -29,38 +29,31 @@ public class PacketMarkerClient extends PacketCustom implements IMessage, IMessa
     public PacketMarkerClient(TileEntityMarkerAdvanced marker)
     {
         super(marker);
-        this.name = marker.getName();
-        this.groupId = marker.getGroupId();
+        this.markerTag = marker.writeToNBT(new NBTTagCompound());
         this.railPositions = marker.getAllRP();
     }
 
     public void toBytes(ByteBuf buffer)
     {
         super.toBytes(buffer);
-        buffer.writeInt(this.groupId);
-        buffer.writeInt(this.name.length());
-        buffer.writeBytes(this.name.getBytes(StandardCharsets.UTF_8));
+        ByteBufUtils.writeTag(buffer, this.markerTag);
 
         buffer.writeByte(this.railPositions.length);
-
         for (RailPosition railposition : this.railPositions)
         {
             ByteBufUtils.writeTag(buffer, railposition.writeToNBT());
         }
-
     }
 
     public void fromBytes(ByteBuf buffer)
     {
         super.fromBytes(buffer);
-        this.groupId = buffer.readInt();
-        int strlen = buffer.readInt();
-        this.name = buffer.readBytes(strlen).toString(0, strlen, StandardCharsets.UTF_8);
+        this.markerTag = ByteBufUtils.readTag(buffer);
+
         byte b0 = buffer.readByte();
         if (b0 > 0)
         {
             this.railPositions = new RailPosition[b0];
-
             for (int i = 0; i < b0; ++i)
             {
                 NBTTagCompound nbttagcompound = ByteBufUtils.readTag(buffer);
@@ -70,26 +63,16 @@ public class PacketMarkerClient extends PacketCustom implements IMessage, IMessa
                 }
             }
         }
-
     }
 
     public IMessage onMessage(PacketMarkerClient message, MessageContext ctx)
     {
         World world = ctx.getServerHandler().player.world;
-        TileEntity core = message.getTileEntity(world);
-        if (core instanceof TileEntityMarkerAdvanced)
-        {
-            TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) core;
-            marker.setGroupId(message.groupId);
-            marker.setName(message.name);
-        }
-
-        // each Marker
+        TileEntity te = message.getTileEntity(world);
         // 如果不是coreMarker，railPositions只包含自身的rp
         for (RailPosition railposition : message.railPositions)
         {
-            TileEntity tileentity = BlockUtil.getTileEntity(world, railposition.blockX, railposition.blockY,
-                    railposition.blockZ);
+            TileEntity tileentity = BlockUtil.getTileEntity(world, railposition.blockX, railposition.blockY, railposition.blockZ);
             if (tileentity instanceof TileEntityMarkerAdvanced)
             {
                 TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) tileentity;
@@ -97,15 +80,16 @@ public class PacketMarkerClient extends PacketCustom implements IMessage, IMessa
                 marker.shouldUpdateClientLines = true;
             }
         }
-
-        // core Marker
-        if (core instanceof TileEntityMarkerAdvanced)
+        if (te instanceof TileEntityMarkerAdvanced)
         {
-            TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) core;
-            RTMMetroBlock.MARKER_ADVANCED.onMarkerActivated(world, marker.getPos().getX(), marker.getPos().getY(),
-                    marker.getPos().getZ(), ctx.getServerHandler().player, false);
+            TileEntityMarkerAdvanced marker = (TileEntityMarkerAdvanced) te;
+            marker.readFromNBT(message.markerTag);
+            if (marker.isCoreMarker() || marker.getRailMaps() == null || marker.getRailMaps().length < 1)
+            {
+                RTMMetroBlock.MARKER_ADVANCED.onMarkerActivated(world, marker.getX(), marker.getY(), marker.getZ(),
+                        ctx.getServerHandler().player, false);
+            }
         }
-
         return null;
     }
 }

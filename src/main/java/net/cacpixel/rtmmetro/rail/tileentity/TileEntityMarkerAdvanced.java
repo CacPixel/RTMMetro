@@ -110,7 +110,9 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     {
         if (!this.world.isRemote)
         {
-            RTMMetro.NETWORK_WRAPPER.sendToAll(new PacketMarkerRPServer(this, this.rp));
+            RTMMetro.NETWORK_WRAPPER.sendToAllAround(new PacketMarkerServer(this, this.rp),
+                    new NetworkRegistry.TargetPoint(this.world.provider.getDimension(), this.getX(), this.getY(), this.getZ(),
+                            (RTMMetro.proxy.getViewDistance() + 3) * 16));
         }
         this.shouldUpdateClientLines = false;
     }

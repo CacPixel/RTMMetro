@@ -16,15 +16,15 @@ public class ClassTransformerRtm implements IClassTransformer
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass)
     {
-        if (transformedName.equals("jp.ngt.ngtlib.network.PacketCustom"))
+        switch (transformedName)
         {
+        case "jp.ngt.ngtlib.network.PacketCustom":
             return this.fixNGTLibPacketCustom(name, transformedName, basicClass);
+        case "jp.ngt.rtm.modelpack.init.MPLAdButton":
+//            return fixRTMPackLoadAds(name, transformedName, basicClass);
+        default:
+            return basicClass;
         }
-        else if (transformedName.equals("jp.ngt.rtm.modelpack.init.MPLAdButton"))
-        {
-//            return this.fixRTMPackLoadAds(name, transformedName, basicClass);
-        }
-        return basicClass;
     }
 
     private byte[] fixRTMPackLoadAds(String name, String transformedName, byte[] basicClass)
