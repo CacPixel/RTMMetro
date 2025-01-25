@@ -9,8 +9,6 @@ import jp.ngt.ngtlib.util.NGTUtilClient;
 import jp.ngt.rtm.RTMCore;
 import jp.ngt.rtm.gui.InternalButton;
 import jp.ngt.rtm.gui.InternalGUI;
-import jp.ngt.rtm.rail.TileEntityLargeRailBase;
-import jp.ngt.rtm.rail.TileEntityLargeRailCore;
 import jp.ngt.rtm.rail.util.MarkerState;
 import jp.ngt.rtm.rail.util.RailMap;
 import jp.ngt.rtm.rail.util.RailPosition;
@@ -25,7 +23,6 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
@@ -656,7 +653,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                 {
                     float f6 = 80.0F;
                     float f12 = pitch < -f6 ? -f6 : (pitch > f6 ? f6 : pitch);
-                    RailPosition railposition2 = this.getNeighborRail(marker);
+                    RailPosition railposition2 = TileEntityMarkerAdvanced.getNeighborRail(marker);
                     if (railposition2 != null)
                     {
                         f12 = -railposition2.cantEdge;
@@ -757,7 +754,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                 double d7 = vec3d.z - railposition.posZ;
                 if (d6 != 0.0D && d7 != 0.0D)
                 {
-                    RailPosition railposition3 = this.getNeighborRail(marker);
+                    RailPosition railposition3 = TileEntityMarkerAdvanced.getNeighborRail(marker);
                     float f2 = (float) Math.atan2(d6, d7);
                     float f13 = (float) (d6 / (double) MathHelper.sin(f2));
                     float f3 = NGTMath.toDegrees(f2);
@@ -832,51 +829,6 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
             }
 
             return railposition1;
-        }
-    }
-
-    private RailPosition getNeighborRail(TileEntityMarkerAdvanced tileEntity)
-    {
-        int i = tileEntity.getMarkerRP().direction;
-        BlockPos blockpos = tileEntity.getMarkerRP().getNeighborBlockPos();
-        TileEntity tileentity = tileEntity.getWorld().getTileEntity(blockpos);
-        if (!(tileentity instanceof TileEntityLargeRailBase))
-        {
-            return null;
-        }
-        else
-        {
-            TileEntityLargeRailCore tileentitylargerailcore = ((TileEntityLargeRailBase) tileentity).getRailCore();
-            if (tileentitylargerailcore == null)
-            {
-                return null;
-            }
-            else
-            {
-                double d0 = Double.MAX_VALUE;
-                RailPosition railposition = null;
-
-                for (RailMap railmap : tileentitylargerailcore.getAllRailMaps())
-                {
-                    double d1 = NGTMath.getDistanceSq(tileEntity.getMarkerRP().posX, tileEntity.getMarkerRP().posZ,
-                            railmap.getStartRP().posX, railmap.getStartRP().posZ);
-                    if (d1 < d0)
-                    {
-                        d0 = d1;
-                        railposition = railmap.getStartRP();
-                    }
-
-                    d1 = NGTMath.getDistanceSq(tileEntity.getMarkerRP().posX, tileEntity.getMarkerRP().posZ,
-                            railmap.getEndRP().posX, railmap.getEndRP().posZ);
-                    if (d1 < d0)
-                    {
-                        d0 = d1;
-                        railposition = railmap.getEndRP();
-                    }
-                }
-
-                return railposition;
-            }
         }
     }
 

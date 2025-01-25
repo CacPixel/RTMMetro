@@ -18,6 +18,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.config.GuiUnicodeGlyphButton;
 import net.minecraftforge.fml.client.config.GuiUtils;
@@ -60,16 +61,17 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
     private GuiUnicodeGlyphButton buttonResetCantRandom;
     private GuiButton buttonMagicNumberH;
     private GuiButton buttonMagicNumberV;
+    private GuiButton buttonMagicNumberYaw;
+    private GuiButton buttonMagicNumberPitch;
     private GuiButton buttonStraightLineH;
     private GuiButton buttonStraightLineV;
     private GuiButton buttonCopyNeighborYaw;
     private GuiButton buttonCopyNeighborPitch;
     private GuiButton buttonCalcCantCenter;
     private GuiButton buttonCalcCantEdge;
-    private GuiButton buttonCopyCantEdgeToCenter;
-    private GuiButton buttonCopyCantEdgeToAll;
     private GuiButton buttonFlipCantCenter;
     private GuiButton buttonFlipCantEdge;
+    private GuiButton getButtonCopyNeighborCant;
 
     public GuiMarkerAdvanced(TileEntityMarkerAdvanced marker)
     {
@@ -149,8 +151,33 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
             fieldAnchorYaw.fieldValue = NGTMath.wrapAngle(currentRP.direction * 45.0F);
             fieldAnchorYaw.checkValue();
         });
-        this.buttonCopyNeighborYaw = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "=Neighbor", b -> {
-
+        this.buttonMagicNumberYaw = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Magic Number", b -> {
+            this.currentMarkerValue.markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentRP)).findFirst().ifPresent(pos -> {
+                TileEntity te = BlockUtil.getTileEntity(marker.getWorld(), pos);
+                if (te instanceof TileEntityMarkerAdvanced)
+                {
+                    fieldAnchorYaw.fieldValue = RailMapAdvanced.getDefaultYaw(currentRP,
+                            ((TileEntityMarkerAdvanced) te).getMarkerRP(),
+                            RailDrawingScheme.DRAW_CIRCLE);
+                    fieldAnchorYaw.checkValue();
+                }
+            });
+        });
+        this.buttonCopyNeighborYaw = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "=Neighbor", b -> {
+            RailPosition rp = TileEntityMarkerAdvanced.getNeighborRail(this.marker);
+            if (rp != null)
+            {
+                this.fieldAnchorYaw.fieldValue = MathHelper.wrapDegrees(rp.anchorYaw + 180.0F);
+                this.fieldAnchorYaw.checkValue();
+                return;
+            }
+            TileEntityMarkerAdvanced marker = TileEntityMarkerAdvanced.getNeighborMarker(this.marker);
+            if (marker != null && marker.getMarkerRP() != null)
+            {
+                this.fieldAnchorYaw.fieldValue = MathHelper.wrapDegrees(marker.getMarkerRP().anchorYaw + 180.0F);
+                this.fieldAnchorYaw.checkValue();
+                return;
+            }
         });
         fieldY += lineHeight;
 
@@ -162,7 +189,16 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
             fieldAnchorLengthVertical.checkValue();
         });
         this.buttonMagicNumberV = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Magic Number", b -> {
-
+            this.currentMarkerValue.markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentRP)).findFirst().ifPresent(pos -> {
+                TileEntity te = BlockUtil.getTileEntity(marker.getWorld(), pos);
+                if (te instanceof TileEntityMarkerAdvanced)
+                {
+                    fieldAnchorLengthVertical.fieldValue = RailMapAdvanced.getDefaultVertical(currentRP,
+                            ((TileEntityMarkerAdvanced) te).getMarkerRP(),
+                            RailDrawingScheme.DRAW_CIRCLE);
+                    fieldAnchorLengthVertical.checkValue();
+                }
+            });
         });
         this.buttonStraightLineV = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "Straight Line", b -> {
             this.currentValues.forEach(v -> v.rp.anchorLengthVertical = 0);
@@ -177,8 +213,33 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
             fieldAnchorPitch.fieldValue = 0.0F;
             fieldAnchorPitch.checkValue();
         });
-        this.buttonCopyNeighborPitch = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "=Neighbor", b -> {
-
+        this.buttonMagicNumberPitch = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Magic Number", b -> {
+            this.currentMarkerValue.markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentRP)).findFirst().ifPresent(pos -> {
+                TileEntity te = BlockUtil.getTileEntity(marker.getWorld(), pos);
+                if (te instanceof TileEntityMarkerAdvanced)
+                {
+                    fieldAnchorPitch.fieldValue = RailMapAdvanced.getDefaultPitch(currentRP,
+                            ((TileEntityMarkerAdvanced) te).getMarkerRP(),
+                            RailDrawingScheme.DRAW_CIRCLE);
+                    fieldAnchorPitch.checkValue();
+                }
+            });
+        });
+        this.buttonCopyNeighborPitch = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "=Neighbor", b -> {
+            RailPosition rp = TileEntityMarkerAdvanced.getNeighborRail(this.marker);
+            if (rp != null)
+            {
+                this.fieldAnchorPitch.fieldValue = MathHelper.wrapDegrees(-rp.anchorPitch);
+                this.fieldAnchorPitch.checkValue();
+                return;
+            }
+            TileEntityMarkerAdvanced marker = TileEntityMarkerAdvanced.getNeighborMarker(this.marker);
+            if (marker != null && marker.getMarkerRP() != null)
+            {
+                this.fieldAnchorPitch.fieldValue = MathHelper.wrapDegrees(-marker.getMarkerRP().anchorPitch);
+                this.fieldAnchorPitch.checkValue();
+                return;
+            }
         });
         fieldY += lineHeight;
 
@@ -192,8 +253,21 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
             guiCalculateCant = new GuiCalculateCant(this, x -> getCurrentMarkerValue().rp.cantEdge = (float) x);
             this.mc.displayGuiScreen(guiCalculateCant);
         });
-        this.buttonCopyCantEdgeToAll = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "CopyToAll", b -> {
-            this.currentValues.forEach(v -> v.rp.cantEdge = -this.getCurrentMarkerValue().rp.cantEdge);
+        this.getButtonCopyNeighborCant = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "=Neighbor", b -> {
+            RailPosition rp = TileEntityMarkerAdvanced.getNeighborRail(this.marker);
+            if (rp != null)
+            {
+                this.fieldCantEdge.fieldValue = MathHelper.wrapDegrees(-rp.cantEdge);
+                this.fieldCantEdge.checkValue();
+                return;
+            }
+            TileEntityMarkerAdvanced marker = TileEntityMarkerAdvanced.getNeighborMarker(this.marker);
+            if (marker != null && marker.getMarkerRP() != null)
+            {
+                this.fieldCantEdge.fieldValue = MathHelper.wrapDegrees(-marker.getMarkerRP().cantEdge);
+                this.fieldCantEdge.checkValue();
+                return;
+            }
         });
         this.buttonFlipCantEdge = this.addButton(buttX - fieldW - buttH - 4, fieldY - 2, buttH, buttH, "-", b -> {
             this.fieldCantEdge.fieldValue = -this.fieldCantEdge.fieldValue;
@@ -210,10 +284,6 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
         this.buttonCalcCantCenter = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Calculate", b -> {
             guiCalculateCant = new GuiCalculateCant(this, x -> getCurrentMarkerValue().rp.cantCenter = (float) x);
             this.mc.displayGuiScreen(guiCalculateCant);
-        });
-        this.buttonCopyCantEdgeToCenter = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "=Cant Edge", b -> {
-            fieldCantCenter.fieldValue = fieldCantEdge.fieldValue;
-            fieldCantCenter.checkValue();
         });
         this.buttonFlipCantCenter = this.addButton(buttX - fieldW - buttH - 4, fieldY - 2, buttH, buttH, "-", b -> {
             this.fieldCantCenter.fieldValue = -this.fieldCantCenter.fieldValue;

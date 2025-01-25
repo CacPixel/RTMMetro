@@ -2,9 +2,12 @@ package net.cacpixel.rtmmetro.rail.tileentity;
 
 import jp.ngt.ngtlib.block.BlockUtil;
 import jp.ngt.ngtlib.block.TileEntityCustom;
+import jp.ngt.ngtlib.math.NGTMath;
 import jp.ngt.rtm.gui.InternalButton;
 import jp.ngt.rtm.gui.InternalGUI;
 import jp.ngt.rtm.item.ItemRail;
+import jp.ngt.rtm.rail.TileEntityLargeRailBase;
+import jp.ngt.rtm.rail.TileEntityLargeRailCore;
 import jp.ngt.rtm.rail.util.*;
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
@@ -14,11 +17,13 @@ import net.cacpixel.rtmmetro.rail.util.AnchorEditStatus;
 import net.cacpixel.rtmmetro.rail.util.MarkerManager;
 import net.cacpixel.rtmmetro.rail.util.RailDrawingScheme;
 import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
+import net.cacpixel.rtmmetro.util.BlockUtils;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -490,6 +495,83 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     {
         boolean flag = state.get(this.markerState);
         return String.format("%s : %s", state.toString(), flag ? "ON" : "OFF");
+    }
+
+    public static TileEntityMarkerAdvanced getNeighborMarker(World world, RailPosition rp)
+    {
+        TileEntityMarkerAdvanced marker = BlockUtils.getMarkerFromPos(world, rp);
+        if (marker != null)
+        {
+            return getNeighborMarker(marker);
+        }
+        return null;
+    }
+
+    public static TileEntityMarkerAdvanced getNeighborMarker(TileEntityMarkerAdvanced tileEntity)
+    {
+        int i = tileEntity.getMarkerRP().direction;
+        BlockPos blockpos = tileEntity.getMarkerRP().getNeighborBlockPos();
+        TileEntity neighborMarker = tileEntity.getWorld().getTileEntity(blockpos);
+        if (neighborMarker instanceof TileEntityMarkerAdvanced)
+        {
+            return (TileEntityMarkerAdvanced) neighborMarker;
+        }
+        return null;
+    }
+
+    public static RailPosition getNeighborRail(World world, RailPosition rp)
+    {
+        TileEntityMarkerAdvanced marker = BlockUtils.getMarkerFromPos(world, rp);
+        if (marker != null)
+        {
+            return getNeighborRail(marker);
+        }
+        return null;
+    }
+
+    public static RailPosition getNeighborRail(TileEntityMarkerAdvanced tileEntity)
+    {
+        int i = tileEntity.getMarkerRP().direction;
+        BlockPos blockpos = tileEntity.getMarkerRP().getNeighborBlockPos();
+        TileEntity tileentity = tileEntity.getWorld().getTileEntity(blockpos);
+        if (!(tileentity instanceof TileEntityLargeRailBase))
+        {
+            return null;
+        }
+        else
+        {
+            TileEntityLargeRailCore tileentitylargerailcore = ((TileEntityLargeRailBase) tileentity).getRailCore();
+            if (tileentitylargerailcore == null)
+            {
+                return null;
+            }
+            else
+            {
+                double d0 = Double.MAX_VALUE;
+                RailPosition railposition = null;
+
+                for (RailMap railmap : tileentitylargerailcore.getAllRailMaps())
+                {
+                    double d1 = NGTMath.getDistanceSq(tileEntity.getMarkerRP().posX, tileEntity.getMarkerRP().posZ,
+                            railmap.getStartRP().posX, railmap.getStartRP().posZ);
+                    if (d1 < d0)
+                    {
+                        d0 = d1;
+                        railposition = railmap.getStartRP();
+                    }
+
+                    d1 = NGTMath.getDistanceSq(tileEntity.getMarkerRP().posX, tileEntity.getMarkerRP().posZ,
+                            railmap.getEndRP().posX, railmap.getEndRP().posZ);
+                    if (d1 < d0)
+                    {
+                        d0 = d1;
+                        railposition = railmap.getEndRP();
+                    }
+                }
+
+                return railposition;
+            }
+        }
     }
 
     public String getName()

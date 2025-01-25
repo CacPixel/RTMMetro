@@ -114,11 +114,13 @@ public class RailMapAdvanced extends RailMapBasic
         {
             if (this.startRP.anchorLengthHorizontal < 0.0F)
             {
+                this.startRP.anchorYaw = getDefaultYaw(startRP, endRP, scheme);
                 this.startRP.anchorLengthHorizontal = getDefaultHorizontal(startRP, endRP, scheme);
             }
 
             if (this.endRP.anchorLengthHorizontal < 0.0F)
             {
+                this.endRP.anchorYaw = getDefaultYaw(endRP, startRP, scheme);
                 this.endRP.anchorLengthHorizontal = getDefaultHorizontal(endRP, startRP, scheme);
             }
 
@@ -624,11 +626,6 @@ public class RailMapAdvanced extends RailMapBasic
 
     public static float getDefaultHorizontal(RailPosition startRP, RailPosition endRP, RailDrawingScheme scheme)
     {
-        boolean isOppositeMarker = Math.abs(endRP.direction - startRP.direction) == 4;
-        if (isOppositeMarker && scheme == RailDrawingScheme.DRAW_CIRCLE)
-        {
-            scheme = RailDrawingScheme.RTM_DEFAULT;
-        }
         double startX = startRP.posX;
         double startY = startRP.posY;
         double startZ = startRP.posZ;
@@ -640,6 +637,14 @@ public class RailMapAdvanced extends RailMapBasic
         double dx = endX - startX;
         double dzdxMax = Math.max(Math.abs(dz), Math.abs(dx));
         double dzdxMin = Math.min(Math.abs(dz), Math.abs(dx));
+        boolean isOppositeMarker = Math.abs(endRP.direction - startRP.direction) == 4;
+        boolean isInSameAxis = startZ == endZ || startX == endX;
+        boolean isOpposite45 = Math.abs(startZ - endZ) == Math.abs(startX - endX) && startRP.direction % 2 != 0 && endRP.direction % 2 != 0;
+        boolean isFaceToFace = (isOppositeMarker && (isInSameAxis || isOpposite45));
+        if (isFaceToFace && scheme == RailDrawingScheme.DRAW_CIRCLE)
+        {
+            scheme = RailDrawingScheme.RTM_DEFAULT;
+        }
         switch (scheme)
         {
         case RTM_DEFAULT:
@@ -652,7 +657,8 @@ public class RailMapAdvanced extends RailMapBasic
             double theta = Math.atan2(dx, dz);
             double theta2 = Math.atan2(-dx, -dz);
             double angle = Math.abs(theta - NGTMath.toRadians(NGTMath.normalizeAngle(startRP.anchorYaw))); //startRP.direction * 45.0
-            if (angle > Math.PI / 2.0 && angle < 3.0 * Math.PI / 2.0)
+            double angleWrappedDeg = MathHelper.wrapDegrees(NGTMath.toDegrees(angle));
+            if (angleWrappedDeg < -90.0 || angleWrappedDeg > 90.0)
             {
                 return getDefaultHorizontal(startRP, endRP, RailDrawingScheme.RTM_DEFAULT);
             }
@@ -683,7 +689,9 @@ public class RailMapAdvanced extends RailMapBasic
             double dx = endX - startX;
             double theta = Math.atan2(dx, dz);
             double theta2 = Math.atan2(-dx, -dz);
-            return (float) NGTMath.toDegrees(theta2 - NGTMath.toRadians(endRP.anchorYaw) + theta);
+            float ret = (float) MathHelper.wrapDegrees(NGTMath.toDegrees(theta2 - NGTMath.toRadians(endRP.anchorYaw) + theta));
+            return (ret - MathHelper.wrapDegrees(startRP.direction * 45.0) < 0.001F) ?
+                    (float) MathHelper.wrapDegrees(startRP.direction * 45.0) : ret;
         case RTM_DEFAULT:
         case SWITCH_RAIL_OPTIMIZED:
         default:
