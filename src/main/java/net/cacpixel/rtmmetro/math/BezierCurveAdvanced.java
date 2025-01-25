@@ -2,11 +2,7 @@ package net.cacpixel.rtmmetro.math;
 
 import jp.ngt.ngtlib.math.LinePosPool;
 import jp.ngt.ngtlib.math.NGTMath;
-import net.cacpixel.rtmmetro.rail.util.construct.InitNPTask;
 import net.minecraft.util.math.MathHelper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public final class BezierCurveAdvanced implements ILineAdvanced
 {
@@ -18,7 +14,6 @@ public final class BezierCurveAdvanced implements ILineAdvanced
     private float[] normalizedParameters;
     private final double length;
     private final int split;
-    private final List<InitNPTask> accelerateTasks = new ArrayList<>();
 
     public BezierCurveAdvanced(double p1, double p2, double p3, double p4, double p5, double p6, double p7, double p8)
     {

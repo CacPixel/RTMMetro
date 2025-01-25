@@ -25,15 +25,20 @@ import java.util.List;
 public class RailMapAdvanced extends RailMapBasic
 {
     public final static int QUANTIZE = 32;
+    private RailDrawingScheme scheme;
 
     public RailMapAdvanced(RailPosition par1, RailPosition par2)
     {
         super(par1, par2);
-        if (startRP.cantCenter > 0 && startRP.cantEdge < 0 || startRP.cantCenter < 0 && startRP.cantEdge > 0)
-        {
-            startRP.cantCenter = -startRP.cantCenter;
-            endRP.cantCenter = startRP.cantCenter;
-        }
+        this.scheme = RailDrawingScheme.DRAW_CIRCLE;
+        this.createLine(this.scheme);
+    }
+
+    public RailMapAdvanced(RailPosition par1, RailPosition par2, RailDrawingScheme scheme)
+    {
+        this(par1, par2);
+        this.scheme = scheme;
+        this.createLine(scheme);
     }
 
     public ILineAdvanced getLineHorizontal()
@@ -62,6 +67,11 @@ public class RailMapAdvanced extends RailMapBasic
 
     @Override
     protected void createLine()
+    {
+
+    }
+
+    protected void createLine(RailDrawingScheme scheme)
     {
         double startX = this.startRP.posX;
         double startY = this.startRP.posY;
@@ -102,23 +112,14 @@ public class RailMapAdvanced extends RailMapBasic
         }
         else
         {
-            double d6 = Math.abs(endZ - startZ);
-            double d7 = Math.abs(endX - startX);
-            double d9 = Math.max(d6, d7);
-            double d11 = Math.min(d6, d7);
             if (this.startRP.anchorLengthHorizontal < 0.0F)
             {
-                boolean isNot45 = this.startRP.direction % 2 == 0;
-                double d13 = isNot45 ? d9 : d11;
-                this.startRP.anchorLengthHorizontal = (float) (d13 *
-                        (double) 0.5522848F); // 0.5522848F 用来计算绘制圆形贝塞尔曲线控制点的位置的常数
+                this.startRP.anchorLengthHorizontal = getDefaultHorizontal(startRP, endRP, scheme);
             }
 
             if (this.endRP.anchorLengthHorizontal < 0.0F)
             {
-                boolean flag5 = this.endRP.direction % 2 == 0;
-                double d19 = flag5 ? d9 : d11;
-                this.endRP.anchorLengthHorizontal = (float) (d19 * (double) 0.5522848F);
+                this.endRP.anchorLengthHorizontal = getDefaultHorizontal(endRP, startRP, scheme);
             }
 
             double d18 = (double) (NGTMath.cos(this.startRP.anchorYaw) * this.startRP.anchorLengthHorizontal);
@@ -150,19 +151,25 @@ public class RailMapAdvanced extends RailMapBasic
             this.lineVertical = new BezierCurveAdvanced(0.0D, startY, d8, startY + d10, d17 - d12, endY + d20, d17,
                     endY);
         }
-
+        // 保证直线时yaw的正确性
         if (this.startRP.anchorLengthHorizontal <= 0.0F)
         {
             this.startRP.anchorYaw = (float) MathHelper.wrapDegrees(NGTMath.toDegrees(this.lineHorizontal.getSlope(4, 0)));
         }
-        if (this.endRP.anchorLengthHorizontal == 0.0F)
+        if (this.endRP.anchorLengthHorizontal <= 0.0F)
         {
             this.endRP.anchorYaw = (float) MathHelper.wrapDegrees(180.0 + NGTMath.toDegrees(this.lineHorizontal.getSlope(4, 4)));
         }
+        // 下面是限位操作
         this.startRP.anchorPitch = Math.min(this.startRP.anchorPitch, 89.9F);
         this.startRP.anchorPitch = Math.max(this.startRP.anchorPitch, -89.9F);
         this.endRP.anchorPitch = Math.min(this.endRP.anchorPitch, 89.9F);
         this.endRP.anchorPitch = Math.max(this.endRP.anchorPitch, -89.9F);
+        if (startRP.cantCenter > 0 && startRP.cantEdge < 0 || startRP.cantCenter < 0 && startRP.cantEdge > 0)
+        {
+            startRP.cantCenter = -startRP.cantCenter;
+            endRP.cantCenter = startRP.cantCenter;
+        }
     }
 
     @Override
@@ -613,5 +620,84 @@ public class RailMapAdvanced extends RailMapBasic
         out.scriptArgs = in.scriptArgs;
         out.init();
         return out;
+    }
+
+    public static float getDefaultHorizontal(RailPosition startRP, RailPosition endRP, RailDrawingScheme scheme)
+    {
+        boolean isOppositeMarker = Math.abs(endRP.direction - startRP.direction) == 4;
+        if (isOppositeMarker && scheme == RailDrawingScheme.DRAW_CIRCLE)
+        {
+            scheme = RailDrawingScheme.RTM_DEFAULT;
+        }
+        double startX = startRP.posX;
+        double startY = startRP.posY;
+        double startZ = startRP.posZ;
+        double endX = endRP.posX;
+        double endY = endRP.posY;
+        double endZ = endRP.posZ;
+        double lengthXZ = Math.sqrt((endZ - startZ) * (endZ - startZ) + (endX - startX) * (endX - startX));
+        double dz = endZ - startZ;
+        double dx = endX - startX;
+        double dzdxMax = Math.max(Math.abs(dz), Math.abs(dx));
+        double dzdxMin = Math.min(Math.abs(dz), Math.abs(dx));
+        switch (scheme)
+        {
+        case RTM_DEFAULT:
+            boolean isNot45 = startRP.direction % 2 == 0;
+            double result = isNot45 ? dzdxMax : dzdxMin;
+            return (float) (result * 0.5522848F);
+        case SWITCH_RAIL_OPTIMIZED:
+            return (float) (lengthXZ / MathHelper.SQRT_2 * 0.5522848F);
+        case DRAW_CIRCLE:
+            double theta = Math.atan2(dx, dz);
+            double theta2 = Math.atan2(-dx, -dz);
+            double angle = Math.abs(theta - NGTMath.toRadians(NGTMath.normalizeAngle(startRP.anchorYaw))); //startRP.direction * 45.0
+            if (angle > Math.PI / 2.0 && angle < 3.0 * Math.PI / 2.0)
+            {
+                return getDefaultHorizontal(startRP, endRP, RailDrawingScheme.RTM_DEFAULT);
+            }
+            double magicNumber = ((4.0 / 3.0) * Math.tan(2.0 * angle / 4.0));
+            double radius = (lengthXZ / 2.0F / Math.sin(angle));
+            float ret = (float) (radius * magicNumber);
+            return Math.min(ret, ModConfig.railGeneratingDistance);
+        default:
+            return 0.0F;
+        }
+    }
+
+    public static float getDefaultVertical(RailPosition startRP, RailPosition endRP, RailDrawingScheme scheme)
+    {
+        return 0.0f;
+    }
+
+    public static float getDefaultYaw(RailPosition startRP, RailPosition endRP, RailDrawingScheme scheme)
+    {
+        switch (scheme)
+        {
+        case DRAW_CIRCLE:
+            double startX = startRP.posX;
+            double startZ = startRP.posZ;
+            double endX = endRP.posX;
+            double endZ = endRP.posZ;
+            double dz = endZ - startZ;
+            double dx = endX - startX;
+            double theta = Math.atan2(dx, dz);
+            double theta2 = Math.atan2(-dx, -dz);
+            return (float) NGTMath.toDegrees(theta2 - NGTMath.toRadians(endRP.anchorYaw) + theta);
+        case RTM_DEFAULT:
+        case SWITCH_RAIL_OPTIMIZED:
+        default:
+            return startRP.anchorYaw;
+        }
+    }
+
+    public static float getDefaultPitch(RailPosition startRP, RailPosition endRP, RailDrawingScheme scheme)
+    {
+        return 0.0f;
+    }
+
+    public static float getRadius(RailPosition startRP, RailPosition endRP, RailDrawingScheme scheme)
+    {
+        return 0.0f;
     }
 }

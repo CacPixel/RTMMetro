@@ -8,15 +8,18 @@ import jp.ngt.rtm.item.ItemRail;
 import jp.ngt.rtm.rail.util.*;
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
-import net.cacpixel.rtmmetro.network.PacketMarkerRPServer;
+import net.cacpixel.rtmmetro.network.PacketMarkerServer;
 import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
+import net.cacpixel.rtmmetro.rail.util.AnchorEditStatus;
 import net.cacpixel.rtmmetro.rail.util.MarkerManager;
+import net.cacpixel.rtmmetro.rail.util.RailDrawingScheme;
 import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -28,11 +31,6 @@ import java.util.stream.Stream;
 public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITickable
 {
     private static final int SEARCH_COUNT = 40;
-    public static final int DEFAULT_GROUP_ID = 1;
-    public static final int GROUP_ID_INDIVIDUAL = 0;
-    private int groupId; // groupId=0 则为未分组的marker
-    public static final String DEFAULT_NAME = "marker";
-    private String name;
     public RailPosition rp;
     public BlockPos startPos;
     private RailMap[] railMaps;
@@ -53,11 +51,25 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     private int count;
     public boolean shouldUpdateClientLines = false; // 其他玩家修改了Line后置true，发送数据包给所有玩家更新Line
     public int splits = 2;
+    /******************************************************************/
+    public static final int DEFAULT_GROUP_ID = 1;
+    public static final int GROUP_ID_INDIVIDUAL = 0;
+    public static final String DEFAULT_NAME = "marker";
+    private int groupId; // groupId=0 则为未分组的marker
+    private String name; // 名字，最好是唯一的
+    public RailDrawingScheme drawingScheme; // 画轨方案，默认 RTM_DEFAULT
+    public AnchorEditStatus editStatusH; // 绿线编辑状态，默认 FOLLOW_NEIGHBOR
+    public AnchorEditStatus editStatusV;
+
+    /******************************************************************/
 
     public TileEntityMarkerAdvanced()
     {
         this.name = DEFAULT_NAME + (MarkerManager.getInstance().getMarkerList().size() + 1);
         this.groupId = DEFAULT_GROUP_ID;
+        this.drawingScheme = RailDrawingScheme.RTM_DEFAULT;
+        this.editStatusH = AnchorEditStatus.FOLLOW_NEIGHBOR;
+        this.editStatusV = AnchorEditStatus.FOLLOW_NEIGHBOR;
         this.markerState = MarkerState.DISTANCE.set(this.markerState, true);
         this.markerState = MarkerState.GRID.set(this.markerState, false);
         this.markerState = MarkerState.LINE1.set(this.markerState, false);
@@ -68,25 +80,29 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     public void readFromNBT(NBTTagCompound nbt)
     {
         super.readFromNBT(nbt);
-        this.name = nbt.getString("name");
-        this.groupId = nbt.getInteger("groupNumber");
+        this.name = nbt.getString("Name");
+        this.groupId = nbt.getInteger("GroupId");
+        this.drawingScheme = RailDrawingScheme.get(nbt.getInteger("RailDrawingScheme"));
+        this.editStatusH = AnchorEditStatus.get(nbt.getInteger("AnchorEditStatusH"));
+        this.editStatusV = AnchorEditStatus.get(nbt.getInteger("AnchorEditStatusV"));
         if (nbt.hasKey("RP"))
         {
             this.rp = RailPosition.readFromNBT(nbt.getCompoundTag("RP"));
         }
-
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
-        nbt.setString("name", this.name);
-        nbt.setInteger("groupNumber", this.groupId);
+        nbt.setString("Name", this.name);
+        nbt.setInteger("GroupId", this.groupId);
+        nbt.setInteger("RailDrawingScheme", this.drawingScheme.ordinal());
+        nbt.setInteger("AnchorEditStatusH", this.editStatusH.ordinal());
+        nbt.setInteger("AnchorEditStatusV", this.editStatusV.ordinal());
         if (this.rp != null)
         {
             nbt.setTag("RP", this.rp.writeToNBT());
         }
-
         return nbt;
     }
 
@@ -509,6 +525,9 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         public BlockPos pos;
         public RailPosition rp;
         public List<BlockPos> markerPosList;
+        public RailDrawingScheme drawingScheme;
+        public AnchorEditStatus editStatusH;
+        public AnchorEditStatus editStatusV;
 
         public MarkerCriticalValues(TileEntityMarkerAdvanced marker)
         {
@@ -517,16 +536,24 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             this.pos = marker.pos;
             this.rp = marker.getMarkerRP();
             this.markerPosList = marker.markerPosList;
+            this.drawingScheme = marker.drawingScheme;
+            this.editStatusH = marker.editStatusH;
+            this.editStatusV = marker.editStatusV;
         }
 
-        public MarkerCriticalValues() {}
+        public MarkerCriticalValues(MarkerCriticalValues old)
+        {
+            this.groupId = old.groupId;
+            this.drawingScheme = old.drawingScheme;
+            this.editStatusH = old.editStatusH;
+            this.editStatusV = old.editStatusV;
+        }
 
         @Override
         public MarkerCriticalValues clone()
         {
-            MarkerCriticalValues value = new MarkerCriticalValues();
+            MarkerCriticalValues value = new MarkerCriticalValues(this);
             value.name = new String(this.name);
-            value.groupId = this.groupId;
             value.pos = new BlockPos(this.pos.getX(), this.pos.getY(), this.pos.getZ());
             value.rp = RailMapAdvanced.cloneRP(this.rp);
             value.markerPosList = new ArrayList<>();
@@ -536,6 +563,12 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
                 value.markerPosList.add(i, new BlockPos(pos.getX(), pos.getY(), pos.getZ()));
             }
             return value;
+        }
+
+        @Override
+        public String toString()
+        {
+            return super.toString();
         }
     }
 }
