@@ -1,6 +1,7 @@
 package net.cacpixel.rtmmetro.client.gui;
 
 import jp.ngt.ngtlib.block.BlockUtil;
+import jp.ngt.ngtlib.math.NGTMath;
 import jp.ngt.rtm.rail.BlockMarker;
 import jp.ngt.rtm.rail.RenderMarkerBlock;
 import jp.ngt.rtm.rail.util.RailPosition;
@@ -9,6 +10,8 @@ import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.network.PacketMarkerClient;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
+import net.cacpixel.rtmmetro.rail.util.RailDrawingScheme;
+import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
 import net.cacpixel.rtmmetro.util.BlockUtils;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -122,7 +125,16 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
             fieldAnchorLengthHorizontal.checkValue();
         });
         this.buttonMagicNumberH = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Magic Number", b -> {
-
+            this.currentMarkerValue.markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentRP)).findFirst().ifPresent(pos -> {
+                TileEntity te = BlockUtil.getTileEntity(marker.getWorld(), pos);
+                if (te instanceof TileEntityMarkerAdvanced)
+                {
+                    fieldAnchorLengthHorizontal.fieldValue = RailMapAdvanced.getDefaultHorizontal(currentRP,
+                            ((TileEntityMarkerAdvanced) te).getMarkerRP(),
+                            RailDrawingScheme.DRAW_CIRCLE);
+                    fieldAnchorLengthHorizontal.checkValue();
+                }
+            });
         });
         this.buttonStraightLineH = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "Straight Line", b -> {
             this.currentValues.forEach(v -> v.rp.anchorLengthHorizontal = 0);
@@ -134,7 +146,8 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
         //anchor yaw
         this.fieldAnchorYaw = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorYaw, -180.0f, 180.0f, true);
         this.buttonResetAnchorYaw = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
-
+            fieldAnchorYaw.fieldValue = NGTMath.wrapAngle(currentRP.direction * 45.0F);
+            fieldAnchorYaw.checkValue();
         });
         this.buttonCopyNeighborYaw = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "=Neighbor", b -> {
 
@@ -161,7 +174,8 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
         //anchor pitch
         this.fieldAnchorPitch = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorPitch, -90.0f, 90.0f, false);
         this.buttonResetAnchorPitch = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
-
+            fieldAnchorPitch.fieldValue = 0.0F;
+            fieldAnchorPitch.checkValue();
         });
         this.buttonCopyNeighborPitch = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "=Neighbor", b -> {
 
@@ -247,6 +261,14 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
     public void updateScreen()
     {
         super.updateScreen();
+        boolean isSwitch = this.marker.getBlockType() == RTMMetroBlock.MARKER_ADVANCED_SWITCH;
+        boolean isCore = this.marker.isCoreMarker();
+        this.fieldAnchorPitch.setEnabled(!isSwitch);
+        this.fieldAnchorLengthVertical.setEnabled(!isSwitch);
+        this.fieldCantCenter.setEnabled(!isSwitch);
+        this.fieldCantEdge.setEnabled(!isSwitch);
+        this.fieldCantCenter.setEnabled(isCore);
+        this.fieldCantRandom.setEnabled(isCore);
         if (!(marker.getWorld().getBlockState(new BlockPos(marker.getX(), marker.getY(), marker.getZ())).getBlock() instanceof BlockMarker))
         {
             this.displayPrevScreen();
