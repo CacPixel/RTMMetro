@@ -108,7 +108,8 @@ public class RailMapAdvanced extends RailMapBasic
             this.lineHorizontal = new StraightLineAdvanced(startZ, startX, endZ, endX);
             this.startRP.anchorYaw = (float) MathHelper.wrapDegrees(NGTMath.toDegrees(this.lineHorizontal.getSlope(0, 0)));
             this.endRP.anchorYaw = (float) MathHelper.wrapDegrees(180.0 + NGTMath.toDegrees(this.lineHorizontal.getSlope(0, 0)));
-            this.startRP.anchorLengthHorizontal = this.endRP.anchorLengthHorizontal = -0.75F;
+            if (isHorizontalLengthZero)
+                this.startRP.anchorLengthHorizontal = this.endRP.anchorLengthHorizontal = -0.75F;
         }
         else
         {
@@ -140,7 +141,10 @@ public class RailMapAdvanced extends RailMapBasic
             this.startRP.anchorPitch = (float) MathHelper.wrapDegrees(NGTMath.toDegrees(this.lineVertical.getSlope(0, 0)));
             this.endRP.anchorPitch = (float) MathHelper.wrapDegrees(-NGTMath.toDegrees(this.lineVertical.getSlope(0, 0)));
             if (!isSwitch)
-                this.startRP.anchorLengthVertical = this.endRP.anchorLengthVertical = -1.5F;
+            {
+                if (flag4)
+                    this.startRP.anchorLengthVertical = this.endRP.anchorLengthVertical = -1.5F;
+            }
             else
                 this.startRP.anchorLengthVertical = this.endRP.anchorLengthVertical = 0;
         }
@@ -627,10 +631,8 @@ public class RailMapAdvanced extends RailMapBasic
     public static float getDefaultHorizontal(RailPosition startRP, RailPosition endRP, RailDrawingScheme scheme)
     {
         double startX = startRP.posX;
-        double startY = startRP.posY;
         double startZ = startRP.posZ;
         double endX = endRP.posX;
-        double endY = endRP.posY;
         double endZ = endRP.posZ;
         double lengthXZ = Math.sqrt((endZ - startZ) * (endZ - startZ) + (endX - startX) * (endX - startX));
         double dz = endZ - startZ;
@@ -667,13 +669,19 @@ public class RailMapAdvanced extends RailMapBasic
             float ret = (float) (radius * magicNumber);
             return Math.min(ret, ModConfig.railGeneratingDistance);
         default:
-            return 0.0F;
+            return startRP.anchorLengthHorizontal;
         }
     }
 
-    public static float getDefaultVertical(RailPosition startRP, RailPosition endRP, RailDrawingScheme scheme)
+    public static float getDefaultVertical(RailMapAdvanced rm)
     {
-        return 0.0f;
+        if (rm == null)
+            return 0.0F;
+        double startY = rm.startRP.posY;
+        double endY = rm.endRP.posY;
+        double dy = endY - startY;
+        double l = rm.getLength();
+        return (float) ((Math.abs(dy) < 0.001) ? -1.5 : Math.sqrt(l * l + dy * dy) / MathHelper.SQRT_2 * 0.5522848F);
     }
 
     public static float getDefaultYaw(RailPosition startRP, RailPosition endRP, RailDrawingScheme scheme)
@@ -699,13 +707,9 @@ public class RailMapAdvanced extends RailMapBasic
         }
     }
 
-    public static float getDefaultPitch(RailPosition startRP, RailPosition endRP, RailDrawingScheme scheme)
-    {
-        return 0.0f;
-    }
-
     public static float getRadius(RailPosition startRP, RailPosition endRP, RailDrawingScheme scheme)
     {
+        /* TODO : get radius when DRAW_CIRCLE, return 0.0f otherwise*/
         return 0.0f;
     }
 }

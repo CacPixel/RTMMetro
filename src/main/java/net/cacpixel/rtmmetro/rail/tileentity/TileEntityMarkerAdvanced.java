@@ -243,6 +243,9 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
 
     }
 
+    /**
+     *  只有core marker才会调用这个方法
+     */
     public void setMarkersPos(List<BlockPos> list)
     {
         BlockPos blockpos = null;
@@ -351,6 +354,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
                     {
                         TileEntityMarkerAdvanced ma = (TileEntityMarkerAdvanced) tileentity;
                         ma.setStartPos(blockpos, this.railMaps, list);
+                        ma.originalRailMap = this.getOriginalRailMap();
                     }
                 }
             }

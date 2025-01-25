@@ -62,7 +62,6 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
     private GuiButton buttonMagicNumberH;
     private GuiButton buttonMagicNumberV;
     private GuiButton buttonMagicNumberYaw;
-    private GuiButton buttonMagicNumberPitch;
     private GuiButton buttonStraightLineH;
     private GuiButton buttonStraightLineV;
     private GuiButton buttonCopyNeighborYaw;
@@ -126,7 +125,12 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
             fieldAnchorLengthHorizontal.fieldValue = 0;
             fieldAnchorLengthHorizontal.checkValue();
         });
-        this.buttonMagicNumberH = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Magic Number", b -> {
+        this.buttonStraightLineH = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Straight Line", b -> {
+            this.currentValues.forEach(v -> v.rp.anchorLengthHorizontal = 0);
+            fieldAnchorLengthHorizontal.fieldValue = 0;
+            fieldAnchorLengthHorizontal.checkValue();
+        });
+        this.buttonMagicNumberH = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "Magic Number", b -> {
             this.currentMarkerValue.markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentRP)).findFirst().ifPresent(pos -> {
                 TileEntity te = BlockUtil.getTileEntity(marker.getWorld(), pos);
                 if (te instanceof TileEntityMarkerAdvanced)
@@ -138,11 +142,6 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
                 }
             });
         });
-        this.buttonStraightLineH = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "Straight Line", b -> {
-            this.currentValues.forEach(v -> v.rp.anchorLengthHorizontal = 0);
-            fieldAnchorLengthHorizontal.fieldValue = 0;
-            fieldAnchorLengthHorizontal.checkValue();
-        });
         fieldY += lineHeight;
 
         //anchor yaw
@@ -151,19 +150,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
             fieldAnchorYaw.fieldValue = NGTMath.wrapAngle(currentRP.direction * 45.0F);
             fieldAnchorYaw.checkValue();
         });
-        this.buttonMagicNumberYaw = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Magic Number", b -> {
-            this.currentMarkerValue.markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentRP)).findFirst().ifPresent(pos -> {
-                TileEntity te = BlockUtil.getTileEntity(marker.getWorld(), pos);
-                if (te instanceof TileEntityMarkerAdvanced)
-                {
-                    fieldAnchorYaw.fieldValue = RailMapAdvanced.getDefaultYaw(currentRP,
-                            ((TileEntityMarkerAdvanced) te).getMarkerRP(),
-                            RailDrawingScheme.DRAW_CIRCLE);
-                    fieldAnchorYaw.checkValue();
-                }
-            });
-        });
-        this.buttonCopyNeighborYaw = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "=Neighbor", b -> {
+        this.buttonCopyNeighborYaw = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "=Neighbor", b -> {
             RailPosition rp = TileEntityMarkerAdvanced.getNeighborRail(this.marker);
             if (rp != null)
             {
@@ -179,6 +166,18 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
                 return;
             }
         });
+        this.buttonMagicNumberYaw = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "Magic Number", b -> {
+            this.currentMarkerValue.markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentRP)).findFirst().ifPresent(pos -> {
+                TileEntity te = BlockUtil.getTileEntity(marker.getWorld(), pos);
+                if (te instanceof TileEntityMarkerAdvanced)
+                {
+                    fieldAnchorYaw.fieldValue = RailMapAdvanced.getDefaultYaw(currentRP,
+                            ((TileEntityMarkerAdvanced) te).getMarkerRP(),
+                            RailDrawingScheme.DRAW_CIRCLE);
+                    fieldAnchorYaw.checkValue();
+                }
+            });
+        });
         fieldY += lineHeight;
 
         //anchor length vertical
@@ -188,21 +187,13 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
             fieldAnchorLengthVertical.fieldValue = 0;
             fieldAnchorLengthVertical.checkValue();
         });
-        this.buttonMagicNumberV = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Magic Number", b -> {
-            this.currentMarkerValue.markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentRP)).findFirst().ifPresent(pos -> {
-                TileEntity te = BlockUtil.getTileEntity(marker.getWorld(), pos);
-                if (te instanceof TileEntityMarkerAdvanced)
-                {
-                    fieldAnchorLengthVertical.fieldValue = RailMapAdvanced.getDefaultVertical(currentRP,
-                            ((TileEntityMarkerAdvanced) te).getMarkerRP(),
-                            RailDrawingScheme.DRAW_CIRCLE);
-                    fieldAnchorLengthVertical.checkValue();
-                }
-            });
-        });
-        this.buttonStraightLineV = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "Straight Line", b -> {
+        this.buttonStraightLineV = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Straight Line", b -> {
             this.currentValues.forEach(v -> v.rp.anchorLengthVertical = 0);
             fieldAnchorLengthVertical.fieldValue = 0;
+            fieldAnchorLengthVertical.checkValue();
+        });
+        this.buttonMagicNumberV = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "Magic Number", b -> {
+            fieldAnchorLengthVertical.fieldValue = RailMapAdvanced.getDefaultVertical(this.marker.getOriginalRailMap());
             fieldAnchorLengthVertical.checkValue();
         });
         fieldY += lineHeight;
@@ -213,19 +204,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
             fieldAnchorPitch.fieldValue = 0.0F;
             fieldAnchorPitch.checkValue();
         });
-        this.buttonMagicNumberPitch = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Magic Number", b -> {
-            this.currentMarkerValue.markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentRP)).findFirst().ifPresent(pos -> {
-                TileEntity te = BlockUtil.getTileEntity(marker.getWorld(), pos);
-                if (te instanceof TileEntityMarkerAdvanced)
-                {
-                    fieldAnchorPitch.fieldValue = RailMapAdvanced.getDefaultPitch(currentRP,
-                            ((TileEntityMarkerAdvanced) te).getMarkerRP(),
-                            RailDrawingScheme.DRAW_CIRCLE);
-                    fieldAnchorPitch.checkValue();
-                }
-            });
-        });
-        this.buttonCopyNeighborPitch = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "=Neighbor", b -> {
+        this.buttonCopyNeighborPitch = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "=Neighbor", b -> {
             RailPosition rp = TileEntityMarkerAdvanced.getNeighborRail(this.marker);
             if (rp != null)
             {
