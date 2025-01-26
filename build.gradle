@@ -243,7 +243,7 @@ jar {
     String libPath = new File(gradleCachePath + "\\caches\\modules-2\\files-2.1")
     fileTree(dir: libPath).each { file ->
         jarLibList.split(",").toList().forEach { str ->
-            if (file.getName() == str) {
+            if (file.getName() == str.trim()) {
                 println("Add jar dependency to artifact: " + file.toString())
                 from { project.zipTree(file.toString()) }
             }
