@@ -32,7 +32,7 @@ public class RTMMetroBlock
 
     public static void init()
     {
-//        try {
+        // no tab
         LARGE_RAIL_BASE_ADVANCED = NGTRegHandler.register(new BlockLargeRailBaseAdvanced(), "large_rail_base_advanced",
                 "rtmmetro.LRBaseAdvanced", null, RTMMetro.MODID);
         LARGE_RAIL_CORE_ADVANCED = NGTRegHandler.register(new BlockLargeRailCoreAdvanced(),
@@ -42,12 +42,15 @@ public class RTMMetroBlock
         LARGE_RAIL_SWITCH_CORE_ADVANCED = NGTRegHandler.register(new BlockLargeRailSwitchCoreAdvanced(),
                 "large_rail_switch_core_advanced", "rtmmetro.LRSCoreAdvanced", null, RTMMetro.MODID);
 
+        // RTM_METRO_TAB_RAILWAY
         MARKER_ADVANCED = NGTRegHandler.register(new BlockMarkerAdvanced(BlockMarker.MarkerType.STANDARD),
-                "marker_advanced", "rtmmetro.marker_advanced", RTMMetroCreativeTabs.RTM_METRO_TAB_TOOLS,
+                "marker_advanced", "rtmmetro.marker_advanced", RTMMetroCreativeTabs.RTM_METRO_TAB_RAILWAY,
                 ItemColoredBlock.class, RTMMetro.MODID);
         MARKER_ADVANCED_SWITCH = NGTRegHandler.register(new BlockMarkerAdvanced(BlockMarker.MarkerType.SWITCH),
-                "marker_switch_advanced", "rtmmetro.marker_switch_advanced", RTMMetroCreativeTabs.RTM_METRO_TAB_TOOLS,
+                "marker_switch_advanced", "rtmmetro.marker_switch_advanced", RTMMetroCreativeTabs.RTM_METRO_TAB_RAILWAY,
                 ItemColoredBlock.class, RTMMetro.MODID);
+
+        // RTM_METRO_TAB_TOOLS
 
         GameRegistry.registerTileEntity(TileEntityLargeRailCoreAdvanced.class, "TERailMainCoreAdvanced");
         GameRegistry.registerTileEntity(TileEntityLargeRailSwitchCoreAdvanced.class, "TERailSwitchCoreAdvanced");
