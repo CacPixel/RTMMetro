@@ -7,6 +7,7 @@
   "priority": 0,
   "refmap": "mixins.rtmmetro.refmap.json",
   "mixins": [
+    "MixinItemWithModel",
     "MixinPlayerControllerMP"
   ],
   "client": [
