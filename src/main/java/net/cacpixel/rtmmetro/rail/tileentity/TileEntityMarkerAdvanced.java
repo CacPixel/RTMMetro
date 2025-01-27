@@ -113,7 +113,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
 
     private void updateClientLines()
     {
-        if (!this.world.isRemote)
+        if (this.shouldUpdateClientLines)
         {
             RTMMetro.NETWORK_WRAPPER.sendToAllAround(new PacketMarkerServer(this, this.rp),
                     new NetworkRegistry.TargetPoint(this.world.provider.getDimension(), this.getX(), this.getY(), this.getZ(),
@@ -142,11 +142,6 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             this.rp = new RailPosition(this.getPos().getX(), this.getPos().getY(), this.getPos().getZ(), b0, b1);
         }
 
-        if (this.shouldUpdateClientLines)
-        {
-            this.updateClientLines();
-        }
-
         if (this.getWorld().isRemote)
         {
             this.updateStartPos();
@@ -156,6 +151,10 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
                 this.searchOtherMarkers();
                 this.onChangeRailShape();
             }
+        }
+        if (!this.world.isRemote)
+        {
+            this.updateClientLines(); // Server only
         }
     }
 

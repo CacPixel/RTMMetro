@@ -26,6 +26,7 @@ import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.util.MarkerData;
 import net.cacpixel.rtmmetro.rail.util.MarkerManager;
 import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
+import net.cacpixel.rtmmetro.util.BlockUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -119,6 +120,11 @@ public class BlockMarkerAdvanced extends BlockMarker
         int j = getFacing(placer, i >= 4);
         int k = i / 4;
         BlockUtil.setBlock(world, pos, this, j + k * 4, 2);
+        TileEntityMarkerAdvanced marker = BlockUtils.getMarkerFromPos(world, pos);
+        if (marker != null)
+        {
+            marker.shouldUpdateClientLines = true;
+        }
     }
 
     @Override
