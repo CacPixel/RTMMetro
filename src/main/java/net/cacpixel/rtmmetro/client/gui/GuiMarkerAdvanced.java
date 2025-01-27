@@ -20,7 +20,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.fml.client.config.GuiUnicodeGlyphButton;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -51,14 +50,14 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
     private GuiTextFieldAdvancedFloat fieldCantRandom;
     private GuiButton buttonOK;
     private GuiButton buttonCancel;
-    private GuiUnicodeGlyphButton buttonResetHeight;
-    private GuiUnicodeGlyphButton buttonResetLengthH;
-    private GuiUnicodeGlyphButton buttonResetAnchorYaw;
-    private GuiUnicodeGlyphButton buttonResetLengthV;
-    private GuiUnicodeGlyphButton buttonResetAnchorPitch;
-    private GuiUnicodeGlyphButton buttonResetCantEdge;
-    private GuiUnicodeGlyphButton buttonResetCantCenter;
-    private GuiUnicodeGlyphButton buttonResetCantRandom;
+    private GuiButton buttonResetHeight;
+    private GuiButton buttonResetLengthH;
+    private GuiButton buttonResetAnchorYaw;
+    private GuiButton buttonResetLengthV;
+    private GuiButton buttonResetAnchorPitch;
+    private GuiButton buttonResetCantEdge;
+    private GuiButton buttonResetCantCenter;
+    private GuiButton buttonResetCantRandom;
     private GuiButton buttonMagicNumberH;
     private GuiButton buttonMagicNumberV;
     private GuiButton buttonMagicNumberYaw;
@@ -71,6 +70,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
     private GuiButton buttonFlipCantCenter;
     private GuiButton buttonFlipCantEdge;
     private GuiButton getButtonCopyNeighborCant;
+    private GuiButton buttonRotateYaw;
 
     public GuiMarkerAdvanced(TileEntityMarkerAdvanced marker)
     {
@@ -112,7 +112,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
 
         //rail height
         this.fieldRailHeight = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.height, 0, 15, false);
-        this.buttonResetHeight = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
+        this.buttonResetHeight = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             this.fieldRailHeight.fieldValue = 0;
             this.fieldRailHeight.checkValue();
         });
@@ -121,7 +121,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
         //anchor length horizontal
         this.fieldAnchorLengthHorizontal = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorLengthHorizontal, 0.0f,
                 (float) ModConfig.railGeneratingDistance, false);
-        this.buttonResetLengthH = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
+        this.buttonResetLengthH = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             fieldAnchorLengthHorizontal.fieldValue = 0;
             fieldAnchorLengthHorizontal.checkValue();
         });
@@ -146,7 +146,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
 
         //anchor yaw
         this.fieldAnchorYaw = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorYaw, -180.0f, 180.0f, true);
-        this.buttonResetAnchorYaw = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
+        this.buttonResetAnchorYaw = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             fieldAnchorYaw.fieldValue = NGTMath.wrapAngle(currentRP.direction * 45.0F);
             fieldAnchorYaw.checkValue();
         });
@@ -178,12 +178,17 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
                 }
             });
         });
+        this.buttonRotateYaw = this.addUnicodeGlyphButton(buttX - fieldW - buttH - 4, fieldY - 2, buttH, buttH,
+                GuiUtils.UNDO_CHAR,2.0F, b -> {
+            this.fieldAnchorYaw.fieldValue += 45.0F;
+            this.fieldAnchorYaw.checkValue();
+        });
         fieldY += lineHeight;
 
         //anchor length vertical
         this.fieldAnchorLengthVertical = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorLengthVertical, 0.0f,
                 (float) ModConfig.railGeneratingDistance, false);
-        this.buttonResetLengthV = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
+        this.buttonResetLengthV = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             fieldAnchorLengthVertical.fieldValue = 0;
             fieldAnchorLengthVertical.checkValue();
         });
@@ -200,7 +205,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
 
         //anchor pitch
         this.fieldAnchorPitch = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorPitch, -90.0f, 90.0f, false);
-        this.buttonResetAnchorPitch = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
+        this.buttonResetAnchorPitch = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             fieldAnchorPitch.fieldValue = 0.0F;
             fieldAnchorPitch.checkValue();
         });
@@ -224,7 +229,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
 
         //cant edge
         this.fieldCantEdge = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.cantEdge, -90.0f, 90.0f, false);
-        this.buttonResetCantEdge = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
+        this.buttonResetCantEdge = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             fieldCantEdge.fieldValue = 0;
             fieldCantEdge.checkValue();
         });
@@ -256,7 +261,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
 
         //cant center
         this.fieldCantCenter = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.cantCenter, -90.0f, 90.0f, false);
-        this.buttonResetCantCenter = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
+        this.buttonResetCantCenter = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             fieldCantCenter.fieldValue = 0;
             fieldCantCenter.checkValue();
         });
@@ -272,7 +277,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
 
         //cant random
         this.fieldCantRandom = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.cantRandom, 0.0f, 100.0f, false);
-        this.buttonResetCantRandom = this.addUnicodeGlyphButton(buttX, fieldY - 2, buttH, buttH, GuiUtils.UNDO_CHAR, 2.0F, b -> {
+        this.buttonResetCantRandom = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             fieldCantRandom.fieldValue = 0;
             fieldCantRandom.checkValue();
         });
