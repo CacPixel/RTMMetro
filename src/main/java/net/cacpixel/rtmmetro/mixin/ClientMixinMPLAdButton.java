@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(value = MPLAdButton.class, remap = false)
-public class MixinMPLAdButton
+public class ClientMixinMPLAdButton
 {
     /**
      * @author CacPixel

@@ -7,12 +7,14 @@
   "priority": 0,
   "refmap": "mixins.rtmmetro.refmap.json",
   "mixins": [
+    "MixinCollisionHelper",
     "MixinItemWithModel",
     "MixinPlayerControllerMP",
     "MixinTileEntityLargeRailCore"
   ],
   "client": [
-    "MixinMPLAdButton"
+    "ClientMixinMPLAdButton",
+    "ClientMixinModelSetBase"
   ],
   "server": [
   ]
