@@ -8,7 +8,8 @@
   "refmap": "mixins.rtmmetro.refmap.json",
   "mixins": [
     "MixinItemWithModel",
-    "MixinPlayerControllerMP"
+    "MixinPlayerControllerMP",
+    "MixinTileEntityLargeRailCore"
   ],
   "client": [
     "MixinMPLAdButton"
