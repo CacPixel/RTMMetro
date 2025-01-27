@@ -180,8 +180,8 @@ public class ItemRailAdvanced extends ItemRail
         }
         ItemStack itemStack = new ItemStack(RTMMetroItems.railAdvanced, 1, 0);
         ResourceStateRail state = getDefaultProperty();
+        state.setBlock(Blocks.AIR, 0);
         state.setResourceName("1067mm_Wood");
-        state.setBlock(Blocks.GRAVEL, 0);
         state.setHeight(ResourceStateRail.INIT_HEIGHT);
         this.setModelState(itemStack, state);
         list.add(itemStack);

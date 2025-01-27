@@ -36,12 +36,12 @@ public class MixinItemWithModel<T extends ResourceSet> extends ItemCustom
     @Inject(method = "closeGui", at = @At("HEAD"), cancellable = true)
     public void closeGui(ResourceState par1, CallbackInfoReturnable<Boolean> cir)
     {
-        this.setModelStateAndSendPacket(this.selectedItem, par1);
+        this.rtmmetro$setModelStateAndSendPacket(this.selectedItem, par1);
         cir.setReturnValue(true);
     }
 
     @Unique
-    public void setModelStateAndSendPacket(ItemStack itemStack, ResourceState<T> state)
+    public void rtmmetro$setModelStateAndSendPacket(ItemStack itemStack, ResourceState<T> state)
     {
         if (!itemStack.hasTagCompound())
         {
