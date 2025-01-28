@@ -60,12 +60,13 @@ public class BlockMarkerAdvanced extends BlockMarker
     @Override
     public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player)
     {
+        boolean isDiagonal = this.getMetaFromState(state) >= 4;
         switch (this.markerType)
         {
         case STANDARD:
-            return new ItemStack(RTMMetroBlock.MARKER_ADVANCED);
+            return new ItemStack(RTMMetroBlock.MARKER_ADVANCED, 1, isDiagonal ? 4 : 0);
         case SWITCH:
-            return new ItemStack(RTMMetroBlock.MARKER_ADVANCED_SWITCH);
+            return new ItemStack(RTMMetroBlock.MARKER_ADVANCED_SWITCH, 1, isDiagonal ? 4 : 0);
         default:
             return new ItemStack(Blocks.AIR);
         }
@@ -117,9 +118,9 @@ public class BlockMarkerAdvanced extends BlockMarker
     public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
         int i = stack.getItemDamage();
-        int j = getFacing(placer, i >= 4);
+        int facing = getFacing(placer, i >= 4);
         int k = i / 4;
-        BlockUtil.setBlock(world, pos, this, j + k * 4, 2);
+        world.setBlockState(pos, this.getStateFromMeta(facing + k * 4));
         TileEntityMarkerAdvanced marker = BlockUtils.getMarkerFromPos(world, pos);
         if (marker != null)
         {
