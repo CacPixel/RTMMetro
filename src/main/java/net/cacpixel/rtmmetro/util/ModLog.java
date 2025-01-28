@@ -9,6 +9,11 @@ public class ModLog
 {
     private static final Logger logger = LogManager.getLogger("RTMMetro");
 
+    public static void debug(Object o)
+    {
+        debug(String.valueOf(o), new Object());
+    }
+
     public static void debug(String str)
     {
         debug(str, new Object());

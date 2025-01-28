@@ -4,7 +4,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.fml.client.config.GuiCheckBox;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -19,7 +18,7 @@ public class GuiCalculateCant extends GuiScreenAdvanced
     private GuiTextFieldAdvancedInt fieldGauge;
     private GuiButton buttonOK;
     private GuiButton buttonCancel;
-    private GuiCheckBox checkBoxFlip;
+    private GuiCheckBoxAdvanced checkBoxFlip;
     private float addedHeight;
     private float cant;
 

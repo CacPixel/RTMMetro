@@ -23,8 +23,8 @@ public class RTMMetroCreativeTabs extends CreativeTabs
     public ItemStack createIcon()
     {
         if (this == RTM_METRO_TAB_RAILWAY)
-            return new ItemStack(RTMItem.itemtrain,1,1);
-        else if(this == RTM_METRO_TAB_TOOLS)
+            return new ItemStack(RTMItem.itemtrain, 1, 1);
+        else if (this == RTM_METRO_TAB_TOOLS)
             return new ItemStack(RTMMetroItems.railBuilder);
         else
             return new ItemStack(Items.AIR);

@@ -1,6 +1,9 @@
 package net.cacpixel.rtmmetro.rail.util;
 
-public enum AnchorEditStatus
+import net.cacpixel.rtmmetro.util.EnumUtils;
+import net.cacpixel.rtmmetro.util.ITranslatable;
+
+public enum AnchorEditStatus implements ITranslatable<AnchorEditStatus>
 {
     FOLLOW_NEIGHBOR,
     LENGTH_FIXED,
@@ -12,5 +15,11 @@ public enum AnchorEditStatus
     public static AnchorEditStatus get(int i)
     {
         return values()[i >= values().length ? DEFAULT_ORDINAL : i];
+    }
+
+    @Override
+    public String getTranslateKey()
+    {
+        return EnumUtils.getTranslateKey(this);
     }
 }

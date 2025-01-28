@@ -243,7 +243,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     }
 
     /**
-     *  只有core marker才会调用这个方法
+     * 只有core marker才会调用这个方法
      */
     public void setMarkersPos(List<BlockPos> list)
     {

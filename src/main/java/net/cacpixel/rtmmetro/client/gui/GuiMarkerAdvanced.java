@@ -179,10 +179,10 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
             });
         });
         this.buttonRotateYaw = this.addUnicodeGlyphButton(buttX - fieldW - buttH - 4, fieldY - 2, buttH, buttH,
-                GuiUtils.UNDO_CHAR,2.0F, b -> {
-            this.fieldAnchorYaw.fieldValue += 45.0F;
-            this.fieldAnchorYaw.checkValue();
-        });
+                GuiUtils.UNDO_CHAR, 2.0F, b -> {
+                    this.fieldAnchorYaw.fieldValue += 45.0F;
+                    this.fieldAnchorYaw.checkValue();
+                });
         fieldY += lineHeight;
 
         //anchor length vertical
