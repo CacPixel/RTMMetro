@@ -66,15 +66,14 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
             {
                 this.incValue(DEFAULT_SCROLL_VALUE);
                 this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
-                this.checkValue();
+                this.checkValueAndSetText();
             }
             else if (Keyboard.getEventKey() == Keyboard.KEY_DOWN && Keyboard.isKeyDown(Keyboard.KEY_DOWN))
             {
                 this.incValue(-DEFAULT_SCROLL_VALUE);
                 this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
-                this.checkValue();
+                this.checkValueAndSetText();
             }
-//            this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
         }
     }
 
@@ -82,12 +81,15 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
     public boolean textboxKeyTyped(char word, int code)
     {
         boolean ret = super.textboxKeyTyped(word, code);
-        int prevValue = fieldValue;
         this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
-        if (!this.isValueValid())
-            this.fieldValue = prevValue;
-        else
+        if (this.isValueValid())
+        {
             this.setScrValueUpdated();
+        }
+        else
+        {
+            this.checkValue();
+        }
         return ret;
     }
 
@@ -105,7 +107,7 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
         }
         step = step * scroll / DEFAULT_SCROLL_VALUE;
         this.fieldValue += step;
-        this.checkValue();
+        this.checkValueAndSetText();
     }
 
     @Override
@@ -116,6 +118,14 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void checkValueAndSetText()
+    {
+        super.checkValueAndSetText();
+        this.setText(String.valueOf(this.fieldValue));
+        this.setScrValueUpdated();
     }
 
     @Override
@@ -139,7 +149,5 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
                 fieldValue += div;
             }
         }
-        this.setText(String.valueOf(this.fieldValue));
-        this.setScrValueUpdated();
     }
 }

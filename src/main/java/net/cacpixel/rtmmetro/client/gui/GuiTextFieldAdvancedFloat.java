@@ -14,7 +14,7 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
     public float minValue = Float.MIN_VALUE;
     public float maxValue = Float.MAX_VALUE;
     public boolean loop = false;
-    public String formatPattern = "0.0##";
+    public static final String FORMAT_PATTERN = "0.0##";
 
     public GuiTextFieldAdvancedFloat(int id, FontRenderer par1, int x, int y, int w, int h,
                                      GuiScreen pScr, float fieldValue)
@@ -68,15 +68,14 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
             {
                 this.incValue(DEFAULT_SCROLL_VALUE);
                 this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
-                this.checkValue();
+                this.checkValueAndSetText();
             }
             else if (Keyboard.getEventKey() == Keyboard.KEY_DOWN && Keyboard.isKeyDown(Keyboard.KEY_DOWN))
             {
                 this.incValue(-DEFAULT_SCROLL_VALUE);
                 this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
-                this.checkValue();
+                this.checkValueAndSetText();
             }
-//            this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
         }
     }
 
@@ -84,12 +83,15 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
     public boolean textboxKeyTyped(char word, int code)
     {
         boolean ret = super.textboxKeyTyped(word, code);
-        float prevValue = fieldValue;
         this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
-        if (!this.isValueValid())
-            this.fieldValue = prevValue;
-        else
+        if (this.isValueValid())
+        {
             this.setScrValueUpdated();
+        }
+        else
+        {
+            this.checkValue();
+        }
         return ret;
     }
 
@@ -107,7 +109,7 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
         }
         step = step * scroll / DEFAULT_SCROLL_VALUE;
         this.fieldValue += step;
-        this.checkValue();
+        this.checkValueAndSetText();
     }
 
     @Override
@@ -119,6 +121,14 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void checkValueAndSetText()
+    {
+        super.checkValueAndSetText();
+        this.setText(new DecimalFormat(FORMAT_PATTERN).format(this.fieldValue));
+        this.setScrValueUpdated();
     }
 
     @Override
@@ -150,7 +160,5 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
                 fieldValue += div;
             }
         }
-        this.setText(new DecimalFormat(this.formatPattern).format(this.fieldValue));
-        this.setScrValueUpdated();
     }
 }

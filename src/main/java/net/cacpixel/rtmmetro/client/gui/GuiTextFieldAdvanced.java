@@ -62,9 +62,9 @@ public class GuiTextFieldAdvanced extends GuiTextFieldCustom
         }
     }
 
-    public void checkValue()
+    public void checkValueAndSetText()
     {
-
+        this.checkValue();
     }
 
     public void incValue(int scroll)
@@ -75,5 +75,10 @@ public class GuiTextFieldAdvanced extends GuiTextFieldCustom
     public boolean isEnabled()
     {
         return this.isEnabled;
+    }
+
+    public void checkValue()
+    {
+
     }
 }

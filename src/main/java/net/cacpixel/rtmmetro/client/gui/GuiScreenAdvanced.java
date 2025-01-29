@@ -141,18 +141,6 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
         if (Keyboard.getEventKey() == Keyboard.KEY_RETURN)
         {
             this.onPressingEnter();
-            GuiTextFieldAdvanced field = this.getFocusedTextField();
-            if (field != null)
-            {
-                field.checkValue();
-                field.setFocused(false);
-            }
-            field = this.getNextTextField(field, true);
-            if (field != null)
-            {
-                field.setFocused(true);
-                this.currentTextField = field;
-            }
         }
         else if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE)
         {
@@ -194,6 +182,18 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
 
     protected void onPressingEnter()
     {
+        GuiTextFieldAdvanced field = this.getFocusedTextField();
+        if (field != null)
+        {
+            field.checkValueAndSetText();
+            field.setFocused(false);
+        }
+        field = this.getNextTextField(field, true);
+        if (field != null)
+        {
+            field.setFocused(true);
+            this.currentTextField = field;
+        }
     }
 
     @Override

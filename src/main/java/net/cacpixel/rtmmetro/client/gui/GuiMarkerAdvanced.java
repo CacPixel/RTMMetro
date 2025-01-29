@@ -114,7 +114,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
         this.fieldRailHeight = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.height, 0, 15, false);
         this.buttonResetHeight = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             this.fieldRailHeight.fieldValue = 0;
-            this.fieldRailHeight.checkValue();
+            this.fieldRailHeight.checkValueAndSetText();
         });
         fieldY += lineHeight;
 
@@ -123,12 +123,12 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
                 (float) ModConfig.railGeneratingDistance, false);
         this.buttonResetLengthH = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             fieldAnchorLengthHorizontal.fieldValue = 0;
-            fieldAnchorLengthHorizontal.checkValue();
+            fieldAnchorLengthHorizontal.checkValueAndSetText();
         });
         this.buttonStraightLineH = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Straight Line", b -> {
             this.currentValues.forEach(v -> v.rp.anchorLengthHorizontal = 0);
             fieldAnchorLengthHorizontal.fieldValue = 0;
-            fieldAnchorLengthHorizontal.checkValue();
+            fieldAnchorLengthHorizontal.checkValueAndSetText();
         });
         this.buttonMagicNumberH = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "Magic Number", b -> {
             this.currentMarkerValue.markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentRP)).findFirst().ifPresent(pos -> {
@@ -138,7 +138,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
                     fieldAnchorLengthHorizontal.fieldValue = RailMapAdvanced.getDefaultHorizontal(currentRP,
                             ((TileEntityMarkerAdvanced) te).getMarkerRP(),
                             RailDrawingScheme.DRAW_CIRCLE);
-                    fieldAnchorLengthHorizontal.checkValue();
+                    fieldAnchorLengthHorizontal.checkValueAndSetText();
                 }
             });
         });
@@ -148,21 +148,21 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
         this.fieldAnchorYaw = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorYaw, -180.0f, 180.0f, true);
         this.buttonResetAnchorYaw = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             fieldAnchorYaw.fieldValue = NGTMath.wrapAngle(currentRP.direction * 45.0F);
-            fieldAnchorYaw.checkValue();
+            fieldAnchorYaw.checkValueAndSetText();
         });
         this.buttonCopyNeighborYaw = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "=Neighbor", b -> {
             RailPosition rp = TileEntityMarkerAdvanced.getNeighborRail(this.marker);
             if (rp != null)
             {
                 this.fieldAnchorYaw.fieldValue = MathHelper.wrapDegrees(rp.anchorYaw + 180.0F);
-                this.fieldAnchorYaw.checkValue();
+                this.fieldAnchorYaw.checkValueAndSetText();
                 return;
             }
             TileEntityMarkerAdvanced marker = TileEntityMarkerAdvanced.getNeighborMarker(this.marker);
             if (marker != null && marker.getMarkerRP() != null)
             {
                 this.fieldAnchorYaw.fieldValue = MathHelper.wrapDegrees(marker.getMarkerRP().anchorYaw + 180.0F);
-                this.fieldAnchorYaw.checkValue();
+                this.fieldAnchorYaw.checkValueAndSetText();
                 return;
             }
         });
@@ -174,14 +174,14 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
                     fieldAnchorYaw.fieldValue = RailMapAdvanced.getDefaultYaw(currentRP,
                             ((TileEntityMarkerAdvanced) te).getMarkerRP(),
                             RailDrawingScheme.DRAW_CIRCLE);
-                    fieldAnchorYaw.checkValue();
+                    fieldAnchorYaw.checkValueAndSetText();
                 }
             });
         });
         this.buttonRotateYaw = this.addUnicodeGlyphButton(buttX - fieldW - buttH - 4, fieldY - 2, buttH, buttH,
                 GuiUtils.UNDO_CHAR, 2.0F, b -> {
                     this.fieldAnchorYaw.fieldValue += 45.0F;
-                    this.fieldAnchorYaw.checkValue();
+                    this.fieldAnchorYaw.checkValueAndSetText();
                 });
         fieldY += lineHeight;
 
@@ -190,16 +190,16 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
                 (float) ModConfig.railGeneratingDistance, false);
         this.buttonResetLengthV = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             fieldAnchorLengthVertical.fieldValue = 0;
-            fieldAnchorLengthVertical.checkValue();
+            fieldAnchorLengthVertical.checkValueAndSetText();
         });
         this.buttonStraightLineV = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Straight Line", b -> {
             this.currentValues.forEach(v -> v.rp.anchorLengthVertical = 0);
             fieldAnchorLengthVertical.fieldValue = 0;
-            fieldAnchorLengthVertical.checkValue();
+            fieldAnchorLengthVertical.checkValueAndSetText();
         });
         this.buttonMagicNumberV = this.addButton(buttX + buttH + buttW, fieldY - 2, buttW, buttH, "Magic Number", b -> {
             fieldAnchorLengthVertical.fieldValue = RailMapAdvanced.getDefaultVertical(this.marker.getOriginalRailMap());
-            fieldAnchorLengthVertical.checkValue();
+            fieldAnchorLengthVertical.checkValueAndSetText();
         });
         fieldY += lineHeight;
 
@@ -207,21 +207,21 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
         this.fieldAnchorPitch = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorPitch, -90.0f, 90.0f, false);
         this.buttonResetAnchorPitch = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             fieldAnchorPitch.fieldValue = 0.0F;
-            fieldAnchorPitch.checkValue();
+            fieldAnchorPitch.checkValueAndSetText();
         });
         this.buttonCopyNeighborPitch = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "=Neighbor", b -> {
             RailPosition rp = TileEntityMarkerAdvanced.getNeighborRail(this.marker);
             if (rp != null)
             {
                 this.fieldAnchorPitch.fieldValue = MathHelper.wrapDegrees(-rp.anchorPitch);
-                this.fieldAnchorPitch.checkValue();
+                this.fieldAnchorPitch.checkValueAndSetText();
                 return;
             }
             TileEntityMarkerAdvanced marker = TileEntityMarkerAdvanced.getNeighborMarker(this.marker);
             if (marker != null && marker.getMarkerRP() != null)
             {
                 this.fieldAnchorPitch.fieldValue = MathHelper.wrapDegrees(-marker.getMarkerRP().anchorPitch);
-                this.fieldAnchorPitch.checkValue();
+                this.fieldAnchorPitch.checkValueAndSetText();
                 return;
             }
         });
@@ -231,7 +231,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
         this.fieldCantEdge = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.cantEdge, -90.0f, 90.0f, false);
         this.buttonResetCantEdge = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             fieldCantEdge.fieldValue = 0;
-            fieldCantEdge.checkValue();
+            fieldCantEdge.checkValueAndSetText();
         });
         this.buttonCalcCantEdge = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Calculate", b -> {
             guiCalculateCant = new GuiCalculateCant(this, x -> getCurrentMarkerValue().rp.cantEdge = (float) x);
@@ -242,20 +242,20 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
             if (rp != null)
             {
                 this.fieldCantEdge.fieldValue = MathHelper.wrapDegrees(-rp.cantEdge);
-                this.fieldCantEdge.checkValue();
+                this.fieldCantEdge.checkValueAndSetText();
                 return;
             }
             TileEntityMarkerAdvanced marker = TileEntityMarkerAdvanced.getNeighborMarker(this.marker);
             if (marker != null && marker.getMarkerRP() != null)
             {
                 this.fieldCantEdge.fieldValue = MathHelper.wrapDegrees(-marker.getMarkerRP().cantEdge);
-                this.fieldCantEdge.checkValue();
+                this.fieldCantEdge.checkValueAndSetText();
                 return;
             }
         });
         this.buttonFlipCantEdge = this.addButton(buttX - fieldW - buttH - 4, fieldY - 2, buttH, buttH, "-", b -> {
             this.fieldCantEdge.fieldValue = -this.fieldCantEdge.fieldValue;
-            this.fieldCantEdge.checkValue();
+            this.fieldCantEdge.checkValueAndSetText();
         });
         fieldY += lineHeight;
 
@@ -263,7 +263,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
         this.fieldCantCenter = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.cantCenter, -90.0f, 90.0f, false);
         this.buttonResetCantCenter = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             fieldCantCenter.fieldValue = 0;
-            fieldCantCenter.checkValue();
+            fieldCantCenter.checkValueAndSetText();
         });
         this.buttonCalcCantCenter = this.addButton(buttX + buttH, fieldY - 2, buttW, buttH, "Calculate", b -> {
             guiCalculateCant = new GuiCalculateCant(this, x -> getCurrentMarkerValue().rp.cantCenter = (float) x);
@@ -271,7 +271,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
         });
         this.buttonFlipCantCenter = this.addButton(buttX - fieldW - buttH - 4, fieldY - 2, buttH, buttH, "-", b -> {
             this.fieldCantCenter.fieldValue = -this.fieldCantCenter.fieldValue;
-            this.fieldCantCenter.checkValue();
+            this.fieldCantCenter.checkValueAndSetText();
         });
         fieldY += lineHeight;
 
@@ -279,7 +279,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
         this.fieldCantRandom = this.setTextField(fieldX, fieldY, fieldW, fieldH, this.currentRP.cantRandom, 0.0f, 100.0f, false);
         this.buttonResetCantRandom = this.addButton(buttX, fieldY - 2, buttH, buttH, "0", b -> {
             fieldCantRandom.fieldValue = 0;
-            fieldCantRandom.checkValue();
+            fieldCantRandom.checkValueAndSetText();
         });
         fieldY += lineHeight;
 
