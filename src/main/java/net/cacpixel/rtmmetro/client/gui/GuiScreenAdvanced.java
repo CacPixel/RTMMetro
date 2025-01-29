@@ -2,10 +2,7 @@ package net.cacpixel.rtmmetro.client.gui;
 
 import jp.ngt.ngtlib.gui.GuiScreenCustom;
 import jp.ngt.ngtlib.gui.GuiTextFieldCustom;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.*;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
@@ -125,8 +122,9 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
     protected void mouseClicked(int x, int y, int button) throws IOException
     {
         super.mouseClicked(x, y, button);
-        for (GuiTextFieldCustom textField : this.textFields)
+        for (GuiTextField textField : this.textFields)
         {
+
             textField.mouseClicked(x, y, button);
             if (textField.isFocused())
             {
@@ -143,10 +141,18 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
         if (Keyboard.getEventKey() == Keyboard.KEY_RETURN)
         {
             this.onPressingEnter();
-            GuiTextFieldCustom field = this.getFocusedTextField();
-            if (field != null) field.setFocused(false);
+            GuiTextFieldAdvanced field = this.getFocusedTextField();
+            if (field != null)
+            {
+                field.checkValue();
+                field.setFocused(false);
+            }
             field = this.getNextTextField(field, true);
-            if (field != null) field.setFocused(true);
+            if (field != null)
+            {
+                field.setFocused(true);
+                this.currentTextField = field;
+            }
         }
         else if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE)
         {
@@ -158,7 +164,7 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
-        for (GuiTextFieldCustom field : this.textFields)
+        for (GuiTextField field : this.textFields)
         {
             if (field instanceof GuiTextFieldAdvanced && ((GuiTextFieldAdvanced) field).isMouseInside() &&
                     ((GuiTextFieldAdvanced) field).isEnabled() && field.getVisible())
@@ -172,7 +178,7 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
     public void handleKeyboardInput() throws IOException
     {
         super.handleKeyboardInput();
-        for (GuiTextFieldCustom field : this.textFields)
+        for (GuiTextField field : this.textFields)
         {
             if (field instanceof GuiTextFieldAdvanced && field.getVisible() && field.isFocused() &&
                     ((GuiTextFieldAdvanced) field).isEnabled())
@@ -216,23 +222,23 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
             this.mc.displayGuiScreen(this.parentScreen);
     }
 
-    public GuiTextFieldCustom getFocusedTextField()
+    public GuiTextFieldAdvanced getFocusedTextField()
     {
         if (this.textFields == null || this.textFields.isEmpty())
         {
             return null;
         }
-        for (GuiTextFieldCustom field : this.textFields)
+        for (GuiTextField field : this.textFields)
         {
             if (field.isFocused())
             {
-                return field;
+                return field instanceof GuiTextFieldAdvanced ? (GuiTextFieldAdvanced) field : null;
             }
         }
         return null;
     }
 
-    public GuiTextFieldCustom getNextTextField(GuiTextFieldCustom fieldIn, boolean loop)
+    public GuiTextFieldAdvanced getNextTextField(GuiTextFieldAdvanced fieldIn, boolean loop)
     {
         if (this.textFields == null || this.textFields.isEmpty())
         {
@@ -241,18 +247,26 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
         ListIterator<GuiTextFieldCustom> it = this.textFields.listIterator();
         while (it.hasNext())
         {
-            GuiTextFieldCustom field = it.next();
+            GuiTextField field = it.next();
             if (field == fieldIn)
             {
-                if (it.hasNext()) return it.next();
-                else if (loop) return this.textFields.get(0);
+                if (it.hasNext())
+                {
+                    GuiTextField f = it.next();
+                    return f instanceof GuiTextFieldAdvanced ? (GuiTextFieldAdvanced) f : null;
+                }
+                else if (loop)
+                {
+                    GuiTextField f = this.textFields.get(0);
+                    return f instanceof GuiTextFieldAdvanced ? (GuiTextFieldAdvanced) f : null;
+                }
                 else return null;
             }
         }
         return null;
     }
 
-    public GuiTextFieldCustom getPrevTextField(GuiTextFieldCustom fieldIn, boolean loop)
+    public GuiTextFieldAdvanced getPrevTextField(GuiTextField fieldIn, boolean loop)
     {
         if (this.textFields == null || this.textFields.isEmpty())
         {
@@ -261,11 +275,19 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
         ListIterator<GuiTextFieldCustom> it = this.textFields.listIterator();
         while (it.hasPrevious())
         {
-            GuiTextFieldCustom field = it.previous();
+            GuiTextField field = it.previous();
             if (field == fieldIn)
             {
-                if (it.hasPrevious()) return it.previous();
-                else if (loop) return this.textFields.get(this.textFields.size() - 1);
+                if (it.hasPrevious())
+                {
+                    GuiTextField f = it.previous();
+                    return f instanceof GuiTextFieldAdvanced ? (GuiTextFieldAdvanced) f : null;
+                }
+                else if (loop)
+                {
+                    GuiTextField f = this.textFields.get(this.textFields.size() - 1);
+                    return f instanceof GuiTextFieldAdvanced ? (GuiTextFieldAdvanced) f : null;
+                }
                 else return null;
             }
         }
