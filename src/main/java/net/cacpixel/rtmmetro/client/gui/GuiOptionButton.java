@@ -2,6 +2,7 @@ package net.cacpixel.rtmmetro.client.gui;
 
 import net.cacpixel.rtmmetro.util.ITranslatable;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.resources.I18n;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,20 +13,22 @@ public class GuiOptionButton<E extends Enum<E>> extends GuiButtonAdvanced
 {
     private final List<E> options = new ArrayList<>();
     private E selectedOption;
+    public String prefix;
 
-    public GuiOptionButton(int id, int xPos, int yPos, String displayString, E[] values,
-                           GuiScreenAdvanced pScr, Consumer<? super GuiButton> callback)
+    public GuiOptionButton(int id, int xPos, int yPos, String prefix, E[] values, E initVal,
+                           GuiScreenAdvanced pScr, Consumer<?> callback)
     {
-        this(id, xPos, yPos, 200, 20, displayString, values, pScr, callback);
+        this(id, xPos, yPos, 200, 20, prefix, values, initVal, pScr, callback);
     }
 
-    public GuiOptionButton(int id, int xPos, int yPos, int width, int height, String displayString, E[] values,
-                           GuiScreenAdvanced pScr, Consumer<? super GuiButton> callback)
+    public GuiOptionButton(int id, int xPos, int yPos, int width, int height, String prefix, E[] values, E initVal,
+                           GuiScreenAdvanced pScr, Consumer<?> callback)
     {
-        super(id, xPos, yPos, width, height, displayString, pScr, callback);
+        super(id, xPos, yPos, width, height, prefix, pScr, callback);
+        this.prefix = prefix;
         this.options.addAll(Arrays.asList(values));
         Arrays.stream(values).forEach(v -> this.options.set(v.ordinal(), v));
-        this.selectedOption = values[0];
+        this.setSelectedOption(initVal);
     }
 
     public String getTranslationKey(int ordinal)
@@ -68,5 +71,12 @@ public class GuiOptionButton<E extends Enum<E>> extends GuiButtonAdvanced
     public void setSelectedOption(E selectedOption)
     {
         this.selectedOption = selectedOption;
+        this.displayString = this.prefix + I18n.format(this.getTranslationKey(this.selectedOption.ordinal()));
+    }
+
+    public void rollOptions()
+    {
+        this.setSelectedOption(this.getNextOption());
+        this.pScr.hasValueUpdated = true;
     }
 }

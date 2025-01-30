@@ -13,7 +13,7 @@ public class GuiCheckBoxAdvanced extends GuiButtonAdvanced
     private int boxWidth;
 
     public GuiCheckBoxAdvanced(int id, int xPos, int yPos, String displayString, boolean isChecked,
-                               GuiScreenAdvanced pScr, Consumer<? super GuiButton> callback)
+                               GuiScreenAdvanced pScr, Consumer<?> callback)
     {
         super(id, xPos, yPos, displayString, pScr, callback);
         this.isChecked = isChecked;

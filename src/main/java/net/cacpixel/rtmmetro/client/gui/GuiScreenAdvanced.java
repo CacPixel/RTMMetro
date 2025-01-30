@@ -2,7 +2,9 @@ package net.cacpixel.rtmmetro.client.gui;
 
 import jp.ngt.ngtlib.gui.GuiScreenCustom;
 import jp.ngt.ngtlib.gui.GuiTextFieldCustom;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.*;
+import net.minecraft.init.SoundEvents;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
@@ -83,7 +85,7 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
     }
 
     protected GuiButtonAdvanced addButton(int x, int y, int w, int h, String text,
-                                          Consumer<? super GuiButton> callback)
+                                          Consumer<? super GuiButtonAdvanced> callback)
     {
         GuiButtonAdvanced button = new GuiButtonAdvanced(NEXT_BUTTON_ID++, x, y, w, h, text, this, callback);
         this.buttonList.add(button);
@@ -91,7 +93,7 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
     }
 
     protected GuiCheckBoxAdvanced addCheckBox(int x, int y, int w, int h, String text, boolean isChecked,
-                                              Consumer<? super GuiButton> callback)
+                                              Consumer<? super GuiCheckBoxAdvanced> callback)
     {
         GuiCheckBoxAdvanced button = new GuiCheckBoxAdvanced(NEXT_BUTTON_ID++, x, y, text, isChecked, this, callback);
         this.buttonList.add(button);
@@ -99,7 +101,7 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
     }
 
     protected GuiUnicodeGlyphButtonAdvanced addUnicodeGlyphButton(int x, int y, int w, int h, String text, String glyph, float glyphScale,
-                                                                  Consumer<? super GuiButton> callback)
+                                                                  Consumer<? super GuiUnicodeGlyphButtonAdvanced> callback)
     {
         GuiUnicodeGlyphButtonAdvanced button = new GuiUnicodeGlyphButtonAdvanced(NEXT_BUTTON_ID++, x, y, w, h, text, glyph, glyphScale,
                 this, callback);
@@ -108,9 +110,17 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
     }
 
     protected GuiUnicodeGlyphButtonAdvanced addUnicodeGlyphButton(int x, int y, int w, int h, String glyph, float glyphScale,
-                                                                  Consumer<? super GuiButton> callback)
+                                                                  Consumer<? super GuiUnicodeGlyphButtonAdvanced> callback)
     {
         return this.addUnicodeGlyphButton(x, y, w, h, "", glyph, glyphScale, callback);
+    }
+
+    protected <E extends Enum<E>> GuiOptionButton<E> addOptionButton(int x, int y, int w, int h, String prefix, E[] values, E initVal,
+                                                                  Consumer<? super GuiOptionButton<E>> callback)
+    {
+        GuiOptionButton<E> button = new GuiOptionButton<>(NEXT_BUTTON_ID++, x, y, w, h, prefix, values, initVal, this, callback);
+        this.buttonList.add(button);
+        return button;
     }
 
     public void drawRightAlignedString(FontRenderer fontRendererIn, String text, int x, int y, int color)
@@ -200,7 +210,7 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
     @Override
     protected void actionPerformed(GuiButton button)
     {
-        Consumer<? super GuiButton> consumer = button instanceof GuiButtonAdvanced ? ((GuiButtonAdvanced) button).callback : null;
+        Consumer consumer = button instanceof GuiButtonAdvanced ? ((GuiButtonAdvanced) button).callback : null;
         if (consumer != null)
         {
             consumer.accept(button);

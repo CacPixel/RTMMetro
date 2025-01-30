@@ -13,7 +13,7 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced // GuiUnico
     public float glyphScale;
 
     public GuiUnicodeGlyphButtonAdvanced(int id, int xPos, int yPos, int width, int height, String displayString, String glyph,
-                                         float glyphScale, GuiScreenAdvanced pScr, Consumer<? super GuiButton> callback)
+                                         float glyphScale, GuiScreenAdvanced pScr, Consumer<?> callback)
     {
         super(id, xPos, yPos, width, height, displayString, pScr, callback);
         this.glyph = glyph;

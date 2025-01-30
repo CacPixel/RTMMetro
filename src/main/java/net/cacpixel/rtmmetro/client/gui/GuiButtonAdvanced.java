@@ -12,16 +12,16 @@ public class GuiButtonAdvanced extends GuiButton // GuiButtonExt
 {
     protected static final ResourceLocation RTMMETRO_BUTTON_TEXTURES = new ResourceLocation(RTMMetro.MODID, "textures/gui/widgets.png");
     public GuiScreenAdvanced pScr;
-    public Consumer<? super GuiButton> callback;
+    public Consumer<?> callback;
 
     public GuiButtonAdvanced(int id, int xPos, int yPos, String displayString,
-                             GuiScreenAdvanced pScr, Consumer<? super GuiButton> callback)
+                             GuiScreenAdvanced pScr, Consumer<?> callback)
     {
         this(id, xPos, yPos, 200, 20, displayString, pScr, callback);
     }
 
     public GuiButtonAdvanced(int id, int xPos, int yPos, int width, int height, String displayString,
-                             GuiScreenAdvanced pScr, Consumer<? super GuiButton> callback)
+                             GuiScreenAdvanced pScr, Consumer<?> callback)
     {
         super(id, xPos, yPos, width, height, displayString);
         this.pScr = pScr;
@@ -67,5 +67,10 @@ public class GuiButtonAdvanced extends GuiButton // GuiButtonExt
 
             this.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, color);
         }
+    }
+
+    public void setEnabled(boolean enabled)
+    {
+        this.enabled = enabled;
     }
 }
