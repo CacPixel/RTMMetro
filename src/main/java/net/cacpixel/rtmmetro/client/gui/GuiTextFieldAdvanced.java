@@ -3,9 +3,11 @@ package net.cacpixel.rtmmetro.client.gui;
 import jp.ngt.ngtlib.gui.GuiTextFieldCustom;
 import jp.ngt.ngtlib.util.NGTUtilClient;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.init.SoundEvents;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
@@ -69,7 +71,8 @@ public class GuiTextFieldAdvanced extends GuiTextFieldCustom
 
     public void incValue(int scroll)
     {
-
+        float pitch = GuiScreen.isAltKeyDown() ? 2.0F : GuiScreen.isShiftKeyDown() ? 1.0F : 1.5F;
+        this.pScr.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.BLOCK_NOTE_HAT, pitch));
     }
 
     public boolean isEnabled()

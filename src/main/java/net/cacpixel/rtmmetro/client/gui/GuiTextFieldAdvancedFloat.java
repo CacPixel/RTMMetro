@@ -98,6 +98,7 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
     @Override
     public void incValue(int scroll)
     {
+        super.incValue(scroll);
         float step = this.step;
         if (GuiScreen.isShiftKeyDown())
         {
