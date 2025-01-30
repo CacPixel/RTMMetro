@@ -17,6 +17,7 @@ import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.network.PacketMarkerClient;
 import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
+import net.cacpixel.rtmmetro.rail.util.AnchorEditStatus;
 import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
 import net.cacpixel.rtmmetro.util.WorldUtils;
 import net.minecraft.block.Block;
@@ -629,7 +630,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
 
             MarkerElement element = MarkerElement.values()[marker.editMode];
             Minecraft minecraft = NGTUtilClient.getMinecraft();
-            RailPosition railposition = marker.getMarkerRP();
+            RailPosition thisRP = marker.getMarkerRP();
             float pitch = minecraft.player.rotationPitch - marker.startPlayerPitch;
             float yaw = minecraft.player.rotationYawHead - marker.startPlayerYaw;
             if (marker.getState(MarkerState.LINE1))
@@ -638,10 +639,15 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                 {
                     int i = marker.startMarkerHeight + (int) (-pitch / 1.0F);
                     i = i < 0 ? 0 : (i > 15 ? 15 : i);
+                    RailPosition nb = TileEntityMarkerAdvanced.getNeighborRP(marker);
+                    if (nb != null)
+                    {
+                        i = nb.height;
+                    }
                     if (i != marker.getMarkerRP().height)
                     {
-                        railposition.height = (byte) i;
-                        railposition.init();
+                        thisRP.height = (byte) i;
+                        thisRP.init();
                         // marker.onChangeRailShape();
                         return true;
                     }
@@ -653,13 +659,13 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                 {
                     float f6 = 80.0F;
                     float f12 = pitch < -f6 ? -f6 : (pitch > f6 ? f6 : pitch);
-                    RailPosition railposition2 = TileEntityMarkerAdvanced.getNeighborRail(marker);
+                    RailPosition railposition2 = TileEntityMarkerAdvanced.getNeighborRP(marker);
                     if (railposition2 != null)
                     {
                         f12 = -railposition2.cantEdge;
                     }
 
-                    railposition.cantEdge = f12;
+                    thisRP.cantEdge = f12;
                     // marker.onChangeRailShape();
                     return true;
                 }
@@ -668,7 +674,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                 {
                     float f5 = 80.0F;
                     float f11 = pitch < -f5 ? -f5 : (pitch > f5 ? f5 : pitch);
-                    railposition.cantCenter = f11;
+                    thisRP.cantCenter = f11;
                     // marker.onChangeRailShape();
                     return true;
                 }
@@ -729,60 +735,86 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                 }
 
                 Vec3d vec3d = raytraceresult.hitVec;
-                boolean flag = false;
-                RailPosition railposition1 = this.getOppositeRail(marker);
-                if (railposition1 != null)
-                {
-                    double d0 = NGTMath.getDistanceSq(vec3d.x, vec3d.z, railposition1.posX, railposition1.posZ);
+//                boolean flag = false;
+//                RailPosition railposition1 = this.getOppositeRail(marker);
+//                if (railposition1 != null)
+//                {
+//                    double d0 = NGTMath.getDistanceSq(vec3d.x, vec3d.z, railposition1.posX, railposition1.posZ);
 //                    if (d0 <= 4.0D)
 //                    {
 //                        vec3d = new Vec3d(railposition1.posX, railposition1.posY, railposition1.posZ);
 //                        flag = true;
 //                    }
-                }
+//                }
 
                 if (marker.getState(MarkerState.ANCHOR21))
                 {
                     double d5 = 0.6666666666666666D;
-                    double d1 = (vec3d.x - railposition.posX) * d5 + railposition.posX;
-                    double d2 = (vec3d.y - railposition.posY) * d5 + railposition.posY;
-                    double d3 = (vec3d.z - railposition.posZ) * d5 + railposition.posZ;
+                    double d1 = (vec3d.x - thisRP.posX) * d5 + thisRP.posX;
+                    double d2 = (vec3d.y - thisRP.posY) * d5 + thisRP.posY;
+                    double d3 = (vec3d.z - thisRP.posZ) * d5 + thisRP.posZ;
                     vec3d = new Vec3d(d1, d2, d3);
                 }
 
-                double d6 = vec3d.x - railposition.posX;
-                double d7 = vec3d.z - railposition.posZ;
+                double d6 = vec3d.x - thisRP.posX;
+                double d7 = vec3d.z - thisRP.posZ;
                 if (d6 != 0.0D && d7 != 0.0D)
                 {
-                    RailPosition railposition3 = TileEntityMarkerAdvanced.getNeighborRail(marker);
+                    RailPosition railposition3 = TileEntityMarkerAdvanced.getNeighborRP(marker);
                     float f2 = (float) Math.atan2(d6, d7);
-                    float f13 = (float) (d6 / (double) MathHelper.sin(f2));
-                    float f3 = NGTMath.toDegrees(f2);
+                    float lengthValue = (float) (d6 / (double) MathHelper.sin(f2));
+                    float yawValue = NGTMath.toDegrees(f2);
                     if (element == MarkerElement.HORIZONTIAL)
                     {
-                        if (railposition3 != null)
+                        switch (marker.editStatusH)
                         {
-                            f3 = MathHelper.wrapDegrees(railposition3.anchorYaw + 180.0F);
+                        case FOLLOW_NEIGHBOR:
+                            if (railposition3 != null)
+                            {
+                                yawValue = MathHelper.wrapDegrees(railposition3.anchorYaw + 180.0F);
+                            }
+                            break;
+                        case LENGTH_FIXED:
+                            lengthValue = thisRP.anchorLengthHorizontal;
+                            break;
+                        case ANGLE_FIXED:
+                            yawValue = thisRP.anchorYaw;
+                            break;
+                        case FREE_MODE:
+                        default:
+                            break;
                         }
-
-                        railposition.anchorYaw = f3;
-                        railposition.anchorLengthHorizontal = f13;
+                        thisRP.anchorYaw = yawValue;
+                        thisRP.anchorLengthHorizontal = lengthValue;
                     }
                     else if (element == MarkerElement.VERTICAL)
                     {
-                        float f4 = MathHelper.wrapDegrees(f3 - railposition.anchorYaw);
-                        if (railposition3 != null)
+                        float pitchValue = MathHelper.wrapDegrees(yawValue - thisRP.anchorYaw);
+//                        else if (flag)
+//                        {
+//                            double d4 = vec3d.y - thisRP.posY;
+//                            pitchValue = (float) NGTMath.toDegrees(Math.atan2(d4, NGTMath.firstSqrt(d6 * d6 + d7 * d7)));
+//                        }
+                        switch (marker.editStatusV)
                         {
-                            f4 = -railposition3.anchorPitch;
+                        case FOLLOW_NEIGHBOR:
+                            if (railposition3 != null)
+                            {
+                                pitchValue = -railposition3.anchorPitch;
+                            }
+                            break;
+                        case LENGTH_FIXED:
+                            lengthValue = thisRP.anchorLengthVertical;
+                            break;
+                        case ANGLE_FIXED:
+                            pitchValue = thisRP.anchorPitch;
+                            break;
+                        case FREE_MODE:
+                        default:
+                            break;
                         }
-                        else if (flag)
-                        {
-                            double d4 = vec3d.y - railposition.posY;
-                            f4 = (float) NGTMath.toDegrees(Math.atan2(d4, NGTMath.firstSqrt(d6 * d6 + d7 * d7)));
-                        }
-
-                        railposition.anchorPitch = f4;
-                        railposition.anchorLengthVertical = f13;
+                        thisRP.anchorPitch = pitchValue;
+                        thisRP.anchorLengthVertical = lengthValue;
                     }
 
                     // marker.onChangeRailShape();

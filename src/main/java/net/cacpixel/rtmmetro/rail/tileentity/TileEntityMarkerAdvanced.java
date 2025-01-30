@@ -11,6 +11,7 @@ import jp.ngt.rtm.rail.TileEntityLargeRailCore;
 import jp.ngt.rtm.rail.util.*;
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
+import net.cacpixel.rtmmetro.math.CacMath;
 import net.cacpixel.rtmmetro.network.PacketMarkerServer;
 import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.util.AnchorEditStatus;
@@ -23,6 +24,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -140,6 +142,15 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             byte b0 = BlockMarkerAdvanced.getMarkerDir(this.getBlockType(), this.getBlockMetadata());
             byte b1 = (byte) (this.getBlockType() == RTMMetroBlock.MARKER_ADVANCED_SWITCH ? 1 : 0);
             this.rp = new RailPosition(this.getPos().getX(), this.getPos().getY(), this.getPos().getZ(), b0, b1);
+            RailPosition nb = getNeighborRP(this);
+            if (nb != null)
+            {
+                this.rp.height = nb.height;
+                this.rp.anchorYaw = CacMath.getWrappedAngleAndReverse(nb.anchorYaw);
+                this.rp.anchorPitch = -nb.anchorPitch;
+                this.rp.cantEdge = -nb.cantEdge;
+                this.rp.init();
+            }
         }
 
         if (this.getWorld().isRemote)
@@ -260,6 +271,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             }
             else
             {
+                this.originalRailMap = null;
                 this.railMaps = new RailMapAdvanced[]{};
             }
         }
@@ -313,6 +325,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         }
         else
         {
+            this.originalRailMap = null;
             List<RailPosition> list2 = new ArrayList<>();
 
             for (BlockPos blockpos2 : list)
@@ -354,6 +367,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
                         TileEntityMarkerAdvanced ma = (TileEntityMarkerAdvanced) tileentity;
                         ma.setStartPos(blockpos, this.railMaps, list);
                         ma.originalRailMap = this.getOriginalRailMap();
+                        ma.drawingScheme = this.drawingScheme;
                     }
                 }
             }
@@ -532,8 +546,19 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         return null;
     }
 
+    public static RailPosition getNeighborRP(TileEntityMarkerAdvanced tileEntity)
+    {
+        TileEntityMarkerAdvanced neighborMarker = getNeighborMarker(tileEntity);
+        if (neighborMarker != null && neighborMarker.getMarkerRP() != null)
+        {
+            return neighborMarker.getMarkerRP();
+        }
+        return getNeighborRail(tileEntity);
+    }
+
     public static RailPosition getNeighborRail(TileEntityMarkerAdvanced tileEntity)
     {
+        if (tileEntity == null) {return null;}
         int i = tileEntity.getMarkerRP().direction;
         BlockPos blockpos = tileEntity.getMarkerRP().getNeighborBlockPos();
         TileEntity tileentity = tileEntity.getWorld().getTileEntity(blockpos);

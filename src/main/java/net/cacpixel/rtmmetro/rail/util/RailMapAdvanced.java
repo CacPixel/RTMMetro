@@ -20,6 +20,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class RailMapAdvanced extends RailMapBasic
@@ -30,7 +31,7 @@ public class RailMapAdvanced extends RailMapBasic
     public RailMapAdvanced(RailPosition par1, RailPosition par2)
     {
         super(par1, par2);
-        this.scheme = RailDrawingScheme.DRAW_CIRCLE;
+        this.scheme = RailDrawingScheme.RTM_DEFAULT;
         this.createLine(this.scheme);
     }
 
