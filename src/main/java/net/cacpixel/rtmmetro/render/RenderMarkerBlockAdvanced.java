@@ -17,7 +17,6 @@ import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.network.PacketMarkerClient;
 import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
-import net.cacpixel.rtmmetro.rail.util.AnchorEditStatus;
 import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
 import net.cacpixel.rtmmetro.util.WorldUtils;
 import net.minecraft.block.Block;
@@ -185,6 +184,21 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
         GL11.glTranslatef(0.5F, f5, 0.5F);
         GL11.glRotatef(-NGTUtilClient.getMinecraft().getRenderManager().playerViewY + 180.0F, 0.0F, 1.0F, 0.0F);
         marker.gui.render();
+        GL11.glPopMatrix();
+        FontRenderer fontRenderer = NGTUtilClient.getMinecraft().fontRenderer;
+        String name = "Name: " + marker.getName();
+        String groupId = "Group id: " + marker.getGroupId();
+        float scaleX = 0.05F;
+        float scaleY = -0.05F;
+        float scaleZ = 0.05F;
+        GL11.glPushMatrix();
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glTranslatef(0.5F, f5 + 4.25F, 0.5F);
+        GL11.glRotatef(-NGTUtilClient.getMinecraft().getRenderManager().playerViewY + 180.0F, 0.0F, 1.0F, 0.0F);
+        GL11.glScalef(scaleX, scaleY, scaleZ);
+        fontRenderer.drawString(name, -fontRenderer.getStringWidth(name) / 2.0F, f5, 0xFFFFFFFF, true);
+        GL11.glTranslatef(0, 0.50F / scaleY, 0);
+        fontRenderer.drawString(groupId, -fontRenderer.getStringWidth(groupId) / 2.0F, f5, 0xFFFFFFFF, true);
         GL11.glPopMatrix();
     }
 
