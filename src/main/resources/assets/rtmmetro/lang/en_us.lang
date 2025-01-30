@@ -8,7 +8,7 @@ item.rtmmetro.rail_editor.name=Rail Editor
 item.rtmmetro.rail_builder.name=Rail Builder
 item.rtmmetro.rail_splitter.name=Rail Splitter
 
-itemGroup.rtm_metro_tab_railway=RTMMetro_Railway
+itemGroup.rtm_metro_tab_railway=RTMMetro_Items
 itemGroup.rtm_metro_tab_tools=RTMMetro_Tools
 
 usage.item.rigid_catenary_1=Right-click the air to open the settings menu
@@ -18,3 +18,10 @@ usage.item.rigid_catenary_3=Right-click the rail to attach Rigid Catenary.
 usage.item.rail_advanced_1=Right-click the air to open the settings menu.
 usage.item.rail_advanced_2=Use markers or right-click the floor to place rail.
 
+enum.AnchorEditStatus.FOLLOW_NEIGHBOR=Follow Neighbor Rail
+enum.AnchorEditStatus.LENGTH_FIXED=Fixed Length
+enum.AnchorEditStatus.ANGLE_FIXED=Fixed Angle
+enum.AnchorEditStatus.FREE_MODE=Free Mode
+enum.RailDrawingScheme.RTM_DEFAULT=RTM Default
+enum.RailDrawingScheme.DRAW_CIRCLE=Draw Circle
+enum.RailDrawingScheme.SWITCH_RAIL_OPTIMIZED=Switch Rail Optimized
