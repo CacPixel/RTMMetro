@@ -187,6 +187,7 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
         {
             field.checkValueAndSetText();
             field.setFocused(false);
+            this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F));
         }
         field = this.getNextTextField(field, true);
         if (field != null)
