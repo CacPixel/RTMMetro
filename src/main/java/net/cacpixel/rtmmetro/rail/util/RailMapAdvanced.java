@@ -517,6 +517,8 @@ public class RailMapAdvanced extends RailMapBasic
             result[3].cantEdge = this.endRP.cantEdge;
             result[3].cantCenter = -result[2].cantCenter;
 
+            Arrays.stream(result).forEach(rp -> rp.cantRandom = this.startRP.cantRandom);
+
             ret.add(new RailMapAdvanced(result[0], result[1]));
             ret.add(new RailMapAdvanced(result[2], result[3]));
             if (ret.get(0).getLength() < ModConfig.railSplitMinimumLength ||
