@@ -14,7 +14,7 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
     public boolean loop = false;
 
     public GuiTextFieldAdvancedInt(int id, FontRenderer par1, int x, int y, int w, int h,
-                                   GuiScreen pScr, int fieldValue)
+                                   GuiScreenAdvanced pScr, int fieldValue)
     {
         super(id, par1, x, y, w, h, pScr);
         this.fieldValue = fieldValue;
@@ -81,6 +81,8 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
     public boolean textboxKeyTyped(char word, int code)
     {
         boolean ret = super.textboxKeyTyped(word, code);
+        if (!ret)
+            return false;
         this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
         if (this.isValueValid())
         {

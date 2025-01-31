@@ -17,7 +17,7 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
     public static final String FORMAT_PATTERN = "0.0##";
 
     public GuiTextFieldAdvancedFloat(int id, FontRenderer par1, int x, int y, int w, int h,
-                                     GuiScreen pScr, float fieldValue)
+                                     GuiScreenAdvanced pScr, float fieldValue)
     {
         super(id, par1, x, y, w, h, pScr);
         this.fieldValue = fieldValue;
@@ -83,6 +83,8 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
     public boolean textboxKeyTyped(char word, int code)
     {
         boolean ret = super.textboxKeyTyped(word, code);
+        if (!ret)
+            return false;
         this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
         if (this.isValueValid())
         {

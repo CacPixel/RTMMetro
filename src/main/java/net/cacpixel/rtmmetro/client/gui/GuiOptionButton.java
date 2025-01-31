@@ -1,7 +1,6 @@
 package net.cacpixel.rtmmetro.client.gui;
 
 import net.cacpixel.rtmmetro.util.ITranslatable;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 
 import java.util.ArrayList;

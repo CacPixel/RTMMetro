@@ -1,26 +1,36 @@
 package net.cacpixel.rtmmetro.client.gui;
 
-import jp.ngt.ngtlib.gui.GuiTextFieldCustom;
 import jp.ngt.ngtlib.util.NGTUtilClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.init.SoundEvents;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @SideOnly(Side.CLIENT)
-public class GuiTextFieldAdvanced extends GuiTextFieldCustom
+public class GuiTextFieldAdvanced extends GuiTextField
 {
-    protected final GuiScreen pScr;
+    protected final GuiScreenAdvanced pScr;
+    protected final FontRenderer fontRenderer;
+    private final List<String> tips = new ArrayList<>();
     public static final int DEFAULT_SCROLL_VALUE = 120;
 
-    public GuiTextFieldAdvanced(int id, FontRenderer par1, int x, int y, int w, int h, GuiScreen pScr)
+    public GuiTextFieldAdvanced(int id, FontRenderer par1, int x, int y, int w, int h, GuiScreenAdvanced pScr)
     {
-        super(id, par1, x, y, w, h, pScr);
+        super(id, par1, x, y, w, h);
+        this.fontRenderer = par1;
+        this.x = x;
+        this.y = y;
+        this.width = w;
+        this.height = h;
         this.pScr = pScr;
     }
 
@@ -56,6 +66,17 @@ public class GuiTextFieldAdvanced extends GuiTextFieldCustom
         return super.textboxKeyTyped(word, code);
     }
 
+    public void drawTextBox(int mouseX, int mouseY)
+    {
+        super.drawTextBox();
+
+        boolean hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+        if (hovered && !this.tips.isEmpty())
+        {
+            GuiScreenAdvanced.drawHoveringTextS(this.tips, mouseX, mouseY, this.pScr);
+        }
+    }
+
     public void setScrValueUpdated()
     {
         if (this.pScr instanceof GuiScreenAdvanced)
@@ -73,6 +94,12 @@ public class GuiTextFieldAdvanced extends GuiTextFieldCustom
     {
         float pitch = GuiScreen.isAltKeyDown() ? 2.0F : GuiScreen.isShiftKeyDown() ? 1.0F : 1.5F;
         this.pScr.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.BLOCK_NOTE_HAT, pitch));
+    }
+
+    public GuiTextFieldAdvanced addTips(String par1)
+    {
+        this.tips.add(par1);
+        return this;
     }
 
     public boolean isEnabled()

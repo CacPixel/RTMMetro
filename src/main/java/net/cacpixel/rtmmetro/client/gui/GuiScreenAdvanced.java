@@ -1,25 +1,31 @@
 package net.cacpixel.rtmmetro.client.gui;
 
+import jp.ngt.ngtlib.gui.GuiContainerCustom;
 import jp.ngt.ngtlib.gui.GuiScreenCustom;
-import jp.ngt.ngtlib.gui.GuiTextFieldCustom;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.*;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.init.SoundEvents;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Consumer;
 
 @SideOnly(Side.CLIENT)
-public abstract class GuiScreenAdvanced extends GuiScreenCustom
+public abstract class GuiScreenAdvanced extends GuiScreen
 {
     public GuiScreen parentScreen;
     public boolean hasValueUpdated;
     private static int NEXT_FIELD_ID;
     private static int NEXT_BUTTON_ID;
+    protected List<GuiTextFieldAdvanced> textFields = new ArrayList();
+    protected GuiTextField currentTextField;
 
     public GuiScreenAdvanced()
     {
@@ -39,13 +45,58 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
         this.height = scaledresolution.getScaledHeight();
     }
 
+    public void drawScreenBefore(int mouseX, int mouseY, float partialTicks)
+    {
+        GlStateManager.pushMatrix();
+    }
+
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    {
+        this.drawScreenBefore(mouseX, mouseY, partialTicks);
+        for (GuiTextFieldAdvanced field : this.textFields)
+        {
+            field.drawTextBox(mouseX, mouseY);
+        }
+        super.drawScreen(mouseX, mouseY, partialTicks);
+        this.drawScreenAfter(mouseX, mouseY, partialTicks);
+    }
+
+    public void drawScreenAfter(int mouseX, int mouseY, float partialTicks)
+    {
+        GlStateManager.popMatrix();
+    }
+
+    public List<GuiButton> getButtonList()
+    {
+        return this.buttonList;
+    }
+
+    public List<GuiTextFieldAdvanced> getTextFields()
+    {
+        return this.textFields;
+    }
+
+    public float getZLevel()
+    {
+        return this.zLevel;
+    }
+
+    @Override
+    public void updateScreen()
+    {
+        if (this.currentTextField != null)
+        {
+            this.currentTextField.updateCursorCounter();
+        }
+    }
+
     @Override
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
     }
 
-    @Override
     protected GuiTextFieldAdvanced setTextField(int xPos, int yPos, int w, int h, String text)
     {
         GuiTextFieldAdvanced field = new GuiTextFieldAdvanced(NEXT_FIELD_ID++, this.fontRenderer, xPos, yPos, w, h, this);
@@ -116,7 +167,7 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
     }
 
     protected <E extends Enum<E>> GuiOptionButton<E> addOptionButton(int x, int y, int w, int h, String prefix, E[] values, E initVal,
-                                                                  Consumer<? super GuiOptionButton<E>> callback)
+                                                                     Consumer<? super GuiOptionButton<E>> callback)
     {
         GuiOptionButton<E> button = new GuiOptionButton<>(NEXT_BUTTON_ID++, x, y, w, h, prefix, values, initVal, this, callback);
         this.buttonList.add(button);
@@ -144,10 +195,19 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
         }
     }
 
+    protected void onTextFieldClicked(GuiTextField field) {}
+
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
-        super.keyTyped(typedChar, keyCode);
+        if (this.currentTextField != null)
+        {
+            this.currentTextField.textboxKeyTyped(typedChar, keyCode);
+        }
+        else
+        {
+            super.keyTyped(typedChar, keyCode);
+        }
         if (Keyboard.getEventKey() == Keyboard.KEY_RETURN)
         {
             this.onPressingEnter();
@@ -188,6 +248,7 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
 
     protected void onPressingEsc()
     {
+        this.displayPrevScreen();
     }
 
     protected void onPressingEnter()
@@ -255,7 +316,7 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
         {
             return null;
         }
-        ListIterator<GuiTextFieldCustom> it = this.textFields.listIterator();
+        ListIterator<GuiTextFieldAdvanced> it = this.textFields.listIterator();
         while (it.hasNext())
         {
             GuiTextField field = it.next();
@@ -283,7 +344,7 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
         {
             return null;
         }
-        ListIterator<GuiTextFieldCustom> it = this.textFields.listIterator();
+        ListIterator<GuiTextFieldAdvanced> it = this.textFields.listIterator();
         while (it.hasPrevious())
         {
             GuiTextField field = it.previous();
@@ -303,6 +364,24 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
             }
         }
         return null;
+    }
+
+    public static void drawHoveringTextS(List<String> textLines, int x, int y, GuiScreen screen)
+    {
+        if (screen instanceof GuiScreenCustom)
+        {
+            ((GuiScreenCustom) screen).drawHoveringText(textLines, x, y);
+        }
+        else if (screen instanceof GuiContainerCustom)
+        {
+            ((GuiContainerCustom) screen).drawHoveringText(textLines, x, y);
+        }
+
+        //以降で描画するボタンの明るさを変えないように
+        GlStateManager.disableRescaleNormal();
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.disableLighting();
+        GlStateManager.disableDepth();
     }
 
     public int getNextFieldIdAndIncrease()

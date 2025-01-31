@@ -24,7 +24,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -401,15 +400,13 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
     }
 
     @Override
-    public void drawScreen(int par1, int par2, float par3)
+    public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
-        GL11.glPushMatrix();
-//        GL11.glTranslatef(100.0F, 100.0F, 0.0F);
         int stringXpos = 10;
         int stringYpos = 8;
 
         this.drawGradientRect(0, 0, this.width, this.height, 0xC0101010, 0xD0101010);
-        super.drawScreen(par1, par2, par3);
+        super.drawScreen(mouseX, mouseY, partialTicks);
 
         //title line
         this.drawString(this.fontRenderer,
@@ -491,7 +488,6 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
         drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
                 RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | 0xFF000000);
         stringYpos += 20;
-        GL11.glPopMatrix();
     }
 
     @Override
