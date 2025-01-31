@@ -12,6 +12,7 @@ import jp.ngt.rtm.gui.InternalGUI;
 import jp.ngt.rtm.rail.util.MarkerState;
 import jp.ngt.rtm.rail.util.RailMap;
 import jp.ngt.rtm.rail.util.RailPosition;
+import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.network.PacketMarkerClient;
@@ -47,11 +48,6 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
 
     private RenderMarkerBlockAdvanced()
     {
-        for (int i = 0; i < this.displayStrings.length; ++i)
-        {
-            this.displayStrings[i] = (i + 1) * 10 + "m";
-        }
-
     }
 
     public boolean isGlobalRenderer(TileEntityMarkerAdvanced tileEntity)
@@ -62,6 +58,12 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
     public void render(TileEntityMarkerAdvanced marker, double par2, double par4, double par6, float par8, int par9,
                        float par10)
     {
+        displayStrings = new String[ModConfig.markerDisplayDistance / 10];
+        for (int i = 0; i < this.displayStrings.length; ++i)
+        {
+            this.displayStrings[i] = (i + 1) * 10 + "m";
+        }
+
         if (marker.getMarkerRP() != null)
         {
             GL11.glPushMatrix();
