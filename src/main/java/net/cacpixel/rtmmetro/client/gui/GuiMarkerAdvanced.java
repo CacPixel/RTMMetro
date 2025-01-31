@@ -278,8 +278,28 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
         this.buttonDrawingScheme = this.addOptionButton(buttX - fieldW / 2, fieldY, 160, 20, "", RailDrawingScheme.values(),
                 this.currentMarkerValue.drawingScheme, GuiOptionButton::rollOptions);
         this.buttonRedraw = this.addUnicodeGlyphButton(buttX - fieldW / 2 + 160, fieldY, 80, 20, "Redraw", GuiUtils.UNDO_CHAR, 2.0F, b -> {
-            this.actionPerformed(this.buttonMagicNumberYaw);
-            this.actionPerformed(this.buttonMagicNumberH);
+//            this.actionPerformed(this.buttonMagicNumberYaw);
+//            this.actionPerformed(this.buttonMagicNumberH);
+            this.currentMarkerValue.markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentRP)).findFirst().ifPresent(pos -> {
+                TileEntityMarkerAdvanced te = BlockUtils.getMarkerFromPos(marker.getWorld(), pos);
+                if (te != null)
+                {
+                    // this marker
+                    fieldAnchorYaw.fieldValue = RailMapAdvanced.getDefaultYaw(currentRP, te.getMarkerRP(),
+                            this.currentMarkerValue.drawingScheme);
+                    fieldAnchorYaw.checkValueAndSetText();
+                    fieldAnchorLengthHorizontal.fieldValue = RailMapAdvanced.getDefaultHorizontal(currentRP, te.getMarkerRP(),
+                            this.currentMarkerValue.drawingScheme);
+                    fieldAnchorLengthHorizontal.checkValueAndSetText();
+                    //another marker
+                    this.currentValues.stream().filter(v -> BlockUtils.getMarkerFromPos(this.marker.getWorld(), v.rp) == te)
+                            .findFirst().ifPresent(v -> {
+                                // yaw跟着这个marker来的，再次计算也不会变，忽略，只需要确认长度。
+                                v.rp.anchorLengthHorizontal = RailMapAdvanced.getDefaultHorizontal(te.getMarkerRP(), currentRP,
+                                        this.currentMarkerValue.drawingScheme);
+                            });
+                }
+            });
         });
         fieldY += lineHeight + 2;
         //ok

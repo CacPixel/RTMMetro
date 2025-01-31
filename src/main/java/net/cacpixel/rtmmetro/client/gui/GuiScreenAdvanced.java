@@ -42,7 +42,7 @@ public abstract class GuiScreenAdvanced extends GuiScreenCustom
     @Override
     public void onGuiClosed()
     {
-        super.onGuiClosed();
+        Keyboard.enableRepeatEvents(false);
     }
 
     @Override

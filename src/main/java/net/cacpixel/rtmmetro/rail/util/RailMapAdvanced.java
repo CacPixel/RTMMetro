@@ -701,7 +701,7 @@ public class RailMapAdvanced extends RailMapBasic
             double theta = Math.atan2(dx, dz);
             double theta2 = Math.atan2(-dx, -dz);
             float ret = (float) MathHelper.wrapDegrees(NGTMath.toDegrees(theta2 - NGTMath.toRadians(endRP.anchorYaw) + theta));
-            return (ret - MathHelper.wrapDegrees(startRP.direction * 45.0) < 0.001F) ?
+            return (Math.abs(ret - MathHelper.wrapDegrees(startRP.direction * 45.0)) < 0.001F) ?
                     (float) MathHelper.wrapDegrees(startRP.direction * 45.0) : ret;
         case RTM_DEFAULT:
         case SWITCH_RAIL_OPTIMIZED:
