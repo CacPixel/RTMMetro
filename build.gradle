@@ -102,7 +102,10 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2852'
 //    implementation ("net.minecraftforge:mergetool:0.2.3.3") { force = true }
     implementation fg.deobf("net.minecraftforge:mergetool:0.2.3.3:forge") { force = true }
-//    compileOnly(fileTree(dir: 'lib', includes: ['*.jar']))
+    compileOnly(fileTree(dir: 'run/mods', includes: ['aa_do_not_rename_OptiFineDevTweaker-*.jar']))
+    compileOnly(fileTree(dir: 'lib', includes: ['*.jar']))
+    //-Dlegacy.debugClassLoadingSave=true
+    //-Dlegacy.debugClassLoading=true
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     annotationProcessor 'org.ow2.asm:asm-debug-all:5.2'
     annotationProcessor 'com.google.guava:guava:32.1.2-jre'

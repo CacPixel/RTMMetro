@@ -3,10 +3,7 @@ package net.cacpixel.rtmmetro.client.gui;
 import jp.ngt.ngtlib.util.NGTUtilClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.*;
 import net.minecraft.init.SoundEvents;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -19,18 +16,12 @@ import java.util.List;
 public class GuiTextFieldAdvanced extends GuiTextField
 {
     protected final GuiScreenAdvanced pScr;
-    protected final FontRenderer fontRenderer;
     private final List<String> tips = new ArrayList<>();
     public static final int DEFAULT_SCROLL_VALUE = 120;
 
     public GuiTextFieldAdvanced(int id, FontRenderer par1, int x, int y, int w, int h, GuiScreenAdvanced pScr)
     {
         super(id, par1, x, y, w, h);
-        this.fontRenderer = par1;
-        this.x = x;
-        this.y = y;
-        this.width = w;
-        this.height = h;
         this.pScr = pScr;
     }
 
