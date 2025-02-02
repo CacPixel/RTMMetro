@@ -34,7 +34,7 @@ public class RTMMetro
 {
     public static final String MODID = "rtmmetro";
     public static final String NAME = "RTM Metro";
-    public static final String VERSION = "0.1.3";
+    public static final String VERSION = "0.1.4";
     private static boolean HAS_FIXRTM_MOD = false;
 
     @Mod.Instance(MODID)
