@@ -14,12 +14,16 @@ import net.cacpixel.rtmmetro.rail.util.AnchorEditStatus;
 import net.cacpixel.rtmmetro.rail.util.RailDrawingScheme;
 import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
 import net.cacpixel.rtmmetro.util.BlockUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.toasts.GuiToast;
+import net.minecraft.client.gui.toasts.SystemToast;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
@@ -277,8 +281,6 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
         this.buttonDrawingScheme = this.addOptionButton(buttX - fieldW / 2, fieldY, 160, 20, "", RailDrawingScheme.values(),
                 this.currentMarkerValue.drawingScheme, GuiOptionButton::rollOptions);
         this.buttonRedraw = this.addUnicodeGlyphButton(buttX - fieldW / 2 + 160, fieldY, 80, 20, "Redraw", GuiUtils.UNDO_CHAR, 2.0F, b -> {
-//            this.actionPerformed(this.buttonMagicNumberYaw);
-//            this.actionPerformed(this.buttonMagicNumberH);
             this.currentMarkerValue.markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentRP)).findFirst().ifPresent(pos -> {
                 TileEntityMarkerAdvanced te = BlockUtils.getMarkerFromPos(marker.getWorld(), pos);
                 if (te != null)
@@ -306,6 +308,10 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
             this.updateFromFields();
             this.sendPacket();
             this.displayPrevScreen();
+            GuiToast guitoast = Minecraft.getMinecraft().getToastGui();
+            SystemToast.addOrUpdate(guitoast, SystemToast.Type.TUTORIAL_HINT,
+                    new TextComponentString("Success"),
+                    new TextComponentString("Parameters saved."));
         });
 
         //cancel
