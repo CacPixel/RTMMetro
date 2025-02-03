@@ -476,6 +476,10 @@ public class RailMapAdvanced extends RailMapBasic
                 result[1].anchorYaw = (float) CacMath.getWrappedAngleAndReverse(this.getLineHorizontal()
                         .getSlopeD(targetLength, targetOrder));//getAngleD((splitPointH1), (endPointH1));
             }
+            else
+            {
+                result[1].anchorYaw = result[3].anchorYaw;
+            }
 
             result[1].anchorLengthVertical = (float) CacMath.getLength(splitPointV1, endPointV1);
             result[1].anchorPitch = MathHelper.wrapDegrees(CacMath.getAngleD((splitPointV1), (endPointV1)));
@@ -489,6 +493,10 @@ public class RailMapAdvanced extends RailMapBasic
             {
                 result[2].anchorYaw = CacMath.getWrappedAngleAndReverse(
                         result[1].anchorYaw);// getAngleD((splitPointH2), (endPointH2));
+            }
+            else
+            {
+                result[2].anchorYaw = result[0].anchorYaw;
             }
 
             result[2].anchorLengthVertical = (float) CacMath.getLength(splitPointV2, endPointV2);
