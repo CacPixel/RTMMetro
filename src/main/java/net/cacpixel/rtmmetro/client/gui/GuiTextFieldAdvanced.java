@@ -47,7 +47,7 @@ public class GuiTextFieldAdvanced extends GuiTextField
         return true;
     }
 
-    // NoSuchFieldError guiResponder with optifine in dev env
+    // NoSuchFieldError guiResponder with optifine in dev env (resolved)
     public boolean isMouseInside()
     {
         Minecraft mc = NGTUtilClient.getMinecraft();

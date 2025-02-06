@@ -4,7 +4,6 @@ import net.cacpixel.rtmmetro.RTMMetro;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.client.config.GuiUtils;
 
 import java.util.function.Consumer;
 
@@ -34,13 +33,13 @@ public class GuiButtonAdvanced extends GuiButton // GuiButtonExt
         if (this.visible)
         {
             this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-            if (this.pScr != mc.currentScreen)
+            if (this.pScr != mc.currentScreen || pScr.isInAnimation())
             {
                 this.hovered = false;
             }
             int k = this.getHoverState(this.hovered);
-            CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200, 20,
-                    2, 3, 2, 2, this.zLevel, pScr);
+            CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200,
+                    20, 2, 3, 2, 2, this.zLevel, pScr);
             this.mouseDragged(mc, mouseX, mouseY);
             int color = 0xE0E0E0;
 
@@ -68,6 +67,13 @@ public class GuiButtonAdvanced extends GuiButton // GuiButtonExt
 
             this.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, color);
         }
+    }
+
+    @Override
+    public boolean mousePressed(Minecraft mc, int mouseX, int mouseY)
+    {
+        return !pScr.isInAnimation() && this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y &&
+                mouseX < this.x + this.width && mouseY < this.y + this.height;
     }
 
     public void setEnabled(boolean enabled)

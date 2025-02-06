@@ -339,11 +339,11 @@ public abstract class GuiScreenAdvanced extends GuiScreen
     protected void mouseClicked(int x, int y, int button) throws IOException
     {
         super.mouseClicked(x, y, button);
-        for (GuiTextField textField : this.textFields)
+        this.currentTextField = null;
+        for (GuiTextFieldAdvanced textField : this.textFields)
         {
-
             textField.mouseClicked(x, y, button);
-            if (textField.isFocused())
+            if (textField.isFocused() && textField.isMouseInside() && !this.isInAnimation())
             {
                 this.currentTextField = textField;
                 this.onTextFieldClicked(textField);
@@ -356,13 +356,13 @@ public abstract class GuiScreenAdvanced extends GuiScreen
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
-        if (this.currentTextField != null)
+        if (this.currentTextField != null && !this.isInAnimation())
         {
             this.currentTextField.textboxKeyTyped(typedChar, keyCode);
         }
         else
         {
-            super.keyTyped(typedChar, keyCode);
+            super.keyTyped(typedChar, keyCode); // Close ALL Gui without animation while pressing ESC
         }
         if (Keyboard.getEventKey() == Keyboard.KEY_RETURN)
         {
@@ -378,12 +378,12 @@ public abstract class GuiScreenAdvanced extends GuiScreen
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
-        for (GuiTextField field : this.textFields)
+        for (GuiTextFieldAdvanced field : this.textFields)
         {
-            if (field instanceof GuiTextFieldAdvanced && ((GuiTextFieldAdvanced) field).isMouseInside() &&
-                    ((GuiTextFieldAdvanced) field).isEnabled() && field.getVisible())
+            if (field instanceof GuiTextFieldAdvanced && field.isMouseInside() &&
+                    field.isEnabled() && field.getVisible() && !this.isInAnimation())
             {
-                ((GuiTextFieldAdvanced) field).handleMouseInput();
+                field.handleMouseInput();
             }
         }
     }
@@ -392,12 +392,12 @@ public abstract class GuiScreenAdvanced extends GuiScreen
     public void handleKeyboardInput() throws IOException
     {
         super.handleKeyboardInput();
-        for (GuiTextField field : this.textFields)
+        for (GuiTextFieldAdvanced field : this.textFields)
         {
             if (field instanceof GuiTextFieldAdvanced && field.getVisible() && field.isFocused() &&
-                    ((GuiTextFieldAdvanced) field).isEnabled())
+                    field.isEnabled() && !this.isInAnimation())
             {
-                ((GuiTextFieldAdvanced) field).handleKeyboardInput();
+                field.handleKeyboardInput();
             }
         }
     }
@@ -449,11 +449,11 @@ public abstract class GuiScreenAdvanced extends GuiScreen
         {
             return null;
         }
-        for (GuiTextField field : this.textFields)
+        for (GuiTextFieldAdvanced field : this.textFields)
         {
             if (field.isFocused())
             {
-                return field instanceof GuiTextFieldAdvanced ? (GuiTextFieldAdvanced) field : null;
+                return field instanceof GuiTextFieldAdvanced ? field : null;
             }
         }
         return null;
@@ -468,18 +468,16 @@ public abstract class GuiScreenAdvanced extends GuiScreen
         ListIterator<GuiTextFieldAdvanced> it = this.textFields.listIterator();
         while (it.hasNext())
         {
-            GuiTextField field = it.next();
+            GuiTextFieldAdvanced field = it.next();
             if (field == fieldIn)
             {
                 if (it.hasNext())
                 {
-                    GuiTextField f = it.next();
-                    return f instanceof GuiTextFieldAdvanced ? (GuiTextFieldAdvanced) f : null;
+                    return it.next();
                 }
                 else if (loop)
                 {
-                    GuiTextField f = this.textFields.get(0);
-                    return f instanceof GuiTextFieldAdvanced ? (GuiTextFieldAdvanced) f : null;
+                    return this.textFields.get(0);
                 }
                 else return null;
             }
@@ -496,18 +494,16 @@ public abstract class GuiScreenAdvanced extends GuiScreen
         ListIterator<GuiTextFieldAdvanced> it = this.textFields.listIterator();
         while (it.hasPrevious())
         {
-            GuiTextField field = it.previous();
+            GuiTextFieldAdvanced field = it.previous();
             if (field == fieldIn)
             {
                 if (it.hasPrevious())
                 {
-                    GuiTextField f = it.previous();
-                    return f instanceof GuiTextFieldAdvanced ? (GuiTextFieldAdvanced) f : null;
+                    return it.previous();
                 }
                 else if (loop)
                 {
-                    GuiTextField f = this.textFields.get(this.textFields.size() - 1);
-                    return f instanceof GuiTextFieldAdvanced ? (GuiTextFieldAdvanced) f : null;
+                    return this.textFields.get(this.textFields.size() - 1);
                 }
                 else return null;
             }
@@ -519,11 +515,11 @@ public abstract class GuiScreenAdvanced extends GuiScreen
     {
         if (screen instanceof GuiScreenCustom)
         {
-            ((GuiScreenCustom) screen).drawHoveringText(textLines, x, y);
+            screen.drawHoveringText(textLines, x, y);
         }
         else if (screen instanceof GuiContainerCustom)
         {
-            ((GuiContainerCustom) screen).drawHoveringText(textLines, x, y);
+            screen.drawHoveringText(textLines, x, y);
         }
 
         //以降で描画するボタンの明るさを変えないように

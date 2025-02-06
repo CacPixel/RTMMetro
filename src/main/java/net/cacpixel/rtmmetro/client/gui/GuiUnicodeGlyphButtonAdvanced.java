@@ -25,7 +25,7 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced // GuiUnico
         if (this.visible)
         {
             this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-            if (this.pScr != mc.currentScreen)
+            if (this.pScr != mc.currentScreen || pScr.isInAnimation())
             {
                 this.hovered = false;
             }
