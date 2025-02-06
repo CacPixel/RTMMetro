@@ -3,6 +3,7 @@ package net.cacpixel.rtmmetro.client.gui;
 import jp.ngt.ngtlib.gui.GuiContainerCustom;
 import jp.ngt.ngtlib.gui.GuiScreenCustom;
 import net.cacpixel.rtmmetro.ModConfig;
+import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -35,8 +36,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen
     protected float alpha;
     public boolean isOpening;
     public boolean isClosing;
-    protected float openTime;
-    protected float closeTime;
+    protected float animationTime;
     protected float duration;
     protected boolean closeFlag;
 
@@ -47,8 +47,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen
         isOpening = true;
         isClosing = false;
         duration = ModConfig.guiAnimationDuration;
-        openTime = 0;
-        closeTime = 0;
+        animationTime = 0;
         closeFlag = false;
     }
 
@@ -72,19 +71,25 @@ public abstract class GuiScreenAdvanced extends GuiScreen
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         if (this.isOpening)
         {
-            this.openTime += partialTicks / 20;
+            this.animationTime += partialTicks / 20;
+            if (this.animationTime > this.duration)
+                this.isOpening = false;
+            float scale = (float) MathHelper.clampedLerp(0.2F, 1.0F, this.getAnimationProgress(CacGuiUtils.guiBezierTranslationIn));
+            GlStateManager.translate((this.width * (1 - scale)) / 2.0F, (this.height * (1 - scale)) / 2.0F, 1.0F);
+            GlStateManager.scale(scale, scale, 1.0F);
         }
         if (this.isClosing)
         {
-            this.closeTime += partialTicks / 20;
+            this.animationTime += partialTicks / 20;
+            if (this.animationTime > this.duration)
+                this.isClosing = false;
+            float scale = (float) MathHelper.clampedLerp(0.2F, 1.0F, this.getAnimationProgress(CacGuiUtils.guiBezierTranslationOut));
+            GlStateManager.translate((this.width * (1 - scale)) / 2.0F, (this.height * (1 - scale)) / 2.0F, 1.0F);
+            GlStateManager.scale(scale, scale, 1.0F);
         }
-        if (this.isOpening && this.openTime > this.duration)
+        if (!this.isInAnimation())
         {
-            this.isOpening = false;
-        }
-        if (this.isClosing && this.closeTime > this.duration)
-        {
-            this.isClosing = false;
+            this.animationTime = 0;
         }
         this.updateAlpha();
     }
@@ -192,19 +197,30 @@ public abstract class GuiScreenAdvanced extends GuiScreen
                 new net.minecraftforge.client.event.GuiScreenEvent.BackgroundDrawnEvent(this));
     }
 
+    protected float getAnimationProgress(BezierCurveAdvanced curve)
+    {
+        double point = curve.fromXGetY((int) curve.getLength(), (this.animationTime / this.duration) * CacGuiUtils.xMax);
+        return MathHelper.clamp((float) point, 0.02f, 2.0f);
+    }
+
+    protected float getAnimationProgress()
+    {
+        return this.getAnimationProgress(CacGuiUtils.guiBezierAlphaIn);
+    }
+
     protected void updateAlpha()
     {
         if (this.isOpening)
         {
-            this.alpha = MathHelper.clamp((this.openTime / this.duration), 0.05F, 1.0F);
+            this.alpha = (float) MathHelper.clampedLerp(0.02F, 1.0F, this.getAnimationProgress(CacGuiUtils.guiBezierAlphaIn));
         }
         else if (this.isClosing)
         {
-            this.alpha = MathHelper.clamp(1.0F - (this.closeTime / this.duration), 0.05F, 1.0F);
+            this.alpha = (float) MathHelper.clampedLerp(0.02F, 1.0F, this.getAnimationProgress(CacGuiUtils.guiBezierAlphaOut));
         }
         else if (!this.isInAnimation() && this.closeFlag)
         {
-            this.alpha = 0.05F;
+            this.alpha = 0.02F;
         }
         else
         {

@@ -1,14 +1,54 @@
 package net.cacpixel.rtmmetro.client.gui;
 
+import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 import static net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect;
 
+
+@SideOnly(Side.CLIENT)
 public class CacGuiUtils
 {
+    public static BezierCurveAdvanced guiBezierAlphaIn;
+    public static BezierCurveAdvanced guiBezierAlphaOut;
+    public static BezierCurveAdvanced guiBezierTranslationIn;
+    public static BezierCurveAdvanced guiBezierTranslationOut;
+    public static double xMax = 100;
+
+    public static void init()
+    {
+        guiBezierAlphaIn = new BezierCurveAdvanced(
+                0 * xMax, 0,
+                0.2 * xMax, 0.5,
+                0.0 * xMax, 1.3,
+                1.0 * xMax, 1.0);
+        guiBezierAlphaOut = new BezierCurveAdvanced(
+                0 * xMax, 1,
+                0.2 * xMax, 0.5,
+                0 * xMax, -0.3,
+                1 * xMax, 0);
+        guiBezierTranslationIn = new BezierCurveAdvanced(
+                0 * xMax, 0,
+                0.25 * xMax, 0.1,
+                0.0 * xMax, 1.0,
+                1.0 * xMax, 1.0);
+        guiBezierTranslationOut = new BezierCurveAdvanced(
+                0 * xMax, 1,
+                0.25 * xMax, 0.9,
+                0 * xMax, 0,
+                1 * xMax, 0);
+
+        guiBezierAlphaIn.initNP();
+        guiBezierAlphaOut.initNP();
+        guiBezierTranslationIn.initNP();
+        guiBezierTranslationOut.initNP();
+    }
+
     public static void drawContinuousTexturedBox(ResourceLocation res, int x, int y, int u, int v, int width, int height, int textureWidth,
                                                  int textureHeight,
                                                  int topBorder, int bottomBorder, int leftBorder, int rightBorder, float zLevel,

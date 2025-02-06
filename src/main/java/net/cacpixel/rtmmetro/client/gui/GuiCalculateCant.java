@@ -61,11 +61,14 @@ public class GuiCalculateCant extends GuiScreenAdvanced
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
+        if (parentScreen != null)
+        {
+            parentScreen.drawScreen(mouseX, mouseY, partialTicks);
+        }
         this.drawScreenBefore(mouseX, mouseY, partialTicks);
         int hw = this.width / 2;
         int hh = this.height / 2;
         int fontColor = 0xE0E0E0 | this.getAlphaInt(0xFF);
-        parentScreen.drawScreen(mouseX, mouseY, partialTicks);
         this.drawDefaultBackground(hw - 250, hh - 150, hw + 250, hh + 150);
         super.drawScreen(mouseX, mouseY, partialTicks);
         addedHeight = getAddHeight(fieldSpeed.fieldValue, fieldRadius.fieldValue);

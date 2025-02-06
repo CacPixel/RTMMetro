@@ -15,9 +15,9 @@ public final class BezierCurveAdvanced implements ILineAdvanced
     private final double length;
     private final int split;
 
-    public BezierCurveAdvanced(double p1, double p2, double p3, double p4, double p5, double p6, double p7, double p8)
+    public BezierCurveAdvanced(double spX, double spY, double cpSX, double cpSY, double cpEX, double cpEY, double epX, double epY)
     {
-        this(new double[]{p1, p2}, new double[]{p3, p4}, new double[]{p5, p6}, new double[]{p7, p8});
+        this(new double[]{spX, spY}, new double[]{cpSX, cpSY}, new double[]{cpEX, cpEY}, new double[]{epX, epY});
     }
 
     public BezierCurveAdvanced(double[] sp, double[] cpS, double[] cpE, double[] ep)
@@ -51,12 +51,12 @@ public final class BezierCurveAdvanced implements ILineAdvanced
         return result;
     }
 
-    public double[] getPoint(int par1, int par2)
+    public double[] getPoint(int length, int order)
     {
-        return this.getPointFromParameter((double) this.getHomogenizedParameter(par1, par2));
+        return this.getPointFromParameter((double) this.getHomogenizedParameter(length, order));
     }
 
-    private double[] getPointFromParameter(double par1)
+    public double[] getPointFromParameter(double par1)
     {
         double d0 = par1 < 0.0D ? 0.0D : (Math.min(par1, 1.0D));
         double d1 = 1.0D - d0;
@@ -69,23 +69,73 @@ public final class BezierCurveAdvanced implements ILineAdvanced
         return LinePosPool.get(d6, d7);
     }
 
-    public int getNearlestPoint(int length, double x, double z)
+    public int getNearlestPoint(int length, double y, double x)
     {
-        int i = 0;
+        int ret = 0;
         double pd = Double.MAX_VALUE;
         for (int j = 0; j < length; ++j)
         {
             double[] point = this.getPoint(length, j);
-            double dx = x - point[1];
-            double dz = z - point[0];
-            double distance = (dx * dx) + (dz * dz);
+            double dy = y - point[1];
+            double dx = x - point[0];
+            double distance = (dy * dy) + (dx * dx);
             if (distance < pd)
             {
                 pd = distance;
-                i = j;
+                ret = j;
             }
         }
-        return pd < Double.MAX_VALUE ? i : -1;
+        return pd < Double.MAX_VALUE ? ret : -1;
+    }
+
+    /* warning: not accurate on multiple results */
+    public int getNearestPointFromX(int length, double x)
+    {
+        int ret = 0;
+        double pd = Double.MAX_VALUE;
+        for (int j = 0; j < length; ++j)
+        {
+            double[] point = this.getPoint(length, j);
+            double dx = x - point[0];
+            double distance = Math.abs(dx);
+            if (distance < pd)
+            {
+                pd = distance;
+                ret = j;
+            }
+        }
+        return pd < Double.MAX_VALUE ? ret : -1;
+    }
+
+    /* warning: not accurate on multiple results */
+    public int getNearestPointFromY(int length, double y)
+    {
+        int ret = 0;
+        double pd = Double.MAX_VALUE;
+        for (int j = 0; j < length; ++j)
+        {
+            double[] point = this.getPoint(length, j);
+            double dy = y - point[1];
+            double distance = Math.abs(dy);
+            if (distance < pd)
+            {
+                pd = distance;
+                ret = j;
+            }
+        }
+        return pd < Double.MAX_VALUE ? ret : -1;
+    }
+
+    /* warning: not accurate on multiple results */
+    public double fromXGetY(int length, double x)
+    {
+        return this.getPoint(length, this.getNearestPointFromX(length, x))[1];
+    }
+
+    /* warning: not accurate on multiple results */
+    public double fromYGetX(int length, double y)
+    {
+        return this.getPoint(length, this.getNearestPointFromY(length, y))[0];
     }
 
     public double getSlope(int par1, int par2)
@@ -148,7 +198,7 @@ public final class BezierCurveAdvanced implements ILineAdvanced
         }
     }
 
-    private void initNP()
+    public void initNP()
     {
         this.normalizedParameters = new float[this.split];
         float f = 1.0F / (float) this.split;
