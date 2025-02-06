@@ -2,11 +2,16 @@ package net.cacpixel.rtmmetro.client.gui;
 
 import jp.ngt.ngtlib.gui.GuiContainerCustom;
 import jp.ngt.ngtlib.gui.GuiScreenCustom;
+import net.cacpixel.rtmmetro.ModConfig;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.*;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
@@ -27,9 +32,24 @@ public abstract class GuiScreenAdvanced extends GuiScreen
     protected List<GuiTextFieldAdvanced> textFields = new ArrayList();
     protected GuiTextField currentTextField;
 
+    protected float alpha;
+    public boolean isOpening;
+    public boolean isClosing;
+    protected float openTime;
+    protected float closeTime;
+    protected float duration;
+    protected boolean closeFlag;
+
     public GuiScreenAdvanced()
     {
         super();
+        alpha = 0.05f;
+        isOpening = true;
+        isClosing = false;
+        duration = ModConfig.guiAnimationDuration;
+        openTime = 0;
+        closeTime = 0;
+        closeFlag = false;
     }
 
     @Override
@@ -48,23 +68,42 @@ public abstract class GuiScreenAdvanced extends GuiScreen
     public void drawScreenBefore(int mouseX, int mouseY, float partialTicks)
     {
         GlStateManager.pushMatrix();
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        if (this.isOpening)
+        {
+            this.openTime += partialTicks / 20;
+        }
+        if (this.isClosing)
+        {
+            this.closeTime += partialTicks / 20;
+        }
+        if (this.isOpening && this.openTime > this.duration)
+        {
+            this.isOpening = false;
+        }
+        if (this.isClosing && this.closeTime > this.duration)
+        {
+            this.isClosing = false;
+        }
+        this.updateAlpha();
     }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
-        this.drawScreenBefore(mouseX, mouseY, partialTicks);
         for (GuiTextFieldAdvanced field : this.textFields)
         {
             field.drawTextBox(mouseX, mouseY);
         }
         super.drawScreen(mouseX, mouseY, partialTicks);
-        this.drawScreenAfter(mouseX, mouseY, partialTicks);
     }
 
     public void drawScreenAfter(int mouseX, int mouseY, float partialTicks)
     {
         GlStateManager.popMatrix();
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.disableBlend();
     }
 
     public List<GuiButton> getButtonList()
@@ -89,12 +128,129 @@ public abstract class GuiScreenAdvanced extends GuiScreen
         {
             this.currentTextField.updateCursorCounter();
         }
+        this.switchGuiScreenToPrevious();
     }
 
     @Override
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
+    }
+
+    public void drawWorldBackground(int tint, int left, int top, int right, int bottom)
+    {
+        if (this.mc.world != null)
+        {
+            this.drawGradientRect(left, top, right, bottom, 0x101010 | this.getAlphaInt(0xC0),
+                    0x101010 | this.getAlphaInt(0xD0));
+        }
+        else
+        {
+            this.drawBackground(tint, left, top, right, bottom);
+        }
+    }
+
+    public void drawBackground(int tint, int left, int top, int right, int bottom)
+    {
+        GlStateManager.disableLighting();
+        GlStateManager.disableFog();
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        this.mc.getTextureManager().bindTexture(OPTIONS_BACKGROUND);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        float f = 32.0F;
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+        bufferbuilder.pos(0.0D, (double) this.height, 0.0D).tex(0.0D, (double) ((float) this.height / 32.0F + (float) tint))
+                .color(64, 64, 64, 255).endVertex();
+        bufferbuilder.pos((double) this.width, (double) this.height, 0.0D)
+                .tex((double) ((float) this.width / 32.0F), (double) ((float) this.height / 32.0F + (float) tint)).color(64, 64, 64, 255)
+                .endVertex();
+        bufferbuilder.pos((double) this.width, 0.0D, 0.0D).tex((double) ((float) this.width / 32.0F), (double) tint).color(64, 64, 64, 255)
+                .endVertex();
+        bufferbuilder.pos(0.0D, 0.0D, 0.0D).tex(0.0D, (double) tint).color(64, 64, 64, 255).endVertex();
+        tessellator.draw();
+    }
+
+    @Override
+    public void drawWorldBackground(int tint)
+    {
+        this.drawWorldBackground(tint, 0, 0, this.width, this.height);
+    }
+
+    @Override
+    public void drawDefaultBackground()
+    {
+        this.drawWorldBackground(0);
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
+                new net.minecraftforge.client.event.GuiScreenEvent.BackgroundDrawnEvent(this));
+    }
+
+    public void drawDefaultBackground(int left, int top, int right, int bottom)
+    {
+        this.drawWorldBackground(0, left, top, right, bottom);
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
+                new net.minecraftforge.client.event.GuiScreenEvent.BackgroundDrawnEvent(this));
+    }
+
+    protected void updateAlpha()
+    {
+        if (this.isOpening)
+        {
+            this.alpha = MathHelper.clamp((this.openTime / this.duration), 0.05F, 1.0F);
+        }
+        else if (this.isClosing)
+        {
+            this.alpha = MathHelper.clamp(1.0F - (this.closeTime / this.duration), 0.05F, 1.0F);
+        }
+        else if (!this.isInAnimation() && this.closeFlag)
+        {
+            this.alpha = 0.05F;
+        }
+        else
+        {
+            this.alpha = 1.0F;
+        }
+    }
+
+    protected int getAlphaInt(int a)
+    {
+        return this.getAlphaHighBits(a) << 24;
+    }
+
+    protected int getAlphaHighBits(int a)
+    {
+        return (int) (a * this.alpha);
+    }
+
+    protected float getAlphaFloat(float finalAlphaFloat)
+    {
+        return this.alpha * finalAlphaFloat;
+    }
+
+    public boolean isInAnimation()
+    {
+        return this.isOpening || this.isClosing;
+    }
+
+    protected void displayPrevScreen()
+    {
+        this.closeFlag = true;
+        this.isClosing = true;
+    }
+
+    protected void switchGuiScreenToPrevious()
+    {
+        if (!this.isInAnimation() && closeFlag)
+        {
+            if (parentScreen == null)
+            {
+                this.mc.displayGuiScreen(null);
+            }
+            else
+            {
+                this.mc.displayGuiScreen(this.parentScreen);
+            }
+        }
     }
 
     protected GuiTextFieldAdvanced setTextField(int xPos, int yPos, int w, int h, String text)
@@ -248,7 +404,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen
 
     protected void onPressingEsc()
     {
-        this.displayPrevScreen();
+
     }
 
     protected void onPressingEnter()
@@ -268,6 +424,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen
         }
     }
 
+    @SuppressWarnings("rawtypes,unchecked")
     @Override
     protected void actionPerformed(GuiButton button)
     {
@@ -284,14 +441,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen
         {
             e.printStackTrace();
         }
-    }
-
-    protected void displayPrevScreen()
-    {
-        if (parentScreen == null)
-            this.mc.displayGuiScreen(null);
-        else
-            this.mc.displayGuiScreen(this.parentScreen);
     }
 
     public GuiTextFieldAdvanced getFocusedTextField()
@@ -392,5 +541,42 @@ public abstract class GuiScreenAdvanced extends GuiScreen
     public int getNextButtonIdAndIncrease()
     {
         return NEXT_BUTTON_ID++;
+    }
+
+    public static void drawRect(int left, int top, int right, int bottom, int color)
+    {
+        if (left < right)
+        {
+            int i = left;
+            left = right;
+            right = i;
+        }
+
+        if (top < bottom)
+        {
+            int j = top;
+            top = bottom;
+            bottom = j;
+        }
+
+        float f3 = (float) (color >> 24 & 255) / 255.0F;
+        float f = (float) (color >> 16 & 255) / 255.0F;
+        float f1 = (float) (color >> 8 & 255) / 255.0F;
+        float f2 = (float) (color & 255) / 255.0F;
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.color(f, f1, f2, f3);
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
+        bufferbuilder.pos((double) left, (double) bottom, 0.0D).endVertex();
+        bufferbuilder.pos((double) right, (double) bottom, 0.0D).endVertex();
+        bufferbuilder.pos((double) right, (double) top, 0.0D).endVertex();
+        bufferbuilder.pos((double) left, (double) top, 0.0D).endVertex();
+        tessellator.draw();
+        GlStateManager.enableTexture2D();
+//        GlStateManager.disableBlend();
     }
 }

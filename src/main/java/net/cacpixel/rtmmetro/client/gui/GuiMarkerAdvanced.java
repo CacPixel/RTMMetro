@@ -408,92 +408,97 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
+        this.drawScreenBefore(mouseX, mouseY, partialTicks);
         int stringXpos = 10;
         int stringYpos = 8;
+        int fontColor = 0xE0E0E0 | this.getAlphaInt(0xFF);
+        int fontColorGrey = 0xA0A0A0 | this.getAlphaInt(0xFF);
 
-        this.drawGradientRect(0, 0, this.width, this.height, 0xC0101010, 0xD0101010);
+        this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         //title line
         this.drawString(this.fontRenderer,
                 String.format(TextFormatting.BOLD + "Editing rail marker" + TextFormatting.RESET + " \"%s\" (%d, %d, %d)",
                         this.marker.getName(), this.marker.getX(), this.marker.getY(), this.marker.getZ()), stringXpos, stringYpos,
-                0xFFFFFF);
+                fontColor);
         stringYpos += 12;
         this.drawString(this.fontRenderer,
                 TextFormatting.GRAY + TextFormatting.ITALIC.toString() + "Tips: You can use arrow keys or mouse wheel to adjust values.",
-                stringXpos, stringYpos, 0xFFFFFF);
+                stringXpos, stringYpos, fontColorGrey);
         stringYpos += 12;
         this.drawString(this.fontRenderer,
                 TextFormatting.GRAY + TextFormatting.ITALIC.toString() + "LShift increases step(x10), LAlt decreases step(x0.1).",
-                stringXpos, stringYpos, 0xFFFFFF);
+                stringXpos, stringYpos, fontColorGrey);
         stringYpos += 20;
         stringXpos += 15;
         //groupId
-        this.drawString(this.fontRenderer, "Marker Group", stringXpos, stringYpos, 0xFFFFFF);
-        drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8, 0xFFFFFFFF);
+        this.drawString(this.fontRenderer, "Marker Group", stringXpos, stringYpos, fontColor);
+        drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8, 0xFFFFFF | this.getAlphaInt(0xFF));
         stringYpos += 18;
         //name
-        this.drawString(this.fontRenderer, "Marker Name", stringXpos, stringYpos, 0xFFFFFF);
-        drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8, 0xFFFFFFFF);
+        this.drawString(this.fontRenderer, "Marker Name", stringXpos, stringYpos, fontColor);
+        drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8, 0xFFFFFF | this.getAlphaInt(0xFF));
         stringYpos += 18;
         //rail height
-        this.drawString(this.fontRenderer, "Rail Height", stringXpos, stringYpos, 0xFFFFFF);
+        this.drawString(this.fontRenderer, "Rail Height", stringXpos, stringYpos, fontColor);
         drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.HEIGHT.getColor() | 0xFF000000);
+                RenderMarkerBlock.MarkerElement.HEIGHT.getColor() | this.getAlphaInt(0xFF));
         stringYpos += 18;
         //anchor length horizontal
-        this.drawString(this.fontRenderer, "Horizontal Length", stringXpos, stringYpos, 0xFFFFFF);
+        this.drawString(this.fontRenderer, "Horizontal Length", stringXpos, stringYpos, fontColor);
         drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | 0xFF000000);
+                RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | this.getAlphaInt(0xFF));
         stringYpos += 18;
         //anchor yaw
-        this.drawString(this.fontRenderer, "Anchor Yaw", stringXpos, stringYpos, 0xFFFFFF);
+        this.drawString(this.fontRenderer, "Anchor Yaw", stringXpos, stringYpos, fontColor);
         drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | 0xFF000000);
+                RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | this.getAlphaInt(0xFF));
         stringYpos += 18;
         //anchor length vertical
-        this.drawString(this.fontRenderer, "Vertical Length", stringXpos, stringYpos, 0xFFFFFF);
+        this.drawString(this.fontRenderer, "Vertical Length", stringXpos, stringYpos, fontColor);
         drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | 0xFF000000);
+                RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | this.getAlphaInt(0xFF));
         stringYpos += 18;
         //anchor pitch
-        this.drawString(this.fontRenderer, "Anchor Pitch", stringXpos, stringYpos, 0xFFFFFF);
+        this.drawString(this.fontRenderer, "Anchor Pitch", stringXpos, stringYpos, fontColor);
         drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | 0xFF000000);
+                RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | this.getAlphaInt(0xFF));
         stringYpos += 18;
         //cant edge
-        this.drawString(this.fontRenderer, "Cant Edge", stringXpos, stringYpos, 0xFFFFFF);
+        this.drawString(this.fontRenderer, "Cant Edge", stringXpos, stringYpos, fontColor);
         drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.CANT_EDGE.getColor() | 0xFF000000);
+                RenderMarkerBlock.MarkerElement.CANT_EDGE.getColor() | this.getAlphaInt(0xFF));
         stringYpos += 18;
         //cant center
-        this.drawString(this.fontRenderer, "Cant Center", stringXpos, stringYpos, 0xFFFFFF);
+        this.drawString(this.fontRenderer, "Cant Center", stringXpos, stringYpos, fontColor);
         drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor() | 0xFF000000);
+                RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor() | this.getAlphaInt(0xFF));
         stringYpos += 18;
         //cant random
-        this.drawString(this.fontRenderer, "Cant Random", stringXpos, stringYpos, 0xFFFFFF);
+        this.drawString(this.fontRenderer, "Cant Random", stringXpos, stringYpos, fontColor);
         drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor() | 0xFF000000);
+                RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor() | this.getAlphaInt(0xFF));
         stringYpos += 24;
-        this.drawHorizontalLine(10, 400, stringYpos - 4, 0xFF333333);
+//        this.drawHorizontalLine(10, 400, stringYpos - 4, 0x333333 | this.getAlphaInt(0xFF));
+        drawRect(10, stringYpos - 4, 400, stringYpos - 4 + 1, 0x333333 | this.getAlphaInt(0xFF));
         stringYpos += 10;
         //horizontal edit status
-        this.drawString(this.fontRenderer, "Edit Status of Horizontal:", stringXpos, stringYpos, 0xFFFFFF);
+        this.drawString(this.fontRenderer, "Edit Status of Horizontal:", stringXpos, stringYpos, fontColor);
         drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | 0xFF000000);
+                RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | this.getAlphaInt(0xFF));
         stringYpos += 20;
         //vertical edit status
-        this.drawString(this.fontRenderer, "Edit Status of Vertical:", stringXpos, stringYpos, 0xFFFFFF);
+        this.drawString(this.fontRenderer, "Edit Status of Vertical:", stringXpos, stringYpos, fontColor);
         drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | 0xFF000000);
+                RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | this.getAlphaInt(0xFF));
         stringYpos += 20;
         //rail drawing scheme
-        this.drawString(this.fontRenderer, "Rail Drawing Scheme:", stringXpos, stringYpos, 0xFFFFFF);
+        this.drawString(this.fontRenderer, "Rail Drawing Scheme:", stringXpos, stringYpos, fontColor);
         drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | 0xFF000000);
+                RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | this.getAlphaInt(0xFF));
         stringYpos += 20;
+        this.drawScreenAfter(mouseX, mouseY, partialTicks);
     }
 
     @Override

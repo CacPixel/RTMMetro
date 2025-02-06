@@ -3,7 +3,14 @@ package net.cacpixel.rtmmetro.client.gui;
 import jp.ngt.ngtlib.util.NGTUtilClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.SoundEvents;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -59,7 +66,7 @@ public class GuiTextFieldAdvanced extends GuiTextField
 
     public void drawTextBox(int mouseX, int mouseY)
     {
-        super.drawTextBox();
+        this.drawTextBox();
 
         boolean hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
         if (hovered && !this.tips.isEmpty())
@@ -101,5 +108,111 @@ public class GuiTextFieldAdvanced extends GuiTextField
     public void checkValue()
     {
 
+    }
+
+    public static void drawRect(int left, int top, int right, int bottom, int color)
+    {
+        if (left < right)
+        {
+            int i = left;
+            left = right;
+            right = i;
+        }
+
+        if (top < bottom)
+        {
+            int j = top;
+            top = bottom;
+            bottom = j;
+        }
+
+        float f3 = (float) (color >> 24 & 255) / 255.0F;
+        float f = (float) (color >> 16 & 255) / 255.0F;
+        float f1 = (float) (color >> 8 & 255) / 255.0F;
+        float f2 = (float) (color & 255) / 255.0F;
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.color(f, f1, f2, f3);
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
+        bufferbuilder.pos((double) left, (double) bottom, 0.0D).endVertex();
+        bufferbuilder.pos((double) right, (double) bottom, 0.0D).endVertex();
+        bufferbuilder.pos((double) right, (double) top, 0.0D).endVertex();
+        bufferbuilder.pos((double) left, (double) top, 0.0D).endVertex();
+        tessellator.draw();
+        GlStateManager.enableTexture2D();
+//        GlStateManager.disableBlend();
+    }
+
+    public void drawTextBox()
+    {
+        if (this.getVisible())
+        {
+            if (this.getEnableBackgroundDrawing())
+            {
+                drawRect(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, 0xA0A0A0 | pScr.getAlphaInt(0xFF));
+                drawRect(this.x, this.y, this.x + this.width, this.y + this.height, 0x0 | pScr.getAlphaInt(0xFF));
+            }
+
+            int color = this.isEnabled ? this.enabledColor | pScr.getAlphaInt(0xFF) : this.disabledColor | pScr.getAlphaInt(0xFF);
+            int j = this.cursorPosition - this.lineScrollOffset;
+            int k = this.selectionEnd - this.lineScrollOffset;
+            String s = this.fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
+            boolean flag = j >= 0 && j <= s.length();
+            boolean flag1 = this.isFocused && this.cursorCounter / 6 % 2 == 0 && flag;
+            int l = this.enableBackgroundDrawing ? this.x + 4 : this.x;
+            int i1 = this.enableBackgroundDrawing ? this.y + (this.height - 8) / 2 : this.y;
+            int j1 = l;
+
+            if (k > s.length())
+            {
+                k = s.length();
+            }
+
+            if (!s.isEmpty())
+            {
+                String s1 = flag ? s.substring(0, j) : s;
+                j1 = this.fontRenderer.drawStringWithShadow(s1, (float) l, (float) i1, color);
+            }
+
+            boolean flag2 = this.cursorPosition < this.text.length() || this.text.length() >= this.getMaxStringLength();
+            int k1 = j1;
+
+            if (!flag)
+            {
+                k1 = j > 0 ? l + this.width : l;
+            }
+            else if (flag2)
+            {
+                k1 = j1 - 1;
+                --j1;
+            }
+
+            if (!s.isEmpty() && flag && j < s.length())
+            {
+                j1 = this.fontRenderer.drawStringWithShadow(s.substring(j), (float) j1, (float) i1, color);
+            }
+
+            if (flag1)
+            {
+                if (flag2)
+                {
+                    drawRect(k1, i1 - 1, k1 + 1, i1 + 1 + this.fontRenderer.FONT_HEIGHT, 0xD0D0D0 | pScr.getAlphaInt(0xFF));
+                }
+                else
+                {
+                    this.fontRenderer.drawStringWithShadow("_", (float) k1, (float) i1, color);
+                }
+            }
+
+            if (k != j)
+            {
+                int l1 = l + this.fontRenderer.getStringWidth(s.substring(0, k));
+                this.drawSelectionBox(k1, i1 - 1, l1 - 1, i1 + 1 + this.fontRenderer.FONT_HEIGHT);
+            }
+        }
     }
 }

@@ -42,6 +42,10 @@ public class GuiHelper
             {
                 ret = (T) Integer.valueOf(result);
             }
+            else if (defaultVal instanceof Long)
+            {
+                ret = (T) Long.valueOf(result);
+            }
             else if (defaultVal instanceof Float)
             {
                 ret = (T) Float.valueOf(result);

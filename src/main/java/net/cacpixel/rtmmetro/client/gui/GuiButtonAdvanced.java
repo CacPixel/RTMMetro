@@ -39,10 +39,10 @@ public class GuiButtonAdvanced extends GuiButton // GuiButtonExt
                 this.hovered = false;
             }
             int k = this.getHoverState(this.hovered);
-            GuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200, 20,
-                    2, 3, 2, 2, this.zLevel);
+            CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200, 20,
+                    2, 3, 2, 2, this.zLevel, pScr);
             this.mouseDragged(mc, mouseX, mouseY);
-            int color = 14737632;
+            int color = 0xE0E0E0;
 
             if (packedFGColour != 0)
             {
@@ -50,14 +50,15 @@ public class GuiButtonAdvanced extends GuiButton // GuiButtonExt
             }
             else if (!this.enabled)
             {
-                color = 10526880;
+                color = 0xA0A0A0;
             }
             else if (this.hovered)
             {
-//                color = 16777120;
+//                color = 0xFFFFA0;
             }
 
             String buttonText = this.displayString;
+            color |= pScr.getAlphaInt(0xFF);
             // GuiButtonExt的缩减字符功能，我更希望能全部显示出所有的字符，省略了反而会不知道末尾显示什么
 //            int strWidth = mc.fontRenderer.getStringWidth(buttonText);
 //            int ellipsisWidth = mc.fontRenderer.getStringWidth("...");

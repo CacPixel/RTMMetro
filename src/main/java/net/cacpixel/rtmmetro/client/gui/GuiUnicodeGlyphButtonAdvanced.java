@@ -30,8 +30,8 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced // GuiUnico
                 this.hovered = false;
             }
             int k = this.getHoverState(this.hovered);
-            GuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200, 20,
-                    2, 3, 2, 2, this.zLevel);
+            CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200, 20,
+                    2, 3, 2, 2, this.zLevel, pScr);
             this.mouseDragged(mc, mouseX, mouseY);
             int color = 14737632;
 
@@ -47,6 +47,7 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced // GuiUnico
             {
 //                color = 16777120;
             }
+            color |= pScr.getAlphaInt(0xFF);
 
             String buttonText = this.displayString;
             int glyphWidth = (int) (mc.fontRenderer.getStringWidth(glyph) * glyphScale);
