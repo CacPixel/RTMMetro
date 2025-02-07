@@ -1,18 +1,17 @@
-package net.cacpixel.rtmmetro.client.gui;
+package net.cacpixel.rtmmetro.client.gui.widgets;
 
+import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
+import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraftforge.fml.client.config.GuiUtils;
 
-import java.util.function.Consumer;
-
-public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced // GuiUnicodeGlyphButton
+public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced implements IGuiWidget
 {
     public String glyph;
     public float glyphScale;
 
     public GuiUnicodeGlyphButtonAdvanced(int id, int xPos, int yPos, int width, int height, String displayString, String glyph,
-                                         float glyphScale, GuiScreenAdvanced pScr, Consumer<?> callback)
+                                         float glyphScale, GuiScreenAdvanced pScr, IActionListener callback)
     {
         super(id, xPos, yPos, width, height, displayString, pScr, callback);
         this.glyph = glyph;
@@ -30,7 +29,8 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced // GuiUnico
                 this.hovered = false;
             }
             int k = this.getHoverState(this.hovered);
-            CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200, 20,
+            CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200,
+                    20,
                     2, 3, 2, 2, this.zLevel, pScr);
             this.mouseDragged(mc, mouseX, mouseY);
             int color = 14737632;

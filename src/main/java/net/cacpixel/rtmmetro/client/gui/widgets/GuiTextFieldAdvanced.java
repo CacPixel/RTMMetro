@@ -1,12 +1,11 @@
-package net.cacpixel.rtmmetro.client.gui;
+package net.cacpixel.rtmmetro.client.gui.widgets;
 
-import jp.ngt.ngtlib.util.NGTUtilClient;
-import net.minecraft.client.Minecraft;
+import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
+import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -14,13 +13,12 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.SoundEvents;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.input.Mouse;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @SideOnly(Side.CLIENT)
-public class GuiTextFieldAdvanced extends GuiTextField
+public class GuiTextFieldAdvanced extends GuiTextField implements IGuiWidget
 {
     protected final GuiScreenAdvanced pScr;
     private final List<String> tips = new ArrayList<>();
@@ -32,30 +30,9 @@ public class GuiTextFieldAdvanced extends GuiTextField
         this.pScr = pScr;
     }
 
-    public void handleMouseInput()
-    {
-
-    }
-
-    public void handleKeyboardInput()
-    {
-        this.setScrValueUpdated();
-    }
-
     public boolean isValueValid()
     {
         return true;
-    }
-
-    // NoSuchFieldError guiResponder with optifine in dev env (resolved)
-    public boolean isMouseInside()
-    {
-        Minecraft mc = NGTUtilClient.getMinecraft();
-        ScaledResolution sr = new ScaledResolution(mc);
-        int mouseX = Mouse.getX() / sr.getScaleFactor();
-        int mouseY = (mc.displayHeight - Mouse.getY()) / sr.getScaleFactor();
-        return this.x < mouseX && mouseX < (this.x + this.width)
-                && this.y < mouseY && mouseY < (this.y + this.height);
     }
 
     @Override
@@ -72,14 +49,6 @@ public class GuiTextFieldAdvanced extends GuiTextField
         if (hovered && !this.tips.isEmpty())
         {
             GuiScreenAdvanced.drawHoveringTextS(this.tips, mouseX, mouseY, this.pScr);
-        }
-    }
-
-    public void setScrValueUpdated()
-    {
-        if (this.pScr instanceof GuiScreenAdvanced)
-        {
-            ((GuiScreenAdvanced) this.pScr).hasValueUpdated = true;
         }
     }
 
@@ -138,10 +107,10 @@ public class GuiTextFieldAdvanced extends GuiTextField
                 GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.color(f, f1, f2, f3);
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
-        bufferbuilder.pos((double) left, (double) bottom, 0.0D).endVertex();
-        bufferbuilder.pos((double) right, (double) bottom, 0.0D).endVertex();
-        bufferbuilder.pos((double) right, (double) top, 0.0D).endVertex();
-        bufferbuilder.pos((double) left, (double) top, 0.0D).endVertex();
+        bufferbuilder.pos(left, bottom, 0.0D).endVertex();
+        bufferbuilder.pos(right, bottom, 0.0D).endVertex();
+        bufferbuilder.pos(right, top, 0.0D).endVertex();
+        bufferbuilder.pos(left, top, 0.0D).endVertex();
         tessellator.draw();
         GlStateManager.enableTexture2D();
 //        GlStateManager.disableBlend();
@@ -214,5 +183,41 @@ public class GuiTextFieldAdvanced extends GuiTextField
                 this.drawSelectionBox(k1, i1 - 1, l1 - 1, i1 + 1 + this.fontRenderer.FONT_HEIGHT);
             }
         }
+    }
+
+    @Override
+    public void onClick(int mouseX, int mouseY, int mouseButton)
+    {
+        if (this.isEnabled() && this.isVisible())
+            this.mouseClicked(mouseX, mouseY, mouseButton);
+    }
+
+    @Override
+    public void onDrag(int mouseX, int mouseY, int mouseButton)
+    {
+        // TODO: mouse drag to select on Text field
+    }
+
+    @Override
+    public void onKeyTyped(char typedChar, int keyCode)
+    {
+        this.textboxKeyTyped(typedChar, keyCode);
+    }
+
+    public boolean isMouseInside()
+    {
+        return CacGuiUtils.isMouseInside(x, y, width, height);
+    }
+
+    @Override
+    public void draw(int mouseX, int mouseY, float partialTicks)
+    {
+        this.drawTextBox();
+    }
+
+    @Override
+    public boolean isVisible()
+    {
+        return getVisible();
     }
 }

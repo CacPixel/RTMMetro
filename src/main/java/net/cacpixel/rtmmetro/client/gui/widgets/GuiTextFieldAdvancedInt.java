@@ -1,11 +1,12 @@
-package net.cacpixel.rtmmetro.client.gui;
+package net.cacpixel.rtmmetro.client.gui.widgets;
 
+import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
+import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 
-public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
+public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced implements IGuiWidget
 {
     public int fieldValue;
     public int step = 1;
@@ -36,10 +37,8 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
 
 
     @Override
-    public void handleMouseInput()
+    public void onScroll(int mouseX, int mouseY, int scroll)
     {
-        super.handleMouseInput();
-        int scroll = Mouse.getEventDWheel();
         if (this.isMouseInside())
         {
             try
@@ -57,40 +56,37 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
     }
 
     @Override
-    public void handleKeyboardInput()
-    {
-        super.handleKeyboardInput();
-        if (this.isFocused())
-        {
-            if (Keyboard.getEventKey() == Keyboard.KEY_UP && Keyboard.isKeyDown(Keyboard.KEY_UP))
-            {
-                this.incValue(DEFAULT_SCROLL_VALUE);
-                this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
-                this.checkValueAndSetText();
-            }
-            else if (Keyboard.getEventKey() == Keyboard.KEY_DOWN && Keyboard.isKeyDown(Keyboard.KEY_DOWN))
-            {
-                this.incValue(-DEFAULT_SCROLL_VALUE);
-                this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
-                this.checkValueAndSetText();
-            }
-        }
-    }
-
-    @Override
     public boolean textboxKeyTyped(char word, int code)
     {
         boolean ret = super.textboxKeyTyped(word, code);
-        if (!ret)
-            return false;
-        this.fieldValue = GuiHelper.getFieldValue(this, this.fieldValue);
-        if (this.isValueValid())
+        if (this.isFocused() && this.getVisible() && this.isEnabled())
         {
-            this.setScrValueUpdated();
-        }
-        else
-        {
-            this.checkValue();
+            if (code == Keyboard.KEY_UP)
+            {
+                this.incValue(DEFAULT_SCROLL_VALUE);
+                this.fieldValue = CacGuiUtils.getFieldValue(this, this.fieldValue);
+                this.checkValueAndSetText();
+                this.pScr.hasValueUpdated = true;
+            }
+            else if (code == Keyboard.KEY_DOWN)
+            {
+                this.incValue(-DEFAULT_SCROLL_VALUE);
+                this.fieldValue = CacGuiUtils.getFieldValue(this, this.fieldValue);
+                this.checkValueAndSetText();
+                this.pScr.hasValueUpdated = true;
+            }
+            else
+            {
+                this.fieldValue = CacGuiUtils.getFieldValue(this, this.fieldValue);
+                if (this.isValueValid())
+                {
+                    this.pScr.hasValueUpdated = true;
+                }
+                else
+                {
+                    this.checkValue();
+                }
+            }
         }
         return ret;
     }
@@ -116,11 +112,7 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
     @Override
     public boolean isValueValid()
     {
-        if (this.fieldValue < this.minValue || this.fieldValue > this.maxValue)
-        {
-            return false;
-        }
-        return true;
+        return this.fieldValue >= this.minValue && this.fieldValue <= this.maxValue;
     }
 
     @Override
@@ -128,7 +120,7 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
     {
         super.checkValueAndSetText();
         this.setText(String.valueOf(this.fieldValue));
-        this.setScrValueUpdated();
+        this.pScr.hasValueUpdated = true;
     }
 
     @Override

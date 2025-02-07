@@ -1,30 +1,30 @@
-package net.cacpixel.rtmmetro.client.gui;
+package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.RTMMetro;
+import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
+import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;
 
-import java.util.function.Consumer;
-
-public class GuiButtonAdvanced extends GuiButton // GuiButtonExt
+public class GuiButtonAdvanced extends GuiButton implements IGuiWidget
 {
     protected static final ResourceLocation RTMMETRO_BUTTON_TEXTURES = new ResourceLocation(RTMMetro.MODID, "textures/gui/widgets.png");
     public GuiScreenAdvanced pScr;
-    public Consumer<?> callback;
+    public IActionListener listener;
 
     public GuiButtonAdvanced(int id, int xPos, int yPos, String displayString,
-                             GuiScreenAdvanced pScr, Consumer<?> callback)
+                             GuiScreenAdvanced pScr, IActionListener listener)
     {
-        this(id, xPos, yPos, 200, 20, displayString, pScr, callback);
+        this(id, xPos, yPos, 200, 20, displayString, pScr, listener);
     }
 
     public GuiButtonAdvanced(int id, int xPos, int yPos, int width, int height, String displayString,
-                             GuiScreenAdvanced pScr, Consumer<?> callback)
+                             GuiScreenAdvanced pScr, IActionListener listener)
     {
         super(id, xPos, yPos, width, height, displayString);
         this.pScr = pScr;
-        this.callback = callback;
+        this.listener = listener;
     }
 
     @Override
@@ -79,5 +79,44 @@ public class GuiButtonAdvanced extends GuiButton // GuiButtonExt
     public void setEnabled(boolean enabled)
     {
         this.enabled = enabled;
+    }
+
+    @Override
+    public void setVisible(boolean visible)
+    {
+        this.visible = visible;
+    }
+
+    @Override
+    public void onClick(int mouseX, int mouseY, int mouseButton)
+    {
+        if (this.listener != null && this.isMouseInside())
+        {
+            this.listener.onAction();
+        }
+    }
+
+    @Override
+    public boolean isMouseInside()
+    {
+        return CacGuiUtils.isMouseInside(x, y, width, height);
+    }
+
+    @Override
+    public void draw(int mouseX, int mouseY, float partialTicks)
+    {
+        this.drawButton(pScr.mc, mouseX, mouseY, partialTicks);
+    }
+
+    @Override
+    public boolean isVisible()
+    {
+        return this.visible;
+    }
+
+    @Override
+    public boolean isEnabled()
+    {
+        return this.enabled;
     }
 }

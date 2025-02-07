@@ -1,5 +1,10 @@
-package net.cacpixel.rtmmetro.client.gui;
+package net.cacpixel.rtmmetro.client.gui.screens;
 
+import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
+import net.cacpixel.rtmmetro.client.gui.GuiScreenWindowed;
+import net.cacpixel.rtmmetro.client.gui.widgets.GuiCheckBoxAdvanced;
+import net.cacpixel.rtmmetro.client.gui.widgets.GuiTextFieldAdvancedInt;
+import net.cacpixel.rtmmetro.client.gui.widgets.WidgetFactory;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -10,7 +15,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.function.DoubleConsumer;
 
 @SideOnly(Side.CLIENT)
-public class GuiCalculateCant extends GuiScreenAdvanced
+public class GuiCalculateCant extends GuiScreenWindowed
 {
     private final DoubleConsumer consumer;
     private GuiTextFieldAdvancedInt fieldSpeed;
@@ -39,21 +44,21 @@ public class GuiCalculateCant extends GuiScreenAdvanced
         int fieldWidth = 75;
         int fieldHeight = 16;
         //speed
-        this.fieldSpeed = this.setTextField(hw, hh - 50, fieldWidth, fieldHeight, 80, 10, 1000, false);
+        this.fieldSpeed = WidgetFactory.addTextField(this, hw, hh - 50, fieldWidth, fieldHeight, 80, 10, 1000, false);
         //radius
-        this.fieldRadius = this.setTextField(hw, hh - 30, fieldWidth, fieldHeight, 500, 10, 10000, false);
+        this.fieldRadius = WidgetFactory.addTextField(this, hw, hh - 30, fieldWidth, fieldHeight, 500, 10, 10000, false);
         //gauge
-        this.fieldGauge = this.setTextField(hw, hh - 10, fieldWidth, fieldHeight, 1435, 500, 3000, false);
+        this.fieldGauge = WidgetFactory.addTextField(this, hw, hh - 10, fieldWidth, fieldHeight, 1435, 500, 3000, false);
         //reversed
-        this.checkBoxFlip = this.addCheckBox(hw, hh + 10, fieldWidth, fieldHeight, "Flip", false, button -> {});
+        this.checkBoxFlip = WidgetFactory.addCheckBox(this, hw, hh + 10, fieldWidth, fieldHeight, "Flip", false, null);
         //ok
-        this.buttonOK = this.addButton(hw - 80 + 90, hh + 70, 160, 20, I18n.format("gui.done"), b -> {
+        this.buttonOK = WidgetFactory.addButton(this, hw - 80 + 90, hh + 70, 160, 20, I18n.format("gui.done"), () -> {
             if (!(Float.isNaN(cant) || Float.isInfinite(cant)))
                 this.consumer.accept(this.cant);
             this.displayPrevScreen();
         });
         //cancel
-        this.buttonCancel = this.addButton(hw - 80 - 90, hh + 70, 160, 20, I18n.format("gui.cancel"), b -> {
+        this.buttonCancel = WidgetFactory.addButton(this, hw - 80 - 90, hh + 70, 160, 20, I18n.format("gui.cancel"), () -> {
             this.displayPrevScreen();
         });
     }
@@ -76,9 +81,9 @@ public class GuiCalculateCant extends GuiScreenAdvanced
         cant = this.checkBoxFlip.isChecked() ? -cant : cant;
         String colorPrefix = addedHeight > 0.150F ? TextFormatting.RED.toString() : TextFormatting.GREEN.toString();
         this.drawCenteredString(this.fontRenderer, TextFormatting.BOLD + "Calculate Rail Cant", hw, hh - 80 + 4, fontColor);
-        this.drawRightAlignedString(this.fontRenderer, "Speed (km/h)", hw - 5, hh - 50 + 4, fontColor);
-        this.drawRightAlignedString(this.fontRenderer, "Curve Radius (m)", hw - 5, hh - 30 + 4, fontColor);
-        this.drawRightAlignedString(this.fontRenderer, "Rail Gauge (mm)", hw - 5, hh - 10 + 4, fontColor);
+        CacGuiUtils.drawRightAlignedString(this.fontRenderer, "Speed (km/h)", hw - 5, hh - 50 + 4, fontColor);
+        CacGuiUtils.drawRightAlignedString(this.fontRenderer, "Curve Radius (m)", hw - 5, hh - 30 + 4, fontColor);
+        CacGuiUtils.drawRightAlignedString(this.fontRenderer, "Rail Gauge (mm)", hw - 5, hh - 10 + 4, fontColor);
         if (Float.isNaN(cant) || Float.isInfinite(cant))
         {
             this.buttonOK.enabled = false;
@@ -94,8 +99,8 @@ public class GuiCalculateCant extends GuiScreenAdvanced
                     hh + 30, fontColor);
         }
         this.drawCenteredString(this.fontRenderer,
-                "Outer rail will add " + colorPrefix + TextFormatting.UNDERLINE + String.format("%.1f", addedHeight * 1000.0F) +
-                        TextFormatting.RESET + "mm height.", hw, hh + 45, fontColor);
+                "Outer rail will raise " + colorPrefix + TextFormatting.UNDERLINE + String.format("%.1f", addedHeight * 1000.0F) +
+                        TextFormatting.RESET + "mm.", hw, hh + 45, fontColor);
         this.drawScreenAfter(mouseX, mouseY, partialTicks);
     }
 

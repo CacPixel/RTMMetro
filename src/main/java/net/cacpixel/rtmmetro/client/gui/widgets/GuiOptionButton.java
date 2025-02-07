@@ -1,27 +1,27 @@
-package net.cacpixel.rtmmetro.client.gui;
+package net.cacpixel.rtmmetro.client.gui.widgets;
 
+import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.cacpixel.rtmmetro.util.ITranslatable;
 import net.minecraft.client.resources.I18n;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 
-public class GuiOptionButton<E extends Enum<E>> extends GuiButtonAdvanced
+public class GuiOptionButton<E extends Enum<E>> extends GuiButtonAdvanced implements IGuiWidget
 {
     private final List<E> options = new ArrayList<>();
     private E selectedOption;
     public String prefix;
 
     public GuiOptionButton(int id, int xPos, int yPos, String prefix, E[] values, E initVal,
-                           GuiScreenAdvanced pScr, Consumer<?> callback)
+                           GuiScreenAdvanced pScr, IActionListener callback)
     {
         this(id, xPos, yPos, 200, 20, prefix, values, initVal, pScr, callback);
     }
 
     public GuiOptionButton(int id, int xPos, int yPos, int width, int height, String prefix, E[] values, E initVal,
-                           GuiScreenAdvanced pScr, Consumer<?> callback)
+                           GuiScreenAdvanced pScr, IActionListener callback)
     {
         super(id, xPos, yPos, width, height, prefix, pScr, callback);
         this.prefix = prefix;

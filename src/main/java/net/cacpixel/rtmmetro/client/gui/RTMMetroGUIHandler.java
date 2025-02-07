@@ -1,6 +1,9 @@
 package net.cacpixel.rtmmetro.client.gui;
 
 import jp.ngt.ngtlib.block.BlockUtil;
+import net.cacpixel.rtmmetro.client.gui.screens.GuiMarkerAdvanced;
+import net.cacpixel.rtmmetro.client.gui.screens.GuiRailAdvanced;
+import net.cacpixel.rtmmetro.client.gui.screens.GuiRigidCatenarySettings;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;

@@ -1,18 +1,17 @@
-package net.cacpixel.rtmmetro.client.gui;
+package net.cacpixel.rtmmetro.client.gui.widgets;
 
+import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.client.config.GuiUtils;
 
-import java.util.function.Consumer;
-
-public class GuiCheckBoxAdvanced extends GuiButtonAdvanced
+public class GuiCheckBoxAdvanced extends GuiButtonAdvanced implements IGuiWidget
 {
     private boolean isChecked;
-    private int boxWidth;
+    private final int boxWidth;
 
     public GuiCheckBoxAdvanced(int id, int xPos, int yPos, String displayString, boolean isChecked,
-                               GuiScreenAdvanced pScr, Consumer<?> callback)
+                               GuiScreenAdvanced pScr, IActionListener callback)
     {
         super(id, xPos, yPos, displayString, pScr, callback);
         this.isChecked = isChecked;
