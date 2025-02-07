@@ -348,7 +348,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
     {
         List<RailMap> rms = new ArrayList<>();
         marker.linePos = new float[1][][];
-        RailMapAdvanced railmap = (RailMapAdvanced) marker.getOriginalRailMap();
+        RailMapAdvanced railmap = marker.getOriginalRailMap();
         if (railmap == null)
             return;
         rms.add(railmap);
@@ -418,7 +418,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
         MarkerElement element = MarkerElement.values()[marker.editMode];
         if (marker.editMode == 0 && NGTUtilClient.getMinecraft().inGameHasFocus)
         {
-            element = this.renderAnchorLine(marker, true, (MarkerElement) null);
+            element = this.renderAnchorLine(marker, true, null);
         }
 
         if (marker.editMode == 0 && element != MarkerElement.NONE && Mouse.isButtonDown(1))
@@ -585,7 +585,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
             GL11.glScalef(-f6, -f6, f6);
             float f7 = 3.0F;
             float f8 = -34.0F;
-            fontrenderer.drawString(String.valueOf((int) railposition.height), f7, f8, MarkerElement.HEIGHT.getColor(),
+            fontrenderer.drawString(String.valueOf(railposition.height), f7, f8, MarkerElement.HEIGHT.getColor(),
                     false);
             f8 = f8 + 6.0F;
             fontrenderer.drawString(String.valueOf(railposition.anchorYaw), f7, f8,
@@ -653,7 +653,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
             {
                 if (element == MarkerElement.HEIGHT)
                 {
-                    int i = marker.startMarkerHeight + (int) (-pitch / 1.0F);
+                    int i = marker.startMarkerHeight + (int) (-pitch);
                     i = i < 0 ? 0 : (i > 15 ? 15 : i);
                     RailPosition nb = TileEntityMarkerAdvanced.getNeighborRP(marker);
                     if (nb != null)
@@ -895,7 +895,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
 
         public final int color;
 
-        private MarkerElement(int par2)
+        MarkerElement(int par2)
         {
             this.color = par2;
         }

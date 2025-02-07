@@ -260,7 +260,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         BlockPos blockpos = null;
         if (list.size() == 1)
         {
-            RailPosition railposition = this.getMarkerRP((BlockPos) list.get(0));
+            RailPosition railposition = this.getMarkerRP(list.get(0));
             if (railposition != null && railposition.hasScript())
             {
 //                RailMapAdvanced railmap = new RailMapCustom(railposition, railposition.scriptName, railposition
@@ -278,8 +278,8 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         {
             if (list.get(0) != null && list.get(1) != null)
             {
-                RailPosition startRP = this.getMarkerRP((BlockPos) list.get(0));
-                RailPosition endRP = this.getMarkerRP((BlockPos) list.get(1));
+                RailPosition startRP = this.getMarkerRP(list.get(0));
+                RailPosition endRP = this.getMarkerRP(list.get(1));
                 if (startRP != null && endRP != null)
                 {
                     List<RailMapAdvanced> rms = new ArrayList<>();
@@ -359,7 +359,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             {
                 for (int i = 0; i < list.size(); ++i)
                 {
-                    BlockPos blockpos1 = (BlockPos) list.get(i);
+                    BlockPos blockpos1 = list.get(i);
                     TileEntity tileentity = BlockUtil.getTileEntity(this.getWorld(), blockpos1);
                     if (tileentity instanceof TileEntityMarkerAdvanced)
                     {
@@ -390,7 +390,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         this.grid = new ArrayList<>();
         for (RailMap railmap : this.railMaps)
         {
-            this.grid.addAll(((RailMapAdvanced) railmap).getRailBlockList(ItemRail.getDefaultProperty(), true));
+            this.grid.addAll(railmap.getRailBlockList(ItemRail.getDefaultProperty(), true));
         }
     }
 
@@ -510,7 +510,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     public String getStateString(MarkerState state)
     {
         boolean flag = state.get(this.markerState);
-        return String.format("%s : %s", state.toString(), flag ? "ON" : "OFF");
+        return String.format("%s : %s", state, flag ? "ON" : "OFF");
     }
 
     public static TileEntityMarkerAdvanced getNeighborMarker(World world, RailPosition rp)
@@ -664,7 +664,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         public MarkerCriticalValues clone()
         {
             MarkerCriticalValues value = new MarkerCriticalValues(this);
-            value.name = new String(this.name);
+            value.name = this.name;
             value.pos = new BlockPos(this.pos.getX(), this.pos.getY(), this.pos.getZ());
             value.rp = RailMapAdvanced.cloneRP(this.rp);
             value.markerPosList = new ArrayList<>();

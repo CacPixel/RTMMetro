@@ -126,10 +126,10 @@ public class RailMapAdvanced extends RailMapBasic
                 this.endRP.anchorLengthHorizontal = getDefaultHorizontal(endRP, startRP, scheme);
             }
 
-            double d18 = (double) (NGTMath.cos(this.startRP.anchorYaw) * this.startRP.anchorLengthHorizontal);
-            double d14 = (double) (NGTMath.sin(this.startRP.anchorYaw) * this.startRP.anchorLengthHorizontal);
-            double d15 = (double) (NGTMath.cos(this.endRP.anchorYaw) * this.endRP.anchorLengthHorizontal);
-            double d16 = (double) (NGTMath.sin(this.endRP.anchorYaw) * this.endRP.anchorLengthHorizontal);
+            double d18 = NGTMath.cos(this.startRP.anchorYaw) * this.startRP.anchorLengthHorizontal;
+            double d14 = NGTMath.sin(this.startRP.anchorYaw) * this.startRP.anchorLengthHorizontal;
+            double d15 = NGTMath.cos(this.endRP.anchorYaw) * this.endRP.anchorLengthHorizontal;
+            double d16 = NGTMath.sin(this.endRP.anchorYaw) * this.endRP.anchorLengthHorizontal;
             this.lineHorizontal = new BezierCurveAdvanced(startZ, startX, startZ + d18, startX + d14, endZ + d15,
                     endX + d16, endZ, endX);
         }
@@ -151,10 +151,10 @@ public class RailMapAdvanced extends RailMapBasic
         }
         else
         {
-            double d8 = (double) (NGTMath.cos(this.startRP.anchorPitch) * this.startRP.anchorLengthVertical);
-            double d10 = (double) (NGTMath.sin(this.startRP.anchorPitch) * this.startRP.anchorLengthVertical);
-            double d12 = (double) (NGTMath.cos(this.endRP.anchorPitch) * this.endRP.anchorLengthVertical);
-            double d20 = (double) (NGTMath.sin(this.endRP.anchorPitch) * this.endRP.anchorLengthVertical);
+            double d8 = NGTMath.cos(this.startRP.anchorPitch) * this.startRP.anchorLengthVertical;
+            double d10 = NGTMath.sin(this.startRP.anchorPitch) * this.startRP.anchorLengthVertical;
+            double d12 = NGTMath.cos(this.endRP.anchorPitch) * this.endRP.anchorLengthVertical;
+            double d20 = NGTMath.sin(this.endRP.anchorPitch) * this.endRP.anchorLengthVertical;
             this.lineVertical = new BezierCurveAdvanced(0.0D, startY, d8, startY + d10, d17 - d12, endY + d20, d17,
                     endY);
         }
@@ -182,8 +182,8 @@ public class RailMapAdvanced extends RailMapBasic
     @Override
     protected void createRailList(ResourceStateRail prop)
     {
-        ModelSetRail modelSet = (ModelSetRail) prop.getResourceSet();
-        int halfWidth = ((RailConfig) modelSet.getConfig()).ballastWidth >> 1;
+        ModelSetRail modelSet = prop.getResourceSet();
+        int halfWidth = modelSet.getConfig().ballastWidth >> 1;
         this.rails.clear();
         int split = (int) (this.getLength() * 4.0);
         double halfPi = 1.5707963267948966;
@@ -193,7 +193,7 @@ public class RailMapAdvanced extends RailMapBasic
             double[] point = this.getRailPos(split, j);
             double x = point[1];
             double z = point[0];
-            double slope = (double) NGTMath.toRadians(this.getRailYaw(split, j));
+            double slope = NGTMath.toRadians(this.getRailYaw(split, j));
             double height = this.getRailHeight(split, j);
             int y = (int) height;
 
@@ -300,7 +300,7 @@ public class RailMapAdvanced extends RailMapBasic
                 for (int j = 0; j < template[i].length; ++j)
                 {
                     int w = minWidth + j;
-                    Vec3 vec = new Vec3((double) w, (double) h, 0.0);
+                    Vec3 vec = new Vec3(w, h, 0.0);
                     vec = vec.rotateAroundY(yaw);
                     BlockPos pos = new BlockPos(x + vec.getX(), y + vec.getY(), z + vec.getZ());
                     if (k == 0)

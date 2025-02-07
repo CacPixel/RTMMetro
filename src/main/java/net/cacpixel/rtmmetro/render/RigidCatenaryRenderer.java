@@ -51,13 +51,13 @@ public class RigidCatenaryRenderer extends TileEntityPartsRenderer<ModelSetRigid
     protected void renderRailStatic(TileEntityLargeRailCore tileEntity, double x, double y, double z, float par8)
     {
         ScriptUtil.doScriptIgnoreError(this.getScript(), "renderRailStatic",
-                new Object[]{tileEntity, x, y, z, par8, 0});
+                tileEntity, x, y, z, par8, 0);
     }
 
     protected void renderRailDynamic(TileEntityLargeRailCore tileEntity, double x, double y, double z, float par8)
     {
         ScriptUtil.doScriptIgnoreError(this.getScript(), "renderRailDynamic",
-                new Object[]{tileEntity, x, y, z, par8, 0});
+                tileEntity, x, y, z, par8, 0);
     }
 
     protected boolean shouldRenderObject(TileEntityLargeRailCore tileEntity, String objName, int len, int pos)
@@ -109,7 +109,7 @@ public class RigidCatenaryRenderer extends TileEntityPartsRenderer<ModelSetRigid
                 FloatBuffer fb = this.createMatrix(fa);
                 GLHelper.startCompile(rail.glLists[this.currentRailIndex]);
                 this.tessellateParts(rail, fb, brightness,
-                        ((ModelSetRigidCatenary) this.modelSet).modelObj.model.getGroupObjects());
+                        this.modelSet.modelObj.model.getGroupObjects());
                 GLHelper.endCompile();
                 rail.shouldRerenderRail = false;
                 hasGLList = true;
@@ -142,7 +142,7 @@ public class RigidCatenaryRenderer extends TileEntityPartsRenderer<ModelSetRigid
         RailMap[] rms = par1.getAllRailMaps();
         if (rms == null)
         {
-            return (float[][]) null;
+            return null;
         }
         else
         {
@@ -169,7 +169,7 @@ public class RigidCatenaryRenderer extends TileEntityPartsRenderer<ModelSetRigid
                 }
             }
 
-            return (float[][]) list.toArray(new float[list.size()][5]);
+            return list.toArray(new float[list.size()][5]);
         }
     }
 
@@ -235,13 +235,13 @@ public class RigidCatenaryRenderer extends TileEntityPartsRenderer<ModelSetRigid
 
             for (int j = 0; j < gObjList.size(); ++j)
             {
-                GroupObject group = (GroupObject) gObjList.get(j);
+                GroupObject group = gObjList.get(j);
                 if ((!group.name.startsWith("side") || i == 0 || i == capacity - 1) &&
                         this.shouldRenderObject(tileEntity, group.name, capacity, i))
                 {
                     for (int k = 0; k < group.faces.size(); ++k)
                     {
-                        Face face = (Face) group.faces.get(k);
+                        Face face = group.faces.get(k);
                         NGTRenderHelper.addFaceWithMatrix(face, tessellator, matrix, i, false);
                     }
                 }
@@ -258,7 +258,7 @@ public class RigidCatenaryRenderer extends TileEntityPartsRenderer<ModelSetRigid
 
         for (int i = 0; i < aStr.length; ++i)
         {
-            aStr[i] = ((GroupObject) gObj.get(i)).name;
+            aStr[i] = gObj.get(i).name;
         }
 
         return aStr;
@@ -307,7 +307,7 @@ public class RigidCatenaryRenderer extends TileEntityPartsRenderer<ModelSetRigid
 
     public ModelObject getModelObject()
     {
-        return ((ModelSetRigidCatenary) this.modelSet).modelObj;
+        return this.modelSet.modelObj;
     }
 
     public void setBrightness(int par1)

@@ -53,7 +53,7 @@ public final class BezierCurveAdvanced implements ILineAdvanced
 
     public double[] getPoint(int length, int order)
     {
-        return this.getPointFromParameter((double) this.getHomogenizedParameter(length, order));
+        return this.getPointFromParameter(this.getHomogenizedParameter(length, order));
     }
 
     public double[] getPointFromParameter(double par1)
@@ -140,7 +140,7 @@ public final class BezierCurveAdvanced implements ILineAdvanced
 
     public double getSlope(int par1, int par2)
     {
-        return this.getSlopeFromParameter((double) this.getHomogenizedParameter(par1, par2));
+        return this.getSlopeFromParameter(this.getHomogenizedParameter(par1, par2));
     }
 
     public double getSlopeD(int par1, int par2)
@@ -211,7 +211,7 @@ public final class BezierCurveAdvanced implements ILineAdvanced
         for (int i = 1; i < this.split + 1; ++i)
         {
             f1 += f;
-            adouble1 = this.getPointFromParameter((double) f1);
+            adouble1 = this.getPointFromParameter(f1);
             dd[i] = dd[i - 1] + (float) this.getDistance(adouble[0], adouble1[0], adouble[1], adouble1[1]);
             adouble = adouble1;
         }
@@ -277,7 +277,7 @@ public final class BezierCurveAdvanced implements ILineAdvanced
         for (int j = 1; j < i + 1; ++j)
         {
             f1 += f;
-            adouble1 = this.getPointFromParameter((double) f1);
+            adouble1 = this.getPointFromParameter(f1);
             adouble2[j] = adouble2[j - 1] + this.getDistance(adouble[0], adouble1[0], adouble[1], adouble1[1]);
             adouble = adouble1;
         }

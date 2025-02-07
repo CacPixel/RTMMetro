@@ -2,9 +2,9 @@ package net.cacpixel.rtmmetro.math;
 
 public final class LinePointWithOrder
 {
-    private ILineAdvanced line;
-    private double[] point;
-    private int order;
+    private final ILineAdvanced line;
+    private final double[] point;
+    private final int order;
 
     public LinePointWithOrder(double x, double y, int order, ILineAdvanced line)
     {

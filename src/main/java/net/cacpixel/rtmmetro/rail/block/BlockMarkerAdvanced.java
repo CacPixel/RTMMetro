@@ -234,7 +234,7 @@ public class BlockMarkerAdvanced extends BlockMarker
 
             for (RailPosition railposition : list)
             {
-                railposition.addHeight((double) (resourcestaterail.blockHeight - 0.0625F));
+                railposition.addHeight(resourcestaterail.blockHeight - 0.0625F);
             }
 
             return createRail(world, x, y, z, list, resourcestaterail, makeRail, flag);
@@ -760,7 +760,7 @@ public class BlockMarkerAdvanced extends BlockMarker
 
         public final int color;
 
-        private MarkerType(int par1)
+        MarkerType(int par1)
         {
             this.color = par1;
         }
