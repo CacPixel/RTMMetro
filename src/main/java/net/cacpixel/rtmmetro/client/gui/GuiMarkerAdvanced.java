@@ -408,13 +408,13 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
+        this.drawDefaultBackground();
         this.drawScreenBefore(mouseX, mouseY, partialTicks);
         int stringXpos = 10;
         int stringYpos = 8;
         int fontColor = 0xE0E0E0 | this.getAlphaInt(0xFF);
         int fontColorGrey = 0xA0A0A0 | this.getAlphaInt(0xFF);
 
-        this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         //title line

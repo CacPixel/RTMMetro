@@ -74,7 +74,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen
             this.animationTime += partialTicks / 20;
             if (this.animationTime > this.duration)
                 this.isOpening = false;
-            float scale = (float) MathHelper.clampedLerp(0.2F, 1.0F, this.getAnimationProgress(CacGuiUtils.guiBezierTranslationIn));
+            float scale = (float) MathHelper.clampedLerp(0.9F, 1.0F, this.getAnimationProgress(CacGuiUtils.guiBezierTranslationIn));
             GlStateManager.translate((this.width * (1 - scale)) / 2.0F, (this.height * (1 - scale)) / 2.0F, 1.0F);
             GlStateManager.scale(scale, scale, 1.0F);
         }
@@ -83,7 +83,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen
             this.animationTime += partialTicks / 20;
             if (this.animationTime > this.duration)
                 this.isClosing = false;
-            float scale = (float) MathHelper.clampedLerp(0.2F, 1.0F, this.getAnimationProgress(CacGuiUtils.guiBezierTranslationOut));
+            float scale = (float) MathHelper.clampedLerp(0.9F, 1.0F, this.getAnimationProgress(CacGuiUtils.guiBezierTranslationOut));
             GlStateManager.translate((this.width * (1 - scale)) / 2.0F, (this.height * (1 - scale)) / 2.0F, 1.0F);
             GlStateManager.scale(scale, scale, 1.0F);
         }
