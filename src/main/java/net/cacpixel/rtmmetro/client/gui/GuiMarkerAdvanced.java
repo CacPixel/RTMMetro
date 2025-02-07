@@ -289,6 +289,7 @@ public class GuiMarkerAdvanced extends GuiScreenAdvanced
                     fieldAnchorYaw.fieldValue = RailMapAdvanced.getDefaultYaw(currentRP, te.getMarkerRP(),
                             this.currentMarkerValue.drawingScheme);
                     fieldAnchorYaw.checkValueAndSetText();
+                    this.updateFromFields();
                     fieldAnchorLengthHorizontal.fieldValue = RailMapAdvanced.getDefaultHorizontal(currentRP, te.getMarkerRP(),
                             this.currentMarkerValue.drawingScheme);
                     fieldAnchorLengthHorizontal.checkValueAndSetText();
