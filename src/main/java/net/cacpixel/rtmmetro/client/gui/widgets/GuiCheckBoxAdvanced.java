@@ -11,7 +11,7 @@ public class GuiCheckBoxAdvanced extends GuiButtonAdvanced implements IGuiWidget
     private final int boxWidth;
 
     public GuiCheckBoxAdvanced(int id, int xPos, int yPos, String displayString, boolean isChecked,
-                               GuiScreenAdvanced pScr, IActionListener callback)
+                               GuiScreenAdvanced pScr, IActionListener<? extends GuiCheckBoxAdvanced> callback)
     {
         super(id, xPos, yPos, displayString, pScr, callback);
         this.isChecked = isChecked;

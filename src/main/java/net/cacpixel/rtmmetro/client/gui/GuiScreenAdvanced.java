@@ -57,6 +57,12 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         closeFlag = false;
     }
 
+    public GuiScreenAdvanced setDuration(float duration)
+    {
+        this.duration = duration;
+        return this;
+    }
+
     @Override
     public void initGui()
     {
@@ -109,10 +115,10 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     {
         // perform action
         this.widgetsOnAction.forEach(w -> {
-            IActionListener listener = w.getListener();
+            IActionListener<? extends IGuiWidget> listener = w.getListener();
             if (listener != null)
             {
-                listener.onAction();
+                listener.onAction(w);
             }
         });
         this.widgetsOnAction.clear();
@@ -365,7 +371,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         }
     }
 
-    @SuppressWarnings("rawtypes,unchecked")
     @Override
     protected void actionPerformed(GuiButton button)
     {

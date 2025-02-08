@@ -11,16 +11,16 @@ public class GuiButtonAdvanced extends GuiButton implements IGuiWidget
 {
     protected static final ResourceLocation RTMMETRO_BUTTON_TEXTURES = new ResourceLocation(RTMMetro.MODID, "textures/gui/widgets.png");
     public GuiScreenAdvanced pScr;
-    private IActionListener listener;
+    private IActionListener<? extends GuiButtonAdvanced> listener;
 
     public GuiButtonAdvanced(int id, int xPos, int yPos, String displayString,
-                             GuiScreenAdvanced pScr, IActionListener listener)
+                             GuiScreenAdvanced pScr, IActionListener<? extends GuiButtonAdvanced> listener)
     {
         this(id, xPos, yPos, 200, 20, displayString, pScr, listener);
     }
 
     public GuiButtonAdvanced(int id, int xPos, int yPos, int width, int height, String displayString,
-                             GuiScreenAdvanced pScr, IActionListener listener)
+                             GuiScreenAdvanced pScr, IActionListener<? extends GuiButtonAdvanced> listener)
     {
         super(id, xPos, yPos, width, height, displayString);
         this.pScr = pScr;
@@ -111,13 +111,15 @@ public class GuiButtonAdvanced extends GuiButton implements IGuiWidget
         return this.enabled;
     }
 
-    public IActionListener getListener()
+    public IActionListener<? extends GuiButtonAdvanced> getListener()
     {
         return listener;
     }
 
-    public void setListener(IActionListener listener)
+    @SuppressWarnings("unchecked")
+    public <T extends IGuiWidget> T setListener(IActionListener<T> listener)
     {
-        this.listener = listener;
+        this.listener = (IActionListener<? extends GuiButtonAdvanced>) listener;
+        return (T)this;
     }
 }

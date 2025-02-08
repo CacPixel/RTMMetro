@@ -50,15 +50,15 @@ public class GuiCalculateCant extends GuiScreenWindowed
         //gauge
         this.fieldGauge = WidgetFactory.addTextField(this, hw, hh - 10, fieldWidth, fieldHeight, 1435, 500, 3000, false);
         //reversed
-        this.checkBoxFlip = WidgetFactory.addCheckBox(this, hw, hh + 10, fieldWidth, fieldHeight, "Flip", false, null);
+        this.checkBoxFlip = WidgetFactory.addCheckBox(this, hw, hh + 10, fieldWidth, fieldHeight, "Flip", false);
         //ok
-        this.buttonOK = WidgetFactory.addButton(this, hw - 80 + 90, hh + 70, 160, 20, I18n.format("gui.done"), () -> {
+        this.buttonOK = WidgetFactory.addButton(this, hw - 80 + 90, hh + 70, 160, 20, I18n.format("gui.done")).setListener((w) -> {
             if (!(Float.isNaN(cant) || Float.isInfinite(cant)))
                 this.consumer.accept(this.cant);
             this.displayPrevScreen();
         });
         //cancel
-        this.buttonCancel = WidgetFactory.addButton(this, hw - 80 - 90, hh + 70, 160, 20, I18n.format("gui.cancel"), () -> {
+        this.buttonCancel = WidgetFactory.addButton(this, hw - 80 - 90, hh + 70, 160, 20, I18n.format("gui.cancel")).setListener((w) -> {
             this.displayPrevScreen();
         });
     }

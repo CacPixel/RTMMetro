@@ -2,9 +2,9 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 
 public interface IGuiWidget
 {
-    default IActionListener getListener() {return null;}
+    default IActionListener<? extends IGuiWidget> getListener() {return null;}
 
-    default void setListener(IActionListener listener) {}
+    default <T extends IGuiWidget> T setListener(IActionListener<T> listener) {return null;}
 
     default void onClick(int mouseX, int mouseY, int mouseButton) {}
 

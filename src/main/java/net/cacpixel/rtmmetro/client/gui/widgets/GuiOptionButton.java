@@ -15,19 +15,26 @@ public class GuiOptionButton<E extends Enum<E>> extends GuiButtonAdvanced implem
     public String prefix;
 
     public GuiOptionButton(int id, int xPos, int yPos, String prefix, E[] values, E initVal,
-                           GuiScreenAdvanced pScr, IActionListener callback)
+                           GuiScreenAdvanced pScr, IActionListener<? extends GuiOptionButton> callback)
     {
         this(id, xPos, yPos, 200, 20, prefix, values, initVal, pScr, callback);
     }
 
     public GuiOptionButton(int id, int xPos, int yPos, int width, int height, String prefix, E[] values, E initVal,
-                           GuiScreenAdvanced pScr, IActionListener callback)
+                           GuiScreenAdvanced pScr, IActionListener<? extends GuiOptionButton> callback)
     {
         super(id, xPos, yPos, width, height, prefix, pScr, callback);
         this.prefix = prefix;
         this.options.addAll(Arrays.asList(values));
         Arrays.stream(values).forEach(v -> this.options.set(v.ordinal(), v));
         this.setSelectedOption(initVal);
+    }
+
+    @Override
+    public void onClick(int mouseX, int mouseY, int mouseButton)
+    {
+        if (isMouseInside())
+            this.rollOptions();
     }
 
     public String getTranslationKey(int ordinal)
