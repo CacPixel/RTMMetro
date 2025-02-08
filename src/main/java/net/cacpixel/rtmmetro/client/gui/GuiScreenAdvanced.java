@@ -73,45 +73,23 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        if (this.isOpening)
-        {
-            this.animationTime += partialTicks / 20;
-            if (this.animationTime > this.duration)
-                this.isOpening = false;
-            // 类win10动画
-            float scale = (float) MathHelper.clampedLerp(0.9F, 1.0F, this.getAnimationProgress(CacGuiUtils.guiBezierTranslation));
-            GlStateManager.translate((this.width * (1 - scale)) / 2.0F, (this.height * (1 - scale)) / 2.0F, 0.0F);
-            GlStateManager.scale(scale, scale, 1.0F);
-            // 下拉
-//            float progress = (float) MathHelper.clampedLerp(0.9F, 1.0F, this.getAnimationProgress(CacGuiUtils.guiBezierTranslationIn));
-//            GlStateManager.translate(0.0F, (progress - 1.0F) * this.height, 0.0F);
-        }
-        if (this.isClosing)
-        {
-            this.animationTime += partialTicks / 20;
-            if (this.animationTime > this.duration)
-                this.isClosing = false;
-            // 类win10动画 用于小窗口
-            float scale = (float) MathHelper.clampedLerp(0.9F, 1.0F, 1 - this.getAnimationProgress(CacGuiUtils.guiBezierTranslation));
-            GlStateManager.translate((this.width * (1 - scale)) / 2.0F, (this.height * (1 - scale)) / 2.0F, 0.0F);
-            GlStateManager.scale(scale, scale, 1.0F);
-            // 下拉 用于全屏幕
-//            float progress = (float) MathHelper.clampedLerp(0.9F, 1.0F, 1 - this.getAnimationProgress(CacGuiUtils
-//            .guiBezierTranslationIn));
-//            GlStateManager.translate(0.0F, (progress - 1.0F) * this.height, 0.0F);
-        }
+        this.updateAnimation(partialTicks);
+        this.updateAlpha();
         if (!this.isInAnimation())
         {
             this.animationTime = 0;
+            if (this.closeFlag)
+                this.alpha = 0.02F;
+            else
+                this.alpha = 1.0F;
         }
-        this.updateAlpha();
     }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.widgets.forEach(x -> x.draw(mouseX, mouseY, partialTicks));
-//        super.drawScreen(mouseX, mouseY, partialTicks);
+//        super.drawScreen(mouseX, mouseY, partialTicks);   // draw vanilla GuiButton and GuiLabel
     }
 
     public void drawScreenAfter(int mouseX, int mouseY, float partialTicks)
@@ -215,6 +193,22 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         return MathHelper.clamp((float) point, 0.02f, 2.0f);
     }
 
+    protected void updateAnimation(float partialTicks)
+    {
+        if (this.isOpening)
+        {
+            this.animationTime += partialTicks / 20;
+            if (this.animationTime > this.duration)
+                this.isOpening = false;
+        }
+        else if (this.isClosing)
+        {
+            this.animationTime += partialTicks / 20;
+            if (this.animationTime > this.duration)
+                this.isClosing = false;
+        }
+    }
+
     protected void updateAlpha()
     {
         if (this.isOpening)
@@ -224,14 +218,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         else if (this.isClosing)
         {
             this.alpha = (float) MathHelper.clampedLerp(0.02F, 1.0F, 1 - this.getAnimationProgress(CacGuiUtils.guiBezierAlpha));
-        }
-        else if (!this.isInAnimation() && this.closeFlag)
-        {
-            this.alpha = 0.02F;
-        }
-        else
-        {
-            this.alpha = 1.0F;
         }
     }
 
