@@ -20,8 +20,8 @@ apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
 mixin {
-    add sourceSets.main, "mixins." + property("modid").toString() + ".refmap.json"
-    config 'mixins.' + property("modid").toString() + ".json"
+    add sourceSets.main, "mixins." + property("modId").toString() + ".refmap.json"
+    config 'mixins.' + property("modId").toString() + ".json"
     debug.verbose = true
     debug.export = true
 }
@@ -38,9 +38,20 @@ repositories {
     maven { url = 'https://maven.cleanroommc.com' }
 }
 
-version = property("version").toString()
+modId = property("modId").toString()
+modName = property("modName").toString()
+modDescription = property("modDescription").toString()
+mcversion = property("mcversion").toString()
+cursePage = property("cursePage").toString()
+//version = property("version").toString().contains("snapshot") ? property("version").toString() + "_" + new Date().format("yyyyMMdd") : property("version").toString()
+String versionFromSrc = file(getRootDir().toString() + "/src/main/java/net/cacpixel/rtmmetro/RTMMetro.java")
+        .readLines().stream().filter { it.contains("public static final String VERSION") }
+        .findFirst().get().split("\"")[1]
+version = versionFromSrc.startsWith("0.") ? versionFromSrc + "_snapshot_" + new Date().format("yyyyMMdd") : versionFromSrc
+println("Mod version is: ${version}")
 group = property("group").toString()
 archivesBaseName = property("archivesBaseName").toString()
+
 
 ngtlibModName = property("ngtlibModName").toString()
 ngtlibProjectID = property("ngtlibProjectID").toString()
@@ -227,7 +238,7 @@ jar {
                 "Specification-Vendor"       : "CacPixel",
                 "Specification-Version"      : "1", // We are version 1 of ourselves
                 "Implementation-Title"       : project.name,
-                "Implementation-Version"     : "${version}",
+                "Implementation-Version"     : "${project.version}",
                 "Implementation-Vendor"      : "cacpixel",
                 "Implementation-Timestamp"   : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                 'FMLCorePlugin'              : "net.cacpixel.rtmmetro.asm.RtmAsmPlugin", //-Dfml.coreMods.load=net.cacpixel.rtmmetro.asm.RtmAsmPlugin
@@ -286,6 +297,16 @@ compileJava {
 processResources {
     dependsOn('extractRTMResource')
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    filesMatching("mcmod.info") {
+        expand([
+                "modId"      : modId,
+                "modName"    : modName,
+                "version"    : version,
+                "description": modDescription,
+                "mcversion"  : mcversion,
+                "cursePage"  : cursePage
+        ])
+    }
 }
 
 tasks.withType(JavaCompile) {
