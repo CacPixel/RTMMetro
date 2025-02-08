@@ -2,6 +2,10 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 
 public interface IGuiWidget
 {
+    default IActionListener getListener() {return null;}
+
+    default void setListener(IActionListener listener) {}
+
     default void onClick(int mouseX, int mouseY, int mouseButton) {}
 
     default void onDrag(int mouseX, int mouseY, int mouseButton) {}

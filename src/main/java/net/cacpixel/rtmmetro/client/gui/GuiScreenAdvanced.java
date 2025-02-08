@@ -5,6 +5,7 @@ import jp.ngt.ngtlib.gui.GuiScreenCustom;
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.client.gui.widgets.*;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
+import net.cacpixel.rtmmetro.util.ModLog;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -23,6 +24,8 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
@@ -35,6 +38,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public boolean hasValueUpdated;
     private static int nextWidgetId;
     public List<IGuiWidget> widgets = new ArrayList<>();
+    public List<IGuiWidget> widgetsOnAction = new ArrayList<>();
     private float alpha;
     public boolean isOpening;
     public boolean isClosing;
@@ -125,11 +129,22 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     @Override
     public void updateScreen()
     {
+        // perform action
+        this.widgetsOnAction.forEach(w -> {
+            IActionListener listener = w.getListener();
+            if (listener != null)
+            {
+                listener.onAction();
+            }
+        });
+        this.widgetsOnAction.clear();
+        // update CursorCounter
         GuiTextFieldAdvanced fieldCurrent = this.getCurrentTextField();
         if (fieldCurrent != null && fieldCurrent.isEnabled() && fieldCurrent.isVisible())
         {
             fieldCurrent.updateCursorCounter();
         }
+        // switch screen
         this.switchGuiScreenToPrevious();
     }
 
@@ -262,7 +277,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     }
 
     @Override
-    protected void mouseClicked(int x, int y, int button) throws IOException
+    protected void mouseClicked(int x, int y, int button)
     {
         try
         {
@@ -293,12 +308,15 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         }
         catch (ConcurrentModificationException e)
         {
-//            ModLog.debug("Entered new GuiScreen: " + (this.mc.currentScreen != null ? this.mc.currentScreen.toString() : "null"));
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            ModLog.debug("Unexpected widget modification: " + sw);
             return;
         }
         if (!this.isInAnimation() && !this.closeFlag)
         {
-            this.widgets.stream().filter(w -> !(w instanceof GuiButton)).forEach(w -> w.onClick(x, y, button)); // click others
+            this.widgets.stream()/*.filter(w -> !(w instanceof GuiButton))*/.forEach(w -> w.onClick(x, y, button)); // click others
         }
     }
 
@@ -365,18 +383,9 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     @Override
     protected void actionPerformed(GuiButton button)
     {
-        IActionListener listener = button instanceof GuiButtonAdvanced ? ((GuiButtonAdvanced) button).listener : null;
-        if (listener != null)
+        if (button instanceof IGuiWidget)
         {
-            listener.onAction();
-        }
-        try
-        {
-            super.actionPerformed(button);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
+            this.widgetsOnAction.add((IGuiWidget) button);
         }
     }
 

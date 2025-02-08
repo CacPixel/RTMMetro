@@ -69,11 +69,6 @@ public class GuiTextFieldAdvanced extends GuiTextField implements IGuiWidget
         return this;
     }
 
-    public boolean isEnabled()
-    {
-        return this.isEnabled;
-    }
-
     public void checkValue()
     {
 
@@ -219,5 +214,11 @@ public class GuiTextFieldAdvanced extends GuiTextField implements IGuiWidget
     public boolean isVisible()
     {
         return getVisible();
+    }
+
+    @Override
+    public boolean isEnabled()
+    {
+        return this.isEnabled;
     }
 }
