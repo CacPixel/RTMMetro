@@ -220,4 +220,10 @@ public class GuiTextFieldAdvanced extends GuiTextField implements IGuiWidget
     {
         return this.isEnabled;
     }
+
+    @Override
+    public void setEnabled(boolean enabled)
+    {
+        super.setEnabled(enabled);
+    }
 }
