@@ -26,6 +26,12 @@ public class GuiWidgetBundle implements IGuiWidget, IWidgetHolder
     }
 
     @Override
+    public void onUpdate()
+    {
+        IWidgetHolder.super.onUpdate();
+    }
+
+    @Override
     public void onClick(int mouseX, int mouseY, int mouseButton)
     {
         this.widgets.forEach(x -> x.onClick(mouseX, mouseY, mouseButton));

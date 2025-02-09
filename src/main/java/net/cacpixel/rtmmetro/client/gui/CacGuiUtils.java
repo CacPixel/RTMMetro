@@ -30,6 +30,7 @@ import static net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRec
 @SideOnly(Side.CLIENT)
 public class CacGuiUtils
 {
+    public static final int DEFAULT_SCROLL_VALUE = 120;
     public static BezierCurveAdvanced guiBezierAlpha;
     public static BezierCurveAdvanced guiBezierTranslation;
     public static double xMax = 100;

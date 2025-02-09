@@ -63,14 +63,14 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced implements IGu
         {
             if (code == Keyboard.KEY_UP)
             {
-                this.incValue(DEFAULT_SCROLL_VALUE);
+                this.incValue(CacGuiUtils.DEFAULT_SCROLL_VALUE);
                 this.fieldValue = CacGuiUtils.getFieldValue(this, this.fieldValue);
                 this.checkValueAndSetText();
                 this.pScr.hasValueUpdated = true;
             }
             else if (code == Keyboard.KEY_DOWN)
             {
-                this.incValue(-DEFAULT_SCROLL_VALUE);
+                this.incValue(-CacGuiUtils.DEFAULT_SCROLL_VALUE);
                 this.fieldValue = CacGuiUtils.getFieldValue(this, this.fieldValue);
                 this.checkValueAndSetText();
                 this.pScr.hasValueUpdated = true;
@@ -104,7 +104,7 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced implements IGu
         {
             step /= 10;
         }
-        step = step * scroll / DEFAULT_SCROLL_VALUE;
+        step = step * scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE;
         this.fieldValue += step;
         this.checkValueAndSetText();
     }

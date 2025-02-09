@@ -22,7 +22,6 @@ public class GuiTextFieldAdvanced extends GuiTextField implements IGuiWidget
 {
     protected final GuiScreenAdvanced pScr;
     private final List<String> tips = new ArrayList<>();
-    public static final int DEFAULT_SCROLL_VALUE = 120;
 
     public GuiTextFieldAdvanced(int id, FontRenderer par1, int x, int y, int w, int h, GuiScreenAdvanced pScr)
     {

@@ -33,6 +33,7 @@ public class GuiOptionButton<E extends Enum<E>> extends GuiButtonAdvanced implem
     @Override
     public void onClick(int mouseX, int mouseY, int mouseButton)
     {
+        super.onClick(mouseX, mouseY, mouseButton);
         if (isMouseInside())
             this.rollOptions();
     }

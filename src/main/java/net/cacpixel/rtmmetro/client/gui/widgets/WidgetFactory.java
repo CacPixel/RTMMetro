@@ -114,4 +114,11 @@ public class WidgetFactory
         thiz.add(field);
         return field;
     }
+
+    public static GuiScroll addScroll(IWidgetHolder thiz, int startX, int startY, int endX, int endY, IGuiWidget... widgets)
+    {
+        GuiScroll scroll = new GuiScroll(thiz.getScreen(), startX, startY, endX, endY, widgets);
+        thiz.add(scroll);
+        return scroll;
+    }
 }

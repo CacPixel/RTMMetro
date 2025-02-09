@@ -18,6 +18,8 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.stream.Collectors;
 
 @SideOnly(Side.CLIENT)
 public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHolder
@@ -38,7 +41,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public boolean hasValueUpdated;
     private static int nextWidgetId;
     public List<IGuiWidget> widgets = new ArrayList<>();
-    public List<IGuiWidget> widgetsOnAction = new ArrayList<>();
     private float alpha;
     public boolean isOpening;
     public boolean isClosing;
@@ -113,23 +115,38 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     @Override
     public void updateScreen()
     {
+        // update holders
+        try
+        {
+            this.onUpdate();
+        }
+        catch (ConcurrentModificationException e)
+        {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            ModLog.debug("Unexpected widget modification: " + sw);
+            return;
+        }
+        // switch screen
+        this.switchGuiScreenToPrevious();
+    }
+
+    @Override
+    public void onUpdate()
+    {
         // perform action
-        this.widgetsOnAction.forEach(w -> {
-            IActionListener<? extends IGuiWidget> listener = w.getListener();
-            if (listener != null)
-            {
-                listener.onAction(w);
-            }
+        this.getButtonList().stream().filter(w -> w.clicked).collect(Collectors.toList()).forEach(w -> {
+            this.getScreen().performActionAndSendEvent(w);
+            w.clicked = false;
         });
-        this.widgetsOnAction.clear();
         // update CursorCounter
-        GuiTextFieldAdvanced fieldCurrent = this.getCurrentTextField();
+        GuiTextFieldAdvanced fieldCurrent = this.getScreen().getCurrentTextField();
         if (fieldCurrent != null && fieldCurrent.isEnabled() && fieldCurrent.isVisible())
         {
             fieldCurrent.updateCursorCounter();
         }
-        // switch screen
-        this.switchGuiScreenToPrevious();
+        IWidgetHolder.super.onUpdate();
     }
 
     @Override
@@ -273,29 +290,9 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     {
         try
         {
-            if (button == 0)
+            if (!this.isInAnimation() && !this.closeFlag)
             {
-                for (IGuiWidget widget : widgets)
-                {
-                    if (!(widget instanceof GuiButtonAdvanced)) continue;
-                    GuiButton guibutton = (GuiButtonAdvanced) widget;
-                    if (guibutton.mousePressed(this.mc, x, y))
-                    {
-                        net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent.Pre event =
-                                new net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent.Pre(
-                                        this, guibutton, this.buttonList);
-                        if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(event))
-                            break;
-                        guibutton = event.getButton();
-                        this.selectedButton = guibutton;
-                        guibutton.playPressSound(this.mc.getSoundHandler());
-                        this.actionPerformed(guibutton);
-                        if (this.equals(this.mc.currentScreen))
-                            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
-                                    new net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent.Post(this, event.getButton(),
-                                            this.buttonList));
-                    }
-                }
+                this.widgets.forEach(w -> w.onClick(x, y, button));
             }
         }
         catch (ConcurrentModificationException e)
@@ -304,11 +301,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             ModLog.debug("Unexpected widget modification: " + sw);
-            return;
-        }
-        if (!this.isInAnimation() && !this.closeFlag)
-        {
-            this.widgets.stream()/*.filter(w -> !(w instanceof GuiButton))*/.forEach(w -> w.onClick(x, y, button)); // click others
         }
     }
 
@@ -371,12 +363,16 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         }
     }
 
-    @Override
-    protected void actionPerformed(GuiButton button)
+    public void actionPerformed(GuiButton button)
     {
-        if (button instanceof IGuiWidget)
+        if (button instanceof GuiButtonAdvanced)
         {
-            this.widgetsOnAction.add((IGuiWidget) button);
+            GuiButtonAdvanced b = ((GuiButtonAdvanced) button);
+            IActionListener<? extends IGuiWidget> listener = b.getListener();
+            if (listener != null)
+            {
+                listener.onAction(b);
+            }
         }
     }
 
@@ -482,16 +478,23 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         return alpha;
     }
 
-    public GuiTextFieldAdvanced getCurrentTextField()
-    {
-        List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
-        this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced).forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
-        return textFields.stream().filter(GuiTextField::isFocused).findFirst().orElse(null);
-    }
-
     @Override
     public GuiScreenAdvanced getScreen()
     {
         return this;
+    }
+
+    public void performActionAndSendEvent(GuiButton guibutton)
+    {
+        List<GuiButton> buttonList = new ArrayList<>(this.getButtonList());
+        GuiScreenEvent.ActionPerformedEvent.Pre event = new GuiScreenEvent.ActionPerformedEvent.Pre(this, guibutton, buttonList);
+        if (MinecraftForge.EVENT_BUS.post(event))
+            return;
+        guibutton = event.getButton();
+        this.selectedButton = guibutton;
+        guibutton.playPressSound(this.mc.getSoundHandler());
+        this.actionPerformed(guibutton);
+        if (this.equals(this.mc.currentScreen))
+            MinecraftForge.EVENT_BUS.post(new GuiScreenEvent.ActionPerformedEvent.Post(this, event.getButton(), buttonList));
     }
 }

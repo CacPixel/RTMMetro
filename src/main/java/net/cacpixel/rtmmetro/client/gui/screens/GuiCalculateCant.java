@@ -105,12 +105,6 @@ public class GuiCalculateCant extends GuiScreenWindowed
     }
 
     @Override
-    protected void actionPerformed(GuiButton button)
-    {
-        super.actionPerformed(button);
-    }
-
-    @Override
     public boolean doesGuiPauseGame()
     {
         return false;

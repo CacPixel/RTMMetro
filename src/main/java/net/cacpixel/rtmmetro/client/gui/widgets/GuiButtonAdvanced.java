@@ -12,6 +12,7 @@ public class GuiButtonAdvanced extends GuiButton implements IGuiWidget
     protected static final ResourceLocation RTMMETRO_BUTTON_TEXTURES = new ResourceLocation(RTMMetro.MODID, "textures/gui/widgets.png");
     public GuiScreenAdvanced pScr;
     private IActionListener<? extends GuiButtonAdvanced> listener;
+    public boolean clicked = false;
 
     public GuiButtonAdvanced(int id, int xPos, int yPos, String displayString,
                              GuiScreenAdvanced pScr, IActionListener<? extends GuiButtonAdvanced> listener)
@@ -120,6 +121,18 @@ public class GuiButtonAdvanced extends GuiButton implements IGuiWidget
     public <T extends IGuiWidget> T setListener(IActionListener<T> listener)
     {
         this.listener = (IActionListener<? extends GuiButtonAdvanced>) listener;
-        return (T)this;
+        return (T) this;
+    }
+
+    @Override
+    public void onClick(int mouseX, int mouseY, int mouseButton)
+    {
+        if (mouseButton == 0)
+        {
+            if (this.isMouseInside())
+            {
+                this.clicked = true;
+            }
+        }
     }
 }
