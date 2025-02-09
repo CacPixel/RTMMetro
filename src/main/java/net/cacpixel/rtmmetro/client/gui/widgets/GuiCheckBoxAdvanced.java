@@ -58,16 +58,11 @@ public class GuiCheckBoxAdvanced extends GuiButtonAdvanced implements IGuiWidget
     }
 
     @Override
-    public boolean mousePressed(Minecraft mc, int mouseX, int mouseY)
+    public void onClick(int mouseX, int mouseY, int mouseButton)
     {
-        if (this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width &&
-                mouseY < this.y + this.height)
-        {
+        super.onClick(mouseX, mouseY, mouseButton);
+        if (this.isMouseInside())
             this.isChecked = !this.isChecked;
-            return true;
-        }
-
-        return false;
     }
 
     public boolean isChecked()
