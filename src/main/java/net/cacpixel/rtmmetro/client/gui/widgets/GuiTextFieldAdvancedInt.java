@@ -39,7 +39,7 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced implements IGu
     @Override
     public void onScroll(int mouseX, int mouseY, int scroll)
     {
-        if (this.isMouseInside())
+        if (this.isMouseInside() && this.isFocused)
         {
             try
             {

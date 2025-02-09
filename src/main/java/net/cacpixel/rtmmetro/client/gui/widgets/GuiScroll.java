@@ -76,15 +76,14 @@ public class GuiScroll extends GuiWidgetBundle
         this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced).forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
         if (textFields.stream().noneMatch(f -> f.isMouseInside() && f.isFocused())) // focused并且鼠标在内，不允许滚动GuiScroll
         {
-            super.onScroll(mouseX, mouseY, scroll);
-        }
-        if (scrollUpDown && !GuiScreenWindowed.isShiftKeyDown())
-        {
-            this.upDownValue = MathHelper.clamp(this.upDownValue + scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 10, 0, upDownMax);
-        }
-        if (scrollLeftRight && GuiScreenWindowed.isShiftKeyDown())
-        {
-            this.leftRightValue = MathHelper.clamp(this.leftRightValue + scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 10, 0, leftRightMax);
+            if (scrollUpDown && !GuiScreenWindowed.isShiftKeyDown())
+            {
+                this.upDownValue = MathHelper.clamp(this.upDownValue + scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 10, 0, upDownMax);
+            }
+            if (scrollLeftRight && GuiScreenWindowed.isShiftKeyDown())
+            {
+                this.leftRightValue = MathHelper.clamp(this.leftRightValue + scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 10, 0, leftRightMax);
+            }
         }
     }
 
