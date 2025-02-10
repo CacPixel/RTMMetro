@@ -77,7 +77,7 @@ public class GuiButtonAdvanced extends GuiButton implements IGuiWidget
                 mouseX < this.x + this.width && mouseY < this.y + this.height;
     }
 
-    public void setEnabled(boolean enabled)
+    public void setEnable(boolean enabled)
     {
         this.enabled = enabled;
     }

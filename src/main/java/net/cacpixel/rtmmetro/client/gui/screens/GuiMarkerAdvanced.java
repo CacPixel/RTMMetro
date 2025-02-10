@@ -358,43 +358,43 @@ public class GuiMarkerAdvanced extends GuiFullScreen
 
     public void controlEnable()
     {
-        this.widgets.forEach(x -> x.setEnabled(true));
+        this.widgets.forEach(x -> x.setEnable(true));
 
         boolean isSwitch = this.marker.getBlockType() == RTMMetroBlock.MARKER_ADVANCED_SWITCH || this.marker.getOriginalRailMap() == null;
         boolean isCore = this.marker.isCoreMarker();
 
-        this.fieldAnchorPitch.setEnabled(!isSwitch);
-        this.buttonResetAnchorPitch.setEnabled(!isSwitch);
-        this.buttonCopyNeighborPitch.setEnabled(!isSwitch);
+        this.fieldAnchorPitch.setEnable(!isSwitch);
+        this.buttonResetAnchorPitch.setEnable(!isSwitch);
+        this.buttonCopyNeighborPitch.setEnable(!isSwitch);
 
-        this.fieldAnchorLengthVertical.setEnabled(!isSwitch);
-        this.buttonStraightLineV.setEnabled(!isSwitch);
-        this.buttonResetLengthV.setEnabled(!isSwitch);
-        this.buttonMagicNumberV.setEnabled(!isSwitch);
-        this.buttonEditStatusV.setEnabled(!isSwitch);
+        this.fieldAnchorLengthVertical.setEnable(!isSwitch);
+        this.buttonStraightLineV.setEnable(!isSwitch);
+        this.buttonResetLengthV.setEnable(!isSwitch);
+        this.buttonMagicNumberV.setEnable(!isSwitch);
+        this.buttonEditStatusV.setEnable(!isSwitch);
 
-        this.fieldCantCenter.setEnabled(!isSwitch);
-        this.buttonCalcCantCenter.setEnabled(!isSwitch);
-        this.buttonFlipCantCenter.setEnabled(!isSwitch);
-        this.buttonResetCantCenter.setEnabled(!isSwitch);
+        this.fieldCantCenter.setEnable(!isSwitch);
+        this.buttonCalcCantCenter.setEnable(!isSwitch);
+        this.buttonFlipCantCenter.setEnable(!isSwitch);
+        this.buttonResetCantCenter.setEnable(!isSwitch);
 
-        this.fieldCantEdge.setEnabled(!isSwitch);
-        this.buttonCalcCantEdge.setEnabled(!isSwitch);
-        this.buttonResetCantEdge.setEnabled(!isSwitch);
-        this.buttonFlipCantEdge.setEnabled(!isSwitch);
-        this.buttonCopyNeighborCantEdge.setEnabled(!isSwitch);
+        this.fieldCantEdge.setEnable(!isSwitch);
+        this.buttonCalcCantEdge.setEnable(!isSwitch);
+        this.buttonResetCantEdge.setEnable(!isSwitch);
+        this.buttonFlipCantEdge.setEnable(!isSwitch);
+        this.buttonCopyNeighborCantEdge.setEnable(!isSwitch);
 
-        this.fieldCantCenter.setEnabled(isCore && !isSwitch);
-        this.buttonResetCantCenter.setEnabled(isCore && !isSwitch);
-        this.buttonFlipCantCenter.setEnabled(isCore && !isSwitch);
-        this.buttonCalcCantCenter.setEnabled(isCore && !isSwitch);
+        this.fieldCantCenter.setEnable(isCore && !isSwitch);
+        this.buttonResetCantCenter.setEnable(isCore && !isSwitch);
+        this.buttonFlipCantCenter.setEnable(isCore && !isSwitch);
+        this.buttonCalcCantCenter.setEnable(isCore && !isSwitch);
 
-        this.fieldCantRandom.setEnabled(isCore);
-        this.buttonResetCantRandom.setEnabled(isCore);
+        this.fieldCantRandom.setEnable(isCore);
+        this.buttonResetCantRandom.setEnable(isCore);
 
         if (this.currentMarkerValue.drawingScheme != RailDrawingScheme.DRAW_CIRCLE)
         {
-            this.buttonRedraw.setEnabled(false);
+            this.buttonRedraw.setEnable(false);
         }
     }
 

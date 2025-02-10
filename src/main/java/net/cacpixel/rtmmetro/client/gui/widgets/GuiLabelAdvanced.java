@@ -146,7 +146,7 @@ public class GuiLabelAdvanced extends Gui implements IGuiWidget
     }
 
     @Override
-    public void setEnabled(boolean enabled)
+    public void setEnable(boolean enabled)
     {
     }
 

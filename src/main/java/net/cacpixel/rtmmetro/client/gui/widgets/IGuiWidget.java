@@ -22,7 +22,7 @@ public interface IGuiWidget
 
     boolean isEnabled();
 
-    void setEnabled(boolean enabled);
+    void setEnable(boolean enabled);
 
     void setVisible(boolean visible);
 

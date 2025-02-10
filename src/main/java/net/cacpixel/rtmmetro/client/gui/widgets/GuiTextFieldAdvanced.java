@@ -222,7 +222,7 @@ public class GuiTextFieldAdvanced extends GuiTextField implements IGuiWidget
     }
 
     @Override
-    public void setEnabled(boolean enabled)
+    public void setEnable(boolean enabled)
     {
         super.setEnabled(enabled);
     }

@@ -80,9 +80,9 @@ public class GuiWidgetBundle implements IGuiWidget, IWidgetHolder
     }
 
     @Override
-    public void setEnabled(boolean enabled)
+    public void setEnable(boolean enabled)
     {
-        this.widgets.forEach(x -> x.setEnabled(enabled));
+        this.widgets.forEach(x -> x.setEnable(enabled));
     }
 
     @Override
