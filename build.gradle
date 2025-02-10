@@ -242,7 +242,8 @@ jar {
                 "Implementation-Vendor"      : "cacpixel",
                 "Implementation-Timestamp"   : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                 'FMLCorePlugin'              : "net.cacpixel.rtmmetro.asm.RtmAsmPlugin", //-Dfml.coreMods.load=net.cacpixel.rtmmetro.asm.RtmAsmPlugin
-                'FMLCorePluginContainsFMLMod': true
+                'FMLCorePluginContainsFMLMod': true,
+                'FMLAT'                      : "rtmmetro_at.cfg"
         ])
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
