@@ -156,6 +156,30 @@ public class GuiLabelAdvanced extends Gui implements IGuiWidget
         this.visible = visible;
     }
 
+    @Override
+    public int getX()
+    {
+        return x;
+    }
+
+    @Override
+    public int getY()
+    {
+        return y;
+    }
+
+    @Override
+    public int getWidth()
+    {
+        return width;
+    }
+
+    @Override
+    public int getHeight()
+    {
+        return height;
+    }
+
     public enum Align
     {
         LEFT_ALIGNED,

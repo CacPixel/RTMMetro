@@ -89,6 +89,30 @@ public class GuiButtonAdvanced extends GuiButton implements IGuiWidget
     }
 
     @Override
+    public int getX()
+    {
+        return x;
+    }
+
+    @Override
+    public int getY()
+    {
+        return y;
+    }
+
+    @Override
+    public int getWidth()
+    {
+        return width;
+    }
+
+    @Override
+    public int getHeight()
+    {
+        return height;
+    }
+
+    @Override
     public boolean isMouseInside()
     {
         return CacGuiUtils.isMouseInside(x, y, width, height);

@@ -111,7 +111,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         int fieldW = 75;
         int fieldH = 14;
         int fieldX = 120;
-        int fieldY = 50;
+        int fieldY = 8;//50;
         int buttW = 80;
         int buttH = fieldH + 4;
         int buttX = fieldX + fieldW + 2;
@@ -119,9 +119,12 @@ public class GuiMarkerAdvanced extends GuiFullScreen
 
         super.initGui();
         int hw = this.width / 2;
-        this.mainScroll = WidgetFactory.addScroll(this, 0, 20, this.width, this.height - 30);
+        this.mainScroll = new Scroll(this, 0, 30, this.width, this.height - 40);
+        this.add(mainScroll);
+
         //groupId
-        this.fieldGroup = WidgetFactory.addTextField(mainScroll, fieldX, fieldY, fieldW, fieldH, this.currentMarkerValue.groupId, 1, 1000, false);
+        this.fieldGroup = WidgetFactory.addTextField(mainScroll, fieldX, fieldY, fieldW, fieldH, this.currentMarkerValue.groupId, 1, 1000,
+                false);
         fieldY += lineHeight;
 
         //name
@@ -167,7 +170,8 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         fieldY += lineHeight;
 
         //anchor yaw
-        this.fieldAnchorYaw = WidgetFactory.addTextField(mainScroll, fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorYaw, -180.0f, 180.0f,
+        this.fieldAnchorYaw = WidgetFactory.addTextField(mainScroll, fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorYaw, -180.0f,
+                180.0f,
                 true);
         this.buttonResetAnchorYaw = WidgetFactory.addButton(mainScroll, buttX, fieldY - 2, buttH, buttH, "0").setListener((w) -> {
             fieldAnchorYaw.fieldValue = NGTMath.wrapAngle(currentRP.direction * 45.0F);
@@ -225,7 +229,8 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         fieldY += lineHeight;
 
         //anchor pitch
-        this.fieldAnchorPitch = WidgetFactory.addTextField(mainScroll, fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorPitch, -90.0f, 90.0f,
+        this.fieldAnchorPitch = WidgetFactory.addTextField(mainScroll, fieldX, fieldY, fieldW, fieldH, this.currentRP.anchorPitch, -90.0f,
+                90.0f,
                 false);
         this.buttonResetAnchorPitch = WidgetFactory.addButton(mainScroll, buttX, fieldY - 2, buttH, buttH, "0").setListener((w) -> {
             fieldAnchorPitch.fieldValue = 0.0F;
@@ -249,10 +254,11 @@ public class GuiMarkerAdvanced extends GuiFullScreen
             fieldCantEdge.fieldValue = 0;
             fieldCantEdge.checkValueAndSetText();
         });
-        this.buttonCalcCantEdge = WidgetFactory.addButton(mainScroll, buttX + buttH, fieldY - 2, buttW, buttH, "Calculate").setListener((w) -> {
-            guiCalculateCant = new GuiCalculateCant(this, x -> currentMarkerValue.rp.cantEdge = (float) x);
-            this.mc.displayGuiScreen(guiCalculateCant);
-        });
+        this.buttonCalcCantEdge = WidgetFactory.addButton(mainScroll, buttX + buttH, fieldY - 2, buttW, buttH, "Calculate")
+                .setListener((w) -> {
+                    guiCalculateCant = new GuiCalculateCant(this, x -> currentMarkerValue.rp.cantEdge = (float) x);
+                    this.mc.displayGuiScreen(guiCalculateCant);
+                });
         this.buttonCopyNeighborCantEdge = WidgetFactory.addButton(mainScroll, buttX + buttH + buttW, fieldY - 2, buttW, buttH, "=Neighbor")
                 .setListener((w) -> {
                     RailPosition rp = TileEntityMarkerAdvanced.getNeighborRP(this.marker);
@@ -270,16 +276,18 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         fieldY += lineHeight;
 
         //cant center
-        this.fieldCantCenter = WidgetFactory.addTextField(mainScroll, fieldX, fieldY, fieldW, fieldH, this.currentRP.cantCenter, -90.0f, 90.0f,
+        this.fieldCantCenter = WidgetFactory.addTextField(mainScroll, fieldX, fieldY, fieldW, fieldH, this.currentRP.cantCenter, -90.0f,
+                90.0f,
                 false);
         this.buttonResetCantCenter = WidgetFactory.addButton(mainScroll, buttX, fieldY - 2, buttH, buttH, "0").setListener((w) -> {
             fieldCantCenter.fieldValue = 0;
             fieldCantCenter.checkValueAndSetText();
         });
-        this.buttonCalcCantCenter = WidgetFactory.addButton(mainScroll, buttX + buttH, fieldY - 2, buttW, buttH, "Calculate").setListener((w) -> {
-            guiCalculateCant = new GuiCalculateCant(this, x -> currentMarkerValue.rp.cantCenter = (float) x);
-            this.mc.displayGuiScreen(guiCalculateCant);
-        });
+        this.buttonCalcCantCenter = WidgetFactory.addButton(mainScroll, buttX + buttH, fieldY - 2, buttW, buttH, "Calculate")
+                .setListener((w) -> {
+                    guiCalculateCant = new GuiCalculateCant(this, x -> currentMarkerValue.rp.cantCenter = (float) x);
+                    this.mc.displayGuiScreen(guiCalculateCant);
+                });
         this.buttonFlipCantCenter = WidgetFactory.addButton(mainScroll, buttX - fieldW - buttH - 4, fieldY - 2, buttH, buttH, "-")
                 .setListener((w) -> {
                     this.fieldCantCenter.fieldValue = -this.fieldCantCenter.fieldValue;
@@ -288,7 +296,8 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         fieldY += lineHeight;
 
         //cant random
-        this.fieldCantRandom = WidgetFactory.addTextField(mainScroll, fieldX, fieldY, fieldW, fieldH, this.currentRP.cantRandom, 0.0f, 100.0f,
+        this.fieldCantRandom = WidgetFactory.addTextField(mainScroll, fieldX, fieldY, fieldW, fieldH, this.currentRP.cantRandom, 0.0f,
+                100.0f,
                 false);
         this.buttonResetCantRandom = WidgetFactory.addButton(mainScroll, buttX, fieldY - 2, buttH, buttH, "0").setListener((w) -> {
             fieldCantRandom.fieldValue = 0;
@@ -297,15 +306,18 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         fieldY += lineHeight + 2 + 10;
 
         //horizontal edit status
-        this.buttonEditStatusH = WidgetFactory.addOptionButton(mainScroll, buttX - fieldW / 2, fieldY, 160, 20, "", AnchorEditStatus.values(),
+        this.buttonEditStatusH = WidgetFactory.addOptionButton(mainScroll, buttX - fieldW / 2, fieldY, 160, 20, "",
+                AnchorEditStatus.values(),
                 this.currentMarkerValue.editStatusH);
         fieldY += lineHeight + 2;
         //vertical edit status
-        this.buttonEditStatusV = WidgetFactory.addOptionButton(mainScroll, buttX - fieldW / 2, fieldY, 160, 20, "", AnchorEditStatus.values(),
+        this.buttonEditStatusV = WidgetFactory.addOptionButton(mainScroll, buttX - fieldW / 2, fieldY, 160, 20, "",
+                AnchorEditStatus.values(),
                 this.currentMarkerValue.editStatusV);
         fieldY += lineHeight + 2;
         //rail drawing scheme
-        this.buttonDrawingScheme = WidgetFactory.addOptionButton(mainScroll, buttX - fieldW / 2, fieldY, 160, 20, "", RailDrawingScheme.values(),
+        this.buttonDrawingScheme = WidgetFactory.addOptionButton(mainScroll, buttX - fieldW / 2, fieldY, 160, 20, "",
+                RailDrawingScheme.values(),
                 this.currentMarkerValue.drawingScheme);
         this.buttonRedraw = WidgetFactory.addUnicodeGlyphButton(mainScroll, buttX - fieldW / 2 + 160, fieldY, 80, 20, "Redraw",
                 GuiUtils.UNDO_CHAR, 2.0F).setListener((w) -> {
@@ -435,94 +447,27 @@ public class GuiMarkerAdvanced extends GuiFullScreen
     {
         this.drawDefaultBackground();
         this.drawScreenBefore(mouseX, mouseY, partialTicks);
+        super.drawScreen(mouseX, mouseY, partialTicks);
+        GuiMarkerAdvanced pScr = this;
         int stringXpos = 10;
         int stringYpos = 8;
-        int fontColor = 0xE0E0E0 | this.getAlphaInt(0xFF);
-        int fontColorGrey = 0xA0A0A0 | this.getAlphaInt(0xFF);
-
-        super.drawScreen(mouseX, mouseY, partialTicks);
+        int fontColor = 0xE0E0E0 | pScr.getAlphaInt(0xFF);
+        int fontColorGrey = 0xA0A0A0 | pScr.getAlphaInt(0xFF);
 
         //title line
-        this.drawString(this.fontRenderer,
+        pScr.drawString(pScr.fontRenderer,
                 String.format(TextFormatting.BOLD + "Editing rail marker" + TextFormatting.RESET + " \"%s\" (%d, %d, %d)",
-                        this.marker.getName(), this.marker.getX(), this.marker.getY(), this.marker.getZ()), stringXpos, stringYpos,
+                        pScr.marker.getName(), pScr.marker.getX(), pScr.marker.getY(), pScr.marker.getZ()), stringXpos, stringYpos,
                 fontColor);
         stringYpos += 12;
-        this.drawString(this.fontRenderer,
-                TextFormatting.GRAY + TextFormatting.ITALIC.toString() + "Tips: You can use arrow keys or mouse wheel to adjust values.",
-                stringXpos, stringYpos, fontColorGrey);
-        stringYpos += 12;
-        this.drawString(this.fontRenderer,
-                TextFormatting.GRAY + TextFormatting.ITALIC.toString() + "LShift increases step(x10), LAlt decreases step(x0.1).",
-                stringXpos, stringYpos, fontColorGrey);
-        stringYpos += 20;
-        stringXpos += 15;
-        //groupId
-        this.drawString(this.fontRenderer, "Marker Group", stringXpos, stringYpos, fontColor);
-        CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8, 0xFFFFFF | this.getAlphaInt(0xFF));
-        stringYpos += 18;
-        //name
-        this.drawString(this.fontRenderer, "Marker Name", stringXpos, stringYpos, fontColor);
-        CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8, 0xFFFFFF | this.getAlphaInt(0xFF));
-        stringYpos += 18;
-        //rail height
-        this.drawString(this.fontRenderer, "Rail Height", stringXpos, stringYpos, fontColor);
-        CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.HEIGHT.getColor() | this.getAlphaInt(0xFF));
-        stringYpos += 18;
-        //anchor length horizontal
-        this.drawString(this.fontRenderer, "Horizontal Length", stringXpos, stringYpos, fontColor);
-        CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | this.getAlphaInt(0xFF));
-        stringYpos += 18;
-        //anchor yaw
-        this.drawString(this.fontRenderer, "Anchor Yaw", stringXpos, stringYpos, fontColor);
-        CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | this.getAlphaInt(0xFF));
-        stringYpos += 18;
-        //anchor length vertical
-        this.drawString(this.fontRenderer, "Vertical Length", stringXpos, stringYpos, fontColor);
-        CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | this.getAlphaInt(0xFF));
-        stringYpos += 18;
-        //anchor pitch
-        this.drawString(this.fontRenderer, "Anchor Pitch", stringXpos, stringYpos, fontColor);
-        CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | this.getAlphaInt(0xFF));
-        stringYpos += 18;
-        //cant edge
-        this.drawString(this.fontRenderer, "Cant Edge", stringXpos, stringYpos, fontColor);
-        CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.CANT_EDGE.getColor() | this.getAlphaInt(0xFF));
-        stringYpos += 18;
-        //cant center
-        this.drawString(this.fontRenderer, "Cant Center", stringXpos, stringYpos, fontColor);
-        CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor() | this.getAlphaInt(0xFF));
-        stringYpos += 18;
-        //cant random
-        this.drawString(this.fontRenderer, "Cant Random", stringXpos, stringYpos, fontColor);
-        CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor() | this.getAlphaInt(0xFF));
-        stringYpos += 24;
-//        this.drawHorizontalLine(10, 400, stringYpos - 4, 0x333333 | this.getAlphaInt(0xFF));
-        CacGuiUtils.drawRect(10, stringYpos - 4, 400, stringYpos - 4 + 1, 0x333333 | this.getAlphaInt(0xFF));
-        stringYpos += 10;
-        //horizontal edit status
-        this.drawString(this.fontRenderer, "Edit Status of Horizontal:", stringXpos, stringYpos, fontColor);
-        CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | this.getAlphaInt(0xFF));
-        stringYpos += 20;
-        //vertical edit status
-        this.drawString(this.fontRenderer, "Edit Status of Vertical:", stringXpos, stringYpos, fontColor);
-        CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | this.getAlphaInt(0xFF));
-        stringYpos += 20;
-        //rail drawing scheme
-        this.drawString(this.fontRenderer, "Rail Drawing Scheme:", stringXpos, stringYpos, fontColor);
-        CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | this.getAlphaInt(0xFF));
-        stringYpos += 20;
+//        pScr.drawString(pScr.fontRenderer,
+//                TextFormatting.GRAY + TextFormatting.ITALIC.toString() +
+//                        "Tips: You can use arrow keys or mouse wheel to adjust values.",
+//                stringXpos, stringYpos, fontColorGrey);
+//        stringYpos += 12;
+//        pScr.drawString(pScr.fontRenderer,
+//                TextFormatting.GRAY + TextFormatting.ITALIC.toString() + "LShift increases step(x10), LAlt decreases step(x0.1).",
+//                stringXpos, stringYpos, fontColorGrey);
         this.drawScreenAfter(mouseX, mouseY, partialTicks);
     }
 
@@ -636,5 +581,107 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         list.add(this.currentMarkerUndoValue);
         list.addAll(this.undoValues);
         this.updateValues(list);
+    }
+
+    private static class Scroll extends GuiScroll
+    {
+        public Scroll(GuiMarkerAdvanced pScr, int startX, int startY, int endX, int endY, IGuiWidget... widgets)
+        {
+            super(pScr, startX, startY, endX, endY, widgets);
+        }
+
+        @Override
+        public void drawCustom(int mouseX, int mouseY, float partialTicks)
+        {
+            if (!(pScr instanceof GuiMarkerAdvanced)) return;
+            GuiMarkerAdvanced pScr = ((GuiMarkerAdvanced) this.pScr);
+            int stringXpos = 10;
+            int stringYpos = 3 + 8;//8;
+            int fontColor = 0xE0E0E0 | pScr.getAlphaInt(0xFF);
+            int fontColorGrey = 0xA0A0A0 | pScr.getAlphaInt(0xFF);
+
+            //title line
+//            pScr.drawString(pScr.fontRenderer,
+//                    String.format(TextFormatting.BOLD + "Editing rail marker" + TextFormatting.RESET + " \"%s\" (%d, %d, %d)",
+//                            pScr.marker.getName(), pScr.marker.getX(), pScr.marker.getY(), pScr.marker.getZ()), stringXpos, stringYpos,
+//                    fontColor);
+//            stringYpos += 12;
+//            pScr.drawString(pScr.fontRenderer,
+//                    TextFormatting.GRAY + TextFormatting.ITALIC.toString() +
+//                            "Tips: You can use arrow keys or mouse wheel to adjust values.",
+//                    stringXpos, stringYpos, fontColorGrey);
+//            stringYpos += 12;
+//            pScr.drawString(pScr.fontRenderer,
+//                    TextFormatting.GRAY + TextFormatting.ITALIC.toString() + "LShift increases step(x10), LAlt decreases step(x0.1).",
+//                    stringXpos, stringYpos, fontColorGrey);
+//            stringYpos += 20;
+            stringXpos += 15;
+            //groupId
+            pScr.drawString(pScr.fontRenderer, "Marker Group", stringXpos, stringYpos, fontColor);
+            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8, 0xFFFFFF | pScr.getAlphaInt(0xFF));
+            stringYpos += 18;
+            //name
+            pScr.drawString(pScr.fontRenderer, "Marker Name", stringXpos, stringYpos, fontColor);
+            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8, 0xFFFFFF | pScr.getAlphaInt(0xFF));
+            stringYpos += 18;
+            //rail height
+            pScr.drawString(pScr.fontRenderer, "Rail Height", stringXpos, stringYpos, fontColor);
+            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
+                    RenderMarkerBlock.MarkerElement.HEIGHT.getColor() | pScr.getAlphaInt(0xFF));
+            stringYpos += 18;
+            //anchor length horizontal
+            pScr.drawString(pScr.fontRenderer, "Horizontal Length", stringXpos, stringYpos, fontColor);
+            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
+                    RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | pScr.getAlphaInt(0xFF));
+            stringYpos += 18;
+            //anchor yaw
+            pScr.drawString(pScr.fontRenderer, "Anchor Yaw", stringXpos, stringYpos, fontColor);
+            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
+                    RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | pScr.getAlphaInt(0xFF));
+            stringYpos += 18;
+            //anchor length vertical
+            pScr.drawString(pScr.fontRenderer, "Vertical Length", stringXpos, stringYpos, fontColor);
+            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
+                    RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | pScr.getAlphaInt(0xFF));
+            stringYpos += 18;
+            //anchor pitch
+            pScr.drawString(pScr.fontRenderer, "Anchor Pitch", stringXpos, stringYpos, fontColor);
+            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
+                    RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | pScr.getAlphaInt(0xFF));
+            stringYpos += 18;
+            //cant edge
+            pScr.drawString(pScr.fontRenderer, "Cant Edge", stringXpos, stringYpos, fontColor);
+            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
+                    RenderMarkerBlock.MarkerElement.CANT_EDGE.getColor() | pScr.getAlphaInt(0xFF));
+            stringYpos += 18;
+            //cant center
+            pScr.drawString(pScr.fontRenderer, "Cant Center", stringXpos, stringYpos, fontColor);
+            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
+                    RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor() | pScr.getAlphaInt(0xFF));
+            stringYpos += 18;
+            //cant random
+            pScr.drawString(pScr.fontRenderer, "Cant Random", stringXpos, stringYpos, fontColor);
+            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
+                    RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor() | pScr.getAlphaInt(0xFF));
+            stringYpos += 24;
+//        pScr.drawHorizontalLine(10, 400, stringYpos - 4, 0x333333 | pScr.getAlphaInt(0xFF));
+            CacGuiUtils.drawRect(10, stringYpos - 4, 400, stringYpos - 4 + 1, 0x333333 | pScr.getAlphaInt(0xFF));
+            stringYpos += 10;
+            //horizontal edit status
+            pScr.drawString(pScr.fontRenderer, "Edit Status of Horizontal:", stringXpos, stringYpos, fontColor);
+            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
+                    RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | pScr.getAlphaInt(0xFF));
+            stringYpos += 20;
+            //vertical edit status
+            pScr.drawString(pScr.fontRenderer, "Edit Status of Vertical:", stringXpos, stringYpos, fontColor);
+            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
+                    RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | pScr.getAlphaInt(0xFF));
+            stringYpos += 20;
+            //rail drawing scheme
+            pScr.drawString(pScr.fontRenderer, "Rail Drawing Scheme:", stringXpos, stringYpos, fontColor);
+            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
+                    RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | pScr.getAlphaInt(0xFF));
+            stringYpos += 20;
+        }
     }
 }

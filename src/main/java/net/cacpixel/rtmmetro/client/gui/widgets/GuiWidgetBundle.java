@@ -101,4 +101,28 @@ public class GuiWidgetBundle implements IGuiWidget, IWidgetHolder
     {
         return pScr;
     }
+
+    @Override
+    public int getX()
+    {
+        return -1;
+    }
+
+    @Override
+    public int getY()
+    {
+        return -1;
+    }
+
+    @Override
+    public int getWidth()
+    {
+        return -1;
+    }
+
+    @Override
+    public int getHeight()
+    {
+        return -1;
+    }
 }

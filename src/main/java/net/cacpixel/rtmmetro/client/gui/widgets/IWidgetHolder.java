@@ -41,18 +41,12 @@ public interface IWidgetHolder
 
     default List<GuiTextFieldAdvanced> getTextFieldList()
     {
-        List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
-        this.forEachHolder(holder -> textFields.addAll(holder.getTextFieldList()));
-        this.getWidgets().stream().filter(w -> w instanceof GuiTextFieldAdvanced).forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
-        return textFields;
+        return this.getAllWidgetFromClass(GuiTextFieldAdvanced.class);
     }
 
     default List<GuiButtonAdvanced> getButtonList()
     {
-        List<GuiButtonAdvanced> buttonList = new ArrayList<>();
-        this.forEachHolder(holder -> buttonList.addAll(holder.getButtonList()));
-        this.getWidgets().stream().filter(w -> w instanceof GuiButtonAdvanced).forEach(b -> buttonList.add((GuiButtonAdvanced) b));
-        return buttonList;
+        return this.getAllWidgetFromClass(GuiButtonAdvanced.class);
     }
 
     default List<IGuiWidget> getAllWidgets()
@@ -61,5 +55,25 @@ public interface IWidgetHolder
         this.forEachHolder(holder -> list.addAll(holder.getAllWidgets()));
         list.addAll(this.getWidgets());
         return list;
+    }
+
+    default <T extends IGuiWidget> List<T> getWidgetFromClass(Class<T> clazz)
+    {
+        return this.getWidgetFromClass(clazz, false);
+    }
+
+    default <T extends IGuiWidget> List<T> getAllWidgetFromClass(Class<T> clazz)
+    {
+        return this.getWidgetFromClass(clazz, true);
+    }
+
+    @SuppressWarnings("unchecked")
+    default <T extends IGuiWidget> List<T> getWidgetFromClass(Class<T> clazz, boolean reentrant)
+    {
+        List<T> ret = new ArrayList<>();
+        if (reentrant)
+            this.forEachHolder(holder -> ret.addAll(holder.getWidgetFromClass(clazz, true)));
+        this.getWidgets().stream().filter(clazz::isInstance).forEach(b -> ret.add((T) b));
+        return ret;
     }
 }

@@ -365,12 +365,17 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
                     {
                         TileEntityMarkerAdvanced ma = (TileEntityMarkerAdvanced) tileentity;
                         ma.setStartPos(blockpos, this.railMaps, list);
-                        ma.originalRailMap = this.getOriginalRailMap();
-                        ma.drawingScheme = this.drawingScheme;
+                        this.copyValueToAnotherMarker(ma);
                     }
                 }
             }
         }
+    }
+
+    public void copyValueToAnotherMarker(TileEntityMarkerAdvanced another)
+    {
+        another.originalRailMap = this.getOriginalRailMap();
+        another.drawingScheme = this.drawingScheme;
     }
 
     private void setStartPos(BlockPos pos, RailMap[] maps, List<BlockPos> list)
