@@ -48,9 +48,12 @@ public class GuiScroll extends GuiWidgetBundle
         ScaledResolution res = new ScaledResolution(pScr.mc);
         double scaleW = pScr.mc.displayWidth / res.getScaledWidth_double();
         double scaleH = pScr.mc.displayHeight / res.getScaledHeight_double();
-        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        GL11.glScissor((int) (startX * scaleW), (int) (pScr.mc.displayHeight - (endY * scaleH)), // 左下角开始
-                (int) ((endX - startX) * scaleW), (int) ((endY - startY) * scaleH));
+        GL11.glEnable(GL11.GL_SCISSOR_TEST);// 左下角开始
+        GL11.glScissor((int) ((pScr.translationX + (startX * pScr.scaleX)) * scaleW),
+                (int) (((pScr.height - pScr.translationY) - (endY) * pScr.scaleY) * scaleH),
+                // （原始平移量（缩放后的坐标系） + 原始的scroll位置 * scr缩放量） * scaleW/H
+                (int) ((endX - startX) * pScr.scaleX * scaleW),
+                (int) ((endY - startY) * pScr.scaleY * scaleH));
         if (scrollUpDown)
         {
             GlStateManager.translate(0, -upDownValue + startY, 0);
@@ -95,16 +98,19 @@ public class GuiScroll extends GuiWidgetBundle
         super.onScroll(mouseX, mouseY, scroll);
         if (!this.isMouseInside()) return;
         List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
-        this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced).forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
+        this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced)
+                .forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
         if (textFields.stream().noneMatch(f -> f.isMouseInside() && f.isFocused())) // focused并且鼠标在内，不允许滚动GuiScroll
         {
             if (scrollUpDown && !GuiScreen.isShiftKeyDown())
             {
-                this.upDownValue = MathHelper.clamp(this.upDownValue + scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 10, 0, upDownMax);
+                this.upDownValue = MathHelper.clamp(this.upDownValue + scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30,
+                        0, upDownMax);
             }
             if (scrollLeftRight && GuiScreen.isShiftKeyDown())
             {
-                this.leftRightValue = MathHelper.clamp(this.leftRightValue + scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 10, 0,
+                this.leftRightValue = MathHelper.clamp(
+                        this.leftRightValue + scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30, 0,
                         leftRightMax);
             }
         }
@@ -119,9 +125,11 @@ public class GuiScroll extends GuiWidgetBundle
                     .map(IGuiWidget::getX).orElse(0);
             int y = Arrays.stream(widgets).filter(Objects::nonNull).max(Comparator.comparingInt(IGuiWidget::getY))
                     .map(IGuiWidget::getY).orElse(0);
-            int width = Arrays.stream(widgets).filter(Objects::nonNull).max(Comparator.comparingInt(IGuiWidget::getWidth))
+            int width = Arrays.stream(widgets).filter(Objects::nonNull)
+                    .max(Comparator.comparingInt(IGuiWidget::getWidth))
                     .map(IGuiWidget::getWidth).orElse(0);
-            int height = Arrays.stream(widgets).filter(Objects::nonNull).max(Comparator.comparingInt(IGuiWidget::getHeight))
+            int height = Arrays.stream(widgets).filter(Objects::nonNull)
+                    .max(Comparator.comparingInt(IGuiWidget::getHeight))
                     .map(IGuiWidget::getHeight).orElse(0);
             this.upDownMax = Math.max(this.upDownMax, y + height + 10 - (endY - startY));
             this.leftRightMax = Math.max(this.leftRightMax, x + width + 10 - (endX - startX));

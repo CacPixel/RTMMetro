@@ -33,6 +33,7 @@ public class CacGuiUtils
     public static final int DEFAULT_SCROLL_VALUE = 120;
     public static BezierCurveAdvanced guiBezierAlpha;
     public static BezierCurveAdvanced guiBezierTranslation;
+    public static BezierCurveAdvanced guiBezierScroll;
     public static double xMax = 100;
 
     public static void init()
@@ -47,9 +48,15 @@ public class CacGuiUtils
                 0.25 * xMax, 0.1,
                 0.0 * xMax, 1.0,
                 xMax, 1.0);
+        guiBezierScroll = new BezierCurveAdvanced(
+                0 * xMax, 0,
+                0.25 * xMax, 0.1,
+                0.0 * xMax, 1.0,
+                xMax, 1.0);
 
         guiBezierAlpha.initNP();
         guiBezierTranslation.initNP();
+        guiBezierScroll.initNP();
     }
 
     public static void drawContinuousTexturedBox(ResourceLocation res, int x, int y, int u, int v, int width, int height, int textureWidth,
