@@ -34,25 +34,25 @@ public class CacGuiUtils
     public static BezierCurveAdvanced guiBezierAlpha;
     public static BezierCurveAdvanced guiBezierTranslation;
     public static BezierCurveAdvanced guiBezierScroll;
-    public static double xMax = 100;
+    public static final double X_MAX = 1000;
 
     public static void init()
     {
         guiBezierAlpha = new BezierCurveAdvanced(
-                0 * xMax, 0,
-                0.2 * xMax, 0.5,
-                0.0 * xMax, 1.3,
-                xMax, 1.0);
+                0 * X_MAX, 0,
+                0.2 * X_MAX, 0.5,
+                0.0 * X_MAX, 1.3,
+                1.0 * X_MAX, 1.0);
         guiBezierTranslation = new BezierCurveAdvanced(
-                0 * xMax, 0,
-                0.25 * xMax, 0.1,
-                0.0 * xMax, 1.0,
-                xMax, 1.0);
+                0 * X_MAX, 0,
+                0.25 * X_MAX, 0.1,
+                0.0 * X_MAX, 1.0,
+                1.0 * X_MAX, 1.0);
         guiBezierScroll = new BezierCurveAdvanced(
-                0 * xMax, 0,
-                0.25 * xMax, 0.1,
-                0.0 * xMax, 1.0,
-                xMax, 1.0);
+                0 * X_MAX, 0,
+                0.38 * X_MAX, 0.97,
+                0.81 * X_MAX, 0.98,
+                1.0 * X_MAX, 1.0);
 
         guiBezierAlpha.initNP();
         guiBezierTranslation.initNP();

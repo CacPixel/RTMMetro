@@ -449,16 +449,17 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         this.drawScreenBefore(mouseX, mouseY, partialTicks);
         super.drawScreen(mouseX, mouseY, partialTicks);
         GuiMarkerAdvanced pScr = this;
-        int stringXpos = 10;
-        int stringYpos = 8;
+        int stringXpos = this.width / 2;
+        int stringYpos = 12;
         int fontColor = 0xE0E0E0 | pScr.getAlphaInt(0xFF);
         int fontColorGrey = 0xA0A0A0 | pScr.getAlphaInt(0xFF);
 
         //title line
-        pScr.drawString(pScr.fontRenderer,
-                String.format(TextFormatting.BOLD + "Editing rail marker" + TextFormatting.RESET + " \"%s\" (%d, %d, %d)",
-                        pScr.marker.getName(), pScr.marker.getX(), pScr.marker.getY(), pScr.marker.getZ()), stringXpos, stringYpos,
-                fontColor);
+        CacGuiUtils.drawCenteredString(pScr.fontRenderer,
+                String.format(TextFormatting.BOLD + "Editing rail marker" + TextFormatting.RESET + " \"%s\" " +
+                                TextFormatting.YELLOW + "(%d, %d, %d)",
+                        pScr.marker.getName(), pScr.marker.getX(), pScr.marker.getY(), pScr.marker.getZ()),
+                stringXpos, stringYpos, fontColor);
         stringYpos += 12;
 //        pScr.drawString(pScr.fontRenderer,
 //                TextFormatting.GRAY + TextFormatting.ITALIC.toString() +

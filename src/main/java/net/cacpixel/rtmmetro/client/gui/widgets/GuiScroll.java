@@ -1,7 +1,10 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
+import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
+import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
+import net.cacpixel.rtmmetro.util.ModLog;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -20,9 +23,14 @@ public class GuiScroll extends GuiWidgetBundle
     public boolean scrollLeftRight = true;
     private int upDownMax = 0;
     private int leftRightMax = 0;
-    private int upDownValue = 0;
-    private int leftRightValue = 0;
+    private int upDownValueCurrent = 0;
+    private int leftRightValueCurrent = 0;
     public boolean autoExpandMaxValue = true;
+    private float animationTime = 0;
+    private float duration;
+    private boolean isInAnimation = false;
+    private int deltaUpDown = 0;
+    private int deltaLeftRight = 0;
 
     public GuiScroll(GuiScreenAdvanced pScr, int startX, int startY, int endX, int endY, IGuiWidget... widgets)
     {
@@ -31,6 +39,7 @@ public class GuiScroll extends GuiWidgetBundle
         this.startY = startY;
         this.endX = endX;
         this.endY = endY;
+        this.duration = ModConfig.guiAnimationDuration * 3;
     }
 
     public void drawScrollBefore(int mouseX, int mouseY, float partialTicks)
@@ -45,6 +54,13 @@ public class GuiScroll extends GuiWidgetBundle
         CacGuiUtils.drawRect(endX - 1, startY - 1, endX + 1, endY + 1, 0x505050 | this.pScr.getAlphaInt(0xFF));
         this.pScr.drawDefaultBackground(startX, startY, endX, endY);
         GlStateManager.pushMatrix();
+        this.updateAnimation(partialTicks);
+    }
+
+    protected void updateAnimation(float partialTicks)
+    {
+        float dt = partialTicks / 20.0F;
+        this.animationTime += dt;
         ScaledResolution res = new ScaledResolution(pScr.mc);
         double scaleW = pScr.mc.displayWidth / res.getScaledWidth_double();
         double scaleH = pScr.mc.displayHeight / res.getScaledHeight_double();
@@ -56,12 +72,34 @@ public class GuiScroll extends GuiWidgetBundle
                 (int) ((endY - startY) * pScr.scaleY * scaleH));
         if (scrollUpDown)
         {
-            GlStateManager.translate(0, -upDownValue + startY, 0);
+            float d = this.getAnimationProgress() * deltaUpDown;
+            float translation = startY - upDownValueCurrent - d;
+            deltaUpDown -= Math.round(d);
+            upDownValueCurrent += Math.round(d);
+            GlStateManager.translate(0, translation, 0);
         }
         if (scrollLeftRight)
         {
-            GlStateManager.translate(-leftRightValue + startX, 0, 0);
+            float d = this.getAnimationProgress() * deltaLeftRight;
+            float translation = startX - leftRightValueCurrent - d;
+            deltaLeftRight -= Math.round(d);
+            leftRightValueCurrent += Math.round(d);
+            GlStateManager.translate(translation, 0, 0);
         }
+    }
+
+    protected float getAnimationProgress()
+    {
+        if (!isInAnimation)
+        {
+            this.animationTime = 0;
+            return 1.0f;
+        }
+        BezierCurveAdvanced curve = CacGuiUtils.guiBezierScroll;
+        double point = curve.fromXGetY((int) curve.getLength(), (this.animationTime / this.duration) * CacGuiUtils.X_MAX);
+        if (this.animationTime > this.duration)
+            this.isInAnimation = false;
+        return MathHelper.clamp((float) point, 0f, 1.0f);
     }
 
     public void drawScrollAfter(int mouseX, int mouseY, float partialTicks)
@@ -104,14 +142,17 @@ public class GuiScroll extends GuiWidgetBundle
         {
             if (scrollUpDown && !GuiScreen.isShiftKeyDown())
             {
-                this.upDownValue = MathHelper.clamp(this.upDownValue + scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30,
-                        0, upDownMax);
+                deltaUpDown += MathHelper.clamp(scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30,
+                        -upDownValueCurrent - deltaUpDown, upDownMax - upDownValueCurrent - deltaUpDown);
+                animationTime = 0;
+                isInAnimation = true;
             }
             if (scrollLeftRight && GuiScreen.isShiftKeyDown())
             {
-                this.leftRightValue = MathHelper.clamp(
-                        this.leftRightValue + scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30, 0,
-                        leftRightMax);
+                deltaLeftRight += MathHelper.clamp(scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30,
+                        -leftRightValueCurrent - deltaLeftRight, leftRightMax - leftRightValueCurrent - deltaLeftRight);
+                animationTime = 0;
+                isInAnimation = true;
             }
         }
     }
@@ -149,25 +190,25 @@ public class GuiScroll extends GuiWidgetBundle
         return this;
     }
 
-    public GuiScroll setUpDownValue(int upDownValue)
+    public GuiScroll setUpDownValueCurrent(int upDownValueCurrent)
     {
-        this.upDownValue = upDownValue;
+        this.upDownValueCurrent = upDownValueCurrent;
         return this;
     }
 
-    public GuiScroll setLeftRightValue(int leftRightValue)
+    public GuiScroll setLeftRightValueCurrent(int leftRightValueCurrent)
     {
-        this.leftRightValue = leftRightValue;
+        this.leftRightValueCurrent = leftRightValueCurrent;
         return this;
     }
 
-    public int getUpDownValue()
+    public int getUpDownValueCurrent()
     {
-        return upDownValue;
+        return upDownValueCurrent;
     }
 
-    public int getLeftRightValue()
+    public int getLeftRightValueCurrent()
     {
-        return leftRightValue;
+        return leftRightValueCurrent;
     }
 }

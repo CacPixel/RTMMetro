@@ -247,7 +247,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     protected float getAnimationProgress(BezierCurveAdvanced curve)
     {
-        double point = curve.fromXGetY((int) curve.getLength(), (this.animationTime / this.duration) * CacGuiUtils.xMax);
+        double point = curve.fromXGetY((int) curve.getLength(), (this.animationTime / this.duration) * CacGuiUtils.X_MAX);
         return MathHelper.clamp((float) point, 0.02f, 2.0f);
     }
 
