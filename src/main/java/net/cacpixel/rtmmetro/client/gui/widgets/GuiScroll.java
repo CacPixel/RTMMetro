@@ -4,7 +4,6 @@ import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
-import net.cacpixel.rtmmetro.util.ModLog;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -31,6 +30,7 @@ public class GuiScroll extends GuiWidgetBundle
     private boolean isInAnimation = false;
     private int deltaUpDown = 0;
     private int deltaLeftRight = 0;
+    private int prevScroll = 0;
 
     public GuiScroll(GuiScreenAdvanced pScr, int startX, int startY, int endX, int endY, IGuiWidget... widgets)
     {
@@ -39,7 +39,7 @@ public class GuiScroll extends GuiWidgetBundle
         this.startY = startY;
         this.endX = endX;
         this.endY = endY;
-        this.duration = ModConfig.guiAnimationDuration * 3;
+        this.duration = ModConfig.guiAnimationDuration;
     }
 
     public void drawScrollBefore(int mouseX, int mouseY, float partialTicks)
@@ -74,16 +74,12 @@ public class GuiScroll extends GuiWidgetBundle
         {
             float d = this.getAnimationProgress() * deltaUpDown;
             float translation = startY - upDownValueCurrent - d;
-            deltaUpDown -= Math.round(d);
-            upDownValueCurrent += Math.round(d);
             GlStateManager.translate(0, translation, 0);
         }
         if (scrollLeftRight)
         {
             float d = this.getAnimationProgress() * deltaLeftRight;
             float translation = startX - leftRightValueCurrent - d;
-            deltaLeftRight -= Math.round(d);
-            leftRightValueCurrent += Math.round(d);
             GlStateManager.translate(translation, 0, 0);
         }
     }
@@ -92,7 +88,11 @@ public class GuiScroll extends GuiWidgetBundle
     {
         if (!isInAnimation)
         {
+            upDownValueCurrent += deltaUpDown;
+            leftRightValueCurrent += deltaLeftRight;
+            deltaUpDown = deltaLeftRight = 0;
             this.animationTime = 0;
+            prevScroll = 0;
             return 1.0f;
         }
         BezierCurveAdvanced curve = CacGuiUtils.guiBezierScroll;
@@ -142,17 +142,41 @@ public class GuiScroll extends GuiWidgetBundle
         {
             if (scrollUpDown && !GuiScreen.isShiftKeyDown())
             {
-                deltaUpDown += MathHelper.clamp(scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30,
-                        -upDownValueCurrent - deltaUpDown, upDownMax - upDownValueCurrent - deltaUpDown);
+                if (prevScroll == 2)
+                {
+                    float d = this.getAnimationProgress() * (deltaLeftRight);
+                    leftRightValueCurrent += Math.round(d);
+                    deltaLeftRight = 0;
+                }
+                int targetScroll = scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30;
+                int clamped = MathHelper.clamp(targetScroll, -upDownValueCurrent - deltaUpDown,
+                        upDownMax - upDownValueCurrent - deltaUpDown);
+                float d = this.getAnimationProgress() * (deltaUpDown);
+                deltaUpDown += clamped;
+                upDownValueCurrent += Math.round(d);
+                deltaUpDown -= Math.round(d);
                 animationTime = 0;
                 isInAnimation = true;
+                prevScroll = 1;
             }
-            if (scrollLeftRight && GuiScreen.isShiftKeyDown())
+            else if (scrollLeftRight && GuiScreen.isShiftKeyDown())
             {
-                deltaLeftRight += MathHelper.clamp(scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30,
-                        -leftRightValueCurrent - deltaLeftRight, leftRightMax - leftRightValueCurrent - deltaLeftRight);
+                if (prevScroll == 1)
+                {
+                    float d = this.getAnimationProgress() * (deltaUpDown);
+                    upDownValueCurrent += Math.round(d);
+                    deltaUpDown = 0;
+                }
+                int targetScroll = scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30;
+                int clamped = MathHelper.clamp(targetScroll, -leftRightValueCurrent - deltaLeftRight,
+                        leftRightMax - leftRightValueCurrent - deltaLeftRight);
+                float d = this.getAnimationProgress() * (deltaLeftRight);
+                deltaLeftRight += clamped;
+                leftRightValueCurrent += Math.round(d);
+                deltaLeftRight -= Math.round(d);
                 animationTime = 0;
                 isInAnimation = true;
+                prevScroll = 2;
             }
         }
     }
