@@ -2,11 +2,12 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Keyboard;
 
-public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced implements IGuiWidget
+import java.util.function.IntSupplier;
+
+public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
 {
     public int fieldValue;
     public int step = 1;
@@ -14,11 +15,16 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced implements IGu
     public int maxValue = Integer.MAX_VALUE;
     public boolean loop = false;
 
-    public GuiTextFieldAdvancedInt(int id, FontRenderer par1, int x, int y, int w, int h,
-                                   GuiScreenAdvanced pScr, int fieldValue)
+    public GuiTextFieldAdvancedInt(GuiScreenAdvanced pScr, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+                                   IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
-        super(id, par1, x, y, w, h, pScr);
-        this.fieldValue = fieldValue;
+        super(pScr, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+    }
+
+    public GuiTextFieldAdvancedInt setInitialValue(int val)
+    {
+        this.fieldValue = val;
+        return this;
     }
 
     public GuiTextFieldAdvancedInt setMinMax(int min, int max, boolean loop)
@@ -59,7 +65,7 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced implements IGu
     public boolean textboxKeyTyped(char word, int code)
     {
         boolean ret = super.textboxKeyTyped(word, code);
-        if (this.isFocused() && this.getVisible() && this.isEnabled())
+        if (this.isFocused() && this.isVisible() && this.isEnabled())
         {
             if (code == Keyboard.KEY_UP)
             {
@@ -109,7 +115,6 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced implements IGu
         this.checkValueAndSetText();
     }
 
-    @Override
     public boolean isValueValid()
     {
         return this.fieldValue >= this.minValue && this.fieldValue <= this.maxValue;
@@ -118,7 +123,7 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced implements IGu
     @Override
     public void checkValueAndSetText()
     {
-        super.checkValueAndSetText();
+        this.checkValue();
         this.setText(String.valueOf(this.fieldValue));
         this.pScr.hasValueUpdated = true;
     }

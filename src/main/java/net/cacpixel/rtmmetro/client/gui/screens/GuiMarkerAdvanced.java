@@ -10,6 +10,7 @@ import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiFullScreen;
+import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.cacpixel.rtmmetro.client.gui.widgets.*;
 import net.cacpixel.rtmmetro.network.PacketMarkerClient;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
@@ -18,8 +19,6 @@ import net.cacpixel.rtmmetro.rail.util.RailDrawingScheme;
 import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
 import net.cacpixel.rtmmetro.util.BlockUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.toasts.GuiToast;
 import net.minecraft.client.gui.toasts.SystemToast;
 import net.minecraft.client.resources.I18n;
@@ -35,6 +34,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.IntSupplier;
 
 @SideOnly(Side.CLIENT)
 public class GuiMarkerAdvanced extends GuiFullScreen
@@ -99,7 +99,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         this.parentScreen = null;
     }
 
-    public GuiMarkerAdvanced(GuiScreen parentScreen, TileEntityMarkerAdvanced marker)
+    public GuiMarkerAdvanced(GuiScreenAdvanced parentScreen, TileEntityMarkerAdvanced marker)
     {
         this(marker);
         this.parentScreen = parentScreen;
@@ -118,8 +118,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         int lineHeight = 18;
 
         super.initGui();
-        int hw = this.width / 2;
-        this.mainScroll = new Scroll(this, 0, 30, this.width, this.height - 40);
+        this.mainScroll = new Scroll(this, this.getNextWidgetId(), () -> 0, () -> 30, () -> this.width, () -> this.height - 40 - 30);
         this.add(mainScroll);
 
         //groupId
@@ -256,7 +255,10 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         });
         this.buttonCalcCantEdge = WidgetFactory.addButton(mainScroll, buttX + buttH, fieldY - 2, buttW, buttH, "Calculate")
                 .setListener((w) -> {
-                    guiCalculateCant = new GuiCalculateCant(this, x -> currentMarkerValue.rp.cantEdge = (float) x);
+                    guiCalculateCant = new GuiCalculateCant(this, x -> {
+                        fieldCantEdge.fieldValue = (float) x;
+                        fieldCantEdge.checkValueAndSetText();
+                    });
                     this.mc.displayGuiScreen(guiCalculateCant);
                 });
         this.buttonCopyNeighborCantEdge = WidgetFactory.addButton(mainScroll, buttX + buttH + buttW, fieldY - 2, buttW, buttH, "=Neighbor")
@@ -285,7 +287,10 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         });
         this.buttonCalcCantCenter = WidgetFactory.addButton(mainScroll, buttX + buttH, fieldY - 2, buttW, buttH, "Calculate")
                 .setListener((w) -> {
-                    guiCalculateCant = new GuiCalculateCant(this, x -> currentMarkerValue.rp.cantCenter = (float) x);
+                    guiCalculateCant = new GuiCalculateCant(this, x -> {
+                        fieldCantCenter.fieldValue = (float) x;
+                        fieldCantCenter.checkValueAndSetText();
+                    });
                     this.mc.displayGuiScreen(guiCalculateCant);
                 });
         this.buttonFlipCantCenter = WidgetFactory.addButton(mainScroll, buttX - fieldW - buttH - 4, fieldY - 2, buttH, buttH, "-")
@@ -321,35 +326,35 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                 this.currentMarkerValue.drawingScheme);
         this.buttonRedraw = WidgetFactory.addUnicodeGlyphButton(mainScroll, buttX - fieldW / 2 + 160, fieldY, 80, 20, "Redraw",
                 GuiUtils.UNDO_CHAR, 2.0F).setListener((w) -> {
-            this.currentMarkerValue.markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentRP)).findFirst()
-                    .ifPresent(pos -> {
-                        TileEntityMarkerAdvanced te = BlockUtils.getMarkerFromPos(marker.getWorld(), pos);
-                        if (te != null)
-                        {
-                            // this marker
-                            fieldAnchorYaw.fieldValue = RailMapAdvanced.getDefaultYaw(currentRP, te.getMarkerRP(),
-                                    this.currentMarkerValue.drawingScheme);
-                            fieldAnchorYaw.checkValueAndSetText();
-                            this.updateFromFields();
-                            fieldAnchorLengthHorizontal.fieldValue = RailMapAdvanced.getDefaultHorizontal(currentRP,
-                                    te.getMarkerRP(),
-                                    this.currentMarkerValue.drawingScheme);
-                            fieldAnchorLengthHorizontal.checkValueAndSetText();
-                            //another marker
-                            this.currentValues.stream().filter(v -> BlockUtils.getMarkerFromPos(this.marker.getWorld(), v.rp) == te)
-                                    .findFirst().ifPresent(v -> {
-                                        // yaw跟着这个marker来的，再次计算也不会变，忽略，只需要确认长度。
-                                        v.rp.anchorLengthHorizontal = RailMapAdvanced.getDefaultHorizontal(te.getMarkerRP(),
-                                                currentRP,
-                                                this.currentMarkerValue.drawingScheme);
-                                    });
-                        }
-                    });
+            this.currentMarkerValue.markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentRP)).findFirst().ifPresent(pos -> {
+                TileEntityMarkerAdvanced te = BlockUtils.getMarkerFromPos(marker.getWorld(), pos);
+                if (te != null)
+                {
+                    // this marker
+                    fieldAnchorYaw.fieldValue = RailMapAdvanced.getDefaultYaw(currentRP, te.getMarkerRP(),
+                            this.currentMarkerValue.drawingScheme);
+                    fieldAnchorYaw.checkValueAndSetText();
+                    this.updateValueFromWidgets();
+                    fieldAnchorLengthHorizontal.fieldValue = RailMapAdvanced.getDefaultHorizontal(currentRP,
+                            te.getMarkerRP(),
+                            this.currentMarkerValue.drawingScheme);
+                    fieldAnchorLengthHorizontal.checkValueAndSetText();
+                    //another marker
+                    this.currentValues.stream().filter(v -> BlockUtils.getMarkerFromPos(this.marker.getWorld(), v.rp) == te)
+                            .findFirst().ifPresent(v -> {
+                                // yaw跟着这个marker来的，再次计算也不会变，忽略，只需要确认长度。
+                                v.rp.anchorLengthHorizontal = RailMapAdvanced.getDefaultHorizontal(te.getMarkerRP(),
+                                        currentRP,
+                                        this.currentMarkerValue.drawingScheme);
+                            });
+                }
+            });
         });
         fieldY += lineHeight + 2;
         //ok
-        this.buttonOK = WidgetFactory.addButton(this, hw - 80 + 90, this.height - 30, 160, 20, I18n.format("gui.done")).setListener((w) -> {
-            this.updateFromFields();
+        this.buttonOK = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 80 + 90, () -> this.height - 30, () -> 160, () -> 20,
+                I18n.format("gui.done")).setListener((w) -> {
+            this.updateValueFromWidgets();
             this.sendPacket();
             this.displayPrevScreen();
             GuiToast guitoast = Minecraft.getMinecraft().getToastGui();
@@ -359,7 +364,8 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         });
 
         //cancel
-        this.buttonCancel = WidgetFactory.addButton(this, hw - 80 - 90, this.height - 30, 160, 20, I18n.format("gui.cancel"))
+        this.buttonCancel = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 80 - 90, () -> this.height - 30, () -> 160, () -> 20,
+                        I18n.format("gui.cancel"))
                 .setListener((w) -> {
                     this.restoreValues();
                     this.sendPacket();
@@ -370,43 +376,43 @@ public class GuiMarkerAdvanced extends GuiFullScreen
 
     public void controlEnable()
     {
-        this.widgets.forEach(x -> x.setEnable(true));
+        this.widgets.forEach(x -> x.setEnabled(true));
 
         boolean isSwitch = this.marker.getBlockType() == RTMMetroBlock.MARKER_ADVANCED_SWITCH || this.marker.getOriginalRailMap() == null;
         boolean isCore = this.marker.isCoreMarker();
 
-        this.fieldAnchorPitch.setEnable(!isSwitch);
-        this.buttonResetAnchorPitch.setEnable(!isSwitch);
-        this.buttonCopyNeighborPitch.setEnable(!isSwitch);
+        this.fieldAnchorPitch.setEnabled(!isSwitch);
+        this.buttonResetAnchorPitch.setEnabled(!isSwitch);
+        this.buttonCopyNeighborPitch.setEnabled(!isSwitch);
 
-        this.fieldAnchorLengthVertical.setEnable(!isSwitch);
-        this.buttonStraightLineV.setEnable(!isSwitch);
-        this.buttonResetLengthV.setEnable(!isSwitch);
-        this.buttonMagicNumberV.setEnable(!isSwitch);
-        this.buttonEditStatusV.setEnable(!isSwitch);
+        this.fieldAnchorLengthVertical.setEnabled(!isSwitch);
+        this.buttonStraightLineV.setEnabled(!isSwitch);
+        this.buttonResetLengthV.setEnabled(!isSwitch);
+        this.buttonMagicNumberV.setEnabled(!isSwitch);
+        this.buttonEditStatusV.setEnabled(!isSwitch);
 
-        this.fieldCantCenter.setEnable(!isSwitch);
-        this.buttonCalcCantCenter.setEnable(!isSwitch);
-        this.buttonFlipCantCenter.setEnable(!isSwitch);
-        this.buttonResetCantCenter.setEnable(!isSwitch);
+        this.fieldCantCenter.setEnabled(!isSwitch);
+        this.buttonCalcCantCenter.setEnabled(!isSwitch);
+        this.buttonFlipCantCenter.setEnabled(!isSwitch);
+        this.buttonResetCantCenter.setEnabled(!isSwitch);
 
-        this.fieldCantEdge.setEnable(!isSwitch);
-        this.buttonCalcCantEdge.setEnable(!isSwitch);
-        this.buttonResetCantEdge.setEnable(!isSwitch);
-        this.buttonFlipCantEdge.setEnable(!isSwitch);
-        this.buttonCopyNeighborCantEdge.setEnable(!isSwitch);
+        this.fieldCantEdge.setEnabled(!isSwitch);
+        this.buttonCalcCantEdge.setEnabled(!isSwitch);
+        this.buttonResetCantEdge.setEnabled(!isSwitch);
+        this.buttonFlipCantEdge.setEnabled(!isSwitch);
+        this.buttonCopyNeighborCantEdge.setEnabled(!isSwitch);
 
-        this.fieldCantCenter.setEnable(isCore && !isSwitch);
-        this.buttonResetCantCenter.setEnable(isCore && !isSwitch);
-        this.buttonFlipCantCenter.setEnable(isCore && !isSwitch);
-        this.buttonCalcCantCenter.setEnable(isCore && !isSwitch);
+        this.fieldCantCenter.setEnabled(isCore && !isSwitch);
+        this.buttonResetCantCenter.setEnabled(isCore && !isSwitch);
+        this.buttonFlipCantCenter.setEnabled(isCore && !isSwitch);
+        this.buttonCalcCantCenter.setEnabled(isCore && !isSwitch);
 
-        this.fieldCantRandom.setEnable(isCore);
-        this.buttonResetCantRandom.setEnable(isCore);
+        this.fieldCantRandom.setEnabled(isCore);
+        this.buttonResetCantRandom.setEnabled(isCore);
 
         if (this.currentMarkerValue.drawingScheme != RailDrawingScheme.DRAW_CIRCLE)
         {
-            this.buttonRedraw.setEnable(false);
+            this.buttonRedraw.setEnabled(false);
         }
     }
 
@@ -440,6 +446,12 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                     BlockUtils.getMarkerFromPos(marker.getWorld(), x.rp) == BlockUtils.getMarkerFromPos(marker.getWorld(), pos)))
                 this.undoValues.add(new TileEntityMarkerAdvanced.MarkerCriticalValues((TileEntityMarkerAdvanced) te).clone());
         });
+
+        if (this.hasValueUpdated)
+        {
+            this.updateValueFromWidgets();
+            this.hasValueUpdated = false;
+        }
     }
 
     @Override
@@ -449,7 +461,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         this.drawScreenBefore(mouseX, mouseY, partialTicks);
         super.drawScreen(mouseX, mouseY, partialTicks);
         GuiMarkerAdvanced pScr = this;
-        int stringXpos = this.width / 2;
+        int stringXpos = this.getHalfWidth();
         int stringYpos = 12;
         int fontColor = 0xE0E0E0 | pScr.getAlphaInt(0xFF);
         int fontColorGrey = 0xA0A0A0 | pScr.getAlphaInt(0xFF);
@@ -473,15 +485,9 @@ public class GuiMarkerAdvanced extends GuiFullScreen
     }
 
     @Override
-    public void actionPerformed(GuiButton button)
+    public void onButtonAction(GuiButtonAdvanced b)
     {
-        super.actionPerformed(button);
-        // todo should this placed in updateScreen?
-        if (this.hasValueUpdated)
-        {
-            this.updateFromFields();
-            this.hasValueUpdated = false;
-        }
+        super.onButtonAction(b);
     }
 
     @Override
@@ -498,7 +504,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         super.handleMouseInput();
         if (this.hasValueUpdated)
         {
-            this.updateFromFields();
+            this.updateValueFromWidgets();
             this.hasValueUpdated = false;
         }
     }
@@ -509,7 +515,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         super.handleKeyboardInput();
         if (this.hasValueUpdated)
         {
-            this.updateFromFields();
+            this.updateValueFromWidgets();
             this.hasValueUpdated = false;
         }
     }
@@ -532,7 +538,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         });
     }
 
-    private void updateFromFields()
+    public void updateValueFromWidgets()
     {
         this.currentMarkerValue.groupId = this.fieldGroup.fieldValue;
         this.currentMarkerValue.name = this.fieldMarkerName.getText();
@@ -586,9 +592,10 @@ public class GuiMarkerAdvanced extends GuiFullScreen
 
     private static class Scroll extends GuiScroll
     {
-        public Scroll(GuiMarkerAdvanced pScr, int startX, int startY, int endX, int endY, IGuiWidget... widgets)
+        public Scroll(GuiScreenAdvanced pScr, int id, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height,
+                      GuiWidget... widgets)
         {
-            super(pScr, startX, startY, endX, endY, widgets);
+            super(pScr, id, x, y, width, height, widgets);
         }
 
         @Override

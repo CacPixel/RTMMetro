@@ -3,12 +3,12 @@ package net.cacpixel.rtmmetro.client.gui;
 import jp.ngt.ngtlib.io.ScriptUtil;
 import jp.ngt.ngtlib.math.NGTMath;
 import jp.ngt.ngtlib.util.NGTUtilClient;
+import net.cacpixel.rtmmetro.client.gui.widgets.GuiTextFieldAdvanced;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.cacpixel.rtmmetro.math.CacMath;
 import net.cacpixel.rtmmetro.util.ModLog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -188,7 +188,7 @@ public class CacGuiUtils
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T getFieldValue(GuiTextField field, T defaultVal)
+    public static <T> T getFieldValue(GuiTextFieldAdvanced field, T defaultVal)
     {
         T ret;
         String text = field.getText();

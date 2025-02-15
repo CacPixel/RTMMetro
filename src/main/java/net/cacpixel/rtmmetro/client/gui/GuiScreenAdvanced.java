@@ -6,11 +6,9 @@ import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.client.gui.widgets.*;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.cacpixel.rtmmetro.util.ModLog;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -18,8 +16,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
@@ -37,10 +33,10 @@ import java.util.stream.Collectors;
 @SideOnly(Side.CLIENT)
 public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHolder
 {
-    public GuiScreen parentScreen;
-    public boolean hasValueUpdated;
-    private static int nextWidgetId;
-    public List<IGuiWidget> widgets = new ArrayList<>();
+    public GuiScreenAdvanced parentScreen;
+    public boolean hasValueUpdated; // todo: move to text field
+    private int nextWidgetId;
+    public List<GuiWidget> widgets = new ArrayList<>();
     private float alpha;
     public boolean isOpening;
     public boolean isClosing;
@@ -53,6 +49,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public float rotationY;
     public float scaleX = 1.0F;
     public float scaleY = 1.0F;
+    public boolean initialized = false;
 
     public GuiScreenAdvanced()
     {
@@ -71,15 +68,19 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         return this;
     }
 
+    public void updateWidgets()
+    {
+        this.widgets.forEach(GuiWidget::updatePosAndSize);
+        if (parentScreen != null)
+            this.parentScreen.setWorldAndResolution(this.mc, this.width, this.height);
+    }
+
     @Override
     public void initGui()
     {
         Keyboard.enableRepeatEvents(true);
         this.widgets.clear();
         nextWidgetId = 0;
-        ScaledResolution scaledresolution = new ScaledResolution(this.mc);
-        this.width = scaledresolution.getScaledWidth();
-        this.height = scaledresolution.getScaledHeight();
     }
 
     public void drawScreenBefore(int mouseX, int mouseY, float partialTicks)
@@ -113,7 +114,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         GlStateManager.disableBlend();
     }
 
-    public List<IGuiWidget> getWidgets()
+    public List<GuiWidget> getWidgets()
     {
         return this.widgets;
     }
@@ -142,15 +143,15 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public void onUpdate()
     {
         // perform action
-        this.getButtonList().stream().filter(w -> w.clicked).collect(Collectors.toList()).forEach(w -> {
-            this.getScreen().performActionAndSendEvent(w);
-            w.clicked = false;
+        this.getButtonList().stream().filter(GuiButtonAdvanced::isClicked).collect(Collectors.toList()).forEach(w -> {
+            this.getScreen().onButtonAction(w);
+            w.setClicked(false);
         });
         // update CursorCounter
         GuiTextFieldAdvanced fieldCurrent = this.getScreen().getCurrentTextField();
         if (fieldCurrent != null && fieldCurrent.isEnabled() && fieldCurrent.isVisible())
         {
-            fieldCurrent.updateCursorCounter();
+//            fieldCurrent.updateCursorCounter();
         }
         IWidgetHolder.super.onUpdate();
     }
@@ -176,26 +177,27 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     protected void drawGradientRect(int left, int top, int right, int bottom, int startColor, int endColor)
     {
-        float f = (float)(startColor >> 24 & 255) / 255.0F;
-        float f1 = (float)(startColor >> 16 & 255) / 255.0F;
-        float f2 = (float)(startColor >> 8 & 255) / 255.0F;
-        float f3 = (float)(startColor & 255) / 255.0F;
-        float f4 = (float)(endColor >> 24 & 255) / 255.0F;
-        float f5 = (float)(endColor >> 16 & 255) / 255.0F;
-        float f6 = (float)(endColor >> 8 & 255) / 255.0F;
-        float f7 = (float)(endColor & 255) / 255.0F;
+        float f = (float) (startColor >> 24 & 255) / 255.0F;
+        float f1 = (float) (startColor >> 16 & 255) / 255.0F;
+        float f2 = (float) (startColor >> 8 & 255) / 255.0F;
+        float f3 = (float) (startColor & 255) / 255.0F;
+        float f4 = (float) (endColor >> 24 & 255) / 255.0F;
+        float f5 = (float) (endColor >> 16 & 255) / 255.0F;
+        float f6 = (float) (endColor >> 8 & 255) / 255.0F;
+        float f7 = (float) (endColor & 255) / 255.0F;
         GlStateManager.disableTexture2D();
         GlStateManager.enableBlend();
         GlStateManager.disableAlpha();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.shadeModel(7425);
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
-        bufferbuilder.pos((double)right, (double)top, (double)this.zLevel).color(f1, f2, f3, f).endVertex();
-        bufferbuilder.pos((double)left, (double)top, (double)this.zLevel).color(f1, f2, f3, f).endVertex();
-        bufferbuilder.pos((double)left, (double)bottom, (double)this.zLevel).color(f5, f6, f7, f4).endVertex();
-        bufferbuilder.pos((double)right, (double)bottom, (double)this.zLevel).color(f5, f6, f7, f4).endVertex();
+        bufferbuilder.pos((double) right, (double) top, (double) this.zLevel).color(f1, f2, f3, f).endVertex();
+        bufferbuilder.pos((double) left, (double) top, (double) this.zLevel).color(f1, f2, f3, f).endVertex();
+        bufferbuilder.pos((double) left, (double) bottom, (double) this.zLevel).color(f5, f6, f7, f4).endVertex();
+        bufferbuilder.pos((double) right, (double) bottom, (double) this.zLevel).color(f5, f6, f7, f4).endVertex();
         tessellator.draw();
         GlStateManager.shadeModel(7424);
 //        GlStateManager.disableBlend();
@@ -398,17 +400,29 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         }
     }
 
-    public void actionPerformed(GuiButton button)
+    @Override
+    public void setWorldAndResolution(Minecraft mc, int width, int height)
     {
-        if (button instanceof GuiButtonAdvanced)
+        this.mc = mc;
+        this.itemRender = mc.getRenderItem();
+        this.fontRenderer = mc.fontRenderer;
+        this.width = width;
+        this.height = height;
+        if (!net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
+                new net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent.Pre(this, this.buttonList)))
         {
-            GuiButtonAdvanced b = ((GuiButtonAdvanced) button);
-            IActionListener<? extends IGuiWidget> listener = b.getListener();
-            if (listener != null)
+            if (!initialized)
             {
-                listener.onAction(b);
+                this.initGui();
+                initialized = true;
+            }
+            else
+            {
+                this.updateWidgets();
             }
         }
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
+                new net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent.Post(this, this.buttonList));
     }
 
     public GuiTextFieldAdvanced getFocusedTextField()
@@ -457,7 +471,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         return null;
     }
 
-    public GuiTextFieldAdvanced getPrevTextField(GuiTextField fieldIn, boolean loop)
+    public GuiTextFieldAdvanced getPrevTextField(GuiTextFieldAdvanced fieldIn, boolean loop)
     {
         List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
         this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced).forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
@@ -503,7 +517,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         GlStateManager.disableDepth();
     }
 
-    public static int getNextWidgetId()
+    public int getNextWidgetId()
     {
         return nextWidgetId++;
     }
@@ -519,17 +533,31 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         return this;
     }
 
-    public void performActionAndSendEvent(GuiButton guibutton)
+    public void onButtonAction(GuiButtonAdvanced b)
     {
-        List<GuiButton> buttonList = new ArrayList<>(this.getButtonList());
-        GuiScreenEvent.ActionPerformedEvent.Pre event = new GuiScreenEvent.ActionPerformedEvent.Pre(this, guibutton, buttonList);
-        if (MinecraftForge.EVENT_BUS.post(event))
-            return;
-        guibutton = event.getButton();
-        this.selectedButton = guibutton;
-        guibutton.playPressSound(this.mc.getSoundHandler());
-        this.actionPerformed(guibutton);
-        if (this.equals(this.mc.currentScreen))
-            MinecraftForge.EVENT_BUS.post(new GuiScreenEvent.ActionPerformedEvent.Post(this, event.getButton(), buttonList));
+        b.playPressSound(this.mc.getSoundHandler());
+        IActionListener<? extends GuiWidget> listener = b.getListener();
+        if (listener != null)
+        {
+            listener.onAction(b);
+        }
+    }
+
+    public void onTextFieldModify(GuiTextFieldAdvanced f) // todo: onWidgetModify? onValueChanged?
+    {
+    }
+
+    public void updateValueFromWidgets()
+    {
+    }
+
+    public int getHalfWidth()
+    {
+        return this.width / 2;
+    }
+
+    public int getHalfHeight()
+    {
+        return this.height / 2;
     }
 }

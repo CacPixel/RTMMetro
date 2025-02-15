@@ -11,48 +11,42 @@ import net.minecraft.util.math.MathHelper;
 import org.lwjgl.opengl.GL11;
 
 import java.util.*;
+import java.util.function.IntSupplier;
 
 public class GuiScroll extends GuiWidgetBundle
 {
-    public int startX;
-    public int startY;
-    public int endX;
-    public int endY;
     public boolean scrollUpDown = true;
     public boolean scrollLeftRight = true;
-    private int upDownMax = 0;
-    private int leftRightMax = 0;
-    private int upDownValueCurrent = 0;
-    private int leftRightValueCurrent = 0;
+    protected int yMax = 0;
+    protected int xMax = 0;
+    protected int yNow = 0;
+    protected int xNow = 0;
     public boolean autoExpandMaxValue = true;
     private float animationTime = 0;
     private float duration;
     private boolean isInAnimation = false;
-    private int deltaUpDown = 0;
-    private int deltaLeftRight = 0;
-    private int prevScroll = 0;
+    private int dy = 0;
+    private int dx = 0;
+    private int prevScrollDir = 0;
 
-    public GuiScroll(GuiScreenAdvanced pScr, int startX, int startY, int endX, int endY, IGuiWidget... widgets)
+    public GuiScroll(GuiScreenAdvanced pScr, int id, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height,
+                     GuiWidget... widgets)
     {
-        super(pScr, widgets);
-        this.startX = startX;
-        this.startY = startY;
-        this.endX = endX;
-        this.endY = endY;
+        super(pScr, id, x, y, width, height, widgets);
         this.duration = ModConfig.guiAnimationDuration;
     }
 
     public void drawScrollBefore(int mouseX, int mouseY, float partialTicks)
     {
         // up
-        CacGuiUtils.drawRect(startX - 1, startY - 1, endX + 1, startY + 1, 0x505050 | this.pScr.getAlphaInt(0xFF));
+        CacGuiUtils.drawRect(x - 1, y - 1, getEndX() + 1, y + 1, 0x505050 | this.pScr.getAlphaInt(0xFF));
         // down
-        CacGuiUtils.drawRect(startX - 1, endY - 1, endX + 1, endY + 1, 0x505050 | this.pScr.getAlphaInt(0xFF));
+        CacGuiUtils.drawRect(x - 1, getEndY() - 1, getEndX() + 1, getEndY() + 1, 0x505050 | this.pScr.getAlphaInt(0xFF));
         // left
-        CacGuiUtils.drawRect(startX - 1, startY - 1, startX + 1, endY + 1, 0x505050 | this.pScr.getAlphaInt(0xFF));
+        CacGuiUtils.drawRect(x - 1, y - 1, x + 1, getEndY() + 1, 0x505050 | this.pScr.getAlphaInt(0xFF));
         // right
-        CacGuiUtils.drawRect(endX - 1, startY - 1, endX + 1, endY + 1, 0x505050 | this.pScr.getAlphaInt(0xFF));
-        this.pScr.drawDefaultBackground(startX, startY, endX, endY);
+        CacGuiUtils.drawRect(getEndX() - 1, y - 1, getEndX() + 1, getEndY() + 1, 0x505050 | this.pScr.getAlphaInt(0xFF));
+        this.pScr.drawDefaultBackground(x, y, getEndX(), getEndY());
         GlStateManager.pushMatrix();
         this.updateAnimation(partialTicks);
     }
@@ -65,21 +59,21 @@ public class GuiScroll extends GuiWidgetBundle
         double scaleW = pScr.mc.displayWidth / res.getScaledWidth_double();
         double scaleH = pScr.mc.displayHeight / res.getScaledHeight_double();
         GL11.glEnable(GL11.GL_SCISSOR_TEST);// 左下角开始
-        GL11.glScissor((int) ((pScr.translationX + (startX * pScr.scaleX)) * scaleW),
-                (int) (((pScr.height - pScr.translationY) - (endY) * pScr.scaleY) * scaleH),
+        GL11.glScissor((int) ((pScr.translationX + (x * pScr.scaleX)) * scaleW),
+                (int) (((pScr.height - pScr.translationY) - (getEndY()) * pScr.scaleY) * scaleH),
                 // （原始平移量（缩放后的坐标系） + 原始的scroll位置 * scr缩放量） * scaleW/H
-                (int) ((endX - startX) * pScr.scaleX * scaleW),
-                (int) ((endY - startY) * pScr.scaleY * scaleH));
+                (int) ((getEndX() - x) * pScr.scaleX * scaleW),
+                (int) ((getEndY() - y) * pScr.scaleY * scaleH));
         if (scrollUpDown)
         {
-            float d = this.getAnimationProgress() * deltaUpDown;
-            float translation = startY - upDownValueCurrent - d;
+            float d = this.getAnimationProgress() * dy;
+            float translation = -yNow - d;
             GlStateManager.translate(0, translation, 0);
         }
         if (scrollLeftRight)
         {
-            float d = this.getAnimationProgress() * deltaLeftRight;
-            float translation = startX - leftRightValueCurrent - d;
+            float d = this.getAnimationProgress() * dx;
+            float translation = -xNow - d;
             GlStateManager.translate(translation, 0, 0);
         }
     }
@@ -88,11 +82,11 @@ public class GuiScroll extends GuiWidgetBundle
     {
         if (!isInAnimation)
         {
-            upDownValueCurrent += deltaUpDown;
-            leftRightValueCurrent += deltaLeftRight;
-            deltaUpDown = deltaLeftRight = 0;
+            yNow += dy;
+            xNow += dx;
+            dy = dx = 0;
             this.animationTime = 0;
-            prevScroll = 0;
+            prevScrollDir = 0;
             return 1.0f;
         }
         BezierCurveAdvanced curve = CacGuiUtils.guiBezierScroll;
@@ -116,18 +110,10 @@ public class GuiScroll extends GuiWidgetBundle
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
         this.drawScrollBefore(mouseX, mouseY, partialTicks);
-        this.drawCustom(mouseX, mouseY, partialTicks);
+        GlStateManager.translate(x, y, 0);
         super.draw(mouseX, mouseY, partialTicks);
+        this.drawCustom(mouseX, mouseY, partialTicks);
         this.drawScrollAfter(mouseX, mouseY, partialTicks);
-    }
-
-    @Override
-    public boolean isMouseInside()
-    {
-        // TODO: button draw那边的判断鼠标在内的逻辑也得改，isMousePressed也得改
-        // TODO 这个 isMouseInside 也得传入参数 在isMouseInside里面偏移控件的位置（更好）
-        // its hard
-        return CacGuiUtils.isMouseInside(startX, startY, endX - startX, endY - startY);
     }
 
     @Override
@@ -142,97 +128,121 @@ public class GuiScroll extends GuiWidgetBundle
         {
             if (scrollUpDown && !GuiScreen.isShiftKeyDown())
             {
-                if (prevScroll == 2)
+                if (prevScrollDir == 2)
                 {
-                    float d = this.getAnimationProgress() * (deltaLeftRight);
-                    leftRightValueCurrent += Math.round(d);
-                    deltaLeftRight = 0;
+                    float d = this.getAnimationProgress() * (dx);
+                    xNow += Math.round(d);
+                    dx = 0;
                 }
                 int targetScroll = scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30;
-                int clamped = MathHelper.clamp(targetScroll, -upDownValueCurrent - deltaUpDown,
-                        upDownMax - upDownValueCurrent - deltaUpDown);
-                float d = this.getAnimationProgress() * (deltaUpDown);
-                deltaUpDown += clamped;
-                upDownValueCurrent += Math.round(d);
-                deltaUpDown -= Math.round(d);
+                int clamped = MathHelper.clamp(targetScroll, -yNow - dy,
+                        yMax - yNow - dy);
+                float d = this.getAnimationProgress() * (dy);
+                dy += clamped;
+                yNow += Math.round(d);
+                dy -= Math.round(d);
                 animationTime = 0;
                 isInAnimation = true;
-                prevScroll = 1;
+                prevScrollDir = 1;
             }
             else if (scrollLeftRight && GuiScreen.isShiftKeyDown())
             {
-                if (prevScroll == 1)
+                if (prevScrollDir == 1)
                 {
-                    float d = this.getAnimationProgress() * (deltaUpDown);
-                    upDownValueCurrent += Math.round(d);
-                    deltaUpDown = 0;
+                    float d = this.getAnimationProgress() * (dy);
+                    yNow += Math.round(d);
+                    dy = 0;
                 }
                 int targetScroll = scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30;
-                int clamped = MathHelper.clamp(targetScroll, -leftRightValueCurrent - deltaLeftRight,
-                        leftRightMax - leftRightValueCurrent - deltaLeftRight);
-                float d = this.getAnimationProgress() * (deltaLeftRight);
-                deltaLeftRight += clamped;
-                leftRightValueCurrent += Math.round(d);
-                deltaLeftRight -= Math.round(d);
+                int clamped = MathHelper.clamp(targetScroll, -xNow - dx,
+                        xMax - xNow - dx);
+                float d = this.getAnimationProgress() * (dx);
+                dx += clamped;
+                xNow += Math.round(d);
+                dx -= Math.round(d);
                 animationTime = 0;
                 isInAnimation = true;
-                prevScroll = 2;
+                prevScrollDir = 2;
             }
         }
     }
 
     @Override
-    public GuiScroll add(IGuiWidget... widgets)
+    public GuiScroll add(GuiWidget... widgets)
+    {
+        super.add(widgets);
+        this.expandMaxValue(this.widgets.toArray(new GuiWidget[0]));
+        return this;
+    }
+
+    @Override
+    public GuiScroll updatePosAndSize()
+    {
+        super.updatePosAndSize();
+        this.xMax = 0;
+        this.yMax = 0;
+        this.expandMaxValue(this.widgets.toArray(new GuiWidget[0]));
+        return this;
+    }
+
+    public void expandMaxValue(GuiWidget... widgets)
+    {
+        this.expandMaxValue(0, 0, widgets);
+    }
+
+    public void expandMaxValue(int xIn, int yIn, GuiWidget... widgets)
     {
         if (autoExpandMaxValue)
         {
-            int x = Arrays.stream(widgets).filter(Objects::nonNull).max(Comparator.comparingInt(IGuiWidget::getX))
-                    .map(IGuiWidget::getX).orElse(0);
-            int y = Arrays.stream(widgets).filter(Objects::nonNull).max(Comparator.comparingInt(IGuiWidget::getY))
-                    .map(IGuiWidget::getY).orElse(0);
-            int width = Arrays.stream(widgets).filter(Objects::nonNull)
-                    .max(Comparator.comparingInt(IGuiWidget::getWidth))
-                    .map(IGuiWidget::getWidth).orElse(0);
-            int height = Arrays.stream(widgets).filter(Objects::nonNull)
-                    .max(Comparator.comparingInt(IGuiWidget::getHeight))
-                    .map(IGuiWidget::getHeight).orElse(0);
-            this.upDownMax = Math.max(this.upDownMax, y + height + 10 - (endY - startY));
-            this.leftRightMax = Math.max(this.leftRightMax, x + width + 10 - (endX - startX));
+            GuiWidget widget = Arrays.stream(widgets).filter(Objects::nonNull)
+                    .max(Comparator.<GuiWidget>comparingInt(w -> w.getX() + w.getWidth())
+                            .thenComparingInt(w -> w.getY() + w.getHeight())).orElse(null);
+            if (widget != null)
+            {
+                this.yMax = Math.max(this.yMax, widget.y + widget.height + 10 - this.height);
+                this.xMax = Math.max(this.xMax, widget.x + widget.width + 10 - this.width);
+                this.yMax += yIn;
+                this.xMax += xIn;
+            }
         }
-        return (GuiScroll) super.add(widgets);
+        else
+        {
+            this.yMax = yIn;
+            this.xMax = xIn;
+        }
+        yNow = Math.min(yNow, yMax);
+        xNow = Math.min(xNow, xMax);
     }
 
-    public GuiScroll setUpDownMax(int upDownMax)
+    public GuiScroll setYMax(int yMax)
     {
-        this.upDownMax = upDownMax;
+        this.yMax = yMax;
         return this;
     }
 
-    public GuiScroll setLeftRightMax(int leftRightMax)
+    public GuiScroll setXMax(int xMax)
     {
-        this.leftRightMax = leftRightMax;
+        this.xMax = xMax;
         return this;
     }
 
-    public GuiScroll setUpDownValueCurrent(int upDownValueCurrent)
+    public void addYMax(int yMax)
     {
-        this.upDownValueCurrent = upDownValueCurrent;
-        return this;
+        this.yMax += yMax;
     }
 
-    public GuiScroll setLeftRightValueCurrent(int leftRightValueCurrent)
+    public void addXMax(int xMax)
     {
-        this.leftRightValueCurrent = leftRightValueCurrent;
-        return this;
+        this.xMax += xMax;
     }
 
-    public int getUpDownValueCurrent()
+    public int getEndX()
     {
-        return upDownValueCurrent;
+        return x + width;
     }
 
-    public int getLeftRightValueCurrent()
+    public int getEndY()
     {
-        return leftRightValueCurrent;
+        return y + height;
     }
 }

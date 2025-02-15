@@ -3,26 +3,31 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.function.IntSupplier;
 
-public class GuiWidgetBundle implements IGuiWidget, IWidgetHolder
+public class GuiWidgetBundle extends GuiWidget implements IWidgetHolder
 {
-    public GuiScreenAdvanced pScr;
-    public List<IGuiWidget> widgets = new ArrayList<>();
+    public List<GuiWidget> widgets = new ArrayList<>();
 
-    public GuiWidgetBundle(GuiScreenAdvanced pScr, IGuiWidget... widgets)
+    public GuiWidgetBundle(GuiScreenAdvanced pScr, int id, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height,
+                           GuiWidget... widgets)
     {
-        this.pScr = pScr;
+        super(pScr, id, x, y, width, height);
         this.add(widgets);
     }
 
-    @Override
-    public GuiWidgetBundle add(IGuiWidget... widgets)
+    public GuiWidgetBundle(GuiScreenAdvanced pScr, int id, GuiWidget... widgets)
     {
-        this.widgets.addAll(Arrays.asList(widgets));
-        this.widgets.removeIf(w -> w == this); // avoid add itself, it will cause infinity loop
-        return this;
+        this(pScr, id, GuiWidget.ZERO, GuiWidget.ZERO, GuiWidget.ZERO, GuiWidget.ZERO, widgets);
+    }
+
+    @Override
+    public GuiWidgetBundle add(GuiWidget... widgets)
+    {
+        GuiWidgetBundle ret = (GuiWidgetBundle) IWidgetHolder.super.add(widgets);
+        ret.widgets.removeIf(w -> w == this); // avoid add itself, it will cause infinity loop
+        return ret;
     }
 
     @Override
@@ -55,10 +60,9 @@ public class GuiWidgetBundle implements IGuiWidget, IWidgetHolder
         this.widgets.forEach(x -> x.onKeyTyped(typedChar, keyCode));
     }
 
-    @Override
     public boolean isMouseInside()
     {
-        return this.widgets.stream().anyMatch(IGuiWidget::isMouseInside);
+        return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isMouseInside) : super.isMouseInside();
     }
 
     @Override
@@ -67,31 +71,7 @@ public class GuiWidgetBundle implements IGuiWidget, IWidgetHolder
         this.widgets.forEach(x -> x.draw(mouseX, mouseY, partialTicks));
     }
 
-    @Override
-    public boolean isVisible()
-    {
-        return this.widgets.stream().allMatch(IGuiWidget::isVisible);
-    }
-
-    @Override
-    public boolean isEnabled()
-    {
-        return this.widgets.stream().allMatch(IGuiWidget::isEnabled);
-    }
-
-    @Override
-    public void setEnable(boolean enabled)
-    {
-        this.widgets.forEach(x -> x.setEnable(enabled));
-    }
-
-    @Override
-    public void setVisible(boolean visible)
-    {
-        this.widgets.forEach(x -> x.setVisible(visible));
-    }
-
-    public List<IGuiWidget> getWidgets()
+    public List<GuiWidget> getWidgets()
     {
         return this.widgets;
     }
@@ -100,29 +80,5 @@ public class GuiWidgetBundle implements IGuiWidget, IWidgetHolder
     public GuiScreenAdvanced getScreen()
     {
         return pScr;
-    }
-
-    @Override
-    public int getX()
-    {
-        return -1;
-    }
-
-    @Override
-    public int getY()
-    {
-        return -1;
-    }
-
-    @Override
-    public int getWidth()
-    {
-        return -1;
-    }
-
-    @Override
-    public int getHeight()
-    {
-        return -1;
     }
 }

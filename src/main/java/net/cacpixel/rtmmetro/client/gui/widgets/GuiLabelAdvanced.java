@@ -3,21 +3,15 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.IntSupplier;
 
-public class GuiLabelAdvanced extends Gui implements IGuiWidget
+public class GuiLabelAdvanced extends GuiWidget
 {
-    public GuiScreenAdvanced pScr;
-    protected int width;
-    protected int height;
-    public int x;
-    public int y;
     private final List<String> labels = new ArrayList<>();
-    public int id;
     private Align align = Align.LEFT_ALIGNED;
     public boolean visible = true;
     private final int textColor;
@@ -27,14 +21,10 @@ public class GuiLabelAdvanced extends Gui implements IGuiWidget
     private final int border;
     private final boolean hasBackground = false;
 
-    public GuiLabelAdvanced(GuiScreenAdvanced pScr, int labelId, int xIn, int yIn, int widthIn, int heightIn, int colorIn)
+    public GuiLabelAdvanced(GuiScreenAdvanced pScr, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+                            IntSupplier widthSupplier, IntSupplier heightSupplier, int colorIn)
     {
-        this.pScr = pScr;
-        this.id = labelId;
-        this.x = xIn;
-        this.y = yIn;
-        this.width = widthIn;
-        this.height = heightIn;
+        super(pScr, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
         this.textColor = colorIn;
         this.backColor = -1;
         this.ulColor = -1;
@@ -122,62 +112,9 @@ public class GuiLabelAdvanced extends Gui implements IGuiWidget
     }
 
     @Override
-    public boolean isMouseInside()
-    {
-        return CacGuiUtils.isMouseInside(x, y, width, height);
-    }
-
-    @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
         this.draw(mouseX, mouseY, partialTicks);
-    }
-
-    @Override
-    public boolean isVisible()
-    {
-        return visible;
-    }
-
-    @Override
-    public boolean isEnabled()
-    {
-        return visible;
-    }
-
-    @Override
-    public void setEnable(boolean enabled)
-    {
-    }
-
-    @Override
-    public void setVisible(boolean visible)
-    {
-        this.visible = visible;
-    }
-
-    @Override
-    public int getX()
-    {
-        return x;
-    }
-
-    @Override
-    public int getY()
-    {
-        return y;
-    }
-
-    @Override
-    public int getWidth()
-    {
-        return width;
-    }
-
-    @Override
-    public int getHeight()
-    {
-        return height;
     }
 
     public enum Align

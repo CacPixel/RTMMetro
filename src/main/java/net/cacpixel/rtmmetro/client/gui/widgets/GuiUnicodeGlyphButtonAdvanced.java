@@ -5,24 +5,27 @@ import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 
-public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced implements IGuiWidget
+import java.util.function.IntSupplier;
+
+public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced
 {
     public String glyph;
     public float glyphScale;
 
-    public GuiUnicodeGlyphButtonAdvanced(int id, int xPos, int yPos, int width, int height, String displayString, String glyph,
-                                         float glyphScale, GuiScreenAdvanced pScr,
-                                         IActionListener<? extends GuiUnicodeGlyphButtonAdvanced> callback)
+    public GuiUnicodeGlyphButtonAdvanced(GuiScreenAdvanced pScr, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+                                         IntSupplier widthSupplier, IntSupplier heightSupplier, String displayString,
+                                         String glyph, float glyphScale)
     {
-        super(id, xPos, yPos, width, height, displayString, pScr, callback);
+        super(pScr, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
         this.glyph = glyph;
         this.glyphScale = glyphScale;
+        this.setDisplayString(displayString);
     }
 
     @Override
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partial)
     {
-        if (this.visible)
+        if (super.isVisible())
         {
             this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
             if (this.pScr != mc.currentScreen || pScr.isInAnimation())
@@ -33,14 +36,8 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced implements 
             CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200,
                     20,
                     2, 3, 2, 2, this.zLevel, pScr);
-            this.mouseDragged(mc, mouseX, mouseY);
             int color = 14737632;
-
-            if (packedFGColour != 0)
-            {
-                color = packedFGColour;
-            }
-            else if (!this.enabled)
+            if (!super.isEnabled())
             {
                 color = 10526880;
             }
@@ -64,12 +61,12 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced implements 
 
             GlStateManager.pushMatrix();
             GlStateManager.scale(glyphScale, glyphScale, 1.0F);
-            this.drawCenteredString(mc.fontRenderer, glyph,
+            CacGuiUtils.drawCenteredString(mc.fontRenderer, glyph,
                     (int) (((this.x + (this.width / 2) - (strWidth / 2)) / glyphScale) - (glyphWidth / (2 * glyphScale)) + 2),
                     (int) (((this.y + ((this.height - 8) / glyphScale) / 2) - 1) / glyphScale), color);
             GlStateManager.popMatrix();
 
-            this.drawCenteredString(mc.fontRenderer, buttonText, (int) (this.x + (this.width / 2) + (glyphWidth / glyphScale)),
+            CacGuiUtils.drawCenteredString(mc.fontRenderer, buttonText, (int) (this.x + (this.width / 2) + (glyphWidth / glyphScale)),
                     this.y + (this.height - 8) / 2, color);
         }
     }

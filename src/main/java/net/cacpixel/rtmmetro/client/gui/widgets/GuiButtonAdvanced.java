@@ -4,34 +4,52 @@ import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.audio.SoundHandler;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
 
-public class GuiButtonAdvanced extends GuiButton implements IGuiWidget
+import java.util.function.IntSupplier;
+
+public class GuiButtonAdvanced extends GuiWidget
 {
+    // GuiButton Fields BEGIN
+    public String displayString = "";
+    protected boolean hovered;
+    // GuiButton Fields END
     protected static final ResourceLocation RTMMETRO_BUTTON_TEXTURES = new ResourceLocation(RTMMetro.MODID, "textures/gui/widgets.png");
-    public GuiScreenAdvanced pScr;
-    private IActionListener<? extends GuiButtonAdvanced> listener;
-    public boolean clicked = false;
+    private boolean clicked = false;
 
-    public GuiButtonAdvanced(int id, int xPos, int yPos, String displayString,
-                             GuiScreenAdvanced pScr, IActionListener<? extends GuiButtonAdvanced> listener)
+    public GuiButtonAdvanced(GuiScreenAdvanced pScr, int id, IntSupplier xSupplier, IntSupplier ySupplier)
     {
-        this(id, xPos, yPos, 200, 20, displayString, pScr, listener);
+        this(pScr, id, xSupplier, ySupplier, () -> 200, () -> 20);
     }
 
-    public GuiButtonAdvanced(int id, int xPos, int yPos, int width, int height, String displayString,
-                             GuiScreenAdvanced pScr, IActionListener<? extends GuiButtonAdvanced> listener)
+    public GuiButtonAdvanced(GuiScreenAdvanced pScr, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+                             IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
-        super(id, xPos, yPos, width, height, displayString);
-        this.pScr = pScr;
-        this.listener = listener;
+        super(pScr, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
     }
 
-    @Override
+    protected int getHoverState(boolean mouseOver)
+    {
+        int i = 1;
+
+        if (!super.isEnabled())
+        {
+            i = 0;
+        }
+        else if (mouseOver)
+        {
+            i = 2;
+        }
+
+        return i;
+    }
+
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partial)
     {
-        if (this.visible)
+        if (super.isVisible())
         {
             this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
             if (this.pScr != mc.currentScreen || pScr.isInAnimation())
@@ -41,14 +59,8 @@ public class GuiButtonAdvanced extends GuiButton implements IGuiWidget
             int k = this.getHoverState(this.hovered);
             CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200,
                     20, 2, 3, 2, 2, this.zLevel, pScr);
-            this.mouseDragged(mc, mouseX, mouseY);
             int color = 0xE0E0E0;
-
-            if (packedFGColour != 0)
-            {
-                color = packedFGColour;
-            }
-            else if (!this.enabled)
+            if (!super.isEnabled())
             {
                 color = 0xA0A0A0;
             }
@@ -66,56 +78,24 @@ public class GuiButtonAdvanced extends GuiButton implements IGuiWidget
 //            if (strWidth > width - 6 && strWidth > ellipsisWidth)
 //                buttonText = mc.fontRenderer.trimStringToWidth(buttonText, width - 6 - ellipsisWidth).trim() + "...";
 
-            this.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, color);
+            CacGuiUtils.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, color);
         }
     }
 
-    @Override
     public boolean mousePressed(Minecraft mc, int mouseX, int mouseY)
     {
-        return !pScr.isInAnimation() && this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y &&
+        return !pScr.isInAnimation() && super.isEnabled() && super.isVisible() && mouseX >= this.x && mouseY >= this.y &&
                 mouseX < this.x + this.width && mouseY < this.y + this.height;
     }
 
-    public void setEnable(boolean enabled)
+    public boolean isMouseOver()
     {
-        this.enabled = enabled;
+        return this.hovered;
     }
 
-    @Override
-    public void setVisible(boolean visible)
+    public void playPressSound(SoundHandler soundHandlerIn)
     {
-        this.visible = visible;
-    }
-
-    @Override
-    public int getX()
-    {
-        return x;
-    }
-
-    @Override
-    public int getY()
-    {
-        return y;
-    }
-
-    @Override
-    public int getWidth()
-    {
-        return width;
-    }
-
-    @Override
-    public int getHeight()
-    {
-        return height;
-    }
-
-    @Override
-    public boolean isMouseInside()
-    {
-        return CacGuiUtils.isMouseInside(x, y, width, height);
+        soundHandlerIn.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
     @Override
@@ -124,27 +104,10 @@ public class GuiButtonAdvanced extends GuiButton implements IGuiWidget
         this.drawButton(pScr.mc, mouseX, mouseY, partialTicks);
     }
 
-    @Override
-    public boolean isVisible()
-    {
-        return this.visible;
-    }
-
-    @Override
-    public boolean isEnabled()
-    {
-        return this.enabled;
-    }
-
-    public IActionListener<? extends GuiButtonAdvanced> getListener()
-    {
-        return listener;
-    }
-
     @SuppressWarnings("unchecked")
-    public <T extends IGuiWidget> T setListener(IActionListener<T> listener)
+    public <T extends GuiWidget> T setDisplayString(String displayString)
     {
-        this.listener = (IActionListener<? extends GuiButtonAdvanced>) listener;
+        this.displayString = displayString;
         return (T) this;
     }
 
@@ -155,8 +118,18 @@ public class GuiButtonAdvanced extends GuiButton implements IGuiWidget
         {
             if (this.isMouseInside())
             {
-                this.clicked = true;
+                this.setClicked(true);
             }
         }
+    }
+
+    public boolean isClicked()
+    {
+        return clicked;
+    }
+
+    public void setClicked(boolean clicked)
+    {
+        this.clicked = clicked;
     }
 }

@@ -1,87 +1,54 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
-import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
+import java.util.function.IntSupplier;
 
 public class WidgetFactory
 {
 
     public static <E extends Enum<E>> GuiOptionButton<E> addOptionButton(IWidgetHolder thiz, int x, int y, int w, int h, String prefix,
-                                                                         E[] values, E initVal,
-                                                                         IActionListener<GuiOptionButton<E>> callback)
-    {
-        GuiOptionButton<E> button = new GuiOptionButton<>(GuiScreenAdvanced.getNextWidgetId(), x, y, w, h, prefix, values, initVal,
-                thiz.getScreen(), callback);
-        thiz.add(button);
-        return button;
-    }
-
-    public static <E extends Enum<E>> GuiOptionButton<E> addOptionButton(IWidgetHolder thiz, int x, int y, int w, int h, String prefix,
                                                                          E[] values, E initVal)
     {
-        return addOptionButton(thiz, x, y, w, h, prefix, values, initVal, null);
-    }
-
-    public static GuiUnicodeGlyphButtonAdvanced addUnicodeGlyphButton(IWidgetHolder thiz, int x, int y, int w, int h, String glyph,
-                                                                      float glyphScale,
-                                                                      IActionListener<GuiUnicodeGlyphButtonAdvanced> callback)
-    {
-        return addUnicodeGlyphButton(thiz, x, y, w, h, "", glyph, glyphScale, callback);
+        GuiOptionButton<E> button = new GuiOptionButton<>(thiz.getScreen(), thiz.getScreen().getNextWidgetId(), () -> x, () -> y, () -> w,
+                () -> h, prefix, values, initVal);
+        thiz.add(button);
+        return button;
     }
 
     public static GuiUnicodeGlyphButtonAdvanced addUnicodeGlyphButton(IWidgetHolder thiz, int x, int y, int w, int h, String glyph,
                                                                       float glyphScale)
     {
-        return addUnicodeGlyphButton(thiz, x, y, w, h, glyph, glyphScale, null);
-    }
-
-    public static GuiUnicodeGlyphButtonAdvanced addUnicodeGlyphButton(IWidgetHolder thiz, int x, int y, int w, int h, String text,
-                                                                      String glyph, float glyphScale,
-                                                                      IActionListener<GuiUnicodeGlyphButtonAdvanced> callback)
-    {
-        GuiUnicodeGlyphButtonAdvanced button = new GuiUnicodeGlyphButtonAdvanced(GuiScreenAdvanced.getNextWidgetId(), x, y, w, h, text,
-                glyph, glyphScale,
-                thiz.getScreen(), callback);
-        thiz.add(button);
-        return button;
+        return addUnicodeGlyphButton(thiz, x, y, w, h, "", glyph, glyphScale);
     }
 
     public static GuiUnicodeGlyphButtonAdvanced addUnicodeGlyphButton(IWidgetHolder thiz, int x, int y, int w, int h, String text,
                                                                       String glyph, float glyphScale)
     {
-        return addUnicodeGlyphButton(thiz, x, y, w, h, text, glyph, glyphScale, null);
-    }
-
-    public static GuiCheckBoxAdvanced addCheckBox(IWidgetHolder thiz, int x, int y, int w, int h, String text, boolean isChecked,
-                                                  IActionListener<GuiCheckBoxAdvanced> callback)
-    {
-        GuiCheckBoxAdvanced button = new GuiCheckBoxAdvanced(GuiScreenAdvanced.getNextWidgetId(), x, y, text, isChecked, thiz.getScreen(),
-                callback);
+        GuiUnicodeGlyphButtonAdvanced button = new GuiUnicodeGlyphButtonAdvanced(thiz.getScreen(), thiz.getScreen().getNextWidgetId(),
+                () -> x, () -> y, () -> w, () -> h, text, glyph, glyphScale);
         thiz.add(button);
         return button;
     }
 
-    public static GuiCheckBoxAdvanced addCheckBox(IWidgetHolder thiz, int x, int y, int w, int h, String text, boolean isChecked)
+    public static GuiCheckBoxAdvanced addCheckBox(IWidgetHolder thiz, int x, int y, String text, boolean isChecked)
     {
-        return addCheckBox(thiz, x, y, w, h, text, isChecked, null);
-    }
-
-    public static GuiButtonAdvanced addButton(IWidgetHolder thiz, int x, int y, int w, int h, String text,
-                                              IActionListener<GuiButtonAdvanced> callback)
-    {
-        GuiButtonAdvanced button = new GuiButtonAdvanced(GuiScreenAdvanced.getNextWidgetId(), x, y, w, h, text, thiz.getScreen(), callback);
+        GuiCheckBoxAdvanced button = new GuiCheckBoxAdvanced(thiz.getScreen().getNextWidgetId(), () -> x, () -> y, text, isChecked,
+                thiz.getScreen());
         thiz.add(button);
         return button;
     }
 
     public static GuiButtonAdvanced addButton(IWidgetHolder thiz, int x, int y, int w, int h, String text)
     {
-        return addButton(thiz, x, y, w, h, text, null);
+        GuiButtonAdvanced button = new GuiButtonAdvanced(thiz.getScreen(), thiz.getScreen().getNextWidgetId(), () -> x, () -> y, () -> w,
+                () -> h).setDisplayString(text);
+        thiz.add(button);
+        return button;
     }
 
     public static GuiTextFieldAdvanced addTextField(IWidgetHolder thiz, int xPos, int yPos, int w, int h, String text)
     {
-        GuiTextFieldAdvanced field = new GuiTextFieldAdvanced(GuiScreenAdvanced.getNextWidgetId(), thiz.getScreen().mc.fontRenderer, xPos,
-                yPos, w, h, thiz.getScreen());
+        GuiTextFieldAdvanced field = new GuiTextFieldAdvanced(thiz.getScreen(), thiz.getScreen().getNextWidgetId(), () -> xPos, () -> yPos,
+                () -> w, () -> h);
         field.setMaxStringLength(32767);
         field.setFocused(false);
         field.setText(text);
@@ -92,9 +59,8 @@ public class WidgetFactory
     public static GuiTextFieldAdvancedFloat addTextField(IWidgetHolder thiz, int xPos, int yPos, int w, int h, float value, float min,
                                                          float max, boolean loop)
     {
-        GuiTextFieldAdvancedFloat field = new GuiTextFieldAdvancedFloat(GuiScreenAdvanced.getNextWidgetId(),
-                thiz.getScreen().mc.fontRenderer, xPos, yPos, w, h, thiz.getScreen(),
-                value).setMinMax(min, max, loop);
+        GuiTextFieldAdvancedFloat field = new GuiTextFieldAdvancedFloat(thiz.getScreen(), thiz.getScreen().getNextWidgetId(), () -> xPos,
+                () -> yPos, () -> w, () -> h).setInitialValue(value).setMinMax(min, max, loop);
         field.setMaxStringLength(32767);
         field.setFocused(false);
         field.setText(String.valueOf(value));
@@ -105,9 +71,93 @@ public class WidgetFactory
     public static GuiTextFieldAdvancedInt addTextField(IWidgetHolder thiz, int xPos, int yPos, int w, int h, int value, int min, int max,
                                                        boolean loop)
     {
-        GuiTextFieldAdvancedInt field = new GuiTextFieldAdvancedInt(GuiScreenAdvanced.getNextWidgetId(), thiz.getScreen().mc.fontRenderer,
-                xPos, yPos, w, h, thiz.getScreen(),
-                value).setMinMax(min, max, loop);
+        GuiTextFieldAdvancedInt field = new GuiTextFieldAdvancedInt(thiz.getScreen(), thiz.getScreen().getNextWidgetId(), () -> xPos,
+                () -> yPos, () -> w, () -> h).setInitialValue(value).setMinMax(min, max, loop);
+        field.setMaxStringLength(32767);
+        field.setFocused(false);
+        field.setText(String.valueOf(value));
+        thiz.add(field);
+        return field;
+    }
+
+    /* ********************* With Supplier ************************ */
+
+    public static <E extends Enum<E>> GuiOptionButton<E> addOptionButton(IWidgetHolder thiz, IntSupplier xSupplier, IntSupplier ySupplier,
+                                                                         IntSupplier widthSupplier, IntSupplier heightSupplier,
+                                                                         String prefix, E[] values, E initVal)
+    {
+        GuiOptionButton<E> button = new GuiOptionButton<>(thiz.getScreen(), thiz.getScreen().getNextWidgetId(), xSupplier, ySupplier,
+                widthSupplier, heightSupplier, prefix, values, initVal);
+        thiz.add(button);
+        return button;
+    }
+
+    public static GuiUnicodeGlyphButtonAdvanced addUnicodeGlyphButton(IWidgetHolder thiz, IntSupplier xSupplier, IntSupplier ySupplier,
+                                                                      IntSupplier widthSupplier, IntSupplier heightSupplier, String glyph,
+                                                                      float glyphScale)
+    {
+        return addUnicodeGlyphButton(thiz, xSupplier, ySupplier, widthSupplier, heightSupplier, "", glyph, glyphScale);
+    }
+
+    public static GuiUnicodeGlyphButtonAdvanced addUnicodeGlyphButton(IWidgetHolder thiz, IntSupplier xSupplier, IntSupplier ySupplier,
+                                                                      IntSupplier widthSupplier, IntSupplier heightSupplier, String text,
+                                                                      String glyph, float glyphScale)
+    {
+        GuiUnicodeGlyphButtonAdvanced button = new GuiUnicodeGlyphButtonAdvanced(thiz.getScreen(), thiz.getScreen().getNextWidgetId(),
+                xSupplier, ySupplier, widthSupplier, heightSupplier, text, glyph, glyphScale);
+        thiz.add(button);
+        return button;
+    }
+
+    public static GuiCheckBoxAdvanced addCheckBox(IWidgetHolder thiz, IntSupplier xSupplier, IntSupplier ySupplier, String text,
+                                                  boolean isChecked)
+    {
+        GuiCheckBoxAdvanced button = new GuiCheckBoxAdvanced(thiz.getScreen().getNextWidgetId(), xSupplier, ySupplier, text, isChecked,
+                thiz.getScreen());
+        thiz.add(button);
+        return button;
+    }
+
+    public static GuiButtonAdvanced addButton(IWidgetHolder thiz, IntSupplier xSupplier, IntSupplier ySupplier, IntSupplier widthSupplier,
+                                              IntSupplier heightSupplier, String text)
+    {
+        GuiButtonAdvanced button = new GuiButtonAdvanced(thiz.getScreen(), thiz.getScreen().getNextWidgetId(), xSupplier, ySupplier,
+                widthSupplier, heightSupplier).setDisplayString(text);
+        thiz.add(button);
+        return button;
+    }
+
+    public static GuiTextFieldAdvanced addTextField(IWidgetHolder thiz, IntSupplier xSupplier, IntSupplier ySupplier,
+                                                    IntSupplier widthSupplier, IntSupplier heightSupplier, String text)
+    {
+        GuiTextFieldAdvanced field = new GuiTextFieldAdvanced(thiz.getScreen(), thiz.getScreen().getNextWidgetId(), xSupplier, ySupplier,
+                widthSupplier, heightSupplier);
+        field.setMaxStringLength(32767);
+        field.setFocused(false);
+        field.setText(text);
+        thiz.add(field);
+        return field;
+    }
+
+    public static GuiTextFieldAdvancedFloat addTextField(IWidgetHolder thiz, IntSupplier xSupplier, IntSupplier ySupplier,
+                                                         IntSupplier widthSupplier, IntSupplier heightSupplier, float value, float min,
+                                                         float max, boolean loop)
+    {
+        GuiTextFieldAdvancedFloat field = new GuiTextFieldAdvancedFloat(thiz.getScreen(), thiz.getScreen().getNextWidgetId(), xSupplier,
+                ySupplier, widthSupplier, heightSupplier).setInitialValue(value).setMinMax(min, max, loop);
+        field.setMaxStringLength(32767);
+        field.setFocused(false);
+        field.setText(String.valueOf(value));
+        thiz.add(field);
+        return field;
+    }
+
+    public static GuiTextFieldAdvancedInt addTextField(IWidgetHolder thiz, IntSupplier xSupplier, IntSupplier ySupplier,
+                                                       IntSupplier widthSupplier, IntSupplier heightSupplier, int value, int min, int max,
+                                                       boolean loop)
+    {
+        GuiTextFieldAdvancedInt field = new GuiTextFieldAdvancedInt(thiz.getScreen(), thiz.getScreen().getNextWidgetId(), xSupplier,
+                ySupplier, widthSupplier, heightSupplier).setInitialValue(value).setMinMax(min, max, loop);
         field.setMaxStringLength(32767);
         field.setFocused(false);
         field.setText(String.valueOf(value));

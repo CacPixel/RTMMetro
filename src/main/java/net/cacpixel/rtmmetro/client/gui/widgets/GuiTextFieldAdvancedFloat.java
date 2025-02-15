@@ -2,13 +2,13 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Keyboard;
 
 import java.text.DecimalFormat;
+import java.util.function.IntSupplier;
 
-public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced implements IGuiWidget
+public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
 {
     public float fieldValue;
     public float step = 0.100000000001F;
@@ -17,11 +17,16 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced implements I
     public boolean loop = false;
     public static final String FORMAT_PATTERN = "0.0##";
 
-    public GuiTextFieldAdvancedFloat(int id, FontRenderer par1, int x, int y, int w, int h,
-                                     GuiScreenAdvanced pScr, float fieldValue)
+    public GuiTextFieldAdvancedFloat(GuiScreenAdvanced pScr, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+                                     IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
-        super(id, par1, x, y, w, h, pScr);
-        this.fieldValue = fieldValue;
+        super(pScr, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+    }
+
+    public GuiTextFieldAdvancedFloat setInitialValue(float val)
+    {
+        this.fieldValue = val;
+        return this;
     }
 
     public GuiTextFieldAdvancedFloat setMinMax(float min, float max, boolean loop)
@@ -61,7 +66,7 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced implements I
     public boolean textboxKeyTyped(char word, int code)
     {
         boolean ret = super.textboxKeyTyped(word, code);
-        if (this.isFocused() && this.getVisible() && this.isEnabled())
+        if (this.isFocused() && this.isVisible() && this.isEnabled())
         {
             if (code == Keyboard.KEY_UP)
             {
@@ -111,7 +116,6 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced implements I
         this.checkValueAndSetText();
     }
 
-    @Override
     public boolean isValueValid()
     {
         return !(this.fieldValue < this.minValue) && !(this.fieldValue > this.maxValue)
@@ -121,7 +125,7 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced implements I
     @Override
     public void checkValueAndSetText()
     {
-        super.checkValueAndSetText();
+        this.checkValue();
         this.setText(new DecimalFormat(FORMAT_PATTERN).format(this.fieldValue));
         this.pScr.hasValueUpdated = true;
     }

@@ -1,6 +1,6 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
-public interface IActionListener<T extends IGuiWidget>
+public interface IActionListener<T extends GuiWidget>
 {
-    void onAction(IGuiWidget t);
+    void onAction(GuiWidget t);
 }

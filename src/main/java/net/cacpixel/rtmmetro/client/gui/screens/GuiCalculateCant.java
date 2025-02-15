@@ -1,12 +1,12 @@
 package net.cacpixel.rtmmetro.client.gui.screens;
 
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
+import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenWindowed;
+import net.cacpixel.rtmmetro.client.gui.widgets.GuiButtonAdvanced;
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiCheckBoxAdvanced;
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiTextFieldAdvancedInt;
 import net.cacpixel.rtmmetro.client.gui.widgets.WidgetFactory;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
@@ -21,13 +21,13 @@ public class GuiCalculateCant extends GuiScreenWindowed
     private GuiTextFieldAdvancedInt fieldSpeed;
     private GuiTextFieldAdvancedInt fieldRadius;
     private GuiTextFieldAdvancedInt fieldGauge;
-    private GuiButton buttonOK;
-    private GuiButton buttonCancel;
+    private GuiButtonAdvanced buttonOK;
+    private GuiButtonAdvanced buttonCancel;
     private GuiCheckBoxAdvanced checkBoxFlip;
     private float addedHeight;
     private float cant;
 
-    public GuiCalculateCant(GuiScreen parentScreen, DoubleConsumer consumer)
+    public GuiCalculateCant(GuiScreenAdvanced parentScreen, DoubleConsumer consumer)
     {
         super();
         this.parentScreen = parentScreen;
@@ -37,28 +37,30 @@ public class GuiCalculateCant extends GuiScreenWindowed
     @Override
     public void initGui()
     {
-        parentScreen.initGui();
+        parentScreen.setWorldAndResolution(this.mc, this.width, this.height);
         super.initGui();
-        int hw = this.width / 2;
-        int hh = this.height / 2;
         int fieldWidth = 75;
         int fieldHeight = 16;
         //speed
-        this.fieldSpeed = WidgetFactory.addTextField(this, hw, hh - 50, fieldWidth, fieldHeight, 80, 10, 1000, false);
+        this.fieldSpeed = WidgetFactory.addTextField(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() - 50, () -> fieldWidth,
+                () -> fieldHeight, 80, 10, 1000, false);
         //radius
-        this.fieldRadius = WidgetFactory.addTextField(this, hw, hh - 30, fieldWidth, fieldHeight, 500, 10, 10000, false);
+        this.fieldRadius = WidgetFactory.addTextField(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() - 30, () -> fieldWidth,
+                () -> fieldHeight, 500, 10, 10000, false);
         //gauge
-        this.fieldGauge = WidgetFactory.addTextField(this, hw, hh - 10, fieldWidth, fieldHeight, 1435, 500, 3000, false);
+        this.fieldGauge = WidgetFactory.addTextField(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() - 10, () -> fieldWidth,
+                () -> fieldHeight, 1435, 500, 3000, false);
         //reversed
-        this.checkBoxFlip = WidgetFactory.addCheckBox(this, hw, hh + 10, fieldWidth, fieldHeight, "Flip", false);
+        this.checkBoxFlip = WidgetFactory.addCheckBox(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() + 10, "Flip", false);
         //ok
-        this.buttonOK = WidgetFactory.addButton(this, hw - 80 + 90, hh + 70, 160, 20, I18n.format("gui.done")).setListener((w) -> {
-            if (!(Float.isNaN(cant) || Float.isInfinite(cant)))
-                this.consumer.accept(this.cant);
+        this.buttonOK = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 80 + 90, () -> this.getHalfHeight() + 70, () -> 160,
+                () -> 20, I18n.format("gui.done")).setListener((w) -> {
+            if (!(Float.isNaN(cant) || Float.isInfinite(cant))) this.consumer.accept(this.cant);
             this.displayPrevScreen();
         });
         //cancel
-        this.buttonCancel = WidgetFactory.addButton(this, hw - 80 - 90, hh + 70, 160, 20, I18n.format("gui.cancel")).setListener((w) -> {
+        this.buttonCancel = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 80 - 90, () -> this.getHalfHeight() + 70, () -> 160,
+                () -> 20, I18n.format("gui.cancel")).setListener((w) -> {
             this.displayPrevScreen();
         });
     }
@@ -71,8 +73,8 @@ public class GuiCalculateCant extends GuiScreenWindowed
             parentScreen.drawScreen(mouseX, mouseY, partialTicks);
         }
         this.drawScreenBefore(mouseX, mouseY, partialTicks);
-        int hw = this.width / 2;
-        int hh = this.height / 2;
+        int hw = this.getHalfWidth();
+        int hh = this.getHalfHeight();
         int fontColor = 0xE0E0E0 | this.getAlphaInt(0xFF);
         this.drawDefaultBackground(hw - 250, hh - 150, hw + 250, hh + 150);
         super.drawScreen(mouseX, mouseY, partialTicks);
@@ -86,14 +88,12 @@ public class GuiCalculateCant extends GuiScreenWindowed
         CacGuiUtils.drawRightAlignedString(this.fontRenderer, "Rail Gauge (mm)", hw - 5, hh - 10 + 4, fontColor);
         if (Float.isNaN(cant) || Float.isInfinite(cant))
         {
-            this.buttonOK.enabled = false;
-            this.drawCenteredString(this.fontRenderer,
-                    TextFormatting.RED + "Cant Value is bad.", hw, hh + 30,
-                    fontColor);
+            this.buttonOK.setEnabled(false);
+            this.drawCenteredString(this.fontRenderer, TextFormatting.RED + "Cant Value is bad.", hw, hh + 30, fontColor);
         }
         else
         {
-            this.buttonOK.enabled = true;
+            this.buttonOK.setEnabled(true);
             this.drawCenteredString(this.fontRenderer,
                     TextFormatting.RESET + "Cant Value: " + colorPrefix + TextFormatting.UNDERLINE + String.format("%.3f", cant), hw,
                     hh + 30, fontColor);
