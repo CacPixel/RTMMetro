@@ -8,6 +8,7 @@ import java.util.function.IntSupplier;
 public abstract class GuiWidget
 {
     public GuiScreenAdvanced pScr;
+    public IWidgetHolder holder;
     public int x;
     public int y;
     public int width;
@@ -23,9 +24,10 @@ public abstract class GuiWidget
     public IntSupplier heightSupplier = this::getHeight;
     public static final IntSupplier ZERO = () -> 0;
 
-    public GuiWidget(GuiScreenAdvanced pScr, int id, int x, int y, int width, int height)
+    public GuiWidget(IWidgetHolder holder, int id, int x, int y, int width, int height)
     {
-        this.pScr = pScr;
+        this.holder = holder;
+        this.pScr = holder.getScreen();
         this.id = id;
         this.x = x;
         this.y = y;
@@ -33,10 +35,11 @@ public abstract class GuiWidget
         this.height = height;
     }
 
-    public GuiWidget(GuiScreenAdvanced pScr, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiWidget(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
                      IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
-        this.pScr = pScr;
+        this.holder = holder;
+        this.pScr = holder.getScreen();
         this.id = id;
         this.xSupplier = xSupplier;
         this.ySupplier = ySupplier;
@@ -88,8 +91,9 @@ public abstract class GuiWidget
 
     public boolean isMouseInside()
     {
-        //todo: add shift
-        return CacGuiUtils.isMouseInside(x, y, width, height);
+        int dx = holder.shiftMouseX();
+        int dy = holder.shiftMouseY();
+        return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height);
     }
 
     public abstract void draw(int mouseX, int mouseY, float partialTicks);

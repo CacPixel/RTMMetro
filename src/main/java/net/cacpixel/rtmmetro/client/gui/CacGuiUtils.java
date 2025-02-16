@@ -59,18 +59,23 @@ public class CacGuiUtils
         guiBezierScroll.initNP();
     }
 
-    public static void drawContinuousTexturedBox(ResourceLocation res, int x, int y, int u, int v, int width, int height, int textureWidth,
+    public static void drawContinuousTexturedBox(ResourceLocation res, int x, int y, int u, int v, int width,
+                                                 int height, int textureWidth,
                                                  int textureHeight,
-                                                 int topBorder, int bottomBorder, int leftBorder, int rightBorder, float zLevel,
+                                                 int topBorder, int bottomBorder, int leftBorder, int rightBorder,
+                                                 float zLevel,
                                                  GuiScreenAdvanced pScr)
     {
         Minecraft.getMinecraft().getTextureManager().bindTexture(res);
-        drawContinuousTexturedBox(x, y, u, v, width, height, textureWidth, textureHeight, topBorder, bottomBorder, leftBorder, rightBorder,
+        drawContinuousTexturedBox(x, y, u, v, width, height, textureWidth, textureHeight, topBorder, bottomBorder,
+                leftBorder, rightBorder,
                 zLevel, pScr);
     }
 
-    public static void drawContinuousTexturedBox(int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight,
-                                                 int topBorder, int bottomBorder, int leftBorder, int rightBorder, float zLevel,
+    public static void drawContinuousTexturedBox(int x, int y, int u, int v, int width, int height, int textureWidth,
+                                                 int textureHeight,
+                                                 int topBorder, int bottomBorder, int leftBorder, int rightBorder,
+                                                 float zLevel,
                                                  GuiScreenAdvanced pScr)
     {
         GlStateManager.color(1.0F, 1.0F, 1.0F, pScr.getAlpha());
@@ -90,9 +95,11 @@ public class CacGuiUtils
         // Top Left
         drawTexturedModalRect(x, y, u, v, leftBorder, topBorder, zLevel);
         // Top Right
-        drawTexturedModalRect(x + leftBorder + canvasWidth, y, u + leftBorder + fillerWidth, v, rightBorder, topBorder, zLevel);
+        drawTexturedModalRect(x + leftBorder + canvasWidth, y, u + leftBorder + fillerWidth, v, rightBorder, topBorder,
+                zLevel);
         // Bottom Left
-        drawTexturedModalRect(x, y + topBorder + canvasHeight, u, v + topBorder + fillerHeight, leftBorder, bottomBorder, zLevel);
+        drawTexturedModalRect(x, y + topBorder + canvasHeight, u, v + topBorder + fillerHeight, leftBorder,
+                bottomBorder, zLevel);
         // Bottom Right
         drawTexturedModalRect(x + leftBorder + canvasWidth, y + topBorder + canvasHeight, u + leftBorder + fillerWidth,
                 v + topBorder + fillerHeight, rightBorder, bottomBorder, zLevel);
@@ -100,7 +107,8 @@ public class CacGuiUtils
         for (int i = 0; i < xPasses + (remainderWidth > 0 ? 1 : 0); i++)
         {
             // Top Border
-            drawTexturedModalRect(x + leftBorder + (i * fillerWidth), y, u + leftBorder, v, (i == xPasses ? remainderWidth : fillerWidth),
+            drawTexturedModalRect(x + leftBorder + (i * fillerWidth), y, u + leftBorder, v,
+                    (i == xPasses ? remainderWidth : fillerWidth),
                     topBorder, zLevel);
             // Bottom Border
             drawTexturedModalRect(x + leftBorder + (i * fillerWidth), y + topBorder + canvasHeight, u + leftBorder,
@@ -109,8 +117,10 @@ public class CacGuiUtils
             // Throw in some filler for good measure
             for (int j = 0; j < yPasses + (remainderHeight > 0 ? 1 : 0); j++)
             {
-                drawTexturedModalRect(x + leftBorder + (i * fillerWidth), y + topBorder + (j * fillerHeight), u + leftBorder, v + topBorder,
-                        (i == xPasses ? remainderWidth : fillerWidth), (j == yPasses ? remainderHeight : fillerHeight), zLevel);
+                drawTexturedModalRect(x + leftBorder + (i * fillerWidth), y + topBorder + (j * fillerHeight),
+                        u + leftBorder, v + topBorder,
+                        (i == xPasses ? remainderWidth : fillerWidth), (j == yPasses ? remainderHeight : fillerHeight),
+                        zLevel);
             }
         }
 
@@ -121,7 +131,8 @@ public class CacGuiUtils
             drawTexturedModalRect(x, y + topBorder + (j * fillerHeight), u, v + topBorder, leftBorder,
                     (j == yPasses ? remainderHeight : fillerHeight), zLevel);
             // Right Border
-            drawTexturedModalRect(x + leftBorder + canvasWidth, y + topBorder + (j * fillerHeight), u + leftBorder + fillerWidth,
+            drawTexturedModalRect(x + leftBorder + canvasWidth, y + topBorder + (j * fillerHeight),
+                    u + leftBorder + fillerWidth,
                     v + topBorder, rightBorder, (j == yPasses ? remainderHeight : fillerHeight), zLevel);
         }
     }
@@ -150,7 +161,8 @@ public class CacGuiUtils
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.color(f, f1, f2, f3);
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
@@ -199,8 +211,10 @@ public class CacGuiUtils
         try
         {
             // 禁用词：换行符 分号 字符串 importClass importPackage load class ClassLoader invoke null exec System java
-            // test str: NGTMath.class.getClassLoader().loadClass("java.lang.Runtime").getMethod("getRuntime").invoke(null).exec("calc");
-            if (Stream.of("\r", "\n", ";", "\"", "import", "class", "package", "load", "invoke", "null", "exec", "system", "java")
+            // test str: NGTMath.class.getClassLoader().loadClass("java.lang.Runtime").getMethod("getRuntime").invoke
+            // (null).exec("calc");
+            if (Stream.of("\r", "\n", ";", "\"", "import", "class", "package", "load", "invoke", "null", "exec",
+                            "system", "java")
                     .anyMatch(text.toLowerCase()::contains))
             {
                 ModLog.debug("Execution not allowed: " + text);
@@ -237,7 +251,8 @@ public class CacGuiUtils
         }
         catch (Throwable e)
         {
-//            ModLog.debug("Expression syntax error: " + ((e.getCause() == null) ? e.getMessage() : e.getCause().getMessage()));
+//            ModLog.debug("Expression syntax error: " + ((e.getCause() == null) ? e.getMessage() : e.getCause()
+//            .getMessage()));
             return defaultVal;
         }
         return ret;
@@ -256,7 +271,8 @@ public class CacGuiUtils
         GlStateManager.disableTexture2D();
         GlStateManager.enableBlend();
         GlStateManager.disableAlpha();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.shadeModel(7425);
         Tessellator tessellator = Tessellator.getInstance();
@@ -275,7 +291,8 @@ public class CacGuiUtils
 
     public static void drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color)
     {
-        fontRendererIn.drawStringWithShadow(text, (float) (x - fontRendererIn.getStringWidth(text) / 2), (float) y, color);
+        fontRendererIn.drawStringWithShadow(text, (float) (x - fontRendererIn.getStringWidth(text) / 2), (float) y,
+                color);
     }
 
     public static void drawString(FontRenderer fontRendererIn, String text, int x, int y, int color)

@@ -2,7 +2,6 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
-import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
@@ -29,23 +28,25 @@ public class GuiScroll extends GuiWidgetBundle
     private int dx = 0;
     private int prevScrollDir = 0;
 
-    public GuiScroll(GuiScreenAdvanced pScr, int id, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height,
+    public GuiScroll(IWidgetHolder holder, int id, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height,
                      GuiWidget... widgets)
     {
-        super(pScr, id, x, y, width, height, widgets);
+        super(holder, id, x, y, width, height, widgets);
         this.duration = ModConfig.guiAnimationDuration;
     }
 
-    public void drawScrollBefore(int mouseX, int mouseY, float partialTicks)
+    public void drawBefore(int mouseX, int mouseY, float partialTicks)
     {
         // up
         CacGuiUtils.drawRect(x - 1, y - 1, getEndX() + 1, y + 1, 0x505050 | this.pScr.getAlphaInt(0xFF));
         // down
-        CacGuiUtils.drawRect(x - 1, getEndY() - 1, getEndX() + 1, getEndY() + 1, 0x505050 | this.pScr.getAlphaInt(0xFF));
+        CacGuiUtils.drawRect(x - 1, getEndY() - 1, getEndX() + 1, getEndY() + 1,
+                0x505050 | this.pScr.getAlphaInt(0xFF));
         // left
         CacGuiUtils.drawRect(x - 1, y - 1, x + 1, getEndY() + 1, 0x505050 | this.pScr.getAlphaInt(0xFF));
         // right
-        CacGuiUtils.drawRect(getEndX() - 1, y - 1, getEndX() + 1, getEndY() + 1, 0x505050 | this.pScr.getAlphaInt(0xFF));
+        CacGuiUtils.drawRect(getEndX() - 1, y - 1, getEndX() + 1, getEndY() + 1,
+                0x505050 | this.pScr.getAlphaInt(0xFF));
         this.pScr.drawDefaultBackground(x, y, getEndX(), getEndY());
         GlStateManager.pushMatrix();
         this.updateAnimation(partialTicks);
@@ -90,30 +91,25 @@ public class GuiScroll extends GuiWidgetBundle
             return 1.0f;
         }
         BezierCurveAdvanced curve = CacGuiUtils.guiBezierScroll;
-        double point = curve.fromXGetY((int) curve.getLength(), (this.animationTime / this.duration) * CacGuiUtils.X_MAX);
+        double point = curve.fromXGetY((int) curve.getLength(),
+                (this.animationTime / this.duration) * CacGuiUtils.X_MAX);
         if (this.animationTime > this.duration)
             this.isInAnimation = false;
         return MathHelper.clamp((float) point, 0f, 1.0f);
     }
 
-    public void drawScrollAfter(int mouseX, int mouseY, float partialTicks)
+    public void drawAfter(int mouseX, int mouseY, float partialTicks)
     {
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
         GlStateManager.popMatrix();
     }
 
-    public void drawCustom(int mouseX, int mouseY, float partialTicks)
-    {
-    }
-
     @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
-        this.drawScrollBefore(mouseX, mouseY, partialTicks);
-        GlStateManager.translate(x, y, 0);
+        this.drawBefore(mouseX, mouseY, partialTicks);
         super.draw(mouseX, mouseY, partialTicks);
-        this.drawCustom(mouseX, mouseY, partialTicks);
-        this.drawScrollAfter(mouseX, mouseY, partialTicks);
+        this.drawAfter(mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -134,7 +130,7 @@ public class GuiScroll extends GuiWidgetBundle
                     xNow += Math.round(d);
                     dx = 0;
                 }
-                int targetScroll = scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30;
+                int targetScroll = -scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30;
                 int clamped = MathHelper.clamp(targetScroll, -yNow - dy,
                         yMax - yNow - dy);
                 float d = this.getAnimationProgress() * (dy);
@@ -153,7 +149,7 @@ public class GuiScroll extends GuiWidgetBundle
                     yNow += Math.round(d);
                     dy = 0;
                 }
-                int targetScroll = scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30;
+                int targetScroll = -scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30;
                 int clamped = MathHelper.clamp(targetScroll, -xNow - dx,
                         xMax - xNow - dx);
                 float d = this.getAnimationProgress() * (dx);
@@ -244,5 +240,19 @@ public class GuiScroll extends GuiWidgetBundle
     public int getEndY()
     {
         return y + height;
+    }
+
+    @Override
+    public int shiftMouseX()
+    {
+        return this.isPositionIndependent() ? super.shiftMouseX() :
+                (int) (-this.xNow - this.dx * this.getAnimationProgress()) + super.shiftMouseX();
+    }
+
+    @Override
+    public int shiftMouseY()
+    {
+        return this.isPositionIndependent() ? super.shiftMouseY() :
+                (int) (-this.yNow - this.dy * this.getAnimationProgress()) + super.shiftMouseY();
     }
 }

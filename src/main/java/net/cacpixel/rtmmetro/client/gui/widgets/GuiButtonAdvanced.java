@@ -2,7 +2,6 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
-import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -17,18 +16,19 @@ public class GuiButtonAdvanced extends GuiWidget
     public String displayString = "";
     protected boolean hovered;
     // GuiButton Fields END
-    protected static final ResourceLocation RTMMETRO_BUTTON_TEXTURES = new ResourceLocation(RTMMetro.MODID, "textures/gui/widgets.png");
+    protected static final ResourceLocation RTMMETRO_BUTTON_TEXTURES = new ResourceLocation(RTMMetro.MODID,
+            "textures/gui/widgets.png");
     private boolean clicked = false;
 
-    public GuiButtonAdvanced(GuiScreenAdvanced pScr, int id, IntSupplier xSupplier, IntSupplier ySupplier)
+    public GuiButtonAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier)
     {
-        this(pScr, id, xSupplier, ySupplier, () -> 200, () -> 20);
+        this(holder, id, xSupplier, ySupplier, () -> 200, () -> 20);
     }
 
-    public GuiButtonAdvanced(GuiScreenAdvanced pScr, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiButtonAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
                              IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
-        super(pScr, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+        super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
     }
 
     protected int getHoverState(boolean mouseOver)
@@ -51,13 +51,14 @@ public class GuiButtonAdvanced extends GuiWidget
     {
         if (super.isVisible())
         {
-            this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+            this.hovered = this.isMouseInside();
             if (this.pScr != mc.currentScreen || pScr.isInAnimation())
             {
                 this.hovered = false;
             }
             int k = this.getHoverState(this.hovered);
-            CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200,
+            CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46 + k * 20, this.width,
+                    this.height, 200,
                     20, 2, 3, 2, 2, this.zLevel, pScr);
             int color = 0xE0E0E0;
             if (!super.isEnabled())
@@ -78,14 +79,14 @@ public class GuiButtonAdvanced extends GuiWidget
 //            if (strWidth > width - 6 && strWidth > ellipsisWidth)
 //                buttonText = mc.fontRenderer.trimStringToWidth(buttonText, width - 6 - ellipsisWidth).trim() + "...";
 
-            CacGuiUtils.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, color);
+            CacGuiUtils.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2,
+                    this.y + (this.height - 8) / 2, color);
         }
     }
 
     public boolean mousePressed(Minecraft mc, int mouseX, int mouseY)
     {
-        return !pScr.isInAnimation() && super.isEnabled() && super.isVisible() && mouseX >= this.x && mouseY >= this.y &&
-                mouseX < this.x + this.width && mouseY < this.y + this.height;
+        return !pScr.isInAnimation() && this.isEnabled() && this.isVisible() && this.isMouseInside();
     }
 
     public boolean isMouseOver()

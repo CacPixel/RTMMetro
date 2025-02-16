@@ -1,7 +1,6 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
-import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.client.config.GuiUtils;
@@ -13,16 +12,24 @@ public class GuiCheckBoxAdvanced extends GuiButtonAdvanced
     private boolean isChecked;
     private final int boxWidth;
 
-    public GuiCheckBoxAdvanced(int id, IntSupplier xSupplier, IntSupplier ySupplier, String displayString, boolean isChecked,
-                               GuiScreenAdvanced pScr)
+    public GuiCheckBoxAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+                               IntSupplier widthSupplier, IntSupplier heightSupplier,
+                               String displayString, boolean isChecked)
     {
-        super(pScr, id, xSupplier, ySupplier, () -> 200, () -> 13);
+        super(holder, id, xSupplier, ySupplier, () -> 200, () -> 13);
         this.isChecked = isChecked;
         this.boxWidth = 13;
         this.height = 13;
-        this.widthSupplier = () -> this.boxWidth + 4 + Minecraft.getMinecraft().fontRenderer.getStringWidth(displayString);
+        this.widthSupplier = () -> this.boxWidth + 4 +
+                Minecraft.getMinecraft().fontRenderer.getStringWidth(displayString);
         this.width = this.widthSupplier.getAsInt();
         this.setDisplayString(displayString);
+    }
+
+    public GuiCheckBoxAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+                               String displayString, boolean isChecked)
+    {
+        this(holder, id, xSupplier, ySupplier, null, null, displayString, isChecked);
     }
 
     @Override
@@ -30,8 +37,9 @@ public class GuiCheckBoxAdvanced extends GuiButtonAdvanced
     {
         if (super.isVisible())
         {
-            this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.boxWidth && mouseY < this.y + this.height;
-//            GuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46, this.boxWidth, this.height, 200, 20, 2,
+            this.hovered = this.isMouseInside();
+//            GuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46, this.boxWidth, this
+//            .height, 200, 20, 2,
 //            3, 2, 2, this.zLevel);
             int color = 14737632;
             if (!super.isEnabled())

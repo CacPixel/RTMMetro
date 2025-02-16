@@ -43,10 +43,10 @@ public class GuiTextFieldAdvanced extends GuiWidget
     private final List<String> tips = new ArrayList<>();
     public boolean setTextIgnoreValidator = true;
 
-    public GuiTextFieldAdvanced(GuiScreenAdvanced pScr, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiTextFieldAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
                                 IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
-        super(pScr, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+        super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
         this.fontRenderer = pScr.mc.fontRenderer;
     }
 
@@ -420,7 +420,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
 
     public boolean mouseClicked(int mouseX, int mouseY, int mouseButton)
     {
-        boolean flag = mouseX >= this.x && mouseX < this.x + this.width && mouseY >= this.y && mouseY < this.y + this.height;
+        boolean flag = this.isMouseInside();
 
         if (this.canLoseFocus)
         {
@@ -454,10 +454,12 @@ public class GuiTextFieldAdvanced extends GuiWidget
             {
                 CacGuiUtils.drawRect(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1,
                         0xA0A0A0 | pScr.getAlphaInt(0xFF));
-                CacGuiUtils.drawRect(this.x, this.y, this.x + this.width, this.y + this.height, 0x0 | pScr.getAlphaInt(0xFF));
+                CacGuiUtils.drawRect(this.x, this.y, this.x + this.width, this.y + this.height,
+                        0x0 | pScr.getAlphaInt(0xFF));
             }
 
-            int color = this.isEnabled() ? this.enabledColor | pScr.getAlphaInt(0xFF) : this.disabledColor | pScr.getAlphaInt(0xFF);
+            int color = this.isEnabled() ? this.enabledColor | pScr.getAlphaInt(0xFF) :
+                    this.disabledColor | pScr.getAlphaInt(0xFF);
             int j = this.cursorPosition - this.lineScrollOffset;
             int k = this.selectionEnd - this.lineScrollOffset;
             String s = this.fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
@@ -500,7 +502,8 @@ public class GuiTextFieldAdvanced extends GuiWidget
             {
                 if (flag2)
                 {
-                    CacGuiUtils.drawRect(k1, i1 - 1, k1 + 1, i1 + 1 + this.fontRenderer.FONT_HEIGHT, 0xD0D0D0 | pScr.getAlphaInt(0xFF));
+                    CacGuiUtils.drawRect(k1, i1 - 1, k1 + 1, i1 + 1 + this.fontRenderer.FONT_HEIGHT,
+                            0xD0D0D0 | pScr.getAlphaInt(0xFF));
                 }
                 else
                 {
@@ -515,7 +518,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
             }
         }
 
-        boolean hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+        boolean hovered = isMouseInside();
         if (hovered && !this.tips.isEmpty())
         {
             GuiScreenAdvanced.drawHoveringTextS(this.tips, mouseX, mouseY, this.pScr);
@@ -687,7 +690,8 @@ public class GuiTextFieldAdvanced extends GuiWidget
     public void incValue(int scroll)
     {
         float pitch = GuiScreen.isAltKeyDown() ? 2.0F : GuiScreen.isShiftKeyDown() ? 1.0F : 1.5F;
-        this.pScr.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.BLOCK_NOTE_HAT, pitch));
+        this.pScr.mc.getSoundHandler()
+                .playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.BLOCK_NOTE_HAT, pitch));
     }
 
     public GuiTextFieldAdvanced addTips(String par1)

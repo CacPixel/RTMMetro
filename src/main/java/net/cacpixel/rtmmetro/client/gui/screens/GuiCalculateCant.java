@@ -42,24 +42,30 @@ public class GuiCalculateCant extends GuiScreenWindowed
         int fieldWidth = 75;
         int fieldHeight = 16;
         //speed
-        this.fieldSpeed = WidgetFactory.addTextField(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() - 50, () -> fieldWidth,
+        this.fieldSpeed = WidgetFactory.addTextField(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() - 50,
+                () -> fieldWidth,
                 () -> fieldHeight, 80, 10, 1000, false);
         //radius
-        this.fieldRadius = WidgetFactory.addTextField(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() - 30, () -> fieldWidth,
+        this.fieldRadius = WidgetFactory.addTextField(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() - 30,
+                () -> fieldWidth,
                 () -> fieldHeight, 500, 10, 10000, false);
         //gauge
-        this.fieldGauge = WidgetFactory.addTextField(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() - 10, () -> fieldWidth,
+        this.fieldGauge = WidgetFactory.addTextField(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() - 10,
+                () -> fieldWidth,
                 () -> fieldHeight, 1435, 500, 3000, false);
         //reversed
-        this.checkBoxFlip = WidgetFactory.addCheckBox(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() + 10, "Flip", false);
+        this.checkBoxFlip = WidgetFactory.addCheckBox(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() + 10,
+                "Flip", false);
         //ok
-        this.buttonOK = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 80 + 90, () -> this.getHalfHeight() + 70, () -> 160,
+        this.buttonOK = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 80 + 90,
+                () -> this.getHalfHeight() + 70, () -> 160,
                 () -> 20, I18n.format("gui.done")).setListener((w) -> {
             if (!(Float.isNaN(cant) || Float.isInfinite(cant))) this.consumer.accept(this.cant);
             this.displayPrevScreen();
         });
         //cancel
-        this.buttonCancel = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 80 - 90, () -> this.getHalfHeight() + 70, () -> 160,
+        this.buttonCancel = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 80 - 90,
+                () -> this.getHalfHeight() + 70, () -> 160,
                 () -> 20, I18n.format("gui.cancel")).setListener((w) -> {
             this.displayPrevScreen();
         });
@@ -82,24 +88,28 @@ public class GuiCalculateCant extends GuiScreenWindowed
         cant = getCantValue(fieldGauge.fieldValue, addedHeight);
         cant = this.checkBoxFlip.isChecked() ? -cant : cant;
         String colorPrefix = addedHeight > 0.150F ? TextFormatting.RED.toString() : TextFormatting.GREEN.toString();
-        this.drawCenteredString(this.fontRenderer, TextFormatting.BOLD + "Calculate Rail Cant", hw, hh - 80 + 4, fontColor);
+        this.drawCenteredString(this.fontRenderer, TextFormatting.BOLD + "Calculate Rail Cant", hw, hh - 80 + 4,
+                fontColor);
         CacGuiUtils.drawRightAlignedString(this.fontRenderer, "Speed (km/h)", hw - 5, hh - 50 + 4, fontColor);
         CacGuiUtils.drawRightAlignedString(this.fontRenderer, "Curve Radius (m)", hw - 5, hh - 30 + 4, fontColor);
         CacGuiUtils.drawRightAlignedString(this.fontRenderer, "Rail Gauge (mm)", hw - 5, hh - 10 + 4, fontColor);
         if (Float.isNaN(cant) || Float.isInfinite(cant))
         {
             this.buttonOK.setEnabled(false);
-            this.drawCenteredString(this.fontRenderer, TextFormatting.RED + "Cant Value is bad.", hw, hh + 30, fontColor);
+            this.drawCenteredString(this.fontRenderer, TextFormatting.RED + "Cant Value is bad.", hw, hh + 30,
+                    fontColor);
         }
         else
         {
             this.buttonOK.setEnabled(true);
             this.drawCenteredString(this.fontRenderer,
-                    TextFormatting.RESET + "Cant Value: " + colorPrefix + TextFormatting.UNDERLINE + String.format("%.3f", cant), hw,
+                    TextFormatting.RESET + "Cant Value: " + colorPrefix + TextFormatting.UNDERLINE +
+                            String.format("%.3f", cant), hw,
                     hh + 30, fontColor);
         }
         this.drawCenteredString(this.fontRenderer,
-                "Outer rail will raise " + colorPrefix + TextFormatting.UNDERLINE + String.format("%.1f", addedHeight * 1000.0F) +
+                "Outer rail will raise " + colorPrefix + TextFormatting.UNDERLINE +
+                        String.format("%.1f", addedHeight * 1000.0F) +
                         TextFormatting.RESET + "mm.", hw, hh + 45, fontColor);
         this.drawScreenAfter(mouseX, mouseY, partialTicks);
     }

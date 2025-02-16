@@ -1,7 +1,6 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
-import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 
@@ -21,10 +20,10 @@ public class GuiLabelAdvanced extends GuiWidget
     private final int border;
     private final boolean hasBackground = false;
 
-    public GuiLabelAdvanced(GuiScreenAdvanced pScr, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiLabelAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
                             IntSupplier widthSupplier, IntSupplier heightSupplier, int colorIn)
     {
-        super(pScr, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+        super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
         this.textColor = colorIn;
         this.backColor = -1;
         this.ulColor = -1;
@@ -69,7 +68,8 @@ public class GuiLabelAdvanced extends GuiWidget
         if (this.visible)
         {
             GlStateManager.enableBlend();
-            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
+                    GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                     GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
             this.drawLabelBackground(mc, mouseX, mouseY);
             int i = this.y + this.height / 2 + this.border / 2;
@@ -83,9 +83,11 @@ public class GuiLabelAdvanced extends GuiWidget
                     CacGuiUtils.drawString(mc.fontRenderer, this.labels.get(k), this.x, j + k * 10, this.textColor);
                     break;
                 case RIGHT_ALIGNED:
-                    CacGuiUtils.drawRightAlignedString(mc.fontRenderer, this.labels.get(k), this.x, j + k * 10, this.textColor);
+                    CacGuiUtils.drawRightAlignedString(mc.fontRenderer, this.labels.get(k), this.x, j + k * 10,
+                            this.textColor);
                 case CENTERED:
-                    CacGuiUtils.drawCenteredString(mc.fontRenderer, this.labels.get(k), this.x + this.width / 2, j + k * 10,
+                    CacGuiUtils.drawCenteredString(mc.fontRenderer, this.labels.get(k), this.x + this.width / 2,
+                            j + k * 10,
                             this.textColor);
                     break;
                 default:

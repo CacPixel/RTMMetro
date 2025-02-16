@@ -1,6 +1,7 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
+import net.minecraft.client.renderer.GlStateManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +11,11 @@ public class GuiWidgetBundle extends GuiWidget implements IWidgetHolder
 {
     public List<GuiWidget> widgets = new ArrayList<>();
 
-    public GuiWidgetBundle(GuiScreenAdvanced pScr, int id, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height,
+    public GuiWidgetBundle(IWidgetHolder holder, int id, IntSupplier x, IntSupplier y, IntSupplier width,
+                           IntSupplier height,
                            GuiWidget... widgets)
     {
-        super(pScr, id, x, y, width, height);
+        super(holder, id, x, y, width, height);
         this.add(widgets);
     }
 
@@ -34,6 +36,20 @@ public class GuiWidgetBundle extends GuiWidget implements IWidgetHolder
     public void onUpdate()
     {
         IWidgetHolder.super.onUpdate();
+    }
+
+    @Override
+    public int shiftMouseX()
+    {
+        return this.isPositionIndependent() ? IWidgetHolder.super.shiftMouseX() :
+                this.getX() + IWidgetHolder.super.shiftMouseX();
+    }
+
+    @Override
+    public int shiftMouseY()
+    {
+        return this.isPositionIndependent() ? IWidgetHolder.super.shiftMouseY() :
+                this.getY() + IWidgetHolder.super.shiftMouseY();
     }
 
     @Override
@@ -62,13 +78,23 @@ public class GuiWidgetBundle extends GuiWidget implements IWidgetHolder
 
     public boolean isMouseInside()
     {
-        return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isMouseInside) : super.isMouseInside();
+        return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isMouseInside) :
+                super.isMouseInside();
     }
 
     @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
+        GlStateManager.pushMatrix();
+        if (!this.isPositionIndependent())
+            GlStateManager.translate(x, y, 0);
         this.widgets.forEach(x -> x.draw(mouseX, mouseY, partialTicks));
+        this.drawCustom(mouseX, mouseY, partialTicks);
+        GlStateManager.popMatrix();
+    }
+
+    public void drawCustom(int mouseX, int mouseY, float partialTicks)
+    {
     }
 
     public List<GuiWidget> getWidgets()

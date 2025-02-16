@@ -77,4 +77,8 @@ public interface IWidgetHolder
         this.getWidgets().stream().filter(clazz::isInstance).forEach(b -> ret.add((T) b));
         return ret;
     }
+
+    default int shiftMouseX() {return 0;}
+
+    default int shiftMouseY() {return 0;}
 }

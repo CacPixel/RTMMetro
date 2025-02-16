@@ -1,7 +1,6 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
-import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Keyboard;
 
@@ -17,10 +16,10 @@ public class GuiTextFieldAdvancedFloat extends GuiTextFieldAdvanced
     public boolean loop = false;
     public static final String FORMAT_PATTERN = "0.0##";
 
-    public GuiTextFieldAdvancedFloat(GuiScreenAdvanced pScr, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiTextFieldAdvancedFloat(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
                                      IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
-        super(pScr, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+        super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
     }
 
     public GuiTextFieldAdvancedFloat setInitialValue(float val)

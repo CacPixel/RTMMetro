@@ -1,6 +1,5 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
-import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.cacpixel.rtmmetro.util.ITranslatable;
 import net.minecraft.client.resources.I18n;
 
@@ -15,10 +14,10 @@ public class GuiOptionButton<E extends Enum<E>> extends GuiButtonAdvanced
     private E selectedOption;
     public String prefix;
 
-    public GuiOptionButton(GuiScreenAdvanced pScr, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiOptionButton(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
                            IntSupplier widthSupplier, IntSupplier heightSupplier, String prefix, E[] values, E initVal)
     {
-        super(pScr, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+        super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
         this.prefix = prefix;
         this.options.addAll(Arrays.asList(values));
         Arrays.stream(values).forEach(v -> this.options.set(v.ordinal(), v));

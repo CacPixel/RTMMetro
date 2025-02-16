@@ -188,7 +188,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         GlStateManager.disableTexture2D();
         GlStateManager.enableBlend();
         GlStateManager.disableAlpha();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.shadeModel(7425);
         Tessellator tessellator = Tessellator.getInstance();
@@ -249,7 +250,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     protected float getAnimationProgress(BezierCurveAdvanced curve)
     {
-        double point = curve.fromXGetY((int) curve.getLength(), (this.animationTime / this.duration) * CacGuiUtils.X_MAX);
+        double point = curve.fromXGetY((int) curve.getLength(),
+                (this.animationTime / this.duration) * CacGuiUtils.X_MAX);
         return MathHelper.clamp((float) point, 0.02f, 2.0f);
     }
 
@@ -273,11 +275,13 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     {
         if (this.isOpening)
         {
-            this.alpha = (float) MathHelper.clampedLerp(0.02F, 1.0F, this.getAnimationProgress(CacGuiUtils.guiBezierAlpha));
+            this.alpha = (float) MathHelper.clampedLerp(0.02F, 1.0F,
+                    this.getAnimationProgress(CacGuiUtils.guiBezierAlpha));
         }
         else if (this.isClosing)
         {
-            this.alpha = (float) MathHelper.clampedLerp(0.02F, 1.0F, 1 - this.getAnimationProgress(CacGuiUtils.guiBezierAlpha));
+            this.alpha = (float) MathHelper.clampedLerp(0.02F, 1.0F,
+                    1 - this.getAnimationProgress(CacGuiUtils.guiBezierAlpha));
         }
     }
 
@@ -391,7 +395,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         {
             field.checkValueAndSetText();
             field.setFocused(false);
-            this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F));
+            this.mc.getSoundHandler()
+                    .playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F));
         }
         field = this.getNextTextField(field, true);
         if (field != null)
@@ -428,7 +433,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public GuiTextFieldAdvanced getFocusedTextField()
     {
         List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
-        this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced).forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
+        this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced)
+                .forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
         if (textFields.isEmpty())
         {
             return null;
@@ -446,7 +452,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public GuiTextFieldAdvanced getNextTextField(GuiTextFieldAdvanced fieldIn, boolean loop)
     {
         List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
-        this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced).forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
+        this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced)
+                .forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
         if (textFields.isEmpty())
         {
             return null;
@@ -474,7 +481,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public GuiTextFieldAdvanced getPrevTextField(GuiTextFieldAdvanced fieldIn, boolean loop)
     {
         List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
-        this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced).forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
+        this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced)
+                .forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
         if (textFields.isEmpty())
         {
             return null;
