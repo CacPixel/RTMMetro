@@ -418,7 +418,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
         }
     }
 
-    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton)
+    public boolean mouseClicked(int mouseX, int mouseY)
     {
         boolean flag = this.isMouseInside();
 
@@ -427,7 +427,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
             this.setFocused(flag);
         }
 
-        if (this.isFocused && flag && mouseButton == 0)
+        if (this.isFocused && flag)
         {
             int i = mouseX - this.x;
 
@@ -709,14 +709,14 @@ public class GuiTextFieldAdvanced extends GuiWidget
     }
 
     @Override
-    public void onClick(int mouseX, int mouseY, int mouseButton)
+    public void onLeftClick(int mouseX, int mouseY)
     {
-        if (this.isEnabled() && this.isVisible() && this.isMouseInside() && mouseButton == 0)
-            this.mouseClicked(mouseX, mouseY, mouseButton);
+        super.onLeftClick(mouseX, mouseY);
+        this.mouseClicked(mouseX, mouseY);
     }
 
     @Override
-    public void onDrag(int mouseX, int mouseY, int mouseButton)
+    public void LeftClickAndDrag(int mouseX, int mouseY, int mouseButton)
     {
         // TODO: mouse drag to select on Text field
     }

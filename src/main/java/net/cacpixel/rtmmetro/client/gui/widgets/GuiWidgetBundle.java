@@ -52,30 +52,6 @@ public class GuiWidgetBundle extends GuiWidget implements IWidgetHolder
                 this.getY() + IWidgetHolder.super.shiftMouseY();
     }
 
-    @Override
-    public void onClick(int mouseX, int mouseY, int mouseButton)
-    {
-        this.widgets.forEach(x -> x.onClick(mouseX, mouseY, mouseButton));
-    }
-
-    @Override
-    public void onDrag(int mouseX, int mouseY, int mouseButton)
-    {
-        this.widgets.forEach(x -> x.onDrag(mouseX, mouseY, mouseButton));
-    }
-
-    @Override
-    public void onScroll(int mouseX, int mouseY, int scroll)
-    {
-        this.widgets.forEach(x -> x.onScroll(mouseX, mouseY, scroll));
-    }
-
-    @Override
-    public void onKeyTyped(char typedChar, int keyCode)
-    {
-        this.widgets.forEach(x -> x.onKeyTyped(typedChar, keyCode));
-    }
-
     public boolean isMouseInside()
     {
         return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isMouseInside) :

@@ -65,11 +65,10 @@ public class GuiCheckBoxAdvanced extends GuiButtonAdvanced
     }
 
     @Override
-    public void onClick(int mouseX, int mouseY, int mouseButton)
+    public void onLeftClick(int mouseX, int mouseY)
     {
-        super.onClick(mouseX, mouseY, mouseButton);
-        if (this.isMouseInside() && mouseButton == 0)
-            this.isChecked = !this.isChecked;
+        super.onLeftClick(mouseX, mouseY);
+        this.isChecked = !this.isChecked;
     }
 
     public boolean isChecked()

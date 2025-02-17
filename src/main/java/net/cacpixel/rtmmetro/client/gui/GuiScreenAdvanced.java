@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHolder
 {
     public GuiScreenAdvanced parentScreen;
-    public boolean hasValueUpdated; // todo: move to text field
+    public boolean hasValueUpdated; // todo: move to text field (no no no move to GuiWidget instead)
     private int nextWidgetId;
     public List<GuiWidget> widgets = new ArrayList<>();
     private float alpha;
@@ -70,7 +70,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     public void updateWidgets()
     {
-        this.widgets.forEach(GuiWidget::updatePosAndSize);
+        this.getAllWidgets().forEach(GuiWidget::updatePosAndSize);
         if (parentScreen != null)
             this.parentScreen.setWorldAndResolution(this.mc, this.width, this.height);
     }
@@ -333,7 +333,22 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         {
             if (!this.isInAnimation() && !this.closeFlag)
             {
-                this.widgets.forEach(w -> w.onClick(x, y, button));
+                this.getAllWidgets().stream().filter(w -> w.isEnabled() && w.isVisible() && w.isMouseInside()).forEach(w -> {
+                    switch (button)
+                    {
+                    case 0:
+                        w.onLeftClick(x, y);
+                        break;
+                    case 1:
+                        w.onRightClick(x, y);
+                        break;
+                    case 2:
+                        w.onMiddleClick(x, y);
+                        break;
+                    default:
+                        break;
+                    }
+                });
             }
         }
         catch (ConcurrentModificationException e)
@@ -356,7 +371,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         }
         if (!this.isInAnimation() && !this.closeFlag)
         {
-            this.widgets.forEach(w -> w.onKeyTyped(typedChar, keyCode));
+            this.getAllWidgets().forEach(w -> w.onKeyTyped(typedChar, keyCode));
         }
         if (keyCode == Keyboard.KEY_RETURN)
         {
@@ -374,7 +389,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         int scroll = Mouse.getEventDWheel();
         if (scroll != 0)
         {
-            this.widgets.forEach(w -> w.onScroll(x, y, scroll));
+            this.getAllWidgets().forEach(w -> w.onScroll(x, y, scroll));
         }
     }
 
@@ -433,7 +448,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public GuiTextFieldAdvanced getFocusedTextField()
     {
         List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
-        this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced)
+        this.getAllWidgets().stream().filter(w -> w instanceof GuiTextFieldAdvanced)
                 .forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
         if (textFields.isEmpty())
         {
@@ -452,7 +467,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public GuiTextFieldAdvanced getNextTextField(GuiTextFieldAdvanced fieldIn, boolean loop)
     {
         List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
-        this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced)
+        this.getAllWidgets().stream().filter(w -> w instanceof GuiTextFieldAdvanced)
                 .forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
         if (textFields.isEmpty())
         {
@@ -481,7 +496,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public GuiTextFieldAdvanced getPrevTextField(GuiTextFieldAdvanced fieldIn, boolean loop)
     {
         List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
-        this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced)
+        this.getAllWidgets().stream().filter(w -> w instanceof GuiTextFieldAdvanced)
                 .forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
         if (textFields.isEmpty())
         {
@@ -551,7 +566,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         }
     }
 
-    public void onTextFieldModify(GuiTextFieldAdvanced f) // todo: onWidgetModify? onValueChanged?
+    public void onWidgetValueChanged(GuiWidget widget)
     {
     }
 

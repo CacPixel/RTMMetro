@@ -69,11 +69,19 @@ public abstract class GuiWidget
         return listener;
     }
 
-    public void onClick(int mouseX, int mouseY, int mouseButton)
+    public void onLeftClick(int mouseX, int mouseY)
     {
     }
 
-    public void onDrag(int mouseX, int mouseY, int mouseButton)
+    public void onRightClick(int mouseX, int mouseY)
+    {
+    }
+
+    public void onMiddleClick(int mouseX, int mouseY)
+    {
+    }
+
+    public void LeftClickAndDrag(int mouseX, int mouseY, int mouseButton)
     {
     }
 
