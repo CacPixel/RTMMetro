@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.util.*;
@@ -118,12 +119,17 @@ public class GuiScroll extends GuiWidgetBundle
     {
         super.onScroll(mouseX, mouseY, scroll);
         if (!this.isMouseInside()) return;
+        this.scrollPage(scroll, GuiScreen.isShiftKeyDown());
+    }
+
+    public void scrollPage(int scroll, boolean leftRightDirection)
+    {
         List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
         this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced)
                 .forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
         if (textFields.stream().noneMatch(f -> f.isMouseInside() && f.isFocused())) // focused并且鼠标在内，不允许滚动GuiScroll
         {
-            if (scrollUpDown && !GuiScreen.isShiftKeyDown())
+            if (scrollUpDown && !leftRightDirection)
             {
                 if (prevScrollDir == 2)
                 {
@@ -142,7 +148,7 @@ public class GuiScroll extends GuiWidgetBundle
                 isInAnimation = true;
                 prevScrollDir = 1;
             }
-            else if (scrollLeftRight && GuiScreen.isShiftKeyDown())
+            else if (scrollLeftRight && leftRightDirection)
             {
                 if (prevScrollDir == 1)
                 {
@@ -161,6 +167,29 @@ public class GuiScroll extends GuiWidgetBundle
                 isInAnimation = true;
                 prevScrollDir = 2;
             }
+        }
+    }
+
+    @Override
+    public void onKeyTyped(char typedChar, int keyCode)
+    {
+        super.onKeyTyped(typedChar, keyCode);
+        switch (keyCode)
+        {
+        case Keyboard.KEY_UP:
+            this.scrollPage(CacGuiUtils.DEFAULT_SCROLL_VALUE, false);
+            break;
+        case Keyboard.KEY_DOWN:
+            this.scrollPage(-CacGuiUtils.DEFAULT_SCROLL_VALUE, false);
+            break;
+        case Keyboard.KEY_LEFT:
+            this.scrollPage(CacGuiUtils.DEFAULT_SCROLL_VALUE, true);
+            break;
+        case Keyboard.KEY_RIGHT:
+            this.scrollPage(-CacGuiUtils.DEFAULT_SCROLL_VALUE, true);
+            break;
+        default:
+            break;
         }
     }
 
