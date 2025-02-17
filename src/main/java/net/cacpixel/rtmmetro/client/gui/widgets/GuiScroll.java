@@ -107,6 +107,7 @@ public class GuiScroll extends GuiWidgetBundle
     @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
+        if (!this.isVisible()) {return;}
         this.drawBefore(mouseX, mouseY, partialTicks);
         super.draw(mouseX, mouseY, partialTicks);
         this.drawAfter(mouseX, mouseY, partialTicks);

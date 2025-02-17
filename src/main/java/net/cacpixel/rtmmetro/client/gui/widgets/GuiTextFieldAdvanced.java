@@ -711,7 +711,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
     @Override
     public void onClick(int mouseX, int mouseY, int mouseButton)
     {
-        if (this.isEnabled() && this.isVisible())
+        if (this.isEnabled() && this.isVisible() && this.isMouseInside() && mouseButton == 0)
             this.mouseClicked(mouseX, mouseY, mouseButton);
     }
 

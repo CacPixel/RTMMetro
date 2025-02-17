@@ -85,6 +85,7 @@ public class GuiWidgetBundle extends GuiWidget implements IWidgetHolder
     @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
+        if (!this.isVisible()) {return;}
         GlStateManager.pushMatrix();
         if (!this.isPositionIndependent())
             GlStateManager.translate(x, y, 0);

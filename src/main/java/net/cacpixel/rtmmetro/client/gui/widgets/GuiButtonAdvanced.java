@@ -115,12 +115,9 @@ public class GuiButtonAdvanced extends GuiWidget
     @Override
     public void onClick(int mouseX, int mouseY, int mouseButton)
     {
-        if (mouseButton == 0)
+        if (this.isMouseInside() && mouseButton == 0)
         {
-            if (this.isMouseInside())
-            {
-                this.setClicked(true);
-            }
+            this.setClicked(true);
         }
     }
 

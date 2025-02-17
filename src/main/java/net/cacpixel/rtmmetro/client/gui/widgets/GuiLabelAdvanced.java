@@ -116,7 +116,7 @@ public class GuiLabelAdvanced extends GuiWidget
     @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
-        this.draw(mouseX, mouseY, partialTicks);
+        this.drawLabel(mouseX, mouseY, partialTicks);
     }
 
     public enum Align

@@ -2,6 +2,7 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.util.ITranslatable;
 import net.minecraft.client.resources.I18n;
+import org.lwjgl.input.Mouse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,8 +29,11 @@ public class GuiOptionButton<E extends Enum<E>> extends GuiButtonAdvanced
     public void onClick(int mouseX, int mouseY, int mouseButton)
     {
         super.onClick(mouseX, mouseY, mouseButton);
-        if (this.isMouseInside())
+        if (this.isMouseInside() && mouseButton == 0)
+        {
             this.rollOptions();
+            this.pScr.hasValueUpdated = true;
+        }
     }
 
     public String getTranslationKey(int ordinal)
