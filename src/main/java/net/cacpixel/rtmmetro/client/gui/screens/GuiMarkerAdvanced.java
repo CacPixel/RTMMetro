@@ -416,7 +416,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
 
     public void controlEnable()
     {
-        this.widgets.forEach(x -> x.setEnabled(true));
+        this.getAllWidgets().forEach(x -> x.setEnabled(true));
 
         boolean isSwitch = this.marker.getBlockType() == RTMMetroBlock.MARKER_ADVANCED_SWITCH ||
                 this.marker.getOriginalRailMap() == null;
