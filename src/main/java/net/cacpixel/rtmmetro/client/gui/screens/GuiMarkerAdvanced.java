@@ -122,6 +122,10 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                 () -> this.height - 40 - 30);
         this.add(mainScroll);
 
+        //test button (reflect call constructor)
+//        this.mainScroll.add(GuiUnicodeGlyphButtonAdvanced.class, this.getNextWidgetId(), () -> 0, () -> 0, () -> 100, () -> 20,
+//                "233", GuiUtils.UNDO_CHAR, 2.0F);
+
         //groupId
         this.fieldGroup = WidgetFactory.addTextField(mainScroll, fieldX, fieldY, fieldW, fieldH,
                 this.currentMarkerValue.groupId, 1, 1000,
@@ -382,8 +386,8 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                                         // yaw跟着这个marker来的，再次计算也不会变，忽略，只需要确认长度。
                                         v.rp.anchorLengthHorizontal =
                                                 RailMapAdvanced.getDefaultHorizontal(te.getMarkerRP(),
-                                                currentRP,
-                                                this.currentMarkerValue.drawingScheme);
+                                                        currentRP,
+                                                        this.currentMarkerValue.drawingScheme);
                                     });
                         }
                     });

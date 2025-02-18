@@ -1,12 +1,18 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
+import net.cacpixel.rtmmetro.util.ModLog;
+import net.cacpixel.rtmmetro.util.RTMMetroUtils;
+import net.minecraft.client.Minecraft;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.IntSupplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public interface IWidgetHolder
 {
@@ -19,6 +25,55 @@ public interface IWidgetHolder
 //        this.getWidgets().removeIf(w -> Arrays.stream(widgets).anyMatch(widgetIn -> widgetIn.getId() == w.getId()));
         this.getWidgets().addAll(Arrays.asList(widgets));
         return this;
+    }
+
+    @SuppressWarnings("unchecked")
+    default <T extends GuiWidget> T add(Class<T> clazz, int id, IntSupplier x, IntSupplier y,
+                                        IntSupplier width, IntSupplier height, Object... args)
+    {
+        try
+        {
+            List<Object> params = new ArrayList<>();
+            params.add(this);
+            params.add(id);
+            params.add(x);
+            params.add(y);
+            params.add(width);
+            params.add(height);
+            params.addAll(Arrays.asList(args));
+            Constructor<?> ctor = Arrays.stream(clazz.getConstructors()).filter(constructor -> {
+                Class<?>[] constructorParamTypes = constructor.getParameterTypes();
+                if (constructorParamTypes.length == params.size())
+                {
+                    for (int i = 0; i < constructorParamTypes.length; i++)
+                    {
+                        Class<?> c = constructorParamTypes[i];
+                        c = RTMMetroUtils.getClassByPrimitiveType(c);
+                        if (!c.isInstance(params.get(i)))
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            }).findFirst().orElseThrow(() -> new Exception("No constructor paired in this class with parameter type: " +
+                    Arrays.toString(params.stream().map(Object::getClass).toArray())));
+            List<Object> list = new ArrayList<>();
+            list.addAll(Stream.of(this, id, x, y, width, height).collect(Collectors.toList()));
+            list.addAll(Arrays.asList(args));
+            T widget = (T) ctor.newInstance(list.toArray());
+            this.add(widget);
+            return widget;
+        }
+        catch (Exception e)
+        {
+            ModLog.debug("IWidgetHolder add widget failed!");
+            e.printStackTrace();
+            Minecraft.getMinecraft().displayGuiScreen(null);
+            Minecraft.getMinecraft().setIngameFocus();
+        }
+        return null;
     }
 
     default void onUpdate()
