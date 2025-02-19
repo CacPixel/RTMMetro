@@ -3,6 +3,7 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
+import net.cacpixel.rtmmetro.util.ModLog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
@@ -26,6 +27,8 @@ public class GuiScroll extends GuiWidgetBundle
     protected int xMax = 0;
     protected int yNow = 0;
     protected int xNow = 0;
+    protected int yNowPrev = 0;
+    protected int xNowPrev = 0;
     public boolean autoExpandMaxValue = true;
     private float animationTime = 0;
     private float duration;
@@ -74,31 +77,35 @@ public class GuiScroll extends GuiWidgetBundle
         this.xButton.draw(mouseX, mouseY, partialTicks);
         this.yButton.setVisible(this.yMax != 0);
         this.yButton.draw(mouseX, mouseY, partialTicks);
-        this.processButtonDrag(mouseX, mouseY, partialTicks, 0, 0, 0);
+        this.processButtonDrag(mouseX, mouseY, partialTicks);
         this.updateButton();
         GlStateManager.popMatrix();
         GlStateManager.pushMatrix();
         this.updateAnimation(partialTicks);
     }
 
-    protected void processButtonDrag(int mouseX, int mouseY, float partialTicks,
-                                     int size, int max, float current)
+    protected void processButtonDrag(int mouseX, int mouseY, float partialTicks)
     {
         if (xButton.barClicked)
         {
             dx = 0;
-            float d = (xButton.lastClickedX - mouseX);
-            xNow = (int) MathHelper.clamp(xNow - d, 0, xMax);
-            xButton.lastClickedX = mouseX;
-            xButton.lastClickedY = mouseY;
+            float d = (float) (xButton.lastClickedX - mouseX) / (xButton.width - xButton.length) * xMax;
+            xNow = (int) MathHelper.clamp(xNowPrev - d, 0, xMax);
         }
+        else
+        {
+            xNowPrev = xNow;
+        }
+
         if (yButton.barClicked)
         {
             dy = 0;
-            float d = (yButton.lastClickedY - mouseY);
-            yNow = (int) MathHelper.clamp(yNow - d, 0, yMax);
-            yButton.lastClickedX = mouseX;
-            yButton.lastClickedY = mouseY;
+            float d = (float) (yButton.lastClickedY - mouseY) / (yButton.height - yButton.length) * yMax;
+            yNow = (int) MathHelper.clamp(yNowPrev - d, 0, yMax);
+        }
+        else
+        {
+            yNowPrev = yNow;
         }
     }
 
@@ -223,7 +230,8 @@ public class GuiScroll extends GuiWidgetBundle
     {
         super.onScroll(mouseX, mouseY, scroll);
         if (!this.isMouseInside()) return;
-        this.scrollPage(scroll, GuiScreen.isShiftKeyDown());
+        boolean leftRightDirection = GuiScreen.isShiftKeyDown() || !this.yButton.isVisible();
+        this.scrollPage(scroll, leftRightDirection);
     }
 
     @Override
