@@ -647,10 +647,9 @@ public class GuiMarkerAdvanced extends GuiFullScreen
 
     private static class Scroll extends GuiScroll
     {
-        public Scroll(IWidgetHolder holder, int id, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height,
-                      GuiWidget... widgets)
+        public Scroll(IWidgetHolder holder, int id, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height)
         {
-            super(holder, id, x, y, width, height, widgets);
+            super(holder, id, x, y, width, height);
         }
 
         @Override

@@ -3,18 +3,23 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 import java.util.function.IntSupplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class GuiScroll extends GuiWidgetBundle
 {
+    public int scrollButtonWidth;
     public boolean scrollUpDown = true;
     public boolean scrollLeftRight = true;
     protected int yMax = 0;
@@ -28,12 +33,25 @@ public class GuiScroll extends GuiWidgetBundle
     private int dy = 0;
     private int dx = 0;
     private int prevScrollDir = 0;
+    private ScrollButton xButton;
+    private ScrollButton yButton;
 
-    public GuiScroll(IWidgetHolder holder, int id, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height,
-                     GuiWidget... widgets)
+    public GuiScroll(IWidgetHolder holder, int id, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height)
     {
-        super(holder, id, x, y, width, height, widgets);
+        super(holder, id, x, y, width, height);
         this.duration = ModConfig.guiAnimationDuration;
+//        this.scrollButtonWidth = (int) (30.0F / new ScaledResolution(this.pScr.mc).getScaleFactor());
+        this.scrollButtonWidth = 7;
+        // 以下两个button不会进入widget list
+        int i = 0;
+        this.xButton = new ScrollButton(this, this.getScreen().getNextWidgetId(),
+                () -> i, () -> this.height - scrollButtonWidth,
+                () -> this.width - (this.yMax == 0 ? 0 : scrollButtonWidth) - i, () -> scrollButtonWidth - i,
+                true).setListener(b -> this.buttonCallback((ScrollButton) b));
+        this.yButton = new ScrollButton(this, this.getScreen().getNextWidgetId(),
+                () -> this.width - scrollButtonWidth, () -> i,
+                () -> scrollButtonWidth - i, () -> this.height - (this.xMax == 0 ? 0 : scrollButtonWidth) - i,
+                false).setListener(b -> this.buttonCallback((ScrollButton) b));
     }
 
     public void drawBefore(int mouseX, int mouseY, float partialTicks)
@@ -50,7 +68,79 @@ public class GuiScroll extends GuiWidgetBundle
                 0x505050 | this.pScr.getAlphaInt(0xFF));
         this.pScr.drawDefaultBackground(x, y, getEndX(), getEndY());
         GlStateManager.pushMatrix();
+        if (!this.isPositionIndependent())
+            GlStateManager.translate(x, y, 0);
+        this.xButton.setVisible(this.xMax != 0);
+        this.xButton.draw(mouseX, mouseY, partialTicks);
+        this.yButton.setVisible(this.yMax != 0);
+        this.yButton.draw(mouseX, mouseY, partialTicks);
+        this.processButtonDrag(mouseX, mouseY, partialTicks, 0, 0, 0);
+        this.updateButton();
+        GlStateManager.popMatrix();
+        GlStateManager.pushMatrix();
         this.updateAnimation(partialTicks);
+    }
+
+    protected void processButtonDrag(int mouseX, int mouseY, float partialTicks,
+                                     int size, int max, float current)
+    {
+        if (xButton.barClicked)
+        {
+            dx = 0;
+            float d = (xButton.lastClickedX - mouseX);
+            xNow = (int) MathHelper.clamp(xNow - d, 0, xMax);
+            xButton.lastClickedX = mouseX;
+            xButton.lastClickedY = mouseY;
+        }
+        if (yButton.barClicked)
+        {
+            dy = 0;
+            float d = (yButton.lastClickedY - mouseY);
+            yNow = (int) MathHelper.clamp(yNow - d, 0, yMax);
+            yButton.lastClickedX = mouseX;
+            yButton.lastClickedY = mouseY;
+        }
+    }
+
+    public void buttonCallback(ScrollButton button)
+    {
+        if (button == xButton)
+        {
+            if (!button.isDraggingBar())
+            {
+                int scroll = (CacGuiUtils.getMouseX() < this.x + button.x + button.pos + 0.5 * button.length) ?
+                        button.length : -button.length;
+//                        CacGuiUtils.DEFAULT_SCROLL_VALUE : -CacGuiUtils.DEFAULT_SCROLL_VALUE;
+//                this.scrollPage(scroll, true);
+                scroll *= 2;
+                this.dx = 0;
+                this.xNow = MathHelper.clamp(xNow - scroll, 0, xMax);
+            }
+        }
+        if (button == yButton)
+        {
+            if (!button.isDraggingBar())
+            {
+                int scroll = (CacGuiUtils.getMouseY() < this.y + button.y + button.pos + 0.5 * button.length) ?
+                        button.length : -button.length;
+//                        CacGuiUtils.DEFAULT_SCROLL_VALUE : -CacGuiUtils.DEFAULT_SCROLL_VALUE;
+//                this.scrollPage(scroll, false);
+                scroll *= 2;
+                this.dy = 0;
+                this.yNow = MathHelper.clamp(yNow - scroll, 0, yMax);
+            }
+        }
+    }
+
+    @Override
+    public boolean isMouseInside()
+    {
+        int dx = holder.shiftMouseX();
+        int dy = holder.shiftMouseY();
+        return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isMouseInside) :
+                CacGuiUtils.isMouseInside(x + dx, y + dy,
+                        width - ((yButton.isVisible()) ? scrollButtonWidth : 0),
+                        height - ((xButton.isVisible()) ? scrollButtonWidth : 0));
     }
 
     protected void updateAnimation(float partialTicks)
@@ -61,11 +151,13 @@ public class GuiScroll extends GuiWidgetBundle
         double scaleW = pScr.mc.displayWidth / res.getScaledWidth_double();
         double scaleH = pScr.mc.displayHeight / res.getScaledHeight_double();
         GL11.glEnable(GL11.GL_SCISSOR_TEST);// 左下角开始
+        int xDiff = this.yButton.isVisible() ? scrollButtonWidth : 0;
+        int yDiff = this.xButton.isVisible() ? scrollButtonWidth : 0;
         GL11.glScissor((int) ((pScr.translationX + (x * pScr.scaleX)) * scaleW),
-                (int) (((pScr.height - pScr.translationY) - (getEndY()) * pScr.scaleY) * scaleH),
+                (int) (((pScr.height - pScr.translationY) - (getEndY() - yDiff) * pScr.scaleY) * scaleH),
                 // （原始平移量（缩放后的坐标系） + 原始的scroll位置 * scr缩放量） * scaleW/H
-                (int) ((getEndX() - x) * pScr.scaleX * scaleW),
-                (int) ((getEndY() - y) * pScr.scaleY * scaleH));
+                (int) ((getEndX() - x - xDiff) * pScr.scaleX * scaleW),
+                (int) ((getEndY() - y - yDiff) * pScr.scaleY * scaleH));
         if (scrollUpDown)
         {
             float d = this.getAnimationProgress() * dy;
@@ -115,11 +207,41 @@ public class GuiScroll extends GuiWidgetBundle
     }
 
     @Override
+    public void onUpdate()
+    {
+        Stream.of(xButton, yButton).filter(GuiButtonAdvanced::isClicked).collect(Collectors.toList()).forEach(w -> {
+            this.getScreen().onButtonAction(w);
+            w.setClicked(false);
+        });
+        this.xButton.onWidgetUpdate();
+        this.yButton.onWidgetUpdate();
+        super.onUpdate();
+    }
+
+    @Override
     public void onScroll(int mouseX, int mouseY, int scroll)
     {
         super.onScroll(mouseX, mouseY, scroll);
         if (!this.isMouseInside()) return;
         this.scrollPage(scroll, GuiScreen.isShiftKeyDown());
+    }
+
+    @Override
+    public void onLeftClick(int mouseX, int mouseY)
+    {
+        super.onLeftClick(mouseX, mouseY);
+        Stream.of(xButton, yButton).forEach(w -> {
+            w.onLeftClick(mouseX, mouseY);
+        });
+    }
+
+    @Override
+    public void onMouseReleased(int mouseX, int mouseY, int state)
+    {
+        super.onMouseReleased(mouseX, mouseY, state);
+        Stream.of(xButton, yButton).forEach(w -> {
+            w.onMouseReleased(mouseX, mouseY, state);
+        });
     }
 
     public void scrollPage(int scroll, boolean leftRightDirection)
@@ -137,7 +259,7 @@ public class GuiScroll extends GuiWidgetBundle
                     xNow += Math.round(d);
                     dx = 0;
                 }
-                int targetScroll = -scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30;
+                int targetScroll = (int) ((float) -scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30);
                 int clamped = MathHelper.clamp(targetScroll, -yNow - dy,
                         yMax - yNow - dy);
                 float d = this.getAnimationProgress() * (dy);
@@ -156,7 +278,7 @@ public class GuiScroll extends GuiWidgetBundle
                     yNow += Math.round(d);
                     dy = 0;
                 }
-                int targetScroll = -scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30;
+                int targetScroll = (int) ((float) -scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30);
                 int clamped = MathHelper.clamp(targetScroll, -xNow - dx,
                         xMax - xNow - dx);
                 float d = this.getAnimationProgress() * (dx);
@@ -197,7 +319,7 @@ public class GuiScroll extends GuiWidgetBundle
     public GuiScroll add(GuiWidget... widgets)
     {
         super.add(widgets);
-        this.expandMaxValue(this.widgets.toArray(new GuiWidget[0]));
+        this.updatePosAndSize();
         return this;
     }
 
@@ -208,7 +330,17 @@ public class GuiScroll extends GuiWidgetBundle
         this.xMax = 0;
         this.yMax = 0;
         this.expandMaxValue(this.widgets.toArray(new GuiWidget[0]));
+//        this.scrollButtonWidth = (int) (30.0F / new ScaledResolution(this.pScr.mc).getScaleFactor());
+        this.updateButton();
         return this;
+    }
+
+    public void updateButton()
+    {
+        int xDiff = this.yButton.isVisible() ? scrollButtonWidth : 0;
+        int yDiff = this.xButton.isVisible() ? scrollButtonWidth : 0;
+        this.xButton.updatePosAndSize(width - xDiff, xMax, this.getCurrentX());
+        this.yButton.updatePosAndSize(height - yDiff, yMax, this.getCurrentY());
     }
 
     public void expandMaxValue(GuiWidget... widgets)
@@ -225,8 +357,8 @@ public class GuiScroll extends GuiWidgetBundle
                             .thenComparingInt(w -> w.getY() + w.getHeight())).orElse(null);
             if (widget != null)
             {
-                this.yMax = Math.max(this.yMax, widget.y + widget.height + 10 - this.height);
-                this.xMax = Math.max(this.xMax, widget.x + widget.width + 10 - this.width);
+                this.yMax = Math.max(this.yMax, widget.y + widget.height + scrollButtonWidth - this.height);
+                this.xMax = Math.max(this.xMax, widget.x + widget.width + scrollButtonWidth - this.width);
                 this.yMax += yIn;
                 this.xMax += xIn;
             }
@@ -276,13 +408,138 @@ public class GuiScroll extends GuiWidgetBundle
     public int shiftMouseX()
     {
         return this.isPositionIndependent() ? super.shiftMouseX() :
-                (int) (-this.xNow - this.dx * this.getAnimationProgress()) + super.shiftMouseX();
+                (int) (-this.getCurrentX()) + super.shiftMouseX();
     }
 
     @Override
     public int shiftMouseY()
     {
         return this.isPositionIndependent() ? super.shiftMouseY() :
-                (int) (-this.yNow - this.dy * this.getAnimationProgress()) + super.shiftMouseY();
+                (int) (-this.getCurrentY()) + super.shiftMouseY();
+    }
+
+    public float getCurrentX()
+    {
+        return (this.xNow + this.dx * this.getAnimationProgress());
+    }
+
+    public float getCurrentY()
+    {
+        return (this.yNow + this.dy * this.getAnimationProgress());
+    }
+
+    public static class ScrollButton extends GuiButtonAdvanced
+    {
+        int length = 0;
+        int pos = 0;
+        boolean xScrolling; // false: yScrolling
+        int lastClickedX;
+        int lastClickedY;
+        boolean barClicked = false;
+
+        public ScrollButton(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+                            IntSupplier widthSupplier, IntSupplier heightSupplier, boolean xScrolling)
+        {
+            super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+            this.xScrolling = xScrolling;
+            if (!(holder instanceof GuiScroll))
+            {
+                throw new ClassCastException("Could not cast " + holder.getClass() + " to " +
+                        GuiScroll.class + " in ScrollButton constructor.");
+            }
+            this.updatePosAndSize();
+        }
+
+        @Override
+        public void drawButton(Minecraft mc, int mouseX, int mouseY, float partial)
+        {
+            if (this.isVisible())
+            {
+                this.hovered = this.isMouseInBar();
+                if (this.pScr != mc.currentScreen || pScr.isInAnimation())
+                {
+                    this.hovered = false;
+                }
+                int k = this.getHoverState(this.hovered);
+                // disabled texture
+                CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46, this.width,
+                        this.height, 200,
+                        20, 2, 3, 2, 2, this.zLevel, pScr);
+                // enabled texture
+                int x = xScrolling ? pos : this.x;
+                int y = xScrolling ? this.y : pos;
+                int w = xScrolling ? length : this.width;
+                int h = xScrolling ? this.height : length;
+                CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, x, y, 0, 46 + k * 20,
+                        w, h, 200,
+                        20, 2, 3, 2, 2, this.zLevel, pScr);
+                int color = 0xE0E0E0;
+                if (!super.isEnabled())
+                {
+                    color = 0xA0A0A0;
+                }
+                else if (this.hovered)
+                {
+//                color = 0xFFFFA0;
+                }
+
+                String buttonText = this.displayString;
+                color |= pScr.getAlphaInt(0xFF);
+                CacGuiUtils.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2,
+                        this.y + (this.height - 8) / 2, color);
+            }
+        }
+
+        public boolean isDraggingBar()
+        {
+            return this.isMouseInBar() && Mouse.isButtonDown(0);
+        }
+
+        @Override
+        public boolean isMouseInside()
+        {
+            int dx = ((GuiScroll) holder).x;
+            int dy = ((GuiScroll) holder).y;
+            return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height);
+        }
+
+        public boolean isMouseInBar()
+        {
+            int x = xScrolling ? pos : this.x;
+            int y = xScrolling ? this.y : pos;
+            int width = xScrolling ? length : this.width;
+            int height = xScrolling ? this.height : length;
+            int dx = ((GuiScroll) holder).x;
+            int dy = ((GuiScroll) holder).y;
+            return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height);
+        }
+
+        public void updatePosAndSize(int size, int max, float current)
+        {
+            this.length = (size == 0) ? 0 : (int) ((float) size / (float) (size + max) * (float) size);
+            this.pos = (max == 0) ? 0 : (int) ((size - length) * current / max);
+            super.updatePosAndSize();
+        }
+
+        @Override
+        public void onLeftClick(int mouseX, int mouseY)
+        {
+            super.onLeftClick(mouseX, mouseY);
+            if (this.isEnabled() && this.isVisible() && this.isMouseInBar())
+            {
+                this.barClicked = true;
+                this.lastClickedX = mouseX;
+                this.lastClickedY = mouseY;
+            }
+        }
+
+        @Override
+        public void onMouseReleased(int mouseX, int mouseY, int state)
+        {
+            if (barClicked)
+            {
+                this.barClicked = false;
+            }
+        }
     }
 }

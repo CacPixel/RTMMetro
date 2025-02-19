@@ -28,8 +28,11 @@ public class GuiOptionButton<E extends Enum<E>> extends GuiButtonAdvanced
     public void onLeftClick(int mouseX, int mouseY)
     {
         super.onLeftClick(mouseX, mouseY);
-        this.rollOptions();
-        this.pScr.hasValueUpdated = true;
+        if (this.isEnabled() && this.isVisible() && this.isMouseInside())
+        {
+            this.rollOptions();
+            this.pScr.hasValueUpdated = true;
+        }
     }
 
     public String getTranslationKey(int ordinal)

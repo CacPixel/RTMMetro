@@ -136,4 +136,6 @@ public interface IWidgetHolder
     default int shiftMouseX() {return 0;}
 
     default int shiftMouseY() {return 0;}
+
+    boolean isMouseInside();
 }

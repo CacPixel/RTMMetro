@@ -12,16 +12,14 @@ public class GuiWidgetBundle extends GuiWidget implements IWidgetHolder
     public List<GuiWidget> widgets = new ArrayList<>();
 
     public GuiWidgetBundle(IWidgetHolder holder, int id, IntSupplier x, IntSupplier y, IntSupplier width,
-                           IntSupplier height,
-                           GuiWidget... widgets)
+                           IntSupplier height)
     {
         super(holder, id, x, y, width, height);
-        this.add(widgets);
     }
 
-    public GuiWidgetBundle(GuiScreenAdvanced pScr, int id, GuiWidget... widgets)
+    public GuiWidgetBundle(GuiScreenAdvanced pScr, int id)
     {
-        this(pScr, id, GuiWidget.ZERO, GuiWidget.ZERO, GuiWidget.ZERO, GuiWidget.ZERO, widgets);
+        this(pScr, id, GuiWidget.ZERO, GuiWidget.ZERO, GuiWidget.ZERO, GuiWidget.ZERO);
     }
 
     @Override
@@ -52,6 +50,7 @@ public class GuiWidgetBundle extends GuiWidget implements IWidgetHolder
                 this.getY() + IWidgetHolder.super.shiftMouseY();
     }
 
+    @Override
     public boolean isMouseInside()
     {
         return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isMouseInside) :

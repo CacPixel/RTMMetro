@@ -144,6 +144,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     {
         // perform action
         this.getButtonList().stream().filter(GuiButtonAdvanced::isClicked).collect(Collectors.toList()).forEach(w -> {
+            w.playPressSound(this.mc.getSoundHandler());
             this.getScreen().onButtonAction(w);
             w.setClicked(false);
         });
@@ -333,7 +334,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         {
             if (!this.isInAnimation() && !this.closeFlag)
             {
-                this.getAllWidgets().stream().filter(w -> w.isEnabled() && w.isVisible() && w.isMouseInside()).forEach(w -> {
+                this.getAllWidgets().forEach(w -> {
                     switch (button)
                     {
                     case 0:
@@ -346,6 +347,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
                         w.onMiddleClick(x, y);
                         break;
                     default:
+                        w.onClickedOther(x, y, button);
                         break;
                     }
                 });
@@ -387,9 +389,45 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         int y = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
         int button = Mouse.getEventButton();
         int scroll = Mouse.getEventDWheel();
-        if (scroll != 0)
+        if (!this.isInAnimation() && !this.closeFlag)
         {
-            this.getAllWidgets().forEach(w -> w.onScroll(x, y, scroll));
+            if (scroll != 0)
+            {
+                this.getAllWidgets().forEach(w -> w.onScroll(x, y, scroll));
+            }
+        }
+    }
+
+    @Override
+    protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick)
+    {
+        super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+        if (!this.isInAnimation() && !this.closeFlag)
+        {
+            this.getAllWidgets().forEach(w -> {
+                switch (clickedMouseButton)
+                {
+                case 0:
+                    w.onLeftClickAndDrag(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+                    break;
+                case 1:
+                case 2:
+                default:
+                    break;
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void mouseReleased(int mouseX, int mouseY, int state)
+    {
+        super.mouseReleased(mouseX, mouseY, state);
+        if (!this.isInAnimation() && !this.closeFlag)
+        {
+            this.getAllWidgets().forEach(w -> {
+                w.onMouseReleased(mouseX, mouseY, state);
+            });
         }
     }
 
@@ -558,7 +596,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     public void onButtonAction(GuiButtonAdvanced b)
     {
-        b.playPressSound(this.mc.getSoundHandler());
         IActionListener<? extends GuiWidget> listener = b.getListener();
         if (listener != null)
         {
@@ -582,5 +619,11 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public int getHalfHeight()
     {
         return this.height / 2;
+    }
+
+    public boolean isMouseInside()
+    {
+//        return CacGuiUtils.isMouseInside(0, 0, width, height);
+        return true;
     }
 }

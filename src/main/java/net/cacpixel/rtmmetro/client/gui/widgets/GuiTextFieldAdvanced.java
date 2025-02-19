@@ -712,11 +712,14 @@ public class GuiTextFieldAdvanced extends GuiWidget
     public void onLeftClick(int mouseX, int mouseY)
     {
         super.onLeftClick(mouseX, mouseY);
-        this.mouseClicked(mouseX, mouseY);
+        if (this.isEnabled() && this.isVisible() && this.isMouseInside())
+        {
+            this.mouseClicked(mouseX, mouseY);
+        }
     }
 
     @Override
-    public void LeftClickAndDrag(int mouseX, int mouseY, int mouseButton)
+    public void onLeftClickAndDrag(int mouseX, int mouseY, int mouseButton, long timeSinceLastClick)
     {
         // TODO: mouse drag to select on Text field
     }

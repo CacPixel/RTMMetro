@@ -49,7 +49,7 @@ public class GuiButtonAdvanced extends GuiWidget
 
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partial)
     {
-        if (super.isVisible())
+        if (this.isVisible())
         {
             this.hovered = this.isMouseInside();
             if (this.pScr != mc.currentScreen || pScr.isInAnimation())
@@ -115,7 +115,10 @@ public class GuiButtonAdvanced extends GuiWidget
     @Override
     public void onLeftClick(int mouseX, int mouseY)
     {
-        this.setClicked(true);
+        if (this.isEnabled() && this.isVisible() && this.isMouseInside())
+        {
+            this.setClicked(true);
+        }
     }
 
     public boolean isClicked()

@@ -2,6 +2,7 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
+import org.lwjgl.input.Mouse;
 
 import java.util.function.IntSupplier;
 
@@ -81,7 +82,15 @@ public abstract class GuiWidget
     {
     }
 
-    public void LeftClickAndDrag(int mouseX, int mouseY, int mouseButton)
+    public void onClickedOther(int mouseX, int mouseY, int mouseButton)
+    {
+    }
+
+    public void onLeftClickAndDrag(int mouseX, int mouseY, int mouseButton, long timeSinceLastClick)
+    {
+    }
+
+    public void onMouseReleased(int mouseX, int mouseY, int state)
     {
     }
 
@@ -101,7 +110,12 @@ public abstract class GuiWidget
     {
         int dx = holder.shiftMouseX();
         int dy = holder.shiftMouseY();
-        return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height);
+        return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height) && holder.isMouseInside();
+    }
+
+    public boolean isMouseLeftDragging()
+    {
+        return this.isMouseInside() && Mouse.isButtonDown(0);
     }
 
     public abstract void draw(int mouseX, int mouseY, float partialTicks);
@@ -114,7 +128,7 @@ public abstract class GuiWidget
 
     public int getHeight() {return height;}
 
-    public GuiWidget updatePosAndSize(int x, int y, int w, int h)
+    public final GuiWidget updatePosAndSize(int x, int y, int w, int h)
     {
         this.x = x;
         this.y = y;
