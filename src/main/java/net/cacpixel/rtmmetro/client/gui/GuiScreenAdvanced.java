@@ -2,10 +2,12 @@ package net.cacpixel.rtmmetro.client.gui;
 
 import jp.ngt.ngtlib.gui.GuiContainerCustom;
 import jp.ngt.ngtlib.gui.GuiScreenCustom;
+import jp.ngt.ngtlib.io.NGTLog;
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.client.gui.widgets.*;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.cacpixel.rtmmetro.util.ModLog;
+import net.cacpixel.rtmmetro.util.RTMMetroUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiScreen;
@@ -14,8 +16,10 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
@@ -461,14 +465,25 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         if (!net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
                 new net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent.Pre(this, this.buttonList)))
         {
-            if (!initialized)
+            try
             {
-                this.initGui();
-                initialized = true;
+                if (!initialized)
+                {
+                    this.initGui();
+                    initialized = true;
+                }
+                else
+                {
+                    this.updateWidgets();
+                }
             }
-            else
+            catch (Throwable e)
             {
-                this.updateWidgets();
+                ModLog.error("Caught exception while initializing gui: " + RTMMetroUtils.getStackTrace(e));
+                ModLog.showChatMessage(TextFormatting.RED +
+                        I18n.format("message.error.fatal_problem_occurred", "Initializing GUI"));
+                Minecraft.getMinecraft().displayGuiScreen(null);
+                Minecraft.getMinecraft().setIngameFocus();
             }
         }
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(

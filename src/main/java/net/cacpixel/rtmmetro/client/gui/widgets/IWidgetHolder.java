@@ -1,12 +1,15 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
+import net.cacpixel.rtmmetro.util.RTMMetroException;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.cacpixel.rtmmetro.util.ModLog;
 import net.cacpixel.rtmmetro.util.RTMMetroUtils;
-import net.minecraft.client.Minecraft;
 
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import java.util.stream.Collectors;
@@ -55,7 +58,7 @@ public interface IWidgetHolder
                     return true;
                 }
                 return false;
-            }).findFirst().orElseThrow(() -> new Exception("No constructor paired in this class with parameter type: " +
+            }).findFirst().orElseThrow(() -> new RTMMetroException("No constructor paired in this class with parameter type: " +
                     Arrays.toString(params.stream().map(Object::getClass).toArray())));
             List<Object> list = new ArrayList<>();
             list.addAll(Stream.of(this, id, x, y, width, height).collect(Collectors.toList()));
@@ -64,14 +67,10 @@ public interface IWidgetHolder
             this.add(widget);
             return widget;
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
-            ModLog.debug("IWidgetHolder add widget failed!");
-            e.printStackTrace();
-            Minecraft.getMinecraft().displayGuiScreen(null);
-            Minecraft.getMinecraft().setIngameFocus();
+            throw new RTMMetroException("IWidgetHolder add widget failed!", e);
         }
-        return null;
     }
 
     default void onUpdate()
@@ -158,7 +157,7 @@ public interface IWidgetHolder
         GuiWidget w = this.getActionQueue().poll();
         if (w == null) return;
         this.onWidgetAction(w);
-        while (this.getActionQueue().poll() != null);
+        while (this.getActionQueue().poll() != null) ;
     }
 
     Queue<GuiWidget> getActionQueue();
