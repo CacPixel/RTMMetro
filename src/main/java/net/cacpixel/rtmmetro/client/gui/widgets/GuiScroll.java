@@ -3,7 +3,6 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
-import net.cacpixel.rtmmetro.util.ModLog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
@@ -48,12 +47,16 @@ public class GuiScroll extends GuiWidgetBundle
         // 以下两个button不会进入widget list
         int i = 0;
         this.xButton = new ScrollButton(this, this.getScreen().getNextWidgetId(),
-                () -> i, () -> this.height - scrollButtonWidth,
-                () -> this.width - (this.yMax == 0 ? 0 : scrollButtonWidth) - i, () -> scrollButtonWidth - i,
+                () -> i,
+                () -> this.height - scrollButtonWidth,
+                () -> this.width - (this.yButton != null && this.yButton.isVisible() ? scrollButtonWidth : 0) - i,
+                () -> scrollButtonWidth - i,
                 true).setListener(b -> this.buttonCallback((ScrollButton) b));
         this.yButton = new ScrollButton(this, this.getScreen().getNextWidgetId(),
-                () -> this.width - scrollButtonWidth, () -> i,
-                () -> scrollButtonWidth - i, () -> this.height - (this.xMax == 0 ? 0 : scrollButtonWidth) - i,
+                () -> this.width - scrollButtonWidth,
+                () -> i,
+                () -> scrollButtonWidth - i,
+                () -> this.height - (this.xButton != null && this.xButton.isVisible() ? scrollButtonWidth : 0) - i,
                 false).setListener(b -> this.buttonCallback((ScrollButton) b));
     }
 
@@ -73,9 +76,7 @@ public class GuiScroll extends GuiWidgetBundle
         GlStateManager.pushMatrix();
         if (!this.isPositionIndependent())
             GlStateManager.translate(x, y, 0);
-        this.xButton.setVisible(this.xMax != 0);
         this.xButton.draw(mouseX, mouseY, partialTicks);
-        this.yButton.setVisible(this.yMax != 0);
         this.yButton.draw(mouseX, mouseY, partialTicks);
         this.processButtonDrag(mouseX, mouseY, partialTicks);
         this.updateButton();
@@ -353,7 +354,7 @@ public class GuiScroll extends GuiWidgetBundle
 
     public void expandMaxValue(GuiWidget... widgets)
     {
-        this.expandMaxValue(0, 0, widgets);
+        this.expandMaxValue(scrollButtonWidth, scrollButtonWidth, widgets);
     }
 
     public void expandMaxValue(int xIn, int yIn, GuiWidget... widgets)
@@ -367,8 +368,8 @@ public class GuiScroll extends GuiWidgetBundle
             {
                 this.yMax = Math.max(this.yMax, widget.y + widget.height + scrollButtonWidth - this.height);
                 this.xMax = Math.max(this.xMax, widget.x + widget.width + scrollButtonWidth - this.width);
-                this.yMax += yIn;
-                this.xMax += xIn;
+                if (this.yMax != 0) this.yMax += yIn;
+                if (this.xMax != 0) this.xMax += xIn;
             }
         }
         else
@@ -376,6 +377,10 @@ public class GuiScroll extends GuiWidgetBundle
             this.yMax = yIn;
             this.xMax = xIn;
         }
+        if (this.xMax == 0) yMax = Math.max(yMax - scrollButtonWidth, 0);
+        if (this.yMax == 0) xMax = Math.max(xMax - scrollButtonWidth, 0);
+        this.xButton.setVisible(this.xMax != 0);
+        this.yButton.setVisible(this.yMax != 0);
         yNow = Math.min(yNow, yMax);
         xNow = Math.min(xNow, xMax);
     }
