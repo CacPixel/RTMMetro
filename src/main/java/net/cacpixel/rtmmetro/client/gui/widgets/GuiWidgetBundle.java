@@ -3,13 +3,13 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.minecraft.client.renderer.GlStateManager;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.IntSupplier;
 
 public class GuiWidgetBundle extends GuiWidget implements IWidgetHolder
 {
     public List<GuiWidget> widgets = new ArrayList<>();
+    public PriorityQueue<GuiWidget> actionQueue = new PriorityQueue<>(Comparator.comparing(GuiWidget::getzLevel).reversed());
 
     public GuiWidgetBundle(IWidgetHolder holder, int id, IntSupplier x, IntSupplier y, IntSupplier width,
                            IntSupplier height)
@@ -82,5 +82,11 @@ public class GuiWidgetBundle extends GuiWidget implements IWidgetHolder
     public GuiScreenAdvanced getScreen()
     {
         return pScr;
+    }
+
+    @Override
+    public Queue<GuiWidget> getActionQueue()
+    {
+        return actionQueue;
     }
 }

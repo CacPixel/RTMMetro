@@ -115,9 +115,10 @@ public class GuiButtonAdvanced extends GuiWidget
     @Override
     public void onLeftClick(int mouseX, int mouseY)
     {
+        super.onLeftClick(mouseX, mouseY);
         if (this.isEnabled() && this.isVisible() && this.isMouseInside())
         {
-            this.setClicked(true);
+            this.playPressSound(this.pScr.mc.getSoundHandler());
         }
     }
 

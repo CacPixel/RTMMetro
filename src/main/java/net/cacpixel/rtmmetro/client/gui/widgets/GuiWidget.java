@@ -72,6 +72,10 @@ public abstract class GuiWidget
 
     public void onLeftClick(int mouseX, int mouseY)
     {
+        if (this.isEnabled() && this.isVisible() && this.isMouseInside())
+        {
+            this.holder.addWidgetToActionQueue(this);
+        }
     }
 
     public void onRightClick(int mouseX, int mouseY)
@@ -193,5 +197,10 @@ public abstract class GuiWidget
     public boolean isPositionIndependent()
     {
         return x <= 0 && y <= 0 && width <= 0 && height <= 0;
+    }
+
+    public float getzLevel()
+    {
+        return zLevel;
     }
 }

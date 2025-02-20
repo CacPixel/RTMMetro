@@ -24,10 +24,7 @@ import org.lwjgl.input.Mouse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SideOnly(Side.CLIENT)
@@ -36,7 +33,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public GuiScreenAdvanced parentScreen;
     public boolean hasValueUpdated; // todo: move to text field (no no no move to GuiWidget instead)
     private int nextWidgetId;
-    public List<GuiWidget> widgets = new ArrayList<>();
+    public ArrayList<GuiWidget> widgets = new ArrayList<>();
+    public PriorityQueue<GuiWidget> actionQueue = new PriorityQueue<>(Comparator.comparing(GuiWidget::getzLevel).reversed());
     private float alpha;
     public boolean isOpening;
     public boolean isClosing;
@@ -142,12 +140,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     @Override
     public void onUpdate()
     {
-        // perform action
-        this.getButtonList().stream().filter(GuiButtonAdvanced::isClicked).collect(Collectors.toList()).forEach(w -> {
-            w.playPressSound(this.mc.getSoundHandler());
-            this.getScreen().onButtonAction(w);
-            w.setClicked(false);
-        });
         // update CursorCounter
         GuiTextFieldAdvanced fieldCurrent = this.getScreen().getCurrentTextField();
         if (fieldCurrent != null && fieldCurrent.isEnabled() && fieldCurrent.isVisible())
@@ -594,13 +586,10 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         return this;
     }
 
-    public void onButtonAction(GuiButtonAdvanced b)
+    @Override
+    public Queue<GuiWidget> getActionQueue()
     {
-        IActionListener<? extends GuiWidget> listener = b.getListener();
-        if (listener != null)
-        {
-            listener.onAction(b);
-        }
+        return actionQueue;
     }
 
     public void onWidgetValueChanged(GuiWidget widget)

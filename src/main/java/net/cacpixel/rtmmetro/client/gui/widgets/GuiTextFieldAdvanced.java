@@ -712,7 +712,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
     public void onLeftClick(int mouseX, int mouseY)
     {
         super.onLeftClick(mouseX, mouseY);
-        if (this.isEnabled() && this.isVisible() && this.isMouseInside())
+        if (this.isEnabled() && this.isVisible())
         {
             this.mouseClicked(mouseX, mouseY);
         }

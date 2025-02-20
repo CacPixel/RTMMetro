@@ -6,9 +6,7 @@ import net.cacpixel.rtmmetro.util.RTMMetroUtils;
 import net.minecraft.client.Minecraft;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import java.util.stream.Collectors;
@@ -78,6 +76,8 @@ public interface IWidgetHolder
 
     default void onUpdate()
     {
+        // perform action
+        this.fromActionQueueDoAction();
         // update other holder
         this.getWidgets().forEach(GuiWidget::onWidgetUpdate);
         this.forEachHolder(IWidgetHolder::onUpdate);
@@ -138,4 +138,28 @@ public interface IWidgetHolder
     default int shiftMouseY() {return 0;}
 
     boolean isMouseInside();
+
+    default void onWidgetAction(GuiWidget w)
+    {
+        IActionListener<? extends GuiWidget> listener = w.getListener();
+        if (listener != null)
+        {
+            listener.onAction(w);
+        }
+    }
+
+    default void addWidgetToActionQueue(GuiWidget w)
+    {
+        this.getActionQueue().offer(w);
+    }
+
+    default void fromActionQueueDoAction()
+    {
+        GuiWidget w = this.getActionQueue().poll();
+        if (w == null) return;
+        this.onWidgetAction(w);
+        while (this.getActionQueue().poll() != null);
+    }
+
+    Queue<GuiWidget> getActionQueue();
 }

@@ -540,12 +540,6 @@ public class GuiMarkerAdvanced extends GuiFullScreen
     }
 
     @Override
-    public void onButtonAction(GuiButtonAdvanced b)
-    {
-        super.onButtonAction(b);
-    }
-
-    @Override
     protected void onPressingEsc()
     {
         super.onPressingEsc();
