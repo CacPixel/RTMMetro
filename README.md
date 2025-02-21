@@ -7,3 +7,5 @@ RTMMetro是一个正在开发中的mod，它扩展了许多RTM的功能，并完
 前置Mod：`NGTLib 2.4.21`, `RTM 2.4.24`, `MixinBooter`
 
 注：本mod内置 FlatLaf UI库以提升Swing显示效果，若发现其他mod的Swing界面的主题被修改，属于正常现象。
+
+Credits: CacPixel(代码、汉化); REL(部分物品纹理); 
