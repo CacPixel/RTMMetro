@@ -327,7 +327,7 @@ public class CacGuiUtils
     {
         int mouseX = CacGuiUtils.getMouseX();
         int mouseY = CacGuiUtils.getMouseY();
-        return x < mouseX && mouseX < (x + width)
-                && y < mouseY && mouseY < (y + height);
+        return x <= mouseX && mouseX < (x + width)
+                && y <= mouseY && mouseY < (y + height);
     }
 }
