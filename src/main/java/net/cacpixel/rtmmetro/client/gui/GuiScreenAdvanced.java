@@ -2,9 +2,10 @@ package net.cacpixel.rtmmetro.client.gui;
 
 import jp.ngt.ngtlib.gui.GuiContainerCustom;
 import jp.ngt.ngtlib.gui.GuiScreenCustom;
-import jp.ngt.ngtlib.io.NGTLog;
 import net.cacpixel.rtmmetro.ModConfig;
-import net.cacpixel.rtmmetro.client.gui.widgets.*;
+import net.cacpixel.rtmmetro.client.gui.widgets.GuiTextFieldAdvanced;
+import net.cacpixel.rtmmetro.client.gui.widgets.GuiWidget;
+import net.cacpixel.rtmmetro.client.gui.widgets.IWidgetHolder;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.cacpixel.rtmmetro.util.ModLog;
 import net.cacpixel.rtmmetro.util.RTMMetroUtils;
@@ -29,7 +30,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @SideOnly(Side.CLIENT)
 public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHolder
@@ -310,7 +310,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     protected void switchGuiScreenToPrevious()
     {
-        if (!this.isInAnimation() && closeFlag)
+        if (!(this.isClosing && animationTime < duration / 10) && closeFlag)
         {
             if (parentScreen == null)
             {
@@ -462,32 +462,26 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         this.fontRenderer = mc.fontRenderer;
         this.width = width;
         this.height = height;
-        if (!net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
-                new net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent.Pre(this, this.buttonList)))
+        try
         {
-            try
+            if (!initialized)
             {
-                if (!initialized)
-                {
-                    this.initGui();
-                    initialized = true;
-                }
-                else
-                {
-                    this.updateWidgets();
-                }
+                this.initGui();
+                initialized = true;
             }
-            catch (Throwable e)
+            else
             {
-                ModLog.error("Caught exception while initializing gui: " + RTMMetroUtils.getStackTrace(e));
-                ModLog.showChatMessage(TextFormatting.RED +
-                        I18n.format("message.error.fatal_problem_occurred", "Initializing GUI"));
-                Minecraft.getMinecraft().displayGuiScreen(null);
-                Minecraft.getMinecraft().setIngameFocus();
+                this.updateWidgets();
             }
         }
-        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
-                new net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent.Post(this, this.buttonList));
+        catch (Throwable e)
+        {
+            ModLog.error("Caught exception while initializing gui: " + RTMMetroUtils.getStackTrace(e));
+            ModLog.showChatMessage(TextFormatting.RED +
+                    I18n.format("message.error.fatal_problem_occurred", "Initializing GUI"));
+            Minecraft.getMinecraft().displayGuiScreen(null);
+            Minecraft.getMinecraft().setIngameFocus();
+        }
     }
 
     public GuiTextFieldAdvanced getFocusedTextField()

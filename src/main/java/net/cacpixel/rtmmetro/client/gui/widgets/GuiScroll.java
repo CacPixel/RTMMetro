@@ -4,12 +4,10 @@ import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -17,7 +15,6 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 import java.util.function.IntSupplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GuiScroll extends GuiWidgetBundle

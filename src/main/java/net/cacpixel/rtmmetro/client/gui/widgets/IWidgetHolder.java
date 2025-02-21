@@ -1,8 +1,7 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
-import net.cacpixel.rtmmetro.util.RTMMetroException;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
-import net.cacpixel.rtmmetro.util.ModLog;
+import net.cacpixel.rtmmetro.util.RTMMetroException;
 import net.cacpixel.rtmmetro.util.RTMMetroUtils;
 
 import java.lang.reflect.Constructor;
