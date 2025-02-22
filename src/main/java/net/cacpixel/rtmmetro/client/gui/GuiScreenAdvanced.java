@@ -85,6 +85,11 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         nextWidgetId = 0;
     }
 
+    public void closeButtonCallback(GuiWidget w)
+    {
+        this.displayPrevScreen();
+    }
+
     public void drawScreenBefore(int mouseX, int mouseY, float partialTicks)
     {
         GlStateManager.pushMatrix();
@@ -172,7 +177,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         }
     }
 
-    protected void drawGradientRect(int left, int top, int right, int bottom, int startColor, int endColor)
+    public void drawGradientRect(int left, int top, int right, int bottom, int startColor, int endColor)
     {
         float f = (float) (startColor >> 24 & 255) / 255.0F;
         float f1 = (float) (startColor >> 16 & 255) / 255.0F;
@@ -476,9 +481,9 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         }
         catch (Throwable e)
         {
-            ModLog.error("Caught exception while initializing gui: " + RTMMetroUtils.getStackTrace(e));
             ModLog.showChatMessage(TextFormatting.RED +
                     I18n.format("message.error.fatal_problem_occurred", "Initializing GUI"));
+            ModLog.error("Caught exception while initializing gui: " + RTMMetroUtils.getStackTrace(e));
             Minecraft.getMinecraft().displayGuiScreen(null);
             Minecraft.getMinecraft().setIngameFocus();
         }

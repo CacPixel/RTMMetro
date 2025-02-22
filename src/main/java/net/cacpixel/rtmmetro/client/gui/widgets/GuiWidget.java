@@ -4,6 +4,7 @@ import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import org.lwjgl.input.Mouse;
 
+import java.util.function.Function;
 import java.util.function.IntSupplier;
 
 public abstract class GuiWidget

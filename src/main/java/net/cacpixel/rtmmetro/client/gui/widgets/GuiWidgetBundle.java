@@ -19,7 +19,7 @@ public class GuiWidgetBundle extends GuiWidget implements IWidgetHolder
 
     public GuiWidgetBundle(GuiScreenAdvanced pScr, int id)
     {
-        this(pScr, id, GuiWidget.ZERO, GuiWidget.ZERO, GuiWidget.ZERO, GuiWidget.ZERO);
+        this(pScr, id, ZERO, ZERO, ZERO, ZERO);
     }
 
     @Override

@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 public class GuiScroll extends GuiWidgetBundle
 {
     public int scrollButtonWidth;
+    public int scrollDistance = 60;
     public boolean scrollUpDown = true;
     public boolean scrollLeftRight = true;
     protected int yMax = 0;
@@ -63,16 +64,16 @@ public class GuiScroll extends GuiWidgetBundle
     public void drawBefore(int mouseX, int mouseY, float partialTicks)
     {
         // up
-        CacGuiUtils.drawRect(x - 1, y - 1, getEndX() + 1, y + 1, 0x505050 | this.pScr.getAlphaInt(0xFF));
+        CacGuiUtils.drawRect(x - 1, y - 1, getEndX() + 1, y, 0x303030 | this.pScr.getAlphaInt(0x80));
         // down
-        CacGuiUtils.drawRect(x - 1, getEndY() - 1, getEndX() + 1, getEndY() + 1,
-                0x505050 | this.pScr.getAlphaInt(0xFF));
+        CacGuiUtils.drawRect(x - 1, getEndY(), getEndX() + 1, getEndY() + 1,
+                0x303030 | this.pScr.getAlphaInt(0x80));
         // left
-        CacGuiUtils.drawRect(x - 1, y - 1, x + 1, getEndY() + 1, 0x505050 | this.pScr.getAlphaInt(0xFF));
+        CacGuiUtils.drawRect(x - 1, y, x, getEndY(), 0x303030 | this.pScr.getAlphaInt(0x80));
         // right
-        CacGuiUtils.drawRect(getEndX() - 1, y - 1, getEndX() + 1, getEndY() + 1,
-                0x505050 | this.pScr.getAlphaInt(0xFF));
-        this.pScr.drawDefaultBackground(x, y, getEndX(), getEndY());
+        CacGuiUtils.drawRect(getEndX(), y, getEndX() + 1, getEndY(),
+                0x303030 | this.pScr.getAlphaInt(0x80));
+        CacGuiUtils.drawRect(x, y, getEndX(), getEndY(), 0x101010 | this.pScr.getAlphaInt(0x80));
         GlStateManager.pushMatrix();
         if (!this.isPositionIndependent())
             GlStateManager.translate(x, y, 0);
@@ -118,8 +119,6 @@ public class GuiScroll extends GuiWidgetBundle
             {
                 int scroll = (CacGuiUtils.getMouseX() < this.x + button.x + button.pos + 0.5 * button.length) ?
                         button.length : -button.length;
-//                        CacGuiUtils.DEFAULT_SCROLL_VALUE : -CacGuiUtils.DEFAULT_SCROLL_VALUE;
-//                this.scrollPage(scroll, true);
                 scroll *= 2;
                 this.dx = 0;
                 this.xNow = MathHelper.clamp(xNow - scroll, 0, xMax);
@@ -131,8 +130,6 @@ public class GuiScroll extends GuiWidgetBundle
             {
                 int scroll = (CacGuiUtils.getMouseY() < this.y + button.y + button.pos + 0.5 * button.length) ?
                         button.length : -button.length;
-//                        CacGuiUtils.DEFAULT_SCROLL_VALUE : -CacGuiUtils.DEFAULT_SCROLL_VALUE;
-//                this.scrollPage(scroll, false);
                 scroll *= 2;
                 this.dy = 0;
                 this.yNow = MathHelper.clamp(yNow - scroll, 0, yMax);
@@ -264,7 +261,7 @@ public class GuiScroll extends GuiWidgetBundle
                     xNow += Math.round(d);
                     dx = 0;
                 }
-                int targetScroll = (int) ((float) -scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30);
+                int targetScroll = (int) ((float) -scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * scrollDistance);
                 int clamped = MathHelper.clamp(targetScroll, -yNow - dy,
                         yMax - yNow - dy);
                 float d = this.getAnimationProgress() * (dy);
@@ -283,7 +280,7 @@ public class GuiScroll extends GuiWidgetBundle
                     yNow += Math.round(d);
                     dy = 0;
                 }
-                int targetScroll = (int) ((float) -scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * 30);
+                int targetScroll = (int) ((float) -scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * scrollDistance);
                 int clamped = MathHelper.clamp(targetScroll, -xNow - dx,
                         xMax - xNow - dx);
                 float d = this.getAnimationProgress() * (dx);

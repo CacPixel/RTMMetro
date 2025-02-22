@@ -11,6 +11,8 @@ import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiFullScreen;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
+import net.cacpixel.rtmmetro.client.gui.toast.CacToast;
+import net.cacpixel.rtmmetro.client.gui.toast.GuiToastAdvanced;
 import net.cacpixel.rtmmetro.client.gui.widgets.*;
 import net.cacpixel.rtmmetro.network.PacketMarkerClient;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
@@ -118,7 +120,13 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         int lineHeight = 18;
 
         super.initGui();
-        this.mainScroll = new Scroll(this, this.getNextWidgetId(), () -> 0, () -> 30, () -> this.width,
+        this.labelTitle.setText(String.format(TextFormatting.BOLD + "Editing rail marker" + TextFormatting.RESET + " \"%s\" " +
+                        TextFormatting.YELLOW + "(%d, %d, %d)",
+                this.marker.getName(), this.marker.getX(), this.marker.getY(), this.marker.getZ()));
+        this.mainScroll = new Scroll(this, this.getNextWidgetId(),
+                () -> Math.max(0, this.getHalfWidth() - 210),
+                () -> 30,
+                () -> Math.min(this.width, 420),
                 () -> this.height - 40 - 30);
         this.add(mainScroll);
 
@@ -400,22 +408,24 @@ public class GuiMarkerAdvanced extends GuiFullScreen
             this.updateValueFromWidgets();
             this.sendPacket();
             this.displayPrevScreen();
-            GuiToast guitoast = Minecraft.getMinecraft().getToastGui();
-            SystemToast.addOrUpdate(guitoast, SystemToast.Type.TUTORIAL_HINT,
-                    new TextComponentString("Success"),
-                    new TextComponentString("Parameters saved."));
+            GuiToastAdvanced.INSTANCE.add(new CacToast(new TextComponentString("Success"),
+                    new TextComponentString("Parameters saved.")));
         });
 
         //cancel
         this.buttonCancel = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 80 - 90, () -> this.height - 30,
                         () -> 160, () -> 20,
                         I18n.format("gui.cancel"))
-                .setListener((w) -> {
-                    this.restoreValues();
-                    this.sendPacket();
-                    this.displayPrevScreen();
-                });
+                .setListener(this::closeButtonCallback);
         this.controlEnable();
+    }
+
+    @Override
+    public void closeButtonCallback(GuiWidget w)
+    {
+        this.restoreValues();
+        this.sendPacket();
+        this.displayPrevScreen();
     }
 
     public void controlEnable()
@@ -514,28 +524,6 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         this.drawDefaultBackground();
         this.drawScreenBefore(mouseX, mouseY, partialTicks);
         super.drawScreen(mouseX, mouseY, partialTicks);
-        GuiMarkerAdvanced pScr = this;
-        int stringXpos = this.getHalfWidth();
-        int stringYpos = 12;
-        int fontColor = 0xE0E0E0 | pScr.getAlphaInt(0xFF);
-        int fontColorGrey = 0xA0A0A0 | pScr.getAlphaInt(0xFF);
-
-        //title line
-        CacGuiUtils.drawCenteredString(pScr.fontRenderer,
-                String.format(TextFormatting.BOLD + "Editing rail marker" + TextFormatting.RESET + " \"%s\" " +
-                                TextFormatting.YELLOW + "(%d, %d, %d)",
-                        pScr.marker.getName(), pScr.marker.getX(), pScr.marker.getY(), pScr.marker.getZ()),
-                stringXpos, stringYpos, fontColor);
-        stringYpos += 12;
-//        pScr.drawString(pScr.fontRenderer,
-//                TextFormatting.GRAY + TextFormatting.ITALIC.toString() +
-//                        "Tips: You can use arrow keys or mouse wheel to adjust values.",
-//                stringXpos, stringYpos, fontColorGrey);
-//        stringYpos += 12;
-//        pScr.drawString(pScr.fontRenderer,
-//                TextFormatting.GRAY + TextFormatting.ITALIC.toString() + "LShift increases step(x10), LAlt
-//                decreases step(x0.1).",
-//                stringXpos, stringYpos, fontColorGrey);
         this.drawScreenAfter(mouseX, mouseY, partialTicks);
     }
 
