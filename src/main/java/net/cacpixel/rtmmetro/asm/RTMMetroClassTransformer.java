@@ -9,9 +9,9 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
-public class ClassTransformerRtm implements IClassTransformer
+public class RTMMetroClassTransformer implements IClassTransformer
 {
-    private final Logger logger = LogManager.getLogger("ClassTransformerRtm");
+    private final Logger logger = LogManager.getLogger("RTMMetroClassTransformer");
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass)

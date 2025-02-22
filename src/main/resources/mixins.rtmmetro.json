@@ -9,7 +9,6 @@
   "mixins": [
     "MixinCollisionHelper",
     "MixinItemWithModel",
-    "MixinPlayerControllerMP",
     "MixinTileEntityLargeRailCore"
   ],
   "client": [

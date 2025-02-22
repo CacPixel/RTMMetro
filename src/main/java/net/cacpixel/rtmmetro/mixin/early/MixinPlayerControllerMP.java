@@ -1,4 +1,4 @@
-package net.cacpixel.rtmmetro.mixin;
+package net.cacpixel.rtmmetro.mixin.early;
 
 import net.cacpixel.rtmmetro.util.BlockUtils;
 import net.minecraft.client.Minecraft;

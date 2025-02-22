@@ -20,8 +20,10 @@ apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
 mixin {
-    add sourceSets.main, "mixins." + property("modId").toString() + ".refmap.json"
-    config 'mixins.' + property("modId").toString() + ".json"
+    add sourceSets.main, "mixins.rtmmetro.refmap.json"
+    config "mixins.rtmmetro.json"
+    add sourceSets.main, "mixins.rtmmetro_early.refmap.json"
+    config "mixins.rtmmetro_early.json"
     debug.verbose = true
     debug.export = true
 }
@@ -95,7 +97,7 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
-            jvmArgs '-Dfml.coreMods.load=net.cacpixel.rtmmetro.asm.RtmAsmPlugin'
+            jvmArgs '-Dfml.coreMods.load=net.cacpixel.rtmmetro.asm.RTMMetroCoreMod'
         }
 
         server {
@@ -241,7 +243,7 @@ jar {
                 "Implementation-Version"     : "${project.version}",
                 "Implementation-Vendor"      : "cacpixel",
                 "Implementation-Timestamp"   : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                'FMLCorePlugin'              : "net.cacpixel.rtmmetro.asm.RtmAsmPlugin", //-Dfml.coreMods.load=net.cacpixel.rtmmetro.asm.RtmAsmPlugin
+                'FMLCorePlugin'              : "net.cacpixel.rtmmetro.asm.RTMMetroCoreMod", //-Dfml.coreMods.load=net.cacpixel.rtmmetro.asm.RTMMetroCoreMod
                 'FMLCorePluginContainsFMLMod': true,
                 'FMLAT'                      : "rtmmetro_at.cfg"
         ])
