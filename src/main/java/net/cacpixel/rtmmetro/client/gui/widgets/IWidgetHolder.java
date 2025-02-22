@@ -27,19 +27,30 @@ public interface IWidgetHolder
         return this;
     }
 
+    static IntSupplier toSupplier(int x)
+    {
+        return () -> x;
+    }
+
+    default <T extends GuiWidget> T addWidget(Class<T> clazz, int id, IntSupplier x, IntSupplier y,
+                                              IntSupplier width, IntSupplier height, Object... args)
+    {
+        return this.addWidget(clazz, id, (Object) x, (Object) y, (Object) width, (Object) height, args);
+    }
+
     @SuppressWarnings("unchecked")
-    default <T extends GuiWidget> T add(Class<T> clazz, int id, IntSupplier x, IntSupplier y,
-                                        IntSupplier width, IntSupplier height, Object... args)
+    default <T extends GuiWidget> T addWidget(Class<T> clazz, int id, Object x, Object y,
+                                              Object width, Object height, Object... args)
     {
         try
         {
             List<Object> params = new ArrayList<>();
             params.add(this);
             params.add(id);
-            params.add(x);
-            params.add(y);
-            params.add(width);
-            params.add(height);
+            params.add(x instanceof IntSupplier ? x : toSupplier((int) x));
+            params.add(y instanceof IntSupplier ? y : toSupplier((int) y));
+            params.add(width instanceof IntSupplier ? width : toSupplier((int) width));
+            params.add(height instanceof IntSupplier ? height : toSupplier((int) height));
             params.addAll(Arrays.asList(args));
             Constructor<?> ctor = Arrays.stream(clazz.getConstructors()).filter(constructor -> {
                 Class<?>[] constructorParamTypes = constructor.getParameterTypes();
@@ -59,10 +70,7 @@ public interface IWidgetHolder
                 return false;
             }).findFirst().orElseThrow(() -> new RTMMetroException("No constructor paired in this class with parameter type: " +
                     Arrays.toString(params.stream().map(Object::getClass).toArray())));
-            List<Object> list = new ArrayList<>();
-            list.addAll(Stream.of(this, id, x, y, width, height).collect(Collectors.toList()));
-            list.addAll(Arrays.asList(args));
-            T widget = (T) ctor.newInstance(list.toArray());
+            T widget = (T) ctor.newInstance(params.toArray());
             this.add(widget);
             return widget;
         }
