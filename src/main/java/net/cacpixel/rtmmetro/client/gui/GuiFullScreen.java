@@ -2,9 +2,6 @@ package net.cacpixel.rtmmetro.client.gui;
 
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiButtonAdvanced;
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiLabelAdvanced;
-import net.cacpixel.rtmmetro.client.gui.widgets.GuiUnicodeGlyphButtonAdvanced;
-import net.cacpixel.rtmmetro.client.gui.widgets.GuiWidget;
-import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 
@@ -20,11 +17,27 @@ public abstract class GuiFullScreen extends GuiScreenAdvanced
     {
         super.initGui();
         buttonClose = this.addWidget(GuiButtonAdvanced.class, this.getNextWidgetId(),
-                        () -> this.width - 23, () -> 5, () -> 18, () -> 18)
-                .setDisplayString("x").setListener(this::closeButtonCallback);
+                        () -> 5, () -> 5, () -> 20, () -> 20)
+                .setDisplayString(this.parentScreen == null ? "x" : "<").setListener(this::closeButtonCallback);
         labelTitle = this.addWidget(GuiLabelAdvanced.class, this.getNextWidgetId(),
                 (IntSupplier) () -> 0, 6,
                 (IntSupplier) () -> this.width, 20, 0xE0E0E0).setCentered();
+    }
+
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    {
+        CacGuiUtils.drawRect(0, 0, this.width, 30, 0x101010 | this.getAlphaInt(0xA0));
+        CacGuiUtils.drawRect(0, this.height - 40, this.width,
+                this.height - (int) this.translationY + 1, 0x101010 | this.getAlphaInt(0xA0));
+        super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+    @Override
+    public void drawScreenBefore(int mouseX, int mouseY, float partialTicks)
+    {
+        CacGuiUtils.drawRect(0, 0, width, height, 0x101010 | this.getAlphaInt(0x80));
+        super.drawScreenBefore(mouseX, mouseY, partialTicks);
     }
 
     @Override

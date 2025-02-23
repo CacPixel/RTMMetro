@@ -20,9 +20,6 @@ import net.cacpixel.rtmmetro.rail.util.AnchorEditStatus;
 import net.cacpixel.rtmmetro.rail.util.RailDrawingScheme;
 import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
 import net.cacpixel.rtmmetro.util.BlockUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.toasts.GuiToast;
-import net.minecraft.client.gui.toasts.SystemToast;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -124,15 +121,11 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                         TextFormatting.YELLOW + "(%d, %d, %d)",
                 this.marker.getName(), this.marker.getX(), this.marker.getY(), this.marker.getZ()));
         this.mainScroll = new Scroll(this, this.getNextWidgetId(),
-                () -> Math.max(0, this.getHalfWidth() - 210),
+                () -> 0,
                 () -> 30,
-                () -> Math.min(this.width, 420),
-                () -> this.height - 40 - 30);
+                () -> this.width,
+                () -> Math.max(1 , this.height - 40 - 30));
         this.add(mainScroll);
-
-        //test button (reflect call constructor)
-//        this.mainScroll.add(GuiUnicodeGlyphButtonAdvanced.class, this.getNextWidgetId(), () -> 0, () -> 0, () -> 100, () -> 20,
-//                "233", GuiUtils.UNDO_CHAR, 2.0F);
 
         //groupId
         this.fieldGroup = WidgetFactory.addTextField(mainScroll, fieldX, fieldY, fieldW, fieldH,
@@ -402,7 +395,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         });
         fieldY += lineHeight + 2;
         //ok
-        this.buttonOK = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 80 + 90, () -> this.height - 30,
+        this.buttonOK = WidgetFactory.addButton(this, () -> this.width - 160 - 10, () -> this.height - 30,
                 () -> 160, () -> 20,
                 I18n.format("gui.done")).setListener((w) -> {
             this.updateValueFromWidgets();
@@ -411,12 +404,6 @@ public class GuiMarkerAdvanced extends GuiFullScreen
             GuiToastAdvanced.INSTANCE.add(new CacToast(new TextComponentString("Success"),
                     new TextComponentString("Parameters saved.")));
         });
-
-        //cancel
-        this.buttonCancel = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 80 - 90, () -> this.height - 30,
-                        () -> 160, () -> 20,
-                        I18n.format("gui.cancel"))
-                .setListener(this::closeButtonCallback);
         this.controlEnable();
     }
 
@@ -521,7 +508,6 @@ public class GuiMarkerAdvanced extends GuiFullScreen
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
-        this.drawDefaultBackground();
         this.drawScreenBefore(mouseX, mouseY, partialTicks);
         super.drawScreen(mouseX, mouseY, partialTicks);
         this.drawScreenAfter(mouseX, mouseY, partialTicks);
@@ -714,7 +700,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                     RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor() | pScr.getAlphaInt(0xFF));
             stringYpos += 24;
 //        pScr.drawHorizontalLine(10, 400, stringYpos - 4, 0x333333 | pScr.getAlphaInt(0xFF));
-            CacGuiUtils.drawRect(10, stringYpos - 4, 400, stringYpos - 4 + 1, 0x333333 | pScr.getAlphaInt(0xFF));
+            CacGuiUtils.drawRect(10, stringYpos - 4, 400, stringYpos - 4 + 1, 0x555555 | pScr.getAlphaInt(0xFF));
             stringYpos += 10;
             //horizontal edit status
             pScr.drawString(pScr.fontRenderer, "Edit Status of Horizontal:", stringXpos, stringYpos, fontColor);

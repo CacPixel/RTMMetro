@@ -12,7 +12,6 @@ import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public interface IWidgetHolder
 {
@@ -163,8 +162,11 @@ public interface IWidgetHolder
     {
         GuiWidget w = this.getActionQueue().poll();
         if (w == null) return;
-        this.onWidgetAction(w);
-        while (this.getActionQueue().poll() != null) ;
+        do
+        {
+            this.onWidgetAction(w);
+        }
+        while ((w = this.getActionQueue().poll()) != null);
     }
 
     Queue<GuiWidget> getActionQueue();

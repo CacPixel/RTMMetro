@@ -73,7 +73,7 @@ public class GuiScroll extends GuiWidgetBundle
         // right
         CacGuiUtils.drawRect(getEndX(), y, getEndX() + 1, getEndY(),
                 0x303030 | this.pScr.getAlphaInt(0x80));
-        CacGuiUtils.drawRect(x, y, getEndX(), getEndY(), 0x101010 | this.pScr.getAlphaInt(0x80));
+//        CacGuiUtils.drawRect(x, y, getEndX(), getEndY(), 0x101010 | this.pScr.getAlphaInt(0x60));
         GlStateManager.pushMatrix();
         if (!this.isPositionIndependent())
             GlStateManager.translate(x, y, 0);

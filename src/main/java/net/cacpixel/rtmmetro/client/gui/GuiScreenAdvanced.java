@@ -216,16 +216,21 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         this.mc.getTextureManager().bindTexture(OPTIONS_BACKGROUND);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        int alpha = this.getAlphaHighBits(0xFF);
         float f = 32.0F;
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-        bufferbuilder.pos(0.0D, this.height, 0.0D).tex(0.0D, (float) this.height / 32.0F + (float) tint)
-                .color(64, 64, 64, 255).endVertex();
-        bufferbuilder.pos(this.width, this.height, 0.0D)
-                .tex((float) this.width / 32.0F, (float) this.height / 32.0F + (float) tint).color(64, 64, 64, 255)
-                .endVertex();
-        bufferbuilder.pos(this.width, 0.0D, 0.0D).tex((float) this.width / 32.0F, tint).color(64, 64, 64, 255)
-                .endVertex();
-        bufferbuilder.pos(0.0D, 0.0D, 0.0D).tex(0.0D, tint).color(64, 64, 64, 255).endVertex();
+        bufferbuilder.pos(left, bottom, 0.0D)
+                .tex(0, (float) (bottom - top) / f + (float) tint)
+                .color(64, 64, 64, alpha).endVertex();
+        bufferbuilder.pos(right, bottom, 0.0D)
+                .tex((float) (right - left) / f, (float) (bottom - top) / f + (float) tint)
+                .color(64, 64, 64, alpha).endVertex();
+        bufferbuilder.pos(right, top, 0.0D)
+                .tex((float) (right - left) / f, tint)
+                .color(64, 64, 64, alpha).endVertex();
+        bufferbuilder.pos(left, top, 0.0D)
+                .tex(0, tint)
+                .color(64, 64, 64, alpha).endVertex();
         tessellator.draw();
     }
 
