@@ -74,15 +74,15 @@ public class GuiScroll extends GuiWidgetBundle
         CacGuiUtils.drawRect(getEndX(), y, getEndX() + 1, getEndY(),
                 0x303030 | this.pScr.getAlphaInt(0x80));
 //        CacGuiUtils.drawRect(x, y, getEndX(), getEndY(), 0x101010 | this.pScr.getAlphaInt(0x60));
-        GlStateManager.pushMatrix();
+        this.pScr.glPushMatrix();
         if (!this.isPositionIndependent())
             GlStateManager.translate(x, y, 0);
         this.xButton.draw(mouseX, mouseY, partialTicks);
         this.yButton.draw(mouseX, mouseY, partialTicks);
         this.processButtonDrag(mouseX, mouseY, partialTicks);
         this.updateButton();
-        GlStateManager.popMatrix();
-        GlStateManager.pushMatrix();
+        this.pScr.glPopMatrix();
+        this.pScr.glPushMatrix();
         this.updateAnimation(partialTicks);
     }
 
@@ -199,7 +199,7 @@ public class GuiScroll extends GuiWidgetBundle
     public void drawAfter(int mouseX, int mouseY, float partialTicks)
     {
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
-        GlStateManager.popMatrix();
+        this.pScr.glPopMatrix();
     }
 
     @Override

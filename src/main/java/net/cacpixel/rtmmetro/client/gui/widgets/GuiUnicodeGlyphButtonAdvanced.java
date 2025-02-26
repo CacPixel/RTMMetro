@@ -59,13 +59,13 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced
             strWidth = mc.fontRenderer.getStringWidth(buttonText);
             totalWidth = glyphWidth + strWidth;
 
-            GlStateManager.pushMatrix();
+            this.pScr.glPushMatrix();
             GlStateManager.scale(glyphScale, glyphScale, 1.0F);
             CacGuiUtils.drawCenteredString(mc.fontRenderer, glyph,
                     (int) (((this.x + (this.width / 2) - (strWidth / 2)) / glyphScale) -
                             (glyphWidth / (2 * glyphScale)) + 2),
                     (int) (((this.y + ((this.height - 8) / glyphScale) / 2) - 1) / glyphScale), color);
-            GlStateManager.popMatrix();
+            this.pScr.glPopMatrix();
 
             CacGuiUtils.drawCenteredString(mc.fontRenderer, buttonText,
                     (int) (this.x + (this.width / 2) + (glyphWidth / glyphScale)),

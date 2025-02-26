@@ -27,6 +27,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -55,6 +56,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public float scaleX = 1.0F;
     public float scaleY = 1.0F;
     public boolean initialized = false;
+    public int glStackCount = 0;
 
     public GuiScreenAdvanced()
     {
@@ -65,6 +67,18 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         duration = ModConfig.guiAnimationDuration;
         animationTime = 0;
         closeFlag = false;
+    }
+
+    public void glPushMatrix()
+    {
+        ++glStackCount;
+        GL11.glPushMatrix();
+    }
+
+    public void glPopMatrix()
+    {
+        --glStackCount;
+        GL11.glPopMatrix();
     }
 
     public GuiScreenAdvanced setDuration(float duration)
@@ -97,7 +111,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     {
         if (this.mc.currentScreen == this)
             this.handleInput();
-        GlStateManager.pushMatrix();
+        this.glPushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         this.updateAnimation(partialTicks);
@@ -135,13 +149,22 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         {
             this.draw(mouseX, mouseY, partialTicks);
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
             ModLog.showChatMessage(TextFormatting.RED +
                     I18n.format("message.error.fatal_problem_occurred", "Rendering GUI"));
             ModLog.error("Caught exception while rendering gui: " + RTMMetroUtils.getStackTrace(e));
             Minecraft.getMinecraft().displayGuiScreen(null);
             Minecraft.getMinecraft().setIngameFocus();
+        }
+        finally
+        {
+            GL11.glDisable(GL11.GL_SCISSOR_TEST);
+            while (glStackCount > 0)
+            {
+                --glStackCount;
+                GL11.glPopMatrix();
+            }
         }
     }
 
@@ -152,7 +175,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     public void drawScreenAfter(int mouseX, int mouseY, float partialTicks)
     {
-        GlStateManager.popMatrix();
+        this.glPopMatrix();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.disableBlend();
     }

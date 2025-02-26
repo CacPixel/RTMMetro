@@ -26,4 +26,4 @@ enum.RailDrawingScheme.RTM_DEFAULT=RTM默认
 enum.RailDrawingScheme.DRAW_CIRCLE=绘制圆形
 enum.RailDrawingScheme.SWITCH_RAIL_OPTIMIZED=道岔优化
 
-message.error.fatal_problem_occurred=[RTMMetro] %s时出现致命错误，请报告给mod作者。详细信息请见控制台或日志文件。
+message.error.fatal_problem_occurred=[RTMMetro] %s时出现致命错误，请报告给mod作者。 详细信息请见控制台或日志文件。
