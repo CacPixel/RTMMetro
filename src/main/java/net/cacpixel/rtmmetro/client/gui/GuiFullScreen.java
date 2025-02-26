@@ -25,19 +25,16 @@ public abstract class GuiFullScreen extends GuiScreenAdvanced
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    public void drawDefaultBackground()
     {
         CacGuiUtils.drawRect(0, 0, this.width, 30, 0x101010 | this.getAlphaInt(0xA0));
         CacGuiUtils.drawRect(0, this.height - 40, this.width,
                 this.height - (int) this.translationY + 1, 0x101010 | this.getAlphaInt(0xA0));
-        super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
-    @Override
-    public void drawScreenBefore(int mouseX, int mouseY, float partialTicks)
+    public void drawDefaultBackgroundBefore()
     {
         CacGuiUtils.drawRect(0, 0, width, height, 0x101010 | this.getAlphaInt(0x80));
-        super.drawScreenBefore(mouseX, mouseY, partialTicks);
     }
 
     @Override

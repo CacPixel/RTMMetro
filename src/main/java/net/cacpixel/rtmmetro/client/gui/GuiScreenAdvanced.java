@@ -95,6 +95,19 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     public void drawScreenBefore(int mouseX, int mouseY, float partialTicks)
     {
+        try
+        {
+            if (this.mc.currentScreen == this)
+                this.handleInput();
+        }
+        catch (IOException e)
+        {
+            ModLog.showChatMessage(TextFormatting.RED +
+                    I18n.format("message.error.fatal_problem_occurred", "Handling GUI Input"));
+            ModLog.error("Caught exception while handling input: " + RTMMetroUtils.getStackTrace(e));
+            Minecraft.getMinecraft().displayGuiScreen(null);
+            Minecraft.getMinecraft().setIngameFocus();
+        }
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -241,6 +254,10 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public void drawWorldBackground(int tint)
     {
         this.drawWorldBackground(tint, 0, 0, this.width, this.height);
+    }
+
+    public void drawDefaultBackgroundBefore()
+    {
     }
 
     @Override
