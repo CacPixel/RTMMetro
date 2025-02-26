@@ -26,4 +26,4 @@ enum.RailDrawingScheme.RTM_DEFAULT=RTM Default
 enum.RailDrawingScheme.DRAW_CIRCLE=Draw Circle
 enum.RailDrawingScheme.SWITCH_RAIL_OPTIMIZED=Switch Rail Optimized
 
-message.error.fatal_problem_occurred=[RTMMetro] A fatal problem occurred when %s. Please report to mod author. See console or log file for more information.
+message.error.fatal_problem_occurred=[RTMMetro] A fatal problem occurred while %s. Please report to mod author. See console or log file for more information.

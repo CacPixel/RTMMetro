@@ -5,6 +5,7 @@ import com.google.common.base.Predicates;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
@@ -14,6 +15,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ChatAllowedCharacters;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -690,8 +692,11 @@ public class GuiTextFieldAdvanced extends GuiWidget
     public void incValue(int scroll)
     {
         float pitch = GuiScreen.isAltKeyDown() ? 2.0F : GuiScreen.isShiftKeyDown() ? 1.0F : 1.5F;
-        this.pScr.mc.getSoundHandler()
-                .playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.BLOCK_NOTE_HAT, pitch));
+        Minecraft mc = pScr.mc;
+        PositionedSoundRecord soundRecord = new PositionedSoundRecord(SoundEvents.BLOCK_NOTE_HAT.getSoundName(),
+                SoundCategory.MASTER, 0.25f, pitch, false, 0, ISound.AttenuationType.NONE,
+                (float) mc.player.posX, (float) mc.player.posY, (float) mc.player.posZ);
+        this.pScr.mc.getSoundHandler().playSound(soundRecord);
     }
 
     public GuiTextFieldAdvanced addTips(String par1)

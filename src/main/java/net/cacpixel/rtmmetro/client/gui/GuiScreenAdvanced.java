@@ -10,6 +10,7 @@ import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.cacpixel.rtmmetro.util.ModLog;
 import net.cacpixel.rtmmetro.util.RTMMetroUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -19,6 +20,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
@@ -38,7 +40,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public boolean hasValueUpdated; // todo: move to text field (no no no move to GuiWidget instead)
     private int nextWidgetId;
     public ArrayList<GuiWidget> widgets = new ArrayList<>();
-    public PriorityQueue<GuiWidget> actionQueue = new PriorityQueue<>(Comparator.comparing(GuiWidget::getzLevel).reversed());
+    public PriorityQueue<GuiWidget> actionQueue = new PriorityQueue<>(
+            Comparator.comparing(GuiWidget::getzLevel).reversed());
     private float alpha;
     public boolean isOpening;
     public boolean isClosing;
@@ -454,8 +457,12 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         {
             field.checkValueAndSetText();
             field.setFocused(false);
-            this.mc.getSoundHandler()
-                    .playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F));
+            Minecraft mc = this.mc;
+            PositionedSoundRecord soundRecord = new PositionedSoundRecord(
+                    SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP.getSoundName(),
+                    SoundCategory.MASTER, 0.25f, 1.0F, false, 0, ISound.AttenuationType.NONE,
+                    (float) mc.player.posX, (float) mc.player.posY, (float) mc.player.posZ);
+            this.mc.getSoundHandler().playSound(soundRecord);
         }
         field = this.getNextTextField(field, true);
         if (field != null)
