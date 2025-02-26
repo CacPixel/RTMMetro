@@ -95,19 +95,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     public void drawScreenBefore(int mouseX, int mouseY, float partialTicks)
     {
-        try
-        {
-            if (this.mc.currentScreen == this)
-                this.handleInput();
-        }
-        catch (IOException e)
-        {
-            ModLog.showChatMessage(TextFormatting.RED +
-                    I18n.format("message.error.fatal_problem_occurred", "Handling GUI Input"));
-            ModLog.error("Caught exception while handling input: " + RTMMetroUtils.getStackTrace(e));
-            Minecraft.getMinecraft().displayGuiScreen(null);
-            Minecraft.getMinecraft().setIngameFocus();
-        }
+        if (this.mc.currentScreen == this)
+            this.handleInput();
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -123,11 +112,42 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         }
     }
 
+    public void handleInput()
+    {
+        try
+        {
+            super.handleInput();
+        }
+        catch (IOException e)
+        {
+            ModLog.showChatMessage(TextFormatting.RED +
+                    I18n.format("message.error.fatal_problem_occurred", "Handling GUI Input"));
+            ModLog.error("Caught exception while handling input: " + RTMMetroUtils.getStackTrace(e));
+            Minecraft.getMinecraft().displayGuiScreen(null);
+            Minecraft.getMinecraft().setIngameFocus();
+        }
+    }
+
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    public final void drawScreen(int mouseX, int mouseY, float partialTicks)
+    {
+        try
+        {
+            this.draw(mouseX, mouseY, partialTicks);
+        }
+        catch (Exception e)
+        {
+            ModLog.showChatMessage(TextFormatting.RED +
+                    I18n.format("message.error.fatal_problem_occurred", "Rendering GUI"));
+            ModLog.error("Caught exception while rendering gui: " + RTMMetroUtils.getStackTrace(e));
+            Minecraft.getMinecraft().displayGuiScreen(null);
+            Minecraft.getMinecraft().setIngameFocus();
+        }
+    }
+
+    public void draw(int mouseX, int mouseY, float partialTicks)
     {
         this.widgets.forEach(x -> x.draw(mouseX, mouseY, partialTicks));
-//        super.drawScreen(mouseX, mouseY, partialTicks);   // draw vanilla GuiButton and GuiLabel
     }
 
     public void drawScreenAfter(int mouseX, int mouseY, float partialTicks)

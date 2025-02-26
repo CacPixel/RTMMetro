@@ -72,18 +72,18 @@ public class GuiCalculateCant extends GuiScreenWindowed
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    public void draw(int mouseX, int mouseY, float partialTicks)
     {
         if (parentScreen != null)
         {
-            parentScreen.drawScreen(mouseX, mouseY, partialTicks);
+            parentScreen.draw(mouseX, mouseY, partialTicks);
         }
         this.drawScreenBefore(mouseX, mouseY, partialTicks);
         int hw = this.getHalfWidth();
         int hh = this.getHalfHeight();
         int fontColor = 0xE0E0E0 | this.getAlphaInt(0xFF);
         this.drawDefaultBackground(hw - 250, hh - 150, hw + 250, hh + 150);
-        super.drawScreen(mouseX, mouseY, partialTicks);
+        super.draw(mouseX, mouseY, partialTicks);
         addedHeight = getAddHeight(fieldSpeed.fieldValue, fieldRadius.fieldValue);
         cant = getCantValue(fieldGauge.fieldValue, addedHeight);
         cant = this.checkBoxFlip.isChecked() ? -cant : cant;

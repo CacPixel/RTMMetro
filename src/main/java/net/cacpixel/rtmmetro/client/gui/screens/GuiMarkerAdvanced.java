@@ -506,11 +506,11 @@ public class GuiMarkerAdvanced extends GuiFullScreen
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    public void draw(int mouseX, int mouseY, float partialTicks)
     {
         this.drawScreenBefore(mouseX, mouseY, partialTicks);
         this.drawDefaultBackground();
-        super.drawScreen(mouseX, mouseY, partialTicks);
+        super.draw(mouseX, mouseY, partialTicks);
         this.drawScreenAfter(mouseX, mouseY, partialTicks);
     }
 
