@@ -8,6 +8,7 @@ import net.cacpixel.rtmmetro.client.gui.widgets.GuiWidget;
 import net.cacpixel.rtmmetro.client.gui.widgets.IWidgetHolder;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.cacpixel.rtmmetro.util.ModLog;
+import net.cacpixel.rtmmetro.util.RTMMetroException;
 import net.cacpixel.rtmmetro.util.RTMMetroUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
@@ -78,6 +79,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public void glPopMatrix()
     {
         --glStackCount;
+        if (glStackCount < 0)
+            throw new RTMMetroException("glStackCount < 0, glPopMatrix too much!");
         GL11.glPopMatrix();
     }
 
@@ -162,8 +165,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             GL11.glDisable(GL11.GL_SCISSOR_TEST);
             while (glStackCount > 0)
             {
-                --glStackCount;
-                GL11.glPopMatrix();
+                this.glPopMatrix();
             }
         }
     }
