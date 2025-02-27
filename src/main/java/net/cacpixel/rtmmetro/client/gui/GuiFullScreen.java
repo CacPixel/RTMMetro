@@ -32,6 +32,7 @@ public abstract class GuiFullScreen extends GuiScreenAdvanced
                 this.height - (int) this.translationY + 1, 0x101010 | this.getAlphaInt(0xA0));
     }
 
+    @Override
     public void drawDefaultBackgroundBefore()
     {
         CacGuiUtils.drawRect(0, 0, width, height, 0x101010 | this.getAlphaInt(0x80));
@@ -52,8 +53,9 @@ public abstract class GuiFullScreen extends GuiScreenAdvanced
             progress = (float) MathHelper.clampedLerp(0.9F, 1.0F, 1 - this.getAnimationProgress(CacGuiUtils
                     .guiBezierTranslation));
         }
-        this.translationX = 0.0F;
-        this.translationY = (progress - 1.0F) * this.height;
+        // todo: 有上级页面时，0.9变为0.0，alpha不变小
+        this.translationX += (this.parentScreen == null) ? 0.0F : (1.0F - progress) * this.width;
+        this.translationY += (this.parentScreen == null) ? (progress - 1.0F) * this.height : 0.0F;
         GlStateManager.translate(translationX, translationY, 0.0F);
     }
 }

@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -39,6 +40,8 @@ import java.util.*;
 public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHolder
 {
     public GuiScreenAdvanced parentScreen;
+    public int x = 0;
+    public int y = 0;
     public boolean hasValueUpdated; // todo: move to text field (no no no move to GuiWidget instead)
     private int nextWidgetId;
     public ArrayList<GuiWidget> widgets = new ArrayList<>();
@@ -90,11 +93,9 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         return this;
     }
 
-    public void updateWidgets()
+    public void screenResize()
     {
         this.getAllWidgets().forEach(GuiWidget::updatePosAndSize);
-        if (parentScreen != null)
-            this.parentScreen.setWorldAndResolution(this.mc, this.width, this.height);
     }
 
     @Override
@@ -115,6 +116,13 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         if (this.mc.currentScreen == this)
             this.handleInput();
         this.glPushMatrix();
+        translationX = translationY = 0;
+        if (x != 0 || y != 0)
+        {
+            this.translationX += x;
+            this.translationY += y;
+//            GlStateManager.translate(x, y, 0);
+        }
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         this.updateAnimation(partialTicks);
@@ -135,7 +143,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         {
             super.handleInput();
         }
-        catch (IOException e)
+        catch (Throwable e)
         {
             ModLog.showChatMessage(TextFormatting.RED +
                     I18n.format("message.error.fatal_problem_occurred", "Handling GUI Input"));
@@ -150,7 +158,13 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     {
         try
         {
+            if (parentScreen != null)
+            {
+                parentScreen.draw(mouseX, mouseY, partialTicks);
+            }
             this.draw(mouseX, mouseY, partialTicks);
+            if (glStackCount > 0)
+                throw new RTMMetroException("glStackCount > 0, glPushMatrix too much!");
         }
         catch (Throwable e)
         {
@@ -401,6 +415,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     @Override
     protected void mouseClicked(int x, int y, int button)
     {
+        int mouseX = CacGuiUtils.getMouseX() - this.x;
+        int mouseY = CacGuiUtils.getMouseY() - this.y;
         try
         {
             if (!this.isInAnimation() && !this.closeFlag)
@@ -409,16 +425,16 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
                     switch (button)
                     {
                     case 0:
-                        w.onLeftClick(x, y);
+                        w.onLeftClick(mouseX, mouseY);
                         break;
                     case 1:
-                        w.onRightClick(x, y);
+                        w.onRightClick(mouseX, mouseY);
                         break;
                     case 2:
-                        w.onMiddleClick(x, y);
+                        w.onMiddleClick(mouseX, mouseY);
                         break;
                     default:
-                        w.onClickedOther(x, y, button);
+                        w.onClickedOther(mouseX, mouseY, button);
                         break;
                     }
                 });
@@ -456,8 +472,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
-        int x = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int y = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+        int x = CacGuiUtils.getMouseX() - this.x;
+        int y = CacGuiUtils.getMouseY() - this.y;
         int button = Mouse.getEventButton();
         int scroll = Mouse.getEventDWheel();
         if (!this.isInAnimation() && !this.closeFlag)
@@ -470,8 +486,10 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     }
 
     @Override
-    protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick)
+    protected void mouseClickMove(int x, int y, int clickedMouseButton, long timeSinceLastClick)
     {
+        int mouseX = CacGuiUtils.getMouseX() - this.x;
+        int mouseY = CacGuiUtils.getMouseY() - this.y;
         super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
         if (!this.isInAnimation() && !this.closeFlag)
         {
@@ -491,8 +509,10 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     }
 
     @Override
-    protected void mouseReleased(int mouseX, int mouseY, int state)
+    protected void mouseReleased(int x, int y, int state)
     {
+        int mouseX = CacGuiUtils.getMouseX() - this.x;
+        int mouseY = CacGuiUtils.getMouseY() - this.y;
         super.mouseReleased(mouseX, mouseY, state);
         if (!this.isInAnimation() && !this.closeFlag)
         {
@@ -548,10 +568,9 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
                 this.initGui();
                 initialized = true;
             }
-            else
-            {
-                this.updateWidgets();
-            }
+            this.screenResize();
+            if (parentScreen != null)
+                this.parentScreen.setWorldAndResolution(mc, width, height);
         }
         catch (Throwable e)
         {
@@ -700,7 +719,16 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     public boolean isMouseInside()
     {
-//        return CacGuiUtils.isMouseInside(0, 0, width, height);
-        return true;
+        return CacGuiUtils.isMouseInside(x, y, width, height);
+    }
+
+    public int shiftMouseX()
+    {
+        return x;
+    }
+
+    public int shiftMouseY()
+    {
+        return y;
     }
 }

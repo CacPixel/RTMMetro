@@ -138,9 +138,9 @@ public interface IWidgetHolder
         return ret;
     }
 
-    default int shiftMouseX() {return 0;}
+    default int shiftMouseX() {return this.getScreen().shiftMouseX();}
 
-    default int shiftMouseY() {return 0;}
+    default int shiftMouseY() {return this.getScreen().shiftMouseY();}
 
     boolean isMouseInside();
 

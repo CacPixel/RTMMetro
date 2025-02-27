@@ -1,5 +1,6 @@
 package net.cacpixel.rtmmetro.client.gui.screens;
 
+import net.cacpixel.rtmmetro.client.gui.Align;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenWindowed;
@@ -37,8 +38,8 @@ public class GuiCalculateCant extends GuiScreenWindowed
     @Override
     public void initGui()
     {
-        parentScreen.setWorldAndResolution(this.mc, this.width, this.height);
         super.initGui();
+        this.labelTitle.setText(TextFormatting.BOLD + "Calculate Rail Cant");
         int fieldWidth = 75;
         int fieldHeight = 16;
         //speed
@@ -57,8 +58,8 @@ public class GuiCalculateCant extends GuiScreenWindowed
         this.checkBoxFlip = WidgetFactory.addCheckBox(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() + 10,
                 "Flip", false);
         //ok
-        this.buttonOK = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 80 + 90,
-                () -> this.getHalfHeight() + 70, () -> 160,
+        this.buttonOK = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 40,
+                () -> this.getHalfHeight() + 70, () -> 80,
                 () -> 20, I18n.format("gui.done")).setListener((w) -> {
             if (!(Float.isNaN(cant) || Float.isInfinite(cant))) this.consumer.accept(this.cant);
             this.displayPrevScreen();
@@ -68,28 +69,24 @@ public class GuiCalculateCant extends GuiScreenWindowed
                 () -> this.getHalfHeight() + 70, () -> 160,
                 () -> 20, I18n.format("gui.cancel")).setListener((w) -> {
             this.displayPrevScreen();
-        });
+        }).setVisible(false);
     }
 
     @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
-        if (parentScreen != null)
-        {
-            parentScreen.draw(mouseX, mouseY, partialTicks);
-        }
         this.drawScreenBefore(mouseX, mouseY, partialTicks);
         int hw = this.getHalfWidth();
         int hh = this.getHalfHeight();
         int fontColor = 0xE0E0E0 | this.getAlphaInt(0xFF);
-        this.drawDefaultBackground(hw - 250, hh - 150, hw + 250, hh + 150);
+        this.drawDefaultBackground();
         super.draw(mouseX, mouseY, partialTicks);
         addedHeight = getAddHeight(fieldSpeed.fieldValue, fieldRadius.fieldValue);
         cant = getCantValue(fieldGauge.fieldValue, addedHeight);
         cant = this.checkBoxFlip.isChecked() ? -cant : cant;
         String colorPrefix = addedHeight > 0.150F ? TextFormatting.RED.toString() : TextFormatting.GREEN.toString();
-        this.drawCenteredString(this.fontRenderer, TextFormatting.BOLD + "Calculate Rail Cant", hw, hh - 80 + 4,
-                fontColor);
+//        this.drawCenteredString(this.fontRenderer, TextFormatting.BOLD + "Calculate Rail Cant", hw, hh - 80 + 4,
+//                fontColor);
         CacGuiUtils.drawRightAlignedString(this.fontRenderer, "Speed (km/h)", hw - 5, hh - 50 + 4, fontColor);
         CacGuiUtils.drawRightAlignedString(this.fontRenderer, "Curve Radius (m)", hw - 5, hh - 30 + 4, fontColor);
         CacGuiUtils.drawRightAlignedString(this.fontRenderer, "Rail Gauge (mm)", hw - 5, hh - 10 + 4, fontColor);

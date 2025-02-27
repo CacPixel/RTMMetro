@@ -1,5 +1,6 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
+import net.cacpixel.rtmmetro.client.gui.Align;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -119,10 +120,4 @@ public class GuiLabelAdvanced extends GuiWidget
         this.drawLabel(mouseX, mouseY, partialTicks);
     }
 
-    public enum Align
-    {
-        LEFT_ALIGNED,
-        CENTERED,
-        RIGHT_ALIGNED,
-    }
 }
