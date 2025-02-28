@@ -61,7 +61,6 @@ public class GuiMarkerAdvanced extends GuiFullScreen
 
     // Button
     private GuiButtonAdvanced buttonOK;
-    private GuiButtonAdvanced buttonCancel;
     private GuiButtonAdvanced buttonResetHeight;
     private GuiButtonAdvanced buttonResetLengthH;
     private GuiButtonAdvanced buttonResetAnchorYaw;

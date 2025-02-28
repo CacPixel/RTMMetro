@@ -23,7 +23,6 @@ public class GuiCalculateCant extends GuiScreenWindowed
     private GuiTextFieldAdvancedInt fieldRadius;
     private GuiTextFieldAdvancedInt fieldGauge;
     private GuiButtonAdvanced buttonOK;
-    private GuiButtonAdvanced buttonCancel;
     private GuiCheckBoxAdvanced checkBoxFlip;
     private float addedHeight;
     private float cant;
@@ -64,12 +63,6 @@ public class GuiCalculateCant extends GuiScreenWindowed
             if (!(Float.isNaN(cant) || Float.isInfinite(cant))) this.consumer.accept(this.cant);
             this.displayPrevScreen();
         });
-        //cancel
-        this.buttonCancel = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 80 - 90,
-                () -> this.getHalfHeight() + 70, () -> 160,
-                () -> 20, I18n.format("gui.cancel")).setListener((w) -> {
-            this.displayPrevScreen();
-        }).setVisible(false);
     }
 
     @Override
