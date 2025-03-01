@@ -439,8 +439,6 @@ public class GuiScroll extends GuiWidgetBundle
         int length = 0;
         int pos = 0;
         boolean xScrolling; // false: yScrolling
-        int lastClickedX;
-        int lastClickedY;
         boolean barClicked = false;
 
         public ScrollButton(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
@@ -534,14 +532,13 @@ public class GuiScroll extends GuiWidgetBundle
             if (this.isEnabled() && this.isVisible() && this.isMouseInBar())
             {
                 this.barClicked = true;
-                this.lastClickedX = mouseX;
-                this.lastClickedY = mouseY;
             }
         }
 
         @Override
         public void onMouseReleased(int mouseX, int mouseY, int state)
         {
+            super.onMouseReleased(mouseX, mouseY, state);
             if (barClicked)
             {
                 this.barClicked = false;

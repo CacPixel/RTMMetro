@@ -16,6 +16,7 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
     protected int windowHeight;
     protected Align alignX = Align.CENTERED;
     protected Align alignY = Align.CENTERED;
+    protected int lastX, lastY;
 
     @Override
     public void initGui()
@@ -34,8 +35,8 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
                         () -> 5, () -> 5, () -> 20, () -> 20)
                 .setDisplayString("x").setListener(this::closeButtonCallback);
         labelTitle = this.addWidget(GuiLabelAdvanced.class, this.getNextWidgetId(),
-                (IntSupplier) () -> 0, 6,
-                (IntSupplier) () -> this.width, 20, 0xE0E0E0).setCentered();
+                (IntSupplier) () -> 30, 6,
+                (IntSupplier) () -> this.width - 30, 20, 0xE0E0E0);
     }
 
     @Override
@@ -57,6 +58,9 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
         case RIGHT_ALIGNED:
             this.x = screenWidth - windowWidth;
             break;
+        case FREE:
+            this.x = MathHelper.clamp(lastX, 0, screenWidth - width);
+            break;
         default:
             break;
         }
@@ -71,6 +75,9 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
         case RIGHT_ALIGNED:
             this.y = screenHeight - windowHeight;
             break;
+        case FREE:
+            this.y = MathHelper.clamp(lastY, 0, screenHeight - height);
+            break;
         default:
             break;
         }
@@ -83,6 +90,23 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
         this.windowWidth = windowWidth;
         this.windowHeight = windowHeight;
         return (T) this;
+    }
+
+    @Override
+    public void draw(int mouseX, int mouseY, float partialTicks)
+    {
+        if (this.labelTitle.isDragging())
+        {
+            x = mouseX - (labelTitle.lastClickedX);
+            y = mouseY - (labelTitle.lastClickedY);
+            alignX = alignY = Align.FREE;
+        }
+        else
+        {
+            lastX = x;
+            lastY = y;
+        }
+        super.draw(mouseX, mouseY, partialTicks);
     }
 
     @Override

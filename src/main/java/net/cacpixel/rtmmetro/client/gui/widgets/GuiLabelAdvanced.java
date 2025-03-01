@@ -81,7 +81,8 @@ public class GuiLabelAdvanced extends GuiWidget
                 switch (align)
                 {
                 case LEFT_ALIGNED:
-                    CacGuiUtils.drawString(mc.fontRenderer, this.labels.get(k), this.x, j + k * 10, this.textColor | pScr.getAlphaInt(0xFF));
+                    CacGuiUtils.drawString(mc.fontRenderer, this.labels.get(k), this.x, j + k * 10,
+                            this.textColor | pScr.getAlphaInt(0xFF));
                     break;
                 case RIGHT_ALIGNED:
                     CacGuiUtils.drawRightAlignedString(mc.fontRenderer, this.labels.get(k), this.x, j + k * 10,

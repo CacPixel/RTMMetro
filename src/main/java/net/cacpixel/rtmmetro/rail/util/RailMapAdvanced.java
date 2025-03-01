@@ -3,7 +3,6 @@ package net.cacpixel.rtmmetro.rail.util;
 import jp.ngt.ngtlib.block.BlockUtil;
 import jp.ngt.ngtlib.math.NGTMath;
 import jp.ngt.ngtlib.math.Vec3;
-import jp.ngt.rtm.modelpack.cfg.RailConfig;
 import jp.ngt.rtm.modelpack.modelset.ModelSetRail;
 import jp.ngt.rtm.modelpack.state.ResourceStateRail;
 import jp.ngt.rtm.rail.BlockLargeRailBase;

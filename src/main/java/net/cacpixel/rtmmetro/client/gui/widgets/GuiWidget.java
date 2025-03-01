@@ -2,9 +2,7 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
-import org.lwjgl.input.Mouse;
 
-import java.util.function.Function;
 import java.util.function.IntSupplier;
 
 public abstract class GuiWidget
@@ -19,6 +17,9 @@ public abstract class GuiWidget
     public int id;
     private boolean enabled = true;
     private boolean visible = true;
+    private boolean dragging = false;
+    public int lastClickedX;
+    public int lastClickedY;
     private IActionListener<? extends GuiButtonAdvanced> listener;
     public IntSupplier xSupplier = this::getX;
     public IntSupplier ySupplier = this::getY;
@@ -76,6 +77,27 @@ public abstract class GuiWidget
         if (this.isEnabled() && this.isVisible() && this.isMouseInside())
         {
             this.holder.addWidgetToActionQueue(this);
+            this.dragging = true;
+            this.lastClickedX = mouseX;
+            this.lastClickedY = mouseY;
+        }
+    }
+
+    public void onClick(int mouseX, int mouseY, int button)
+    {
+        switch (button)
+        {
+        case 0:
+            this.onLeftClick(mouseX, mouseY);
+            break;
+        case 1:
+            this.onRightClick(mouseX, mouseY);
+            break;
+        case 2:
+            this.onMiddleClick(mouseX, mouseY);
+            break;
+        default:
+            break;
         }
     }
 
@@ -87,16 +109,27 @@ public abstract class GuiWidget
     {
     }
 
-    public void onClickedOther(int mouseX, int mouseY, int mouseButton)
+    public void onClickAndDrag(int mouseX, int mouseY, int mouseButton, long timeSinceLastClick)
     {
+        switch (mouseButton)
+        {
+        case 0:
+            this.onLeftClickAndDrag(mouseX, mouseY, timeSinceLastClick);
+            break;
+        case 1:
+        case 2:
+        default:
+            break;
+        }
     }
 
-    public void onLeftClickAndDrag(int mouseX, int mouseY, int mouseButton, long timeSinceLastClick)
+    public void onLeftClickAndDrag(int mouseX, int mouseY, long timeSinceLastClick)
     {
     }
 
     public void onMouseReleased(int mouseX, int mouseY, int state)
     {
+        this.dragging = false;
     }
 
     public void onScroll(int mouseX, int mouseY, int scroll)
@@ -116,11 +149,6 @@ public abstract class GuiWidget
         int dx = holder.shiftMouseX();
         int dy = holder.shiftMouseY();
         return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height) && holder.isMouseInside();
-    }
-
-    public boolean isMouseLeftDragging()
-    {
-        return this.isMouseInside() && Mouse.isButtonDown(0);
     }
 
     public abstract void draw(int mouseX, int mouseY, float partialTicks);
@@ -203,5 +231,15 @@ public abstract class GuiWidget
     public float getzLevel()
     {
         return zLevel;
+    }
+
+    public boolean isDragging()
+    {
+        return dragging;
+    }
+
+    public void setDragging(boolean dragging)
+    {
+        this.dragging = dragging;
     }
 }

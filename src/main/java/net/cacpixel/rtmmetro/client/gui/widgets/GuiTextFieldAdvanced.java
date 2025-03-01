@@ -724,9 +724,9 @@ public class GuiTextFieldAdvanced extends GuiWidget
     }
 
     @Override
-    public void onLeftClickAndDrag(int mouseX, int mouseY, int mouseButton, long timeSinceLastClick)
+    public void onLeftClickAndDrag(int mouseX, int mouseY, long timeSinceLastClick)
     {
-        // TODO: mouse drag to select on Text field
+        // TODO: mouse drag to select on Text field (may not use this method)
     }
 
     @Override

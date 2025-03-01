@@ -18,7 +18,6 @@ public class GuiButtonAdvanced extends GuiWidget
     // GuiButton Fields END
     protected static final ResourceLocation RTMMETRO_BUTTON_TEXTURES = new ResourceLocation(RTMMetro.MODID,
             "textures/gui/widgets.png");
-    private boolean clicked = false;
 
     public GuiButtonAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier)
     {
@@ -120,15 +119,5 @@ public class GuiButtonAdvanced extends GuiWidget
         {
             this.playPressSound(this.pScr.mc.getSoundHandler());
         }
-    }
-
-    public boolean isClicked()
-    {
-        return clicked;
-    }
-
-    public void setClicked(boolean clicked)
-    {
-        this.clicked = clicked;
     }
 }

@@ -20,7 +20,6 @@ import net.cacpixel.rtmmetro.rail.util.AnchorEditStatus;
 import net.cacpixel.rtmmetro.rail.util.RailDrawingScheme;
 import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
 import net.cacpixel.rtmmetro.util.BlockUtils;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -123,7 +122,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                 () -> 0,
                 () -> 30,
                 () -> this.width,
-                () -> Math.max(1 , this.height - 40 - 30));
+                () -> Math.max(1, this.height - 40 - 30));
         this.add(mainScroll);
 
         //groupId
@@ -288,7 +287,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                     guiCalculateCant = new GuiCalculateCant(this, x -> {
                         fieldCantEdge.fieldValue = (float) x;
                         fieldCantEdge.checkValueAndSetText();
-                    }).setWindowSize(250, 250);
+                    }).setWindowSize(250, 200);
                     this.mc.displayGuiScreen(guiCalculateCant);
                 });
         this.buttonCopyNeighborCantEdge = WidgetFactory.addButton(mainScroll, buttX + buttH + buttW, fieldY - 2, buttW,
@@ -325,7 +324,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                     guiCalculateCant = new GuiCalculateCant(this, x -> {
                         fieldCantCenter.fieldValue = (float) x;
                         fieldCantCenter.checkValueAndSetText();
-                    }).setWindowSize(250, 250);
+                    }).setWindowSize(250, 200);
                     this.mc.displayGuiScreen(guiCalculateCant);
                 });
         this.buttonFlipCantCenter = WidgetFactory.addButton(mainScroll, buttX - fieldW - buttH - 4, fieldY - 2, buttH,
@@ -396,7 +395,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         //ok
         this.buttonOK = WidgetFactory.addButton(this, () -> this.width - 160 - 10, () -> this.height - 30,
                 () -> 160, () -> 20,
-                I18n.format("gui.done")).setListener((w) -> {
+                "Save").setListener((w) -> {
             this.updateValueFromWidgets();
             this.sendPacket();
             this.displayPrevScreen();

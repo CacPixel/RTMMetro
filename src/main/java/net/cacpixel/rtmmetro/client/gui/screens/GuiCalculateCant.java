@@ -1,6 +1,5 @@
 package net.cacpixel.rtmmetro.client.gui.screens;
 
-import net.cacpixel.rtmmetro.client.gui.Align;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenWindowed;
@@ -8,7 +7,6 @@ import net.cacpixel.rtmmetro.client.gui.widgets.GuiButtonAdvanced;
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiCheckBoxAdvanced;
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiTextFieldAdvancedInt;
 import net.cacpixel.rtmmetro.client.gui.widgets.WidgetFactory;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -62,7 +60,7 @@ public class GuiCalculateCant extends GuiScreenWindowed
         //ok
         this.buttonOK = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 40,
                 () -> this.getHalfHeight() + 70, () -> 80,
-                () -> 20, I18n.format("gui.done")).setListener((w) -> {
+                () -> 20, "Set value").setListener((w) -> {
             if (!(Float.isNaN(cant) || Float.isInfinite(cant))) this.consumer.accept(this.cant);
             this.displayPrevScreen();
             speed = fieldSpeed.fieldValue;

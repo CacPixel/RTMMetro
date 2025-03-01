@@ -14,7 +14,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -211,10 +210,11 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         }
         catch (ConcurrentModificationException e)
         {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            ModLog.debug("Unexpected widget modification: " + sw);
+            ModLog.showChatMessage(TextFormatting.RED +
+                    I18n.format("message.error.fatal_problem_occurred", "Ticking screen"));
+            ModLog.error("Caught exception while ticking screen: " + RTMMetroUtils.getStackTrace(e));
+            Minecraft.getMinecraft().displayGuiScreen(null);
+            Minecraft.getMinecraft().setIngameFocus();
             return;
         }
         // switch screen
@@ -422,21 +422,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             if (!this.isInAnimation() && !this.closeFlag)
             {
                 this.getAllWidgets().forEach(w -> {
-                    switch (button)
-                    {
-                    case 0:
-                        w.onLeftClick(mouseX, mouseY);
-                        break;
-                    case 1:
-                        w.onRightClick(mouseX, mouseY);
-                        break;
-                    case 2:
-                        w.onMiddleClick(mouseX, mouseY);
-                        break;
-                    default:
-                        w.onClickedOther(mouseX, mouseY, button);
-                        break;
-                    }
+                    w.onClick(mouseX, mouseY, button);
                 });
             }
         }
@@ -494,16 +480,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         if (!this.isInAnimation() && !this.closeFlag)
         {
             this.getAllWidgets().forEach(w -> {
-                switch (clickedMouseButton)
-                {
-                case 0:
-                    w.onLeftClickAndDrag(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
-                    break;
-                case 1:
-                case 2:
-                default:
-                    break;
-                }
+                w.onClickAndDrag(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
             });
         }
     }
