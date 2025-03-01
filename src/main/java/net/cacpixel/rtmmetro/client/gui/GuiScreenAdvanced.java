@@ -28,11 +28,15 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.input.Cursor;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.Toolkit;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
+import java.util.Queue;
 import java.util.*;
 
 @SideOnly(Side.CLIENT)
@@ -415,6 +419,11 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     @Override
     protected void mouseClicked(int x, int y, int button)
     {
+        if (!CacGuiUtils.isMouseInside(this.x, this.y, this.width, this.height))
+        {
+            Toolkit.getDefaultToolkit().beep();
+            return;
+        }
         int mouseX = CacGuiUtils.getMouseX() - this.x;
         int mouseY = CacGuiUtils.getMouseY() - this.y;
         try
