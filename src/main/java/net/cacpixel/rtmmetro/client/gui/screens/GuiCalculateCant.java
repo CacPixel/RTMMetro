@@ -18,6 +18,9 @@ import java.util.function.DoubleConsumer;
 @SideOnly(Side.CLIENT)
 public class GuiCalculateCant extends GuiScreenWindowed
 {
+    public static int speed = 80;
+    public static int radius = 600;
+    public static int gauge = 1435;
     private final DoubleConsumer consumer;
     private GuiTextFieldAdvancedInt fieldSpeed;
     private GuiTextFieldAdvancedInt fieldRadius;
@@ -44,15 +47,15 @@ public class GuiCalculateCant extends GuiScreenWindowed
         //speed
         this.fieldSpeed = WidgetFactory.addTextField(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() - 50,
                 () -> fieldWidth,
-                () -> fieldHeight, 80, 10, 1000, false);
+                () -> fieldHeight, speed, 10, 1000, false);
         //radius
         this.fieldRadius = WidgetFactory.addTextField(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() - 30,
                 () -> fieldWidth,
-                () -> fieldHeight, 500, 10, 10000, false);
+                () -> fieldHeight, radius, 10, 10000, false);
         //gauge
         this.fieldGauge = WidgetFactory.addTextField(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() - 10,
                 () -> fieldWidth,
-                () -> fieldHeight, 1435, 500, 3000, false);
+                () -> fieldHeight, gauge, 500, 3000, false);
         //reversed
         this.checkBoxFlip = WidgetFactory.addCheckBox(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() + 10,
                 "Flip", false);
@@ -62,6 +65,9 @@ public class GuiCalculateCant extends GuiScreenWindowed
                 () -> 20, I18n.format("gui.done")).setListener((w) -> {
             if (!(Float.isNaN(cant) || Float.isInfinite(cant))) this.consumer.accept(this.cant);
             this.displayPrevScreen();
+            speed = fieldSpeed.fieldValue;
+            radius = fieldRadius.fieldValue;
+            gauge = fieldGauge.fieldValue;
         });
     }
 
