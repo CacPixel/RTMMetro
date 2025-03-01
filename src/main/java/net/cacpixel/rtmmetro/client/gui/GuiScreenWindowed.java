@@ -6,6 +6,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 
+import java.awt.*;
 import java.util.function.IntSupplier;
 
 public abstract class GuiScreenWindowed extends GuiScreenAdvanced
@@ -17,6 +18,7 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
     protected Align alignX = Align.CENTERED;
     protected Align alignY = Align.CENTERED;
     protected int lastX, lastY;
+    private float blinkCounter = 0;
 
     @Override
     public void initGui()
@@ -106,6 +108,19 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
             lastX = x;
             lastY = y;
         }
+        if (blinkCounter > 0)
+        {
+            if ((int) (blinkCounter / 2) % 2 > 0)
+            {
+                CacGuiUtils.drawHorizontalLine(0, width, 0, 0xFFFFFF | this.getAlphaInt(0xFF));
+                CacGuiUtils.drawHorizontalLine(0, width, height, 0xFFFFFF | this.getAlphaInt(0xFF));
+                CacGuiUtils.drawVerticalLine(0, 0, height, 0xFFFFFF | this.getAlphaInt(0xFF));
+                CacGuiUtils.drawVerticalLine(width, 0, height, 0xFFFFFF | this.getAlphaInt(0xFF));
+            }
+            blinkCounter -= partialTicks;
+        }
+        if (blinkCounter < 0)
+            blinkCounter = 0;
         super.draw(mouseX, mouseY, partialTicks);
     }
 
@@ -116,6 +131,17 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
         int hh = this.getHalfHeight();
         // todo : 计算出 需要偏移的真实位置。cant那边控件位置 也需要修改逻辑，看看是怎么改更加好
         super.drawDefaultBackground();
+    }
+
+    @Override
+    protected void mouseClicked(int x, int y, int button)
+    {
+        super.mouseClicked(x, y, button);
+        if (!CacGuiUtils.isMouseInside(this.x, this.y, this.width, this.height))
+        {
+            blinkCounter = 20;
+            Toolkit.getDefaultToolkit().beep();
+        }
     }
 
     @Override
