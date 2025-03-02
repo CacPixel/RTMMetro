@@ -33,8 +33,6 @@ import org.lwjgl.opengl.GL11;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.List;
-import java.util.Queue;
 import java.util.*;
 
 @SideOnly(Side.CLIENT)

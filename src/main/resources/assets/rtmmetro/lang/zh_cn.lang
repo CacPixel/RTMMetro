@@ -19,11 +19,45 @@ usage.item.rail_advanced_1=右键空气以打开高级铁轨设置界面。
 usage.item.rail_advanced_2=使用标记或右键地面放置。
 
 enum.AnchorEditStatus.FOLLOW_NEIGHBOR=跟随相邻轨道参数
-enum.AnchorEditStatus.LENGTH_FIXED=固定长度
-enum.AnchorEditStatus.ANGLE_FIXED=固定角度
+enum.AnchorEditStatus.LENGTH_FIXED=锁定长度
+enum.AnchorEditStatus.ANGLE_FIXED=锁定角度
 enum.AnchorEditStatus.FREE_MODE=自由模式
 enum.RailDrawingScheme.RTM_DEFAULT=RTM默认
 enum.RailDrawingScheme.DRAW_CIRCLE=绘制圆形
 enum.RailDrawingScheme.SWITCH_RAIL_OPTIMIZED=道岔优化
 
 message.error.fatal_problem_occurred=[RTMMetro] %s时出现致命错误，请报告给mod作者。 详细信息请见控制台或日志文件。
+
+gui.save=保存
+gui.set_value=设置值
+
+gui.calculate_cant.title=计算外轨超高
+gui.calculate_cant.flip_button=反向
+gui.calculate_cant.speed=最大速度 (km/h)
+gui.calculate_cant.radius=曲线半径 (m)
+gui.calculate_cant.gauge=轨距 (mm)
+gui.calculate_cant.cant_value_bad=超高值过大。
+gui.calculate_cant.cant_value_is=超高值: %s
+gui.calculate_cant.outer_rail_will_raise=外侧轨道将抬升 %s mm.
+
+gui.marker.title=编辑铁轨标记
+gui.marker.straight_line=设为直线
+gui.marker.equ_neighbor==相邻标记值
+gui.marker.calculate=计算
+gui.marker.magic_number=魔法数
+gui.marker.redraw=重新画圆
+gui.marker.toast.success=成功！
+gui.marker.toast.parameter_saved=参数已保存
+gui.marker.marker_group=标记组
+gui.marker.marker_name=标记名称
+gui.marker.rail_height=轨道高度
+gui.marker.horizontal_length=水平方向长度（绿线）
+gui.marker.anchor_yaw=偏航（Yaw）
+gui.marker.vertical_length=垂直方向长度（橙线）
+gui.marker.anchor_pitch=俯仰（Pitch）
+gui.marker.cant_edge=边缘处超高
+gui.marker.cant_center=中心处超高
+gui.marker.cant_random=随机超高（抖动）
+gui.marker.edit_status_h=水平方向锁定状态（绿线）
+gui.marker.edit_status_v=垂直方向锁定状态（橙线）
+gui.marker.rail_drawing_scheme=轨道绘制方案

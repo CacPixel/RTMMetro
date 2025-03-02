@@ -19,11 +19,45 @@ usage.item.rail_advanced_1=Right-click the air to open the settings menu.
 usage.item.rail_advanced_2=Use markers or right-click the floor to place rail.
 
 enum.AnchorEditStatus.FOLLOW_NEIGHBOR=Follow Neighbor Rail
-enum.AnchorEditStatus.LENGTH_FIXED=Fixed Length
-enum.AnchorEditStatus.ANGLE_FIXED=Fixed Angle
+enum.AnchorEditStatus.LENGTH_FIXED=Length Locked
+enum.AnchorEditStatus.ANGLE_FIXED=Angle Locked
 enum.AnchorEditStatus.FREE_MODE=Free Mode
 enum.RailDrawingScheme.RTM_DEFAULT=RTM Default
 enum.RailDrawingScheme.DRAW_CIRCLE=Draw Circle
 enum.RailDrawingScheme.SWITCH_RAIL_OPTIMIZED=Switch Rail Optimized
 
 message.error.fatal_problem_occurred=[RTMMetro] A fatal problem occurred while %s. Please report to mod author. See console or log file for more information.
+
+gui.save=Save
+gui.set_value=Set value
+
+gui.calculate_cant.title=Calculate Rail Cant
+gui.calculate_cant.flip_button=Flip
+gui.calculate_cant.speed=Speed (km/h)
+gui.calculate_cant.radius=Curve Radius (m)
+gui.calculate_cant.gauge=Rail Gauge (mm)
+gui.calculate_cant.cant_value_bad=Cant Value is too big.
+gui.calculate_cant.cant_value_is=Cant Value: %s
+gui.calculate_cant.outer_rail_will_raise=Outer rail will raise %s mm.
+
+gui.marker.title=Editing rail marker
+gui.marker.straight_line=Straight Line
+gui.marker.equ_neighbor==Neighbor
+gui.marker.calculate=Calculate
+gui.marker.magic_number=Magic Number
+gui.marker.redraw=Redraw
+gui.marker.toast.success=Success!
+gui.marker.toast.parameter_saved=Parameters saved
+gui.marker.marker_group=Marker Group
+gui.marker.marker_name=Marker Name
+gui.marker.rail_height=Rail Height
+gui.marker.horizontal_length=Horizontal Length
+gui.marker.anchor_yaw=Anchor Yaw
+gui.marker.vertical_length=Vertical Length
+gui.marker.anchor_pitch=Anchor Pitch
+gui.marker.cant_edge=Cant Edge
+gui.marker.cant_center=Cant Center
+gui.marker.cant_random=Cant Random
+gui.marker.edit_status_h=Lock status of Horizontal
+gui.marker.edit_status_v=Lock status of Vertical
+gui.marker.rail_drawing_scheme=Rail Drawing Scheme

@@ -7,6 +7,7 @@ import net.cacpixel.rtmmetro.client.gui.widgets.GuiButtonAdvanced;
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiCheckBoxAdvanced;
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiTextFieldAdvancedInt;
 import net.cacpixel.rtmmetro.client.gui.widgets.WidgetFactory;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -39,7 +40,7 @@ public class GuiCalculateCant extends GuiScreenWindowed
     public void initGui()
     {
         super.initGui();
-        this.labelTitle.setText(TextFormatting.BOLD + "Calculate Rail Cant");
+        this.labelTitle.setText(TextFormatting.BOLD + I18n.format("gui.calculate_cant.title"));
         int fieldWidth = 75;
         int fieldHeight = 16;
         //speed
@@ -56,11 +57,11 @@ public class GuiCalculateCant extends GuiScreenWindowed
                 () -> fieldHeight, gauge, 500, 3000, false);
         //reversed
         this.checkBoxFlip = WidgetFactory.addCheckBox(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() + 10,
-                "Flip", false);
+                I18n.format("gui.calculate_cant.flip_button"), false);
         //ok
         this.buttonOK = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 40,
                 () -> this.getHalfHeight() + 70, () -> 80,
-                () -> 20, "Set value").setListener((w) -> {
+                () -> 20, I18n.format("gui.set_value")).setListener((w) -> {
             if (!(Float.isNaN(cant) || Float.isInfinite(cant))) this.consumer.accept(this.cant);
             this.displayPrevScreen();
             speed = fieldSpeed.fieldValue;
@@ -84,27 +85,27 @@ public class GuiCalculateCant extends GuiScreenWindowed
         String colorPrefix = addedHeight > 0.150F ? TextFormatting.RED.toString() : TextFormatting.GREEN.toString();
 //        this.drawCenteredString(this.fontRenderer, TextFormatting.BOLD + "Calculate Rail Cant", hw, hh - 80 + 4,
 //                fontColor);
-        CacGuiUtils.drawRightAlignedString(this.fontRenderer, "Speed (km/h)", hw - 5, hh - 50 + 4, fontColor);
-        CacGuiUtils.drawRightAlignedString(this.fontRenderer, "Curve Radius (m)", hw - 5, hh - 30 + 4, fontColor);
-        CacGuiUtils.drawRightAlignedString(this.fontRenderer, "Rail Gauge (mm)", hw - 5, hh - 10 + 4, fontColor);
+        CacGuiUtils.drawRightAlignedString(this.fontRenderer, I18n.format("gui.calculate_cant.speed"), hw - 5, hh - 50 + 4, fontColor);
+        CacGuiUtils.drawRightAlignedString(this.fontRenderer, I18n.format("gui.calculate_cant.radius"), hw - 5, hh - 30 + 4, fontColor);
+        CacGuiUtils.drawRightAlignedString(this.fontRenderer, I18n.format("gui.calculate_cant.gauge"), hw - 5, hh - 10 + 4, fontColor);
         if (Float.isNaN(cant) || Float.isInfinite(cant))
         {
             this.buttonOK.setEnabled(false);
-            this.drawCenteredString(this.fontRenderer, TextFormatting.RED + "Cant Value is bad.", hw, hh + 30,
+            this.drawCenteredString(this.fontRenderer, TextFormatting.RED + I18n.format("gui.calculate_cant.cant_value_bad"), hw, hh + 30,
                     fontColor);
         }
         else
         {
             this.buttonOK.setEnabled(true);
             this.drawCenteredString(this.fontRenderer,
-                    TextFormatting.RESET + "Cant Value: " + colorPrefix + TextFormatting.UNDERLINE +
-                            String.format("%.3f", cant), hw,
+                    TextFormatting.RESET + I18n.format("gui.calculate_cant.cant_value_is", colorPrefix + TextFormatting.UNDERLINE +
+                            String.format("%.3f", cant)), hw,
                     hh + 30, fontColor);
         }
         this.drawCenteredString(this.fontRenderer,
-                "Outer rail will raise " + colorPrefix + TextFormatting.UNDERLINE +
+                I18n.format("gui.calculate_cant.outer_rail_will_raise", colorPrefix + TextFormatting.UNDERLINE +
                         String.format("%.1f", addedHeight * 1000.0F) +
-                        TextFormatting.RESET + "mm.", hw, hh + 45, fontColor);
+                        TextFormatting.RESET), hw, hh + 45, fontColor);
         this.drawScreenAfter(mouseX, mouseY, partialTicks);
     }
 
