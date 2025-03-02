@@ -15,5 +15,6 @@ public class ModConfig
     public static double railSplitThresholdStraight = 0.02;
     public static int railSplitMinimumLength = 10;
     public static float guiAnimationDuration = 0.25F;
+    public static String guiTheme = "default";
 
 }

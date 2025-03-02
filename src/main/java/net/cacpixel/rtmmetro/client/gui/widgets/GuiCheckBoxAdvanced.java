@@ -48,7 +48,7 @@ public class GuiCheckBoxAdvanced extends GuiButtonAdvanced
             }
             color |= pScr.getAlphaInt(0xFF);
 
-            mc.getTextureManager().bindTexture(RTMMETRO_BUTTON_TEXTURES);
+            mc.getTextureManager().bindTexture(getButtonTexture());
             float red = (float) (color >> 16 & 255) / 255.0F;
             float blue = (float) (color >> 8 & 255) / 255.0F;
             float green = (float) (color & 255) / 255.0F;

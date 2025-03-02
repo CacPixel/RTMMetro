@@ -2,6 +2,7 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
+import net.cacpixel.rtmmetro.client.gui.GuiTheme;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -16,8 +17,6 @@ public class GuiButtonAdvanced extends GuiWidget
     public String displayString = "";
     protected boolean hovered;
     // GuiButton Fields END
-    protected static final ResourceLocation RTMMETRO_BUTTON_TEXTURES = new ResourceLocation(RTMMetro.MODID,
-            "textures/gui/widgets.png");
 
     public GuiButtonAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier)
     {
@@ -28,6 +27,11 @@ public class GuiButtonAdvanced extends GuiWidget
                              IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
         super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+    }
+
+    public static ResourceLocation getButtonTexture()
+    {
+        return GuiTheme.getCurrentResourceLocation("widgets");
     }
 
     protected int getHoverState(boolean mouseOver)
@@ -56,7 +60,7 @@ public class GuiButtonAdvanced extends GuiWidget
                 this.hovered = false;
             }
             int k = this.getHoverState(this.hovered);
-            CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46 + k * 20, this.width,
+            CacGuiUtils.drawContinuousTexturedBox(getButtonTexture(), this.x, this.y, 0, 46 + k * 20, this.width,
                     this.height, 200,
                     20, 2, 3, 2, 2, this.zLevel, pScr);
             int color = 0xE0E0E0;

@@ -464,9 +464,9 @@ public class GuiScroll extends GuiWidgetBundle
                 {
                     this.hovered = false;
                 }
-                int k = this.getHoverState(this.hovered);
+                int k = this.getHoverState(false);
                 // disabled texture
-                CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46, this.width,
+                CacGuiUtils.drawContinuousTexturedBox(getButtonTexture(), this.x, this.y, 0, 46, this.width,
                         this.height, 200,
                         20, 2, 3, 2, 2, this.zLevel, pScr);
                 // enabled texture
@@ -474,7 +474,7 @@ public class GuiScroll extends GuiWidgetBundle
                 int y = xScrolling ? this.y : pos;
                 int w = xScrolling ? length : this.width;
                 int h = xScrolling ? this.height : length;
-                CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, x, y, 0, 46 + k * 20,
+                CacGuiUtils.drawContinuousTexturedBox(getButtonTexture(), x, y, 0, 46 + k * 20,
                         w, h, 200,
                         20, 2, 3, 2, 2, this.zLevel, pScr);
                 int color = 0xE0E0E0;

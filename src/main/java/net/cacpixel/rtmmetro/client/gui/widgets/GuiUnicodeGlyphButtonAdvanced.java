@@ -32,7 +32,7 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced
                 this.hovered = false;
             }
             int k = this.getHoverState(this.hovered);
-            CacGuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46 + k * 20, this.width,
+            CacGuiUtils.drawContinuousTexturedBox(getButtonTexture(), this.x, this.y, 0, 46 + k * 20, this.width,
                     this.height, 200,
                     20,
                     2, 3, 2, 2, this.zLevel, pScr);
