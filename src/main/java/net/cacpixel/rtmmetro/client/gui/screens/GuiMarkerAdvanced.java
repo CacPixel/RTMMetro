@@ -97,12 +97,6 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         this.parentScreen = null;
     }
 
-    public GuiMarkerAdvanced(GuiScreenAdvanced parentScreen, TileEntityMarkerAdvanced marker)
-    {
-        this(marker);
-        this.parentScreen = parentScreen;
-    }
-
     @Override
     public void initGui()
     {
@@ -285,11 +279,12 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         this.buttonCalcCantEdge = WidgetFactory.addButton(mainScroll, buttX + buttH, fieldY - 2, buttW, buttH,
                         I18n.format("gui.marker.calculate"))
                 .setListener((w) -> {
-                    guiCalculateCant = new GuiCalculateCant(this, x -> {
+                    guiCalculateCant = new GuiCalculateCant(x -> {
                         fieldCantEdge.fieldValue = (float) x;
                         fieldCantEdge.checkValueAndSetText();
-                    }).setWindowSize(250, 200);
-                    this.mc.displayGuiScreen(guiCalculateCant);
+                    }).setWindowSize(250, 200).setParent(this);
+//                    this.mc.displayGuiScreen(guiCalculateCant);
+                    this.mc.displayGuiScreen(new GuiMarkerAdvanced(this.marker).setParent(this));
                 });
         this.buttonCopyNeighborCantEdge = WidgetFactory.addButton(mainScroll, buttX + buttH + buttW, fieldY - 2, buttW,
                         buttH, I18n.format("gui.marker.equ_neighbor"))
@@ -322,10 +317,10 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         this.buttonCalcCantCenter = WidgetFactory.addButton(mainScroll, buttX + buttH, fieldY - 2, buttW, buttH,
                         I18n.format("gui.marker.calculate"))
                 .setListener((w) -> {
-                    guiCalculateCant = new GuiCalculateCant(this, x -> {
+                    guiCalculateCant = new GuiCalculateCant(x -> {
                         fieldCantCenter.fieldValue = (float) x;
                         fieldCantCenter.checkValueAndSetText();
-                    }).setWindowSize(250, 200);
+                    }).setWindowSize(250, 200).setParent(this);
                     this.mc.displayGuiScreen(guiCalculateCant);
                 });
         this.buttonFlipCantCenter = WidgetFactory.addButton(mainScroll, buttX - fieldW - buttH - 4, fieldY - 2, buttH,

@@ -29,10 +29,9 @@ public class GuiCalculateCant extends GuiScreenWindowed
     private float addedHeight;
     private float cant;
 
-    public GuiCalculateCant(GuiScreenAdvanced parentScreen, DoubleConsumer consumer)
+    public GuiCalculateCant(DoubleConsumer consumer)
     {
         super();
-        this.parentScreen = parentScreen;
         this.consumer = consumer;
     }
 

@@ -5,7 +5,12 @@ import net.cacpixel.rtmmetro.client.gui.screens.GuiMarkerAdvanced;
 import net.cacpixel.rtmmetro.client.gui.screens.GuiRailAdvanced;
 import net.cacpixel.rtmmetro.client.gui.screens.GuiRigidCatenarySettings;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
+import net.cacpixel.rtmmetro.util.ModLog;
+import net.cacpixel.rtmmetro.util.RTMMetroUtils;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 
@@ -43,12 +48,17 @@ public class RTMMetroGUIHandler implements IGuiHandler
             }
             else if (ID == guiIdMarkerAdvanced)
             {
+                // todo: guiid并入
                 return new GuiMarkerAdvanced((TileEntityMarkerAdvanced) BlockUtil.getTileEntity(world, x, y, z));
             }
         }
-        catch (ClassCastException e)
+        catch (Exception e)
         {
-            e.printStackTrace();
+            ModLog.showChatMessage(TextFormatting.RED +
+                    I18n.format("message.error.fatal_problem_occurred", "Constructing GUI object"));
+            ModLog.error("Caught exception while Constructing GUI object: " + RTMMetroUtils.getStackTrace(e));
+            Minecraft.getMinecraft().displayGuiScreen(null);
+            Minecraft.getMinecraft().setIngameFocus();
         }
         return null;
     }

@@ -39,6 +39,7 @@ import java.util.*;
 public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHolder
 {
     public GuiScreenAdvanced parentScreen;
+    public boolean drawParent = false;
     public int x = 0;
     public int y = 0;
     public boolean hasValueUpdated; // todo: move to text field (no no no move to GuiWidget instead)
@@ -46,7 +47,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public ArrayList<GuiWidget> widgets = new ArrayList<>();
     public PriorityQueue<GuiWidget> actionQueue = new PriorityQueue<>(
             Comparator.comparing(GuiWidget::getzLevel).reversed());
-    private float alpha;
+    protected float alpha;
     public boolean isOpening;
     public boolean isClosing;
     protected float animationTime;
@@ -86,10 +87,22 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         GL11.glPopMatrix();
     }
 
-    public GuiScreenAdvanced setDuration(float duration)
+    @SuppressWarnings("unchecked")
+    public <T extends GuiScreenAdvanced> T setDuration(float duration)
     {
         this.duration = duration;
-        return this;
+        return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends GuiScreenAdvanced> T setParent(GuiScreenAdvanced parent)
+    {
+        if (this == parent)
+        {
+            throw new RTMMetroException("Parent screen refers to itself.");
+        }
+        parentScreen = parent;
+        return (T) this;
     }
 
     public void screenResize()
@@ -120,20 +133,15 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         {
             this.translationX += x;
             this.translationY += y;
-//            GlStateManager.translate(x, y, 0);
         }
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        this.updateAnimation(partialTicks);
-        this.updateAlpha();
         if (!this.isInAnimation())
         {
             this.animationTime = 0;
-            if (this.closeFlag)
-                this.alpha = 0.02F;
-            else
-                this.alpha = 1.0F;
         }
+        this.updateAnimation(partialTicks);
+        this.updateAlpha();
     }
 
     public void handleInput()
@@ -157,9 +165,9 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     {
         try
         {
-            if (parentScreen != null)
+            if (parentScreen != null && (this.drawParent || this.isInAnimation() || this.closeFlag))
             {
-                parentScreen.draw(mouseX, mouseY, partialTicks);
+                parentScreen.drawScreen(mouseX, mouseY, partialTicks);
             }
             this.draw(mouseX, mouseY, partialTicks);
             if (glStackCount > 0)
@@ -357,18 +365,30 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         }
     }
 
-    protected void updateAlpha()
+    protected void updateAlpha(float lowerBnd, float upperBnd)
     {
         if (this.isOpening)
         {
-            this.alpha = (float) MathHelper.clampedLerp(0.02F, 1.0F,
+            this.alpha = (float) MathHelper.clampedLerp(lowerBnd, upperBnd,
                     this.getAnimationProgress(CacGuiUtils.guiBezierAlpha));
         }
         else if (this.isClosing)
         {
-            this.alpha = (float) MathHelper.clampedLerp(0.02F, 1.0F,
+            this.alpha = (float) MathHelper.clampedLerp(lowerBnd, upperBnd,
                     1 - this.getAnimationProgress(CacGuiUtils.guiBezierAlpha));
         }
+        else
+        {
+            if (this.closeFlag)
+                this.alpha = lowerBnd;
+            else
+                this.alpha = upperBnd;
+        }
+    }
+
+    protected void updateAlpha()
+    {
+        this.updateAlpha(0.02f, 1.0f);
     }
 
     public int getAlphaInt(int a)
@@ -399,7 +419,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     protected void switchGuiScreenToPrevious()
     {
-        if (!(this.isClosing && animationTime < duration / 10) && closeFlag)
+        boolean inAnimation = (this.parentScreen == null) ? animationTime < duration / 10 : this.isInAnimation();
+        if (!(this.isClosing && inAnimation) && closeFlag)
         {
             if (parentScreen == null)
             {

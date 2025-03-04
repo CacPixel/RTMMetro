@@ -2,6 +2,7 @@ package net.cacpixel.rtmmetro.client.gui;
 
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiButtonAdvanced;
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiLabelAdvanced;
+import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 
@@ -43,19 +44,45 @@ public abstract class GuiFullScreen extends GuiScreenAdvanced
     {
         super.updateAnimation(partialTicks);
         float progress = 1.0F;
+        float lowerBnd = (this.parentScreen == null) ? 0.9F : -0.05F;
+        BezierCurveAdvanced curve = CacGuiUtils.guiBezierTranslation;
         if (this.isOpening)
         {
-            progress = (float) MathHelper.clampedLerp(0.9F, 1.0F, this.getAnimationProgress(CacGuiUtils
-                    .guiBezierTranslation));
+            progress = (float) MathHelper.clampedLerp(lowerBnd, 1.0F, this.getAnimationProgress(curve));
         }
         else if (this.isClosing)
         {
-            progress = (float) MathHelper.clampedLerp(0.9F, 1.0F, 1 - this.getAnimationProgress(CacGuiUtils
-                    .guiBezierTranslation));
+            progress = (float) MathHelper.clampedLerp(lowerBnd, 1.0F, 1 - this.getAnimationProgress(curve));
         }
-        // todo: 有上级页面时，0.9变为0.0，alpha不变小
         this.translationX += (this.parentScreen == null) ? 0.0F : (1.0F - progress) * this.width;
         this.translationY += (this.parentScreen == null) ? (progress - 1.0F) * this.height : 0.0F;
+        if (parentScreen != null)
+        {
+            parentScreen.translationX += (progress - 1.0f) * parentScreen.width;
+        }
         GlStateManager.translate(translationX, translationY, 0.0F);
+    }
+
+    @Override
+    protected void updateAlpha()
+    {
+        if (this.parentScreen == null)
+        {
+            super.updateAlpha();
+        }
+        else
+        {
+            if (!this.isInAnimation())
+            {
+                if (this.closeFlag)
+                    this.alpha = 0.02F;
+                else
+                    this.alpha = 1.0F;
+            }
+            else
+            {
+                this.alpha = 1.0F;
+            }
+        }
     }
 }

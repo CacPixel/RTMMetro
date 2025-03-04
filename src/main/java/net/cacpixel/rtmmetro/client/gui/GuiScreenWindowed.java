@@ -20,6 +20,12 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
     protected int lastX, lastY;
     private float blinkCounter = 0;
 
+    public GuiScreenWindowed()
+    {
+        super();
+        this.drawParent = true;
+    }
+
     @Override
     public void initGui()
     {
