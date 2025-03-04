@@ -159,10 +159,10 @@ public class GuiScroll extends GuiWidgetBundle
         int xDiff = this.yButton.isVisible() ? scrollButtonWidth : 0;
         int yDiff = this.xButton.isVisible() ? scrollButtonWidth : 0;
         GL11.glScissor((int) ((pScr.translationX + (x * pScr.scaleX)) * scaleW),
-                (int) (((pScr.height - pScr.translationY) - (getEndY() - yDiff) * pScr.scaleY) * scaleH),
+                (int) ((pScr.height - pScr.translationY - (y + height - yDiff) * pScr.scaleY) * scaleH),
                 // （原始平移量（缩放后的坐标系） + 原始的scroll位置 * scr缩放量） * scaleW/H
-                (int) ((getEndX() - x - xDiff) * pScr.scaleX * scaleW),
-                (int) ((getEndY() - y - yDiff) * pScr.scaleY * scaleH));
+                (int) ((width - xDiff) * pScr.scaleX * scaleW),
+                (int) ((height - yDiff) * pScr.scaleY * scaleH));
         if (scrollUpDown)
         {
             float d = this.getAnimationProgress() * dy;
@@ -199,6 +199,7 @@ public class GuiScroll extends GuiWidgetBundle
     public void drawAfter(int mouseX, int mouseY, float partialTicks)
     {
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
+//        GL11.glScissor(0, 0, this.mc.displayWidth, this.mc.displayHeight);
         this.pScr.glPopMatrix();
     }
 

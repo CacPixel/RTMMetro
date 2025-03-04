@@ -283,8 +283,8 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                         fieldCantEdge.fieldValue = (float) x;
                         fieldCantEdge.checkValueAndSetText();
                     }).setWindowSize(250, 200).setParent(this);
-//                    this.mc.displayGuiScreen(guiCalculateCant);
-                    this.mc.displayGuiScreen(new GuiMarkerAdvanced(this.marker).setParent(this));
+//                    displayGuiScreen(guiCalculateCant);
+                    displayGuiScreen(new GuiMarkerAdvanced(this.marker).setParent(this));
                 });
         this.buttonCopyNeighborCantEdge = WidgetFactory.addButton(mainScroll, buttX + buttH + buttW, fieldY - 2, buttW,
                         buttH, I18n.format("gui.marker.equ_neighbor"))
@@ -321,7 +321,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                         fieldCantCenter.fieldValue = (float) x;
                         fieldCantCenter.checkValueAndSetText();
                     }).setWindowSize(250, 200).setParent(this);
-                    this.mc.displayGuiScreen(guiCalculateCant);
+                    displayGuiScreen(guiCalculateCant);
                 });
         this.buttonFlipCantCenter = WidgetFactory.addButton(mainScroll, buttX - fieldW - buttH - 4, fieldY - 2, buttH,
                         buttH, "-")

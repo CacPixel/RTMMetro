@@ -48,8 +48,8 @@ public class RTMMetroGUIHandler implements IGuiHandler
             }
             else if (ID == guiIdMarkerAdvanced)
             {
-                // todo: guiid并入
-                return new GuiMarkerAdvanced((TileEntityMarkerAdvanced) BlockUtil.getTileEntity(world, x, y, z));
+                return new GuiMarkerAdvanced((TileEntityMarkerAdvanced) BlockUtil.getTileEntity(world, x, y, z))
+                        .setAnimationStatus(GuiScreenAdvanced.AnimationStatus.OPENING);
             }
         }
         catch (Exception e)

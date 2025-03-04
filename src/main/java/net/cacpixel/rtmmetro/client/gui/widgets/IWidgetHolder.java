@@ -3,6 +3,9 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.cacpixel.rtmmetro.util.RTMMetroException;
 import net.cacpixel.rtmmetro.util.RTMMetroUtils;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
+import org.lwjgl.opengl.GL11;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -170,4 +173,23 @@ public interface IWidgetHolder
     }
 
     Queue<GuiWidget> getActionQueue();
+
+    int getScissorX();
+
+    int getScissorY();
+
+    int getScissorWidth();
+
+    int getScissorHeight();
+
+    default void applyScissor(int xIn, int yIn, int wIn, int hIn)
+    {
+
+    }
+
+    default void applyScissorFullScreen()
+    {
+        Minecraft mc = Minecraft.getMinecraft();
+        GL11.glScissor(0, 0, mc.displayWidth, mc.displayHeight);
+    }
 }

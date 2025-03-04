@@ -48,8 +48,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public PriorityQueue<GuiWidget> actionQueue = new PriorityQueue<>(
             Comparator.comparing(GuiWidget::getzLevel).reversed());
     protected float alpha;
-    public boolean isOpening;
-    public boolean isClosing;
+    private AnimationStatus animationStatus;
     protected float animationTime;
     protected float duration;
     protected boolean closeFlag;
@@ -66,10 +65,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     {
         super();
         alpha = 0.05f;
-        isOpening = true;
-        isClosing = false;
+        this.setAnimationStatus(AnimationStatus.NONE);
         duration = ModConfig.guiAnimationDuration;
-        animationTime = 0;
         closeFlag = false;
     }
 
@@ -128,6 +125,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         if (this.mc.currentScreen == this)
             this.handleInput();
         this.glPushMatrix();
+//        GL11.glEnable(GL11.GL_SCISSOR_TEST);
+//        GL11.glScissor(0, 0, this.mc.displayWidth, this.mc.displayHeight);
         translationX = translationY = 0;
         if (x != 0 || y != 0)
         {
@@ -136,10 +135,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         }
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        if (!this.isInAnimation())
-        {
-            this.animationTime = 0;
-        }
         this.updateAnimation(partialTicks);
         this.updateAlpha();
     }
@@ -165,9 +160,13 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     {
         try
         {
-            if (parentScreen != null && (this.drawParent || this.isInAnimation() || this.closeFlag))
+            if (parentScreen != null && (this.drawParent))
             {
                 parentScreen.drawScreen(mouseX, mouseY, partialTicks);
+            }
+            else if (parentScreen != null && (this.isInAnimation() || this.closeFlag))
+            {
+                parentScreen.draw(mouseX, mouseY, partialTicks);
             }
             this.draw(mouseX, mouseY, partialTicks);
             if (glStackCount > 0)
@@ -198,6 +197,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     public void drawScreenAfter(int mouseX, int mouseY, float partialTicks)
     {
+        GL11.glDisable(GL11.GL_SCISSOR_TEST);
         this.glPopMatrix();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.disableBlend();
@@ -351,35 +351,39 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     protected void updateAnimation(float partialTicks)
     {
-        if (this.isOpening)
+        if (this.isOpening())
         {
             this.animationTime += partialTicks / 20;
             if (this.animationTime > this.duration)
-                this.isOpening = false;
+            {
+                this.setAnimationStatus(AnimationStatus.OPENED);
+            }
         }
-        else if (this.isClosing)
+        else if (this.isClosing())
         {
             this.animationTime += partialTicks / 20;
             if (this.animationTime > this.duration)
-                this.isClosing = false;
+            {
+                this.setAnimationStatus(AnimationStatus.CLOSED);
+            }
         }
     }
 
     protected void updateAlpha(float lowerBnd, float upperBnd)
     {
-        if (this.isOpening)
+        if (this.isOpening())
         {
             this.alpha = (float) MathHelper.clampedLerp(lowerBnd, upperBnd,
                     this.getAnimationProgress(CacGuiUtils.guiBezierAlpha));
         }
-        else if (this.isClosing)
+        else if (this.isClosing())
         {
             this.alpha = (float) MathHelper.clampedLerp(lowerBnd, upperBnd,
                     1 - this.getAnimationProgress(CacGuiUtils.guiBezierAlpha));
         }
         else
         {
-            if (this.closeFlag)
+            if (this.getAnimationStatus() == AnimationStatus.CLOSED)
                 this.alpha = lowerBnd;
             else
                 this.alpha = upperBnd;
@@ -408,27 +412,32 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     public boolean isInAnimation()
     {
-        return this.isOpening || this.isClosing;
+        return this.isOpening() || this.isClosing();
     }
 
     protected void displayPrevScreen()
     {
         this.closeFlag = true;
-        this.isClosing = true;
+        this.setAnimationStatus(AnimationStatus.CLOSING);
+        if (parentScreen != null && !this.drawParent)
+        {
+            parentScreen.setAnimationStatus(AnimationStatus.OPENING);
+        }
     }
 
     protected void switchGuiScreenToPrevious()
     {
-        boolean inAnimation = (this.parentScreen == null) ? animationTime < duration / 10 : this.isInAnimation();
-        if (!(this.isClosing && inAnimation) && closeFlag)
+        boolean animationDone = (this.parentScreen == null) ? animationTime >= duration / 10
+                : this.getAnimationStatus() == AnimationStatus.CLOSED;
+        if (animationDone && closeFlag)
         {
             if (parentScreen == null)
             {
-                this.mc.displayGuiScreen(null);
+                displayGuiScreen(null);
             }
             else
             {
-                this.mc.displayGuiScreen(this.parentScreen);
+                displayGuiScreen(this.parentScreen);
             }
         }
     }
@@ -728,5 +737,57 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public int shiftMouseY()
     {
         return y;
+    }
+
+    public boolean isOpening()
+    {
+        return this.getAnimationStatus() == AnimationStatus.OPENING;
+    }
+
+    public boolean isClosing()
+    {
+        return this.getAnimationStatus() == AnimationStatus.CLOSING;
+    }
+
+    public AnimationStatus getAnimationStatus()
+    {
+        return animationStatus;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends GuiScreenAdvanced> T setAnimationStatus(AnimationStatus animationStatus)
+    {
+        this.animationStatus = animationStatus;
+        if (animationStatus == AnimationStatus.OPENED || animationStatus == AnimationStatus.CLOSED)
+        {
+            this.animationTime = 0;
+        }
+        return (T) this;
+    }
+
+    public static void displayGuiScreen(GuiScreenAdvanced screen)
+    {
+        Minecraft mc = Minecraft.getMinecraft();
+        mc.displayGuiScreen(screen);
+        if (screen != null)
+        {
+            if (screen.getAnimationStatus() == AnimationStatus.NONE)
+            {
+                screen.setAnimationStatus(AnimationStatus.OPENING);
+            }
+            if (screen.parentScreen != null && !screen.drawParent)
+            {
+                screen.parentScreen.setAnimationStatus(AnimationStatus.CLOSING);
+            }
+        }
+    }
+
+    public enum AnimationStatus
+    {
+        NONE,
+        OPENING,
+        OPENED,
+        CLOSING,
+        CLOSED
     }
 }

@@ -155,12 +155,12 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
     {
         super.updateAnimation(partialTicks);
         float scale = 1.0F;
-        if (this.isOpening)
+        if (this.isOpening())
         {
             scale = (float) MathHelper.clampedLerp(0.9F, 1.0F,
                     this.getAnimationProgress(CacGuiUtils.guiBezierTranslation));
         }
-        else if (this.isClosing)
+        else if (this.isClosing())
         {
             scale = (float) MathHelper.clampedLerp(0.9F, 1.0F,
                     1 - this.getAnimationProgress(CacGuiUtils.guiBezierTranslation));
