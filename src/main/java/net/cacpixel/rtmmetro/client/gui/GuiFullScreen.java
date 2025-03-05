@@ -21,8 +21,8 @@ public abstract class GuiFullScreen extends GuiScreenAdvanced
                         () -> 5, () -> 5, () -> 20, () -> 20)
                 .setDisplayString(this.parentScreen == null ? "x" : "<").setListener(this::closeButtonCallback);
         labelTitle = this.addWidget(GuiLabelAdvanced.class, this.getNextWidgetId(),
-                (IntSupplier) () -> 30, 6,
-                (IntSupplier) () -> this.width - 30, 20, 0xE0E0E0);
+                (IntSupplier) () -> 30, 0,
+                (IntSupplier) () -> this.width - 30, 30, 0xE0E0E0).setAlignY(Align.CENTERED);
     }
 
     @Override

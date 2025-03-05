@@ -1,5 +1,6 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
+import net.cacpixel.rtmmetro.client.gui.Align;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiTheme;
 import net.minecraft.client.Minecraft;
@@ -16,6 +17,9 @@ public class GuiButtonAdvanced extends GuiWidget
     public String displayString = "";
     protected boolean hovered;
     // GuiButton Fields END
+    public ResourceLocation icon;
+    public Align alignX = Align.CENTERED;
+    public Align alignY = Align.CENTERED;
 
     public GuiButtonAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier)
     {
@@ -74,15 +78,8 @@ public class GuiButtonAdvanced extends GuiWidget
 
             String buttonText = this.displayString;
             color |= pScr.getAlphaInt(0xFF);
-            // GuiButtonExt的缩减字符功能，我更希望能全部显示出所有的字符，省略了反而会不知道末尾显示什么
-//            int strWidth = mc.fontRenderer.getStringWidth(buttonText);
-//            int ellipsisWidth = mc.fontRenderer.getStringWidth("...");
-//
-//            if (strWidth > width - 6 && strWidth > ellipsisWidth)
-//                buttonText = mc.fontRenderer.trimStringToWidth(buttonText, width - 6 - ellipsisWidth).trim() + "...";
 
-            CacGuiUtils.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2,
-                    this.y + (this.height - 8) / 2, color);
+            CacGuiUtils.drawString(buttonText, x, y, width, height, color, alignX, alignY);
         }
     }
 
@@ -111,6 +108,27 @@ public class GuiButtonAdvanced extends GuiWidget
     public <T extends GuiWidget> T setDisplayString(String displayString)
     {
         this.displayString = displayString;
+        return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends GuiWidget> T setIcon(ResourceLocation icon)
+    {
+        this.icon = icon;
+        return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends GuiWidget> T setAlignX(Align align)
+    {
+        this.alignX = align;
+        return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends GuiWidget> T setAlignY(Align align)
+    {
+        this.alignY = align;
         return (T) this;
     }
 

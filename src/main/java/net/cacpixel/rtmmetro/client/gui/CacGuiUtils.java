@@ -22,6 +22,9 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import javax.script.ScriptEngine;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect;
@@ -287,6 +290,44 @@ public class CacGuiUtils
         GlStateManager.disableBlend();
         GlStateManager.enableAlpha();
         GlStateManager.enableTexture2D();
+    }
+
+    public static void drawString(String textIn, int x, int y, int w, int h, int color,
+                                  Align alignX, Align alignY)
+    {
+        List<String> strList = Arrays.stream(textIn.replace('\r', '\n').split("\n"))
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
+        drawString(strList, x, y, w, h, color, alignX, alignY);
+    }
+
+    public static void drawString(List<String> strList, int x, int y, int w, int h, int color,
+                                  Align alignX, Align alignY)
+    {
+        FontRenderer fontRendererIn = Minecraft.getMinecraft().fontRenderer;
+        for (String text : strList)
+        {
+            // todo: split while str is too long
+            //todo : calc strx stry
+            int strX = alignX == Align.LEFT_OR_UP_ALIGNED ? x :
+                    alignX == Align.RIGHT_OR_DOWN_ALIGNED ? x + w : x + w / 2;
+            int strY = alignY == Align.LEFT_OR_UP_ALIGNED ? y :
+                    alignY == Align.RIGHT_OR_DOWN_ALIGNED ? y + h - 8 : y + (h - 8) / 2;
+            switch (alignX)
+            {
+            case LEFT_OR_UP_ALIGNED:
+                drawString(fontRendererIn, text, strX, strY, color);
+                break;
+            case RIGHT_OR_DOWN_ALIGNED:
+                drawRightAlignedString(fontRendererIn, text, strX, strY, color);
+                break;
+            case CENTERED:
+                drawCenteredString(fontRendererIn, text, strX, strY, color);
+                break;
+            default:
+                break;
+            }
+        }
     }
 
     public static void drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color)

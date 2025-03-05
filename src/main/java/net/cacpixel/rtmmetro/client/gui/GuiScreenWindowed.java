@@ -43,8 +43,8 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
                         () -> 5, () -> 5, () -> 20, () -> 20)
                 .setDisplayString("x").setListener(this::closeButtonCallback);
         labelTitle = this.addWidget(GuiLabelAdvanced.class, this.getNextWidgetId(),
-                (IntSupplier) () -> 30, 6,
-                (IntSupplier) () -> this.width - 30, 20, 0xE0E0E0);
+                (IntSupplier) () -> 30, 0,
+                (IntSupplier) () -> this.width - 30, 30, 0xE0E0E0).setAlignY(Align.CENTERED);
     }
 
     @Override
@@ -57,13 +57,13 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
         int screenHeight = scaledresolution.getScaledHeight();
         switch (this.alignX)
         {
-        case LEFT_ALIGNED:
+        case LEFT_OR_UP_ALIGNED:
             this.x = 0;
             break;
         case CENTERED:
             this.x = screenWidth / 2 - windowWidth / 2;
             break;
-        case RIGHT_ALIGNED:
+        case RIGHT_OR_DOWN_ALIGNED:
             this.x = screenWidth - windowWidth;
             break;
         case FREE:
@@ -74,13 +74,13 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
         }
         switch (this.alignY)
         {
-        case LEFT_ALIGNED:
+        case LEFT_OR_UP_ALIGNED:
             this.y = 0;
             break;
         case CENTERED:
             this.y = screenHeight / 2 - windowHeight / 2;
             break;
-        case RIGHT_ALIGNED:
+        case RIGHT_OR_DOWN_ALIGNED:
             this.y = screenHeight - windowHeight;
             break;
         case FREE:
