@@ -4,6 +4,7 @@ import net.cacpixel.rtmmetro.client.gui.Align;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,14 +13,17 @@ import java.util.function.IntSupplier;
 public class GuiLabelAdvanced extends GuiWidget
 {
     private final List<String> labels = new ArrayList<>();
-    private Align align = Align.LEFT_ALIGNED;
+    public ResourceLocation icon;
+    public Align alignX = Align.LEFT_OR_UP_ALIGNED;
+    public Align alignY = Align.LEFT_OR_UP_ALIGNED;
     public boolean visible = true;
-    private final int textColor;
-    private final int backColor;
-    private final int ulColor;
-    private final int brColor;
-    private final int border;
-    private final boolean hasBackground = false;
+    public int textColor;
+    public int backColor;
+    public int ulColor;
+    public int brColor;
+    public int border;
+    public int lineHeight = 10;
+    private boolean hasBackground = false;
 
     public GuiLabelAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
                             IntSupplier widthSupplier, IntSupplier heightSupplier, int colorIn)
@@ -45,21 +49,15 @@ public class GuiLabelAdvanced extends GuiWidget
         return this;
     }
 
-    public GuiLabelAdvanced setCentered()
+    public GuiLabelAdvanced setAlignX(Align align)
     {
-        this.align = Align.CENTERED;
+        this.alignX = align;
         return this;
     }
 
-    public GuiLabelAdvanced setRightAligned()
+    public GuiLabelAdvanced setAlignY(Align align)
     {
-        this.align = Align.RIGHT_ALIGNED;
-        return this;
-    }
-
-    public GuiLabelAdvanced setLeftAligned()
-    {
-        this.align = Align.LEFT_ALIGNED;
+        this.alignY = align;
         return this;
     }
 
@@ -73,28 +71,15 @@ public class GuiLabelAdvanced extends GuiWidget
                     GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                     GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
             this.drawLabelBackground(mc, mouseX, mouseY);
-            int i = this.y + this.height / 2 + this.border / 2;
-            int j = i - this.labels.size() * 10 / 2;
-
+            int hh = this.y + this.height / 2 + this.border / 2;
+            int strY = this.alignY == Align.LEFT_OR_UP_ALIGNED ? this.y :
+                    this.alignY == Align.RIGHT_OR_DOWN_ALIGNED ? this.y + this.height - this.labels.size() * lineHeight + 1 :
+                            hh - this.labels.size() * lineHeight / 2 + 1;
             for (int k = 0; k < this.labels.size(); ++k)
             {
-                switch (align)
-                {
-                case LEFT_ALIGNED:
-                    CacGuiUtils.drawString(mc.fontRenderer, this.labels.get(k), this.x, j + k * 10,
-                            this.textColor | pScr.getAlphaInt(0xFF));
-                    break;
-                case RIGHT_ALIGNED:
-                    CacGuiUtils.drawRightAlignedString(mc.fontRenderer, this.labels.get(k), this.x, j + k * 10,
-                            this.textColor | pScr.getAlphaInt(0xFF));
-                case CENTERED:
-                    CacGuiUtils.drawCenteredString(mc.fontRenderer, this.labels.get(k), this.x + this.width / 2,
-                            j + k * 10,
-                            this.textColor | pScr.getAlphaInt(0xFF));
-                    break;
-                default:
-                    break;
-                }
+                CacGuiUtils.drawString(this.labels.get(k), x, strY, width, 8,
+                        textColor | pScr.getAlphaInt(0xFF), alignX, alignY);
+                strY += lineHeight;
             }
         }
     }
