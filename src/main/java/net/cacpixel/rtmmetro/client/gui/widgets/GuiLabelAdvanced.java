@@ -71,16 +71,13 @@ public class GuiLabelAdvanced extends GuiWidget
                     GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                     GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
             this.drawLabelBackground(mc, mouseX, mouseY);
-            int hh = this.y + this.height / 2 + this.border / 2;
-            int strY = this.alignY == Align.LEFT_OR_UP_ALIGNED ? this.y :
-                    this.alignY == Align.RIGHT_OR_DOWN_ALIGNED ? this.y + this.height - this.labels.size() * lineHeight + 1 :
-                            hh - this.labels.size() * lineHeight / 2 + 1;
-            for (int k = 0; k < this.labels.size(); ++k)
+            StringBuilder sb = new StringBuilder();
+            for (String str : this.labels)
             {
-                CacGuiUtils.drawString(this.labels.get(k), x, strY, width, 8,
-                        textColor | pScr.getAlphaInt(0xFF), alignX, alignY);
-                strY += lineHeight;
+                sb.append(str);
+                sb.append("\n");
             }
+            CacGuiUtils.drawString(sb.toString(), x, y, width, height, textColor | pScr.getAlphaInt(0xFF), alignX, alignY);
         }
     }
 

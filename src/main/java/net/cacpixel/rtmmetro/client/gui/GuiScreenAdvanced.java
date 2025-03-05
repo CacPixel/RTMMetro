@@ -782,6 +782,30 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         }
     }
 
+    @Override
+    public int getScissorX()
+    {
+        return 0;
+    }
+
+    @Override
+    public int getScissorY()
+    {
+        return 0;
+    }
+
+    @Override
+    public int getScissorWidth()
+    {
+        return 0;
+    }
+
+    @Override
+    public int getScissorHeight()
+    {
+        return 0;
+    }
+
     public enum AnimationStatus
     {
         NONE,

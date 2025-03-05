@@ -22,6 +22,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import javax.script.ScriptEngine;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import static net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRec
 public class CacGuiUtils
 {
     public static final int DEFAULT_SCROLL_VALUE = 120;
+    public static final int DEFAULT_LINE_HEIGHT = 10;
     public static BezierCurveAdvanced guiBezierAlpha;
     public static BezierCurveAdvanced guiBezierTranslation;
     public static BezierCurveAdvanced guiBezierScroll;
@@ -295,24 +297,39 @@ public class CacGuiUtils
     public static void drawString(String textIn, int x, int y, int w, int h, int color,
                                   Align alignX, Align alignY)
     {
+        drawString(textIn, x, y, w, h, color, alignX, alignY, DEFAULT_LINE_HEIGHT);
+    }
+
+    public static void drawString(String textIn, int x, int y, int w, int h, int color,
+                                  Align alignX, Align alignY, int lineHeight)
+    {
         List<String> strList = Arrays.stream(textIn.replace('\r', '\n').split("\n"))
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
-        drawString(strList, x, y, w, h, color, alignX, alignY);
+        drawString(strList, x, y, w, h, color, alignX, alignY, lineHeight);
     }
 
-    public static void drawString(List<String> strList, int x, int y, int w, int h, int color,
-                                  Align alignX, Align alignY)
+    public static void drawString(List<String> strListIn, int x, int y, int w, int h, int color,
+                                  Align alignX, Align alignY, int lineHeight)
     {
         FontRenderer fontRendererIn = Minecraft.getMinecraft().fontRenderer;
+        w = Math.max(w, fontRendererIn.FONT_HEIGHT + 1); // 保证宽度足够，否则wrapFormattedStringToWidth会报stackoverflow
+        List<String> strList = new ArrayList<>();
+        for (String str : strListIn)
+        {
+            strList.addAll(fontRendererIn.listFormattedStringToWidth(str, w));
+        }
+        int offset = alignY == Align.LEFT_OR_UP_ALIGNED ? 0 :
+                alignY == Align.RIGHT_OR_DOWN_ALIGNED ? (lineHeight - fontRendererIn.FONT_HEIGHT) :
+                        (lineHeight - fontRendererIn.FONT_HEIGHT) / 2;
+        int strX = alignX == Align.LEFT_OR_UP_ALIGNED ? x :
+                alignX == Align.RIGHT_OR_DOWN_ALIGNED ? x + w :
+                        x + w / 2;
+        int strY = alignY == Align.LEFT_OR_UP_ALIGNED ? y :
+                alignY == Align.RIGHT_OR_DOWN_ALIGNED ? y + h - strList.size() * lineHeight + offset :
+                        y + h / 2 - (strList.size() * lineHeight / 2) + offset;
         for (String text : strList)
         {
-            // todo: split while str is too long
-            //todo : calc strx stry
-            int strX = alignX == Align.LEFT_OR_UP_ALIGNED ? x :
-                    alignX == Align.RIGHT_OR_DOWN_ALIGNED ? x + w : x + w / 2;
-            int strY = alignY == Align.LEFT_OR_UP_ALIGNED ? y :
-                    alignY == Align.RIGHT_OR_DOWN_ALIGNED ? y + h - 8 : y + (h - 8) / 2;
             switch (alignX)
             {
             case LEFT_OR_UP_ALIGNED:
@@ -327,6 +344,7 @@ public class CacGuiUtils
             default:
                 break;
             }
+            strY += lineHeight;
         }
     }
 
