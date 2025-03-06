@@ -303,7 +303,7 @@ public class CacGuiUtils
     public static void drawString(String textIn, int x, int y, int w, int h, int color,
                                   Align alignX, Align alignY, int lineHeight)
     {
-        List<String> strList = Arrays.stream(textIn.replace('\r', '\n').split("\n"))
+        List<String> strList = Arrays.stream(textIn.replaceAll("\r\n", "\n").split("\n"))
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
         drawString(strList, x, y, w, h, color, alignX, alignY, lineHeight);
