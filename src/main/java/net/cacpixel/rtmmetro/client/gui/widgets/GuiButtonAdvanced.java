@@ -79,6 +79,11 @@ public class GuiButtonAdvanced extends GuiWidget
             String buttonText = this.displayString;
             color |= pScr.getAlphaInt(0xFF);
 
+            if (icon != null)
+            {
+                CacGuiUtils.bindTexture(icon);
+                CacGuiUtils.drawTexturedModalRect(x, y, 0, 0, width, height, zLevel, 64, 64);
+            }
             CacGuiUtils.drawString(buttonText, x, y, width, height, color, alignX, alignY);
         }
     }

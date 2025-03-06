@@ -25,11 +25,9 @@ import javax.script.ScriptEngine;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static net.minecraftforge.fml.client.config.GuiUtils.drawTexturedModalRect;
-
 
 @SideOnly(Side.CLIENT)
 public class CacGuiUtils
@@ -140,6 +138,27 @@ public class CacGuiUtils
                     u + leftBorder + fillerWidth,
                     v + topBorder, rightBorder, (j == yPasses ? remainderHeight : fillerHeight), zLevel);
         }
+    }
+
+    public static void drawTexturedModalRect(int x, int y, int u, int v, int width, int height, float zLevel,
+                                             int textureWidth, int textureHeight)
+    {
+        float uScale = 1f / textureWidth;
+        float vScale = 1f / textureHeight;
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder wr = tessellator.getBuffer();
+        wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        wr.pos(x, y + height, zLevel).tex(u * uScale, ((v + height) * vScale)).endVertex();
+        wr.pos(x + width, y + height, zLevel).tex((u + width) * uScale, ((v + height) * vScale)).endVertex();
+        wr.pos(x + width, y, zLevel).tex((u + width) * uScale, (v * vScale)).endVertex();
+        wr.pos(x, y, zLevel).tex(u * uScale, (v * vScale)).endVertex();
+        tessellator.draw();
+    }
+
+    public static void drawTexturedModalRect(int x, int y, int u, int v, int width, int height, float zLevel)
+    {
+        drawTexturedModalRect(x, y, u, v, width, height, zLevel, 0x100, 0x100);
     }
 
     public static void drawRect(int left, int top, int right, int bottom, int color)
@@ -292,6 +311,12 @@ public class CacGuiUtils
         GlStateManager.disableBlend();
         GlStateManager.enableAlpha();
         GlStateManager.enableTexture2D();
+    }
+
+    public static void bindTexture(ResourceLocation rl)
+    {
+        Objects.requireNonNull(rl);
+        Minecraft.getMinecraft().getTextureManager().bindTexture(rl);
     }
 
     public static void drawString(String textIn, int x, int y, int w, int h, int color,
