@@ -1,8 +1,10 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
+import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.client.gui.Align;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiTheme;
+import net.cacpixel.rtmmetro.client.gui.Image;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -13,11 +15,13 @@ import java.util.function.IntSupplier;
 
 public class GuiButtonAdvanced extends GuiWidget
 {
+    public static final Image SAVE_ICON = new Image(new ResourceLocation(RTMMetro.MODID, "textures/gui/save.png"),
+            0, 0, 64,64, 64, 64, 0xFFFFFF);
     // GuiButton Fields BEGIN
     public String displayString = "";
     protected boolean hovered;
     // GuiButton Fields END
-    public ResourceLocation icon;
+    public Image icon;
     public Align alignX = Align.CENTERED;
     public Align alignY = Align.CENTERED;
 
@@ -78,13 +82,8 @@ public class GuiButtonAdvanced extends GuiWidget
 
             String buttonText = this.displayString;
             color |= pScr.getAlphaInt(0xFF);
-
-            if (icon != null)
-            {
-                CacGuiUtils.bindTexture(icon);
-                CacGuiUtils.drawTexturedModalRect(x, y, 0, 0, width, height, zLevel, 64, 64);
-            }
-            CacGuiUtils.drawString(buttonText, x, y, width, height, color, alignX, alignY);
+            CacGuiUtils.drawString(buttonText, x, y, width, height, color, alignX, alignY, icon == null ? null :
+                    new Image(icon).setColor(icon.color | pScr.getAlphaInt(0xFF)));
         }
     }
 
@@ -117,7 +116,7 @@ public class GuiButtonAdvanced extends GuiWidget
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends GuiWidget> T setIcon(ResourceLocation icon)
+    public <T extends GuiWidget> T setIcon(Image icon)
     {
         this.icon = icon;
         return (T) this;

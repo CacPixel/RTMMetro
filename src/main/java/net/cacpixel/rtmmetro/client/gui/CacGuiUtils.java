@@ -62,6 +62,15 @@ public class CacGuiUtils
         guiBezierScroll.initNP();
     }
 
+    public static void glColor(int color)
+    {
+        float r = (float) (color >> 16 & 255) / 255.0F;
+        float g = (float) (color >> 8 & 255) / 255.0F;
+        float b = (float) (color & 255) / 255.0F;
+        float a = (float) (color >> 24 & 255) / 255.0F;
+        GlStateManager.color(r, g, b, a);
+    }
+
     public static void drawContinuousTexturedBox(ResourceLocation res, int x, int y, int u, int v, int width,
                                                  int height, int textureWidth,
                                                  int textureHeight,
@@ -140,25 +149,52 @@ public class CacGuiUtils
         }
     }
 
-    public static void drawTexturedModalRect(int x, int y, int u, int v, int width, int height, float zLevel,
-                                             int textureWidth, int textureHeight)
+    public static void drawTexturedModalRect(int x, int y, int width, int height, float zLevel, Image image)
     {
-        float uScale = 1f / textureWidth;
-        float vScale = 1f / textureHeight;
+        CacGuiUtils.bindTexture(image.location);
+        glColor(image.color);
+        drawTexturedModalRect((double) x, y, width, height, image.u, image.v, image.uWidth, image.vHeight,
+                zLevel, image.textureWidth, image.textureHeight);
+    }
+
+    public static void drawTexturedModalRect(int x, int y, int width, int height, int u, int v, int uw, int vh,
+                                             float zLevel, int textureWidth, int textureHeight)
+    {
+        drawTexturedModalRect((double) x, y, width, height, u, v, uw, vh, zLevel, textureWidth, textureHeight);
+    }
+
+    public static void drawTexturedModalRect(double x, double y, double width, double height, double u, double v,
+                                             double uw, double vh,
+                                             double zLevel, int textureWidth, int textureHeight)
+    {
+        double uScale = 1d / textureWidth;
+        double vScale = 1d / textureHeight;
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder wr = tessellator.getBuffer();
         wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-        wr.pos(x, y + height, zLevel).tex(u * uScale, ((v + height) * vScale)).endVertex();
-        wr.pos(x + width, y + height, zLevel).tex((u + width) * uScale, ((v + height) * vScale)).endVertex();
-        wr.pos(x + width, y, zLevel).tex((u + width) * uScale, (v * vScale)).endVertex();
+        wr.pos(x, y + height, zLevel).tex(u * uScale, ((v + vh) * vScale)).endVertex();
+        wr.pos(x + width, y + height, zLevel).tex((u + uw) * uScale, ((v + vh) * vScale)).endVertex();
+        wr.pos(x + width, y, zLevel).tex((u + uw) * uScale, (v * vScale)).endVertex();
         wr.pos(x, y, zLevel).tex(u * uScale, (v * vScale)).endVertex();
+        tessellator.draw();
+    }
+
+    public static void drawTexturedModalRect(int x, int y, int width, int height, float zLevel)
+    {
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder wr = tessellator.getBuffer();
+        wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        wr.pos(x, y + height, zLevel).tex(0, 1).endVertex();
+        wr.pos(x + width, y + height, zLevel).tex(1, 1).endVertex();
+        wr.pos(x + width, y, zLevel).tex(1, 0).endVertex();
+        wr.pos(x, y, zLevel).tex(0, 0).endVertex();
         tessellator.draw();
     }
 
     public static void drawTexturedModalRect(int x, int y, int u, int v, int width, int height, float zLevel)
     {
-        drawTexturedModalRect(x, y, u, v, width, height, zLevel, 0x100, 0x100);
+        drawTexturedModalRect(x, y, width, height, u, v, width, height, zLevel, 0x100, 0x100);
     }
 
     public static void drawRect(int left, int top, int right, int bottom, int color)
@@ -320,33 +356,43 @@ public class CacGuiUtils
     }
 
     public static void drawString(String textIn, int x, int y, int w, int h, int color,
-                                  Align alignX, Align alignY)
+                                  Align alignX, Align alignY, Image image)
     {
-        drawString(textIn, x, y, w, h, color, alignX, alignY, DEFAULT_LINE_HEIGHT);
+        drawString(textIn, x, y, w, h, color, alignX, alignY, DEFAULT_LINE_HEIGHT, image);
     }
 
     public static void drawString(String textIn, int x, int y, int w, int h, int color,
-                                  Align alignX, Align alignY, int lineHeight)
+                                  Align alignX, Align alignY, int lineHeight, Image image)
     {
         List<String> strList = Arrays.stream(textIn.replaceAll("\r\n", "\n").split("\n"))
-                .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
-        drawString(strList, x, y, w, h, color, alignX, alignY, lineHeight);
+        drawString(strList, x, y, w, h, color, alignX, alignY, lineHeight, image);
     }
 
     public static void drawString(List<String> strListIn, int x, int y, int w, int h, int color,
-                                  Align alignX, Align alignY, int lineHeight)
+                                  Align alignX, Align alignY, int lineHeight, Image image)
     {
+        ResourceLocation icon = null;
+        int iconColor = 0;
+        if (image != null)
+        {
+            icon = image.location;
+            iconColor = image.color;
+        }
         FontRenderer fontRendererIn = Minecraft.getMinecraft().fontRenderer;
-        w = Math.max(w, fontRendererIn.FONT_HEIGHT + 1); // 保证宽度足够，否则wrapFormattedStringToWidth会报stackoverflow
+        int fontHeight = fontRendererIn.FONT_HEIGHT - 1;
+        float iconScale = 1.5F;
+        int iconSize = icon != null ? (int) (fontHeight * iconScale) : 0;
+        int diff = (int) (iconSize * 0.2f);
+        w = Math.max(w, fontHeight + iconSize + 1); // 保证宽度足够，否则wrapFormattedStringToWidth会报stackoverflow
         List<String> strList = new ArrayList<>();
         for (String str : strListIn)
         {
-            strList.addAll(fontRendererIn.listFormattedStringToWidth(str, w));
+            strList.addAll(fontRendererIn.listFormattedStringToWidth(str, w - iconSize - diff));
         }
         int offset = alignY == Align.LEFT_OR_UP_ALIGNED ? 0 :
-                alignY == Align.RIGHT_OR_DOWN_ALIGNED ? (lineHeight - fontRendererIn.FONT_HEIGHT) :
-                        (lineHeight - fontRendererIn.FONT_HEIGHT) / 2;
+                alignY == Align.RIGHT_OR_DOWN_ALIGNED ? (lineHeight - fontHeight) :
+                        (lineHeight - fontHeight) / 2;
         int strX = alignX == Align.LEFT_OR_UP_ALIGNED ? x :
                 alignX == Align.RIGHT_OR_DOWN_ALIGNED ? x + w :
                         x + w / 2;
@@ -355,38 +401,47 @@ public class CacGuiUtils
                         y + h / 2 - (strList.size() * lineHeight / 2) + offset;
         for (String text : strList)
         {
+            int strStartX;
             switch (alignX)
             {
-            case LEFT_OR_UP_ALIGNED:
-                drawString(fontRendererIn, text, strX, strY, color);
-                break;
             case RIGHT_OR_DOWN_ALIGNED:
-                drawRightAlignedString(fontRendererIn, text, strX, strY, color);
+                strStartX = drawRightAlignedString(fontRendererIn, text, strX + iconSize, strY, color);
                 break;
             case CENTERED:
-                drawCenteredString(fontRendererIn, text, strX, strY, color);
+                strStartX = drawCenteredString(fontRendererIn, text, strX + (iconSize + diff) / 2, strY, color);
                 break;
             default:
+                strStartX = drawString(fontRendererIn, text, strX + iconSize + diff, strY, color);
                 break;
+            }
+            if (strList.indexOf(text) == 0 && icon != null)
+            {
+                CacGuiUtils.bindTexture(icon);
+                glColor(iconColor);
+                CacGuiUtils.drawTexturedModalRect(strStartX - iconSize - diff,
+                        (int) (strY - iconSize / 2.0 + fontHeight / 2.0), iconSize, iconSize, 0);
             }
             strY += lineHeight;
         }
     }
 
-    public static void drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color)
+    public static int drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color)
     {
         fontRendererIn.drawStringWithShadow(text, (float) (x - fontRendererIn.getStringWidth(text) / 2), (float) y,
                 color);
+        return (x - fontRendererIn.getStringWidth(text) / 2);
     }
 
-    public static void drawString(FontRenderer fontRendererIn, String text, int x, int y, int color)
+    public static int drawString(FontRenderer fontRendererIn, String text, int x, int y, int color)
     {
         fontRendererIn.drawStringWithShadow(text, (float) x, (float) y, color);
+        return x;
     }
 
-    public static void drawRightAlignedString(FontRenderer fontRendererIn, String text, int x, int y, int color)
+    public static int drawRightAlignedString(FontRenderer fontRendererIn, String text, int x, int y, int color)
     {
         fontRendererIn.drawStringWithShadow(text, x - fontRendererIn.getStringWidth(text), y, color);
+        return x - fontRendererIn.getStringWidth(text);
     }
 
     public static int getMouseX()

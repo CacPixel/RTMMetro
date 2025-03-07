@@ -392,7 +392,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         //ok
         this.buttonOK = WidgetFactory.addButton(this, () -> this.width - 160 - 10, () -> this.height - 30,
                         () -> 160, () -> 20,
-                        I18n.format("gui.save")).setIcon(new ResourceLocation(RTMMetro.MODID, "textures/gui/save.png"))
+                        I18n.format("gui.save")).setIcon(GuiButtonAdvanced.SAVE_ICON)
                 .setListener((w) -> {
                     this.updateValueFromWidgets();
                     this.sendPacket();

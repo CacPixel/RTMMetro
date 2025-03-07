@@ -2,9 +2,9 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.client.gui.Align;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
+import net.cacpixel.rtmmetro.client.gui.Image;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.function.IntSupplier;
 public class GuiLabelAdvanced extends GuiWidget
 {
     private final List<String> labels = new ArrayList<>();
-    public ResourceLocation icon;
+    public Image icon;
     public Align alignX = Align.LEFT_OR_UP_ALIGNED;
     public Align alignY = Align.LEFT_OR_UP_ALIGNED;
     public boolean visible = true;
@@ -77,7 +77,8 @@ public class GuiLabelAdvanced extends GuiWidget
                 sb.append(str);
                 sb.append("\n");
             }
-            CacGuiUtils.drawString(sb.toString(), x, y, width, height, textColor | pScr.getAlphaInt(0xFF), alignX, alignY);
+            CacGuiUtils.drawString(sb.toString(), x, y, width, height, textColor | pScr.getAlphaInt(0xFF), alignX,
+                    alignY, icon == null ? null : new Image(icon).setColor(icon.color | pScr.getAlphaInt(0xFF)));
         }
     }
 

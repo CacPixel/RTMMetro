@@ -1,8 +1,10 @@
 package net.cacpixel.rtmmetro;
 
 import jp.ngt.ngtlib.io.NGTLog;
+import jp.ngt.ngtlib.util.NGTUtil;
 import jp.ngt.rtm.modelpack.ModelPackManager;
 import jp.ngt.rtm.modelpack.ResourceType;
+import jp.ngt.rtm.modelpack.init.ModelPackLoadThread;
 import net.cacpixel.rtmmetro.client.gui.RTMMetroGUIHandler;
 import net.cacpixel.rtmmetro.event.RTMMetroEventHandler;
 import net.cacpixel.rtmmetro.proxy.CommonProxy;
@@ -17,6 +19,7 @@ import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
@@ -68,6 +71,8 @@ public class RTMMetro
         proxy.init();
         RTMMetroToolTip.init();
         MinecraftForge.EVENT_BUS.register(new RTMMetroEventHandler());
+        ModelPackLoadThread thread = new ModelPackLoadThread(NGTUtil.isServer() ? Side.SERVER : Side.CLIENT);
+        thread.start();
     }
 
     @EventHandler

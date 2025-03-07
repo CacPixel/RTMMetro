@@ -49,11 +49,7 @@ public class GuiCheckBoxAdvanced extends GuiButtonAdvanced
             color |= pScr.getAlphaInt(0xFF);
 
             mc.getTextureManager().bindTexture(getButtonTexture());
-            float red = (float) (color >> 16 & 255) / 255.0F;
-            float blue = (float) (color >> 8 & 255) / 255.0F;
-            float green = (float) (color & 255) / 255.0F;
-            float alpha = (float) (color >> 24 & 255) / 255.0F;
-            GlStateManager.color(red, blue, green, alpha);
+            CacGuiUtils.glColor(color);
             if (this.isChecked)
 //                this.drawCenteredString(mc.fontRenderer, "x", this.x + this.boxWidth / 2 + 1, this.y + 1, 14737632);
                 GuiUtils.drawTexturedModalRect(this.x, this.y, 0, 206, this.boxWidth, this.height, this.zLevel);
