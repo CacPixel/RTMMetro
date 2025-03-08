@@ -5,6 +5,7 @@ import jp.ngt.ngtlib.util.NGTUtilClient;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
 import net.cacpixel.rtmmetro.RTMMetroItems;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
+import net.cacpixel.rtmmetro.client.gui.GuiTheme;
 import net.cacpixel.rtmmetro.client.rtmtoolbox.RTMToolBox;
 import net.cacpixel.rtmmetro.rail.util.MarkerManager;
 import net.minecraftforge.fml.relauncher.Side;
@@ -24,6 +25,7 @@ public class ClientProxy extends CommonProxy
     {
         RTMToolBox.getInstance().init();
         CacGuiUtils.init();
+        GuiTheme.init();
         RTMMetroBlock.initClient();
         RTMMetroItems.initClient();
     }

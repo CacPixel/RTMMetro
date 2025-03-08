@@ -15,8 +15,6 @@ import java.util.function.IntSupplier;
 
 public class GuiButtonAdvanced extends GuiWidget
 {
-    public static final Image SAVE_ICON = new Image(new ResourceLocation(RTMMetro.MODID, "textures/gui/save.png"),
-            0, 0, 64,64, 64, 64, 0xFFFFFF);
     // GuiButton Fields BEGIN
     public String displayString = "";
     protected boolean hovered;
@@ -144,5 +142,11 @@ public class GuiButtonAdvanced extends GuiWidget
         {
             this.playPressSound(this.pScr.mc.getSoundHandler());
         }
+    }
+
+    public static Image getSaveIcon()
+    {
+        return new Image(GuiTheme.getCurrentResourceLocation("save"),
+                0, 0, 64,64, 64, 64, 0xFFFFFF);
     }
 }

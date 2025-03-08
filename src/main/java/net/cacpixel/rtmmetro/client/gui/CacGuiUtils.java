@@ -39,7 +39,12 @@ public class CacGuiUtils
     public static BezierCurveAdvanced guiBezierScroll;
     public static final double X_MAX = 1000;
 
-    public static void init()
+    static
+    {
+        initBezierCurve();
+    }
+
+    public static void initBezierCurve()
     {
         guiBezierAlpha = new BezierCurveAdvanced(
                 0 * X_MAX, 0,
@@ -60,6 +65,10 @@ public class CacGuiUtils
         guiBezierAlpha.initNP();
         guiBezierTranslation.initNP();
         guiBezierScroll.initNP();
+    }
+
+    public static void init()
+    {
     }
 
     public static void glColor(int color)
