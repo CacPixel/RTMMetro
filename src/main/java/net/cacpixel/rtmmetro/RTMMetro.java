@@ -2,12 +2,14 @@ package net.cacpixel.rtmmetro;
 
 import jp.ngt.ngtlib.io.NGTLog;
 import jp.ngt.ngtlib.util.NGTUtil;
+import jp.ngt.rtm.RTMResource;
 import jp.ngt.rtm.modelpack.ModelPackManager;
 import jp.ngt.rtm.modelpack.ResourceType;
 import jp.ngt.rtm.modelpack.init.ModelPackLoadThread;
 import net.cacpixel.rtmmetro.client.gui.RTMMetroGUIHandler;
 import net.cacpixel.rtmmetro.event.RTMMetroEventHandler;
 import net.cacpixel.rtmmetro.proxy.CommonProxy;
+import net.cacpixel.rtmmetro.util.RTMMetroUtils;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
@@ -56,23 +58,21 @@ public class RTMMetro
     public void preInit(FMLPreInitializationEvent event)
     {
         logger = event.getModLog();
-        RTMMetroResource.init();
         RTMMetroBlock.init();
         RTMMetroItems.init();
         RTMMetroPackets.init();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new RTMMetroGUIHandler());
         proxy.preInit();
+        RTMMetroUtils.loadRTMModelPack();
     }
 
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
-        printTagMap();
+//        printTagMap();
         proxy.init();
         RTMMetroToolTip.init();
         MinecraftForge.EVENT_BUS.register(new RTMMetroEventHandler());
-        ModelPackLoadThread thread = new ModelPackLoadThread(NGTUtil.isServer() ? Side.SERVER : Side.CLIENT);
-        thread.start();
     }
 
     @EventHandler

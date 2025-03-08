@@ -1,5 +1,13 @@
 package net.cacpixel.rtmmetro.util;
 
+import jp.ngt.ngtlib.NGTCore;
+import jp.ngt.ngtlib.util.NGTUtil;
+import jp.ngt.rtm.RTMResource;
+import jp.ngt.rtm.modelpack.init.ModelPackLoadThread;
+import net.cacpixel.rtmmetro.RTMMetro;
+import net.cacpixel.rtmmetro.RTMMetroResource;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
 import org.apache.commons.io.IOUtils;
 
 import java.io.PrintWriter;
@@ -83,5 +91,18 @@ public class RTMMetroUtils
         }
 
         return s;
+    }
+
+    public static void loadRTMModelPack()
+    {
+        loadRTMModelPack(NGTCore.proxy.isServer() ? Side.SERVER : Side.CLIENT);
+    }
+
+    public static void loadRTMModelPack(Side side)
+    {
+        RTMResource.init();
+        RTMMetroResource.init();
+        ModelPackLoadThread thread = new ModelPackLoadThread(side);
+        thread.start();
     }
 }

@@ -7,7 +7,10 @@
   "priority": 0,
   "refmap": "mixins.rtmmetro_early.refmap.json",
   "mixins": [
-    "MixinPlayerControllerMP"
+    "MixinModelPackLoadThread",
+    "MixinPlayerControllerMP",
+    "MixinRTMResource",
+    "MixinScriptUtil"
   ],
   "client": [
     "ClientMixinGuiIngame"
