@@ -14,18 +14,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Mixin(value = ModelPackConstructThread.class, remap = false)
 public abstract class MixinModelPackConstructThread extends Thread
 {
-    @Final
-    @Shadow
-    private Side threadSide;
-    @Final
-    @Shadow
-    private ModelPackLoadThread parent;
-    @Shadow
-    private boolean loading;
-    @Unique
-    private AtomicInteger rtmmetro$index = new AtomicInteger(0);
-    @Shadow
-    private boolean barStateChanged;
+    @Final @Shadow private Side threadSide;
+    @Final @Shadow private ModelPackLoadThread parent;
+    @Shadow private boolean loading;
+    @Unique private AtomicInteger rtmmetro$index = new AtomicInteger(0);
+    @Shadow private boolean barStateChanged;
 
     /**
      * @author
