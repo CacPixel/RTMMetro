@@ -1,5 +1,6 @@
 package net.cacpixel.rtmmetro.render;
 
+import jp.ngt.ngtlib.block.BlockUtil;
 import jp.ngt.ngtlib.math.NGTMath;
 import jp.ngt.ngtlib.renderer.GLHelper;
 import jp.ngt.ngtlib.renderer.NGTRenderer;
@@ -7,6 +8,7 @@ import jp.ngt.ngtlib.renderer.NGTTessellator;
 import jp.ngt.ngtlib.util.ColorUtil;
 import jp.ngt.ngtlib.util.NGTUtilClient;
 import jp.ngt.rtm.RTMCore;
+import jp.ngt.rtm.RTMItem;
 import jp.ngt.rtm.gui.InternalButton;
 import jp.ngt.rtm.gui.InternalGUI;
 import jp.ngt.rtm.rail.util.MarkerState;
@@ -15,6 +17,7 @@ import jp.ngt.rtm.rail.util.RailPosition;
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
+import net.cacpixel.rtmmetro.RTMMetroItems;
 import net.cacpixel.rtmmetro.network.PacketMarkerClient;
 import net.cacpixel.rtmmetro.rail.block.BlockMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
@@ -37,6 +40,7 @@ import org.lwjgl.opengl.GL12;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @SideOnly(Side.CLIENT)
 public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEntityMarkerAdvanced>
@@ -416,7 +420,20 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
         GL11.glPushMatrix();
         GL11.glTranslatef(x, y, z);
         MarkerElement element = MarkerElement.values()[marker.editMode];
-        if (marker.editMode == 0 && NGTUtilClient.getMinecraft().inGameHasFocus)
+        Minecraft mc = NGTUtilClient.getMinecraft();
+        boolean shouldPick = marker.editMode == 0 && mc.inGameHasFocus;
+        RayTraceResult raytraceresult = WorldUtils.getRayTraceResult(mc.player, mc.world);
+        if (raytraceresult != null && raytraceresult.typeOfHit == RayTraceResult.Type.BLOCK)
+        {
+            BlockPos pos = raytraceresult.getBlockPos();
+            Block block = BlockUtil.getBlock(mc.world, pos);
+            if (block instanceof BlockMarkerAdvanced && Stream.of(RTMMetroItems.railAdvanced, RTMItem.itemLargeRail)
+                    .anyMatch(item -> item == mc.player.getHeldItemMainhand().getItem()))
+            {
+                shouldPick = false;
+            }
+        }
+        if (shouldPick)
         {
             element = this.renderAnchorLine(marker, true, null);
         }
