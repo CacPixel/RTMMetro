@@ -12,14 +12,14 @@ import org.spongepowered.asm.mixin.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Mixin(value = ModelPackConstructThread.class, remap = false)
-public class MixinModelPackConstructThread extends Thread
+public abstract class MixinModelPackConstructThread extends Thread
 {
     @Final
     @Shadow
-    private final Side threadSide = null;
+    private Side threadSide;
     @Final
     @Shadow
-    private final ModelPackLoadThread parent = null;
+    private ModelPackLoadThread parent;
     @Shadow
     private boolean loading;
     @Unique
