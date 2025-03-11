@@ -8,7 +8,6 @@ import jp.ngt.rtm.modelpack.ResourceType;
 import jp.ngt.rtm.modelpack.init.ModelPackLoadThread;
 import net.cacpixel.rtmmetro.client.gui.RTMMetroGUIHandler;
 import net.cacpixel.rtmmetro.event.RTMMetroEventHandler;
-import net.cacpixel.rtmmetro.modelpack.init.ModelPackManagerEx;
 import net.cacpixel.rtmmetro.proxy.CommonProxy;
 import net.cacpixel.rtmmetro.util.RTMMetroUtils;
 import net.minecraftforge.common.MinecraftForge;
@@ -64,7 +63,7 @@ public class RTMMetro
         RTMMetroPackets.init();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new RTMMetroGUIHandler());
         proxy.preInit();
-        ModelPackManagerEx.INSTANCE.loadRTMModelPack();
+        RTMMetroUtils.loadRTMModelPack();
     }
 
     @EventHandler

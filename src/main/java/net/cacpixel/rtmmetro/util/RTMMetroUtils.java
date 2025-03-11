@@ -92,4 +92,17 @@ public class RTMMetroUtils
 
         return s;
     }
+
+    public static void loadRTMModelPack()
+    {
+        loadRTMModelPack(NGTCore.proxy.isServer() ? Side.SERVER : Side.CLIENT);
+    }
+
+    public static void loadRTMModelPack(Side side)
+    {
+        RTMResource.init();
+        RTMMetroResource.init();
+        ModelPackLoadThread thread = new ModelPackLoadThread(side);
+        thread.start();
+    }
 }
