@@ -101,7 +101,6 @@ public abstract class MixinModelPackConstructThread extends Thread
             ManagerEx.size.set(0);
             ManagerEx.lastLoadedModelName.set("");
             this.loading = false;
-            System.gc();
             return true;
         }
         else

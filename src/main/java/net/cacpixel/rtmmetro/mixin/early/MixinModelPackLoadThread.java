@@ -71,7 +71,7 @@ public abstract class MixinModelPackLoadThread extends Thread
 
         while (!thread2.setFinish())
         {
-            sleep(500L);
+            sleep(50L);
         }
 
         this.finish();
