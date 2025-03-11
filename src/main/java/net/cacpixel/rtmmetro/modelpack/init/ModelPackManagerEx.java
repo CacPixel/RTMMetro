@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
+import org.lwjgl.opengl.Display;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -123,6 +124,7 @@ public class ModelPackManagerEx
         {
             try
             {
+                Display.update();
                 Thread.sleep(50);
             }
             catch (InterruptedException e)
