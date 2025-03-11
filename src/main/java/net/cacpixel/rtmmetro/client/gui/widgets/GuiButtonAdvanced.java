@@ -1,6 +1,5 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
-import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.client.gui.Align;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiTheme;

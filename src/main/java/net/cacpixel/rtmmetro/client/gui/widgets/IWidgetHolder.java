@@ -4,7 +4,6 @@ import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.cacpixel.rtmmetro.util.RTMMetroException;
 import net.cacpixel.rtmmetro.util.RTMMetroUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.opengl.GL11;
 
 import java.lang.reflect.Constructor;

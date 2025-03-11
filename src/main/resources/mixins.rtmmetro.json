@@ -12,8 +12,8 @@
     "MixinTileEntityLargeRailCore"
   ],
   "client": [
-    "ClientMixinMPLAdButton",
-    "ClientMixinModelSetBase"
+    "ClientMixinModelSetBase",
+    "ClientMixinMPLAdButton"
   ],
   "server": [
   ]

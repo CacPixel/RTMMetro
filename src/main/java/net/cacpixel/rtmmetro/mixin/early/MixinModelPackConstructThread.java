@@ -11,7 +11,10 @@ import org.spongepowered.asm.mixin.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @Mixin(value = ModelPackConstructThread.class, remap = false)
 public abstract class MixinModelPackConstructThread extends Thread
@@ -20,7 +23,7 @@ public abstract class MixinModelPackConstructThread extends Thread
     @Final @Shadow private ModelPackLoadThread parent;
     @Shadow private boolean loading;
     @Shadow private boolean barStateChanged;
-    @Unique private final static ModelPackManagerEx FMPC = ModelPackManagerEx.INSTANCE;
+    @Unique private final static ModelPackManagerEx ManagerEx = ModelPackManagerEx.INSTANCE;
 
     /**
      * @author
@@ -38,12 +41,12 @@ public abstract class MixinModelPackConstructThread extends Thread
                     {
                         this.parent.setBarValue(ProgressStateHolder.BAR_MAIN,
                                 ProgressStateHolder.ProgressState.CONSTRUCTING_MODEL);
-                        int size = FMPC.size.get();
+                        int size = ManagerEx.size.get();
                         this.parent.setBarMaxValue(ProgressStateHolder.BAR_SUB, size, "");
                         this.barStateChanged = true;
                     }
-                    this.parent.setBarValue(ProgressStateHolder.BAR_SUB, FMPC.index.get(),
-                            FMPC.lastLoadedModelName.get());
+                    this.parent.setBarValue(ProgressStateHolder.BAR_SUB, ManagerEx.index.get(),
+                            ManagerEx.lastLoadedModelName.get());
                 }
                 try
                 {
@@ -62,16 +65,16 @@ public abstract class MixinModelPackConstructThread extends Thread
 
         while (this.loading)
         {
-            FMPC.addUnconstructSetsToQueue();
-            while (FMPC.size.get() > FMPC.index.get())
+            ManagerEx.addUnconstructSetsToQueue();
+            while (ManagerEx.size.get() > ManagerEx.index.get())
             {
-                ResourceSet<?> set = FMPC.unconstructSetsQueue.poll();
+                ResourceSet<?> set = ManagerEx.unconstructSetsQueue.poll();
                 if (set == null)
                 {
                     break;
                 }
                 futures.add(exec.submit(() -> {
-                    FMPC.construct(set, this.threadSide);
+                    ManagerEx.construct(set, this.threadSide);
                 }));
             }
             sleep(50L);
@@ -90,13 +93,13 @@ public abstract class MixinModelPackConstructThread extends Thread
     @Overwrite
     public boolean setFinish()
     {
-        if (FMPC.size.get() == FMPC.index.get())
+        if (ManagerEx.size.get() == ManagerEx.index.get())
         {
             ModelPackManager.INSTANCE.unconstructSets.clear();
             ModelPackManager.INSTANCE.clearCache();
-            FMPC.index.set(0);
-            FMPC.size.set(0);
-            FMPC.lastLoadedModelName.set("");
+            ManagerEx.index.set(0);
+            ManagerEx.size.set(0);
+            ManagerEx.lastLoadedModelName.set("");
             this.loading = false;
             System.gc();
             return true;
