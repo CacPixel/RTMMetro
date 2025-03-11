@@ -27,7 +27,7 @@ public abstract class MixinModelPackConstructThread extends Thread
      * @reason
      */
     @Overwrite
-    public void runThread() throws InterruptedException, ExecutionException
+    private void runThread() throws InterruptedException, ExecutionException
     {
         Thread guiUpdateThread = new Thread(() -> {
             while (this.loading)
