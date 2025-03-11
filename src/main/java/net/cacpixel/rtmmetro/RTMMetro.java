@@ -75,37 +75,15 @@ public class RTMMetro
     public void complete(FMLLoadCompleteEvent event)
     {
         proxy.complete();
-
         if (Loader.isModLoaded("fix-rtm"))
         {
             HAS_FIXRTM_MOD = true;
         }
+        ModelPackManagerEx.INSTANCE.waitForComplete();
     }
 
     public static boolean hasFixrtm()
     {
         return HAS_FIXRTM_MOD;
     }
-
-    private static void printTagMap()
-    {
-        // 反射获取ModelPackManager.typeMap字段，debug用
-        try
-        {
-            Field field = ModelPackManager.class.getDeclaredField("typeMap");
-            field.setAccessible(true);
-            Map<String, ResourceType> map = (Map<String, ResourceType>) field.get(ModelPackManager.INSTANCE);
-            Set<String> strSet = map.keySet();
-            NGTLog.debug("[RTMMetro] Registered ResourceTypes:");
-            for (String str : strSet)
-            {
-                NGTLog.debug("  - " + str);
-            }
-        }
-        catch (IllegalAccessException | NoSuchFieldException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
 }

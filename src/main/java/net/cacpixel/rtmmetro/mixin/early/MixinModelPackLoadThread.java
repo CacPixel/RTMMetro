@@ -33,6 +33,7 @@ public abstract class MixinModelPackLoadThread extends Thread
         if (ModelPackManagerEx.INSTANCE.isInitialized())
         {
             ci.cancel();
+            return;
         }
         ModelPackManagerEx.INSTANCE.setState(ModelPackManagerEx.State.INITIALIZED);
     }
@@ -77,7 +78,5 @@ public abstract class MixinModelPackLoadThread extends Thread
         this.finish();
         NGTLog.stopTimer("Model load time");
         ModelPackManagerEx.INSTANCE.setState(ModelPackManagerEx.State.CONSTRUCTED);
-        if (ModelPackManagerEx.INSTANCE.callingThread != null)
-            ModelPackManagerEx.INSTANCE.callingThread.interrupt();
     }
 }

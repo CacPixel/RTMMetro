@@ -28,8 +28,7 @@ public class ModelPackManagerEx
     public final ConcurrentLinkedQueue<ResourceSet<?>> unconstructSetsQueue = new ConcurrentLinkedQueue<>();
     public final AtomicInteger size = new AtomicInteger(0);
     public final AtomicReference<String> lastLoadedModelName = new AtomicReference<>("");
-    private State state = State.UNINITIALIZED;
-    public Thread callingThread = null;
+    private volatile State state = State.UNINITIALIZED;
 
     public ModelPackManagerEx()
     {
@@ -92,7 +91,6 @@ public class ModelPackManagerEx
     public void reloadRTMModelPack()
     {
         setState(State.UNINITIALIZED);
-        callingThread = Thread.currentThread();
         loadRTMModelPack();
         while (state != State.CONSTRUCTED)
         {
@@ -102,10 +100,9 @@ public class ModelPackManagerEx
             }
             catch (InterruptedException e)
             {
-                NGTLog.debug("Model Pack Reload Complete.");
             }
         }
-        callingThread = null;
+        NGTLog.debug("Model Pack Reload Complete.");
     }
 
     public boolean isInitialized()
@@ -118,6 +115,21 @@ public class ModelPackManagerEx
         this.state = state;
         if (state == State.UNINITIALIZED)
             resetAllCache();
+    }
+
+    public void waitForComplete()
+    {
+        while (state != State.CONSTRUCTED)
+        {
+            try
+            {
+                Thread.sleep(50);
+            }
+            catch (InterruptedException e)
+            {
+            }
+        }
+        NGTLog.debug("Model Pack Load Complete.");
     }
 
     @SuppressWarnings("unchecked, rawtypes")
