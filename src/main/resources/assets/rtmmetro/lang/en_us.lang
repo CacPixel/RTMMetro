@@ -61,3 +61,4 @@ gui.marker.cant_random=Cant Random
 gui.marker.edit_status_h=Lock status of Horizontal
 gui.marker.edit_status_v=Lock status of Vertical
 gui.marker.rail_drawing_scheme=Rail Drawing Scheme
+gui.marker.textbox_straight_line=Straight Line

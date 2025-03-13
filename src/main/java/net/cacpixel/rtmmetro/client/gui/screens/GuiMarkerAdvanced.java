@@ -30,9 +30,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntSupplier;
+import java.util.stream.Stream;
 
 @SideOnly(Side.CLIENT)
 public class GuiMarkerAdvanced extends GuiFullScreen
@@ -513,6 +515,18 @@ public class GuiMarkerAdvanced extends GuiFullScreen
     @Override
     public void drawScreenBefore(int mouseX, int mouseY, float partialTicks)
     {
+        Stream.of(fieldAnchorLengthHorizontal, fieldAnchorLengthVertical).forEach(f -> {
+            if (f.fieldValue < 0 && !f.isFocused())
+            {
+                f.setText(I18n.format("gui.marker.textbox_straight_line"));
+                f.prefixTextFormatting = TextFormatting.GRAY + TextFormatting.ITALIC.toString();
+            }
+            if (f.fieldValue < 0 && f.isFocused())
+            {
+                f.setText("");
+                f.prefixTextFormatting = "";
+            }
+        });
         this.drawDefaultBackgroundBefore();
         super.drawScreenBefore(mouseX, mouseY, partialTicks);
     }

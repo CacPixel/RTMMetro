@@ -44,6 +44,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
     // GuiTextField Fields END
     private final List<String> tips = new ArrayList<>();
     public boolean setTextIgnoreValidator = true;
+    public String prefixTextFormatting = "";
 
     public GuiTextFieldAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
                                 IntSupplier widthSupplier, IntSupplier heightSupplier)
@@ -479,7 +480,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
             if (!s.isEmpty())
             {
                 String s1 = flag ? s.substring(0, j) : s;
-                j1 = this.fontRenderer.drawStringWithShadow(s1, (float) l, (float) i1, color);
+                j1 = this.fontRenderer.drawStringWithShadow(prefixTextFormatting + s1, (float) l, (float) i1, color);
             }
 
             boolean flag2 = this.cursorPosition < this.text.length() || this.text.length() >= this.getMaxStringLength();
@@ -497,7 +498,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
 
             if (!s.isEmpty() && flag && j < s.length())
             {
-                j1 = this.fontRenderer.drawStringWithShadow(s.substring(j), (float) j1, (float) i1, color);
+                j1 = this.fontRenderer.drawStringWithShadow(prefixTextFormatting + s.substring(j), (float) j1, (float) i1, color);
             }
 
             if (flag1)
@@ -509,7 +510,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
                 }
                 else
                 {
-                    this.fontRenderer.drawStringWithShadow("_", (float) k1, (float) i1, color);
+                    this.fontRenderer.drawStringWithShadow(prefixTextFormatting + "_", (float) k1, (float) i1, color);
                 }
             }
 

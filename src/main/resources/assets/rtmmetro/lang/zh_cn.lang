@@ -61,3 +61,4 @@ gui.marker.cant_random=随机超高（抖动）
 gui.marker.edit_status_h=水平方向锁定状态（绿线）
 gui.marker.edit_status_v=垂直方向锁定状态（橙线）
 gui.marker.rail_drawing_scheme=轨道绘制方案
+gui.marker.textbox_straight_line=当前为直线

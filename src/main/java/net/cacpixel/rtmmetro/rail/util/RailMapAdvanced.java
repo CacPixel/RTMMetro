@@ -86,8 +86,9 @@ public class RailMapAdvanced extends RailMapBasic
         boolean isFaceToFace = (isOppositeMarker && (isInSameAxis || isOpposite45));
         boolean lineMoved = (startRP.anchorYaw != NGTMath.wrapAngle(startRP.direction * 45.0F)
                 || endRP.anchorYaw != NGTMath.wrapAngle(endRP.direction * 45.0F));
-        boolean isHorizontalLengthZero = startRP.anchorLengthHorizontal <= 0.0f && endRP.anchorLengthHorizontal <= 0.0f
+        boolean isHorizontalUninitialized = startRP.anchorLengthHorizontal <= 0.0f && endRP.anchorLengthHorizontal <= 0.0f
                 && startRP.anchorLengthHorizontal != -1.0f && endRP.anchorLengthHorizontal != -1.0f;
+        boolean isHorizontalLengthZeroOrMinus = startRP.anchorLengthHorizontal <= 0.0f && endRP.anchorLengthHorizontal <= 0.0f;
         double angleWhileStraight = NGTMath.toDegrees(Math.atan2(endX - startX, endZ - startZ));
         double angleWhileStraightV = NGTMath.toDegrees(
                 Math.atan2(endY - startY, CacMath.getLength(new double[]{startX, startZ}, new double[]{endX, endZ})));
@@ -98,7 +99,7 @@ public class RailMapAdvanced extends RailMapBasic
         boolean isSwitch = this.startRP.switchType == 1 || this.endRP.switchType == 1;
 
         boolean shouldCreateStraightLine = !lineMoved && isFaceToFace;
-        if (isHorizontalLengthZero || yawApproachingStraight)
+        if (isHorizontalUninitialized || yawApproachingStraight)
             shouldCreateStraightLine = true;
         if (isSwitch)
             shouldCreateStraightLine = false;
@@ -108,7 +109,7 @@ public class RailMapAdvanced extends RailMapBasic
             this.lineHorizontal = new StraightLineAdvanced(startZ, startX, endZ, endX);
             this.startRP.anchorYaw = (float) MathHelper.wrapDegrees(NGTMath.toDegrees(this.lineHorizontal.getSlope(0, 0)));
             this.endRP.anchorYaw = (float) MathHelper.wrapDegrees(180.0 + NGTMath.toDegrees(this.lineHorizontal.getSlope(0, 0)));
-            if (isHorizontalLengthZero)
+            if (isHorizontalLengthZeroOrMinus)
                 this.startRP.anchorLengthHorizontal = this.endRP.anchorLengthHorizontal = -0.75F;
         }
         else
