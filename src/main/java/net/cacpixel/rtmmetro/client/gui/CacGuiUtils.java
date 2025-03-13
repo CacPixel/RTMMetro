@@ -392,7 +392,7 @@ public class CacGuiUtils
         int fontHeight = fontRendererIn.FONT_HEIGHT - 1;
         float iconScale = 1.5F;
         int iconSize = icon != null ? (int) (fontHeight * iconScale) : 0;
-        int diff = (int) (iconSize * 0.2f);
+        int diff = (int) (iconSize * 0.5f);
         w = Math.max(w, fontHeight + iconSize + 1); // 保证宽度足够，否则wrapFormattedStringToWidth会报stackoverflow
         List<String> strList = new ArrayList<>();
         for (String str : strListIn)
