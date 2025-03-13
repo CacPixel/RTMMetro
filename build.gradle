@@ -1,11 +1,15 @@
 buildscript {
     repositories {
-        mavenCentral()
-        maven { url = "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
-        maven { url = "https://maven.aliyun.com/nexus/content/groups/public" }
-        maven { url = "https://maven.aliyun.com/nexus/content/repositories/google" }
-        maven { url = "https://repo.spongepowered.org/maven" }
-        maven { url = "https://files.minecraftforge.net/maven" }
+//        mavenCentral()
+//        maven { url = "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
+//        maven { url = "https://maven.aliyun.com/nexus/content/groups/public" }
+//        maven { url = "https://maven.aliyun.com/nexus/content/repositories/google" }
+//        maven { url = "https://repo.spongepowered.org/maven" }
+//        maven { url = "https://files.minecraftforge.net/maven" }
+        maven {
+            name = "forge"
+            url = "https://lss233.littleservice.cn/repositories/minecraft"
+        }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:5.+' //2.3-SNAPSHOT
@@ -29,15 +33,16 @@ mixin {
 }
 
 repositories {
-    mavenCentral()
-    maven { url = "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
-    maven { url = "https://maven.aliyun.com/nexus/content/groups/public" }
-    maven { url = "https://maven.aliyun.com/nexus/content/repositories/google" }
-
-    maven { url = "https://cursemaven.com" }
-    maven { url = "https://repo.spongepowered.org/maven" }
-    maven { url = "https://api.modrinth.com/maven" }
+//    mavenCentral()
+//    maven { url = "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
+//    maven { url = "https://maven.aliyun.com/nexus/content/groups/public" }
+//    maven { url = "https://maven.aliyun.com/nexus/content/repositories/google" }
+//
+//    maven { url = "https://cursemaven.com" }
+//    maven { url = "https://repo.spongepowered.org/maven" }
+//    maven { url = "https://api.modrinth.com/maven" }
     maven { url = 'https://maven.cleanroommc.com' }
+    maven { url 'https://lss233.littleservice.cn/repositories/minecraft' }
 }
 
 modId = property("modId").toString()
