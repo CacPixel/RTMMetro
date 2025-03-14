@@ -8,11 +8,8 @@ import net.cacpixel.rtmmetro.event.RTMMetroEventHandler;
 import net.cacpixel.rtmmetro.modelpack.init.ModelPackManagerEx;
 import net.cacpixel.rtmmetro.proxy.CommonProxy;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.*;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.ModMetadata;
-import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -75,11 +72,14 @@ public class RTMMetro
     public void complete(FMLLoadCompleteEvent event)
     {
         proxy.complete();
+        ProgressManager.ProgressBar bar = ProgressManager.push("RTM ModelPack", 1, true);
+        bar.step("Construct model");
+        ModelPackManagerEx.INSTANCE.waitForComplete();
+        ProgressManager.pop(bar);
         if (Loader.isModLoaded("fix-rtm"))
         {
             HAS_FIXRTM_MOD = true;
         }
-        ModelPackManagerEx.INSTANCE.waitForComplete();
     }
 
     public static boolean hasFixrtm()

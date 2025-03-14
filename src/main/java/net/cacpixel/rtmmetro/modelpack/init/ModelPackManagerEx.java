@@ -7,10 +7,12 @@ import jp.ngt.rtm.modelpack.ModelPackManager;
 import jp.ngt.rtm.modelpack.ResourceType;
 import jp.ngt.rtm.modelpack.init.ModelPackLoadThread;
 import jp.ngt.rtm.modelpack.modelset.ResourceSet;
+import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.RTMMetroResource;
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
 import java.lang.reflect.Field;
@@ -123,7 +125,8 @@ public class ModelPackManagerEx
         {
             try
             {
-                Thread.sleep(50);
+                FMLCommonHandler.instance().processWindowMessages();
+                Thread.sleep(100);
             }
             catch (InterruptedException e)
             {
