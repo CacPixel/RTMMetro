@@ -1,12 +1,7 @@
 package net.cacpixel.rtmmetro.client.gui;
 
-import jp.ngt.ngtlib.io.ScriptUtil;
-import jp.ngt.ngtlib.math.NGTMath;
 import jp.ngt.ngtlib.util.NGTUtilClient;
-import net.cacpixel.rtmmetro.client.gui.widgets.GuiTextFieldAdvanced;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
-import net.cacpixel.rtmmetro.math.CacMath;
-import net.cacpixel.rtmmetro.util.ModLog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
@@ -15,19 +10,16 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-import javax.script.ScriptEngine;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SideOnly(Side.CLIENT)
 public class CacGuiUtils
@@ -266,65 +258,6 @@ public class CacGuiUtils
         }
 
         drawRect(x, startY + 1, x + 1, endY, color);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T getFieldValue(GuiTextFieldAdvanced field, T defaultVal)
-    {
-        T ret;
-        String text = field.getText();
-        String prefix = "importClass(Packages." + Math.class.getCanonicalName() + "); \r\n" +
-                "importClass(Packages." + NGTMath.class.getCanonicalName() + "); \r\n" +
-                "importClass(Packages." + CacMath.class.getCanonicalName() + "); \r\n" +
-                "importClass(Packages." + MathHelper.class.getCanonicalName() + "); \r\n";
-        try
-        {
-            // 禁用词：换行符 分号 字符串 importClass importPackage load class ClassLoader invoke null exec System java
-            // test str: NGTMath.class.getClassLoader().loadClass("java.lang.Runtime").getMethod("getRuntime").invoke
-            // (null).exec("calc");
-            if (Stream.of("\r", "\n", ";", "\"", "import", "class", "package", "load", "invoke", "null", "exec",
-                            "system", "java")
-                    .anyMatch(text.toLowerCase()::contains))
-            {
-                ModLog.debug("Execution not allowed: " + text);
-                return defaultVal;
-            }
-            ScriptEngine se = ScriptUtil.doScript(prefix + "x = " + text);
-            String result = ScriptUtil.getScriptField(se, "x").toString();
-//            ModLog.debug("Executing script: " + "x = " + text + "; Result is: " + result);
-            if (defaultVal instanceof Byte)
-            {
-                ret = (T) Byte.valueOf(result);
-            }
-            else if (defaultVal instanceof Integer)
-            {
-                ret = (T) Integer.valueOf(result);
-            }
-            else if (defaultVal instanceof Long)
-            {
-                ret = (T) Long.valueOf(result);
-            }
-            else if (defaultVal instanceof Float)
-            {
-                ret = (T) Float.valueOf(result);
-            }
-            else if (defaultVal instanceof Double)
-            {
-                ret = (T) Double.valueOf(result);
-            }
-            else
-            {
-                ModLog.debug("GuiHelper.getFieldValue : Type not supported : %s", defaultVal.getClass().toString());
-                return defaultVal;
-            }
-        }
-        catch (Throwable e)
-        {
-//            ModLog.debug("Expression syntax error: " + ((e.getCause() == null) ? e.getMessage() : e.getCause()
-//            .getMessage()));
-            return defaultVal;
-        }
-        return ret;
     }
 
     public void drawGradientRect(int left, int top, int right, int bottom, int startColor, int endColor, float zLevel)

@@ -69,20 +69,21 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
             if (code == Keyboard.KEY_UP)
             {
                 this.incValue(CacGuiUtils.DEFAULT_SCROLL_VALUE);
-                this.fieldValue = CacGuiUtils.getFieldValue(this, this.fieldValue);
+                this.fieldValue = this.getFieldValue(this.fieldValue, false);
                 this.checkValueAndSetText();
                 this.pScr.hasValueUpdated = true;
             }
             else if (code == Keyboard.KEY_DOWN)
             {
                 this.incValue(-CacGuiUtils.DEFAULT_SCROLL_VALUE);
-                this.fieldValue = CacGuiUtils.getFieldValue(this, this.fieldValue);
+                this.fieldValue = this.getFieldValue(this.fieldValue, false);
                 this.checkValueAndSetText();
                 this.pScr.hasValueUpdated = true;
             }
             else
             {
-                this.fieldValue = CacGuiUtils.getFieldValue(this, this.fieldValue);
+                boolean doScript = code != Keyboard.KEY_LSHIFT && code != Keyboard.KEY_LMENU;
+                this.fieldValue = this.getFieldValue(this.fieldValue, doScript);
                 if (this.isValueValid())
                 {
                     this.pScr.hasValueUpdated = true;
