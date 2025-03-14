@@ -244,7 +244,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     @Override
     public void onGuiClosed()
     {
-        Keyboard.enableRepeatEvents(false);
+        if (this.parentScreen == null)
+            Keyboard.enableRepeatEvents(false);
     }
 
     public void drawWorldBackground(int tint, int left, int top, int right, int bottom)
