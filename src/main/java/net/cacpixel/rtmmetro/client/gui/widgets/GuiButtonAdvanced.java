@@ -145,7 +145,7 @@ public class GuiButtonAdvanced extends GuiWidget
 
     public static Image getSaveIcon()
     {
-        return new Image(GuiTheme.getCurrentResourceLocation("save"),
-                0, 0, 64,64, 64, 64, 0xFFFFFF);
+        return new Image(GuiTheme.getCurrentResourceLocation("icon/save"),
+                0, 0, 64, 64, 64, 64, 0xFFFFFF);
     }
 }

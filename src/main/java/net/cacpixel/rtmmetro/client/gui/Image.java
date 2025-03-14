@@ -42,4 +42,40 @@ public class Image
         this.color = color;
         return this;
     }
+
+    public Image setU(int u)
+    {
+        this.u = u;
+        return this;
+    }
+
+    public Image setV(int v)
+    {
+        this.v = v;
+        return this;
+    }
+
+    public Image setuWidth(int uWidth)
+    {
+        this.uWidth = uWidth;
+        return this;
+    }
+
+    public Image setvHeight(int vHeight)
+    {
+        this.vHeight = vHeight;
+        return this;
+    }
+
+    public Image setTextureWidth(int textureWidth)
+    {
+        this.textureWidth = textureWidth;
+        return this;
+    }
+
+    public Image setTextureHeight(int textureHeight)
+    {
+        this.textureHeight = textureHeight;
+        return this;
+    }
 }

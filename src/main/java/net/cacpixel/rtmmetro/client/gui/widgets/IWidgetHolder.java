@@ -1,5 +1,6 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
+import net.cacpixel.rtmmetro.client.gui.GuiParam;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.cacpixel.rtmmetro.util.RTMMetroException;
 import net.cacpixel.rtmmetro.util.RTMMetroUtils;
@@ -28,30 +29,25 @@ public interface IWidgetHolder
         return this;
     }
 
-    static IntSupplier toSupplier(int x)
-    {
-        return () -> x;
-    }
-
-    default <T extends GuiWidget> T addWidget(Class<T> clazz, int id, IntSupplier x, IntSupplier y,
+    default <T extends GuiWidget> T addWidget(Class<T> clazz, IntSupplier x, IntSupplier y,
                                               IntSupplier width, IntSupplier height, Object... args)
     {
-        return this.addWidget(clazz, id, (Object) x, (Object) y, (Object) width, (Object) height, args);
+        return this.addWidget(clazz, (Object) x, y, width, height, args);
     }
 
     @SuppressWarnings("unchecked")
-    default <T extends GuiWidget> T addWidget(Class<T> clazz, int id, Object x, Object y,
+    default <T extends GuiWidget> T addWidget(Class<T> clazz, Object x, Object y,
                                               Object width, Object height, Object... args)
     {
         try
         {
             List<Object> params = new ArrayList<>();
             params.add(this);
-            params.add(id);
-            params.add(x instanceof IntSupplier ? x : toSupplier((int) x));
-            params.add(y instanceof IntSupplier ? y : toSupplier((int) y));
-            params.add(width instanceof IntSupplier ? width : toSupplier((int) width));
-            params.add(height instanceof IntSupplier ? height : toSupplier((int) height));
+            params.add(this.getScreen().getNextWidgetId());
+            params.add(x instanceof IntSupplier ? x : fromInt((int) x));
+            params.add(y instanceof IntSupplier ? y : fromInt((int) y));
+            params.add(width instanceof IntSupplier ? width : fromInt((int) width));
+            params.add(height instanceof IntSupplier ? height : fromInt((int) height));
             params.addAll(Arrays.asList(args));
             Constructor<?> ctor = Arrays.stream(clazz.getConstructors()).filter(constructor -> {
                 Class<?>[] constructorParamTypes = constructor.getParameterTypes();
@@ -186,9 +182,42 @@ public interface IWidgetHolder
 
     }
 
+    int getX();
+
+    int getY();
+
+    int getWidth();
+
+    int getHeight();
+
     default void applyScissorFullScreen()
     {
         Minecraft mc = Minecraft.getMinecraft();
         GL11.glScissor(0, 0, mc.displayWidth, mc.displayHeight);
+    }
+
+    default GuiParam fromWidth()
+    {
+        return this::getWidth;
+    }
+
+    default GuiParam fromHeight()
+    {
+        return this::getHeight;
+    }
+
+    default GuiParam fromHalfWidth()
+    {
+        return fromWidth().thenDivideBy(2);
+    }
+
+    default GuiParam fromHalfHeight()
+    {
+        return fromHeight().thenDivideBy(2);
+    }
+
+    default GuiParam fromInt(int x)
+    {
+        return GuiParam.from(x);
     }
 }

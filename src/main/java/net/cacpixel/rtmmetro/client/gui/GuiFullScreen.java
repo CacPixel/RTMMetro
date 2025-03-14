@@ -17,10 +17,10 @@ public abstract class GuiFullScreen extends GuiScreenAdvanced
     public void initGui()
     {
         super.initGui();
-        buttonClose = this.addWidget(GuiButtonAdvanced.class, this.getNextWidgetId(),
+        buttonClose = this.addWidget(GuiButtonAdvanced.class,
                         () -> 5, () -> 5, () -> 20, () -> 20)
                 .setDisplayString(this.parentScreen == null ? "x" : "<").setListener(this::closeButtonCallback);
-        labelTitle = this.addWidget(GuiLabelAdvanced.class, this.getNextWidgetId(),
+        labelTitle = this.addWidget(GuiLabelAdvanced.class,
                 (IntSupplier) () -> 30, 0,
                 (IntSupplier) () -> this.width - 30, 30, 0xE0E0E0).setAlignY(Align.CENTERED);
     }

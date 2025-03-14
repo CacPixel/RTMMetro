@@ -361,7 +361,8 @@ public class CacGuiUtils
                 CacGuiUtils.bindTexture(icon);
                 glColor(iconColor);
                 CacGuiUtils.drawTexturedModalRect(strStartX - iconSize - diff,
-                        (int) (strY - iconSize / 2.0 + fontHeight / 2.0), iconSize, iconSize, 0);
+                        (int) (strY - iconSize / 2.0 + fontHeight / 2.0), iconSize, iconSize, image.u, image.v,
+                        image.uWidth, image.vHeight, 0, image.textureWidth, image.textureHeight);
             }
             strY += lineHeight;
         }

@@ -8,8 +8,7 @@ import jp.ngt.rtm.rail.util.RailPosition;
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
-import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
-import net.cacpixel.rtmmetro.client.gui.GuiFullScreen;
+import net.cacpixel.rtmmetro.client.gui.*;
 import net.cacpixel.rtmmetro.client.gui.toast.CacToast;
 import net.cacpixel.rtmmetro.client.gui.toast.GuiToastAdvanced;
 import net.cacpixel.rtmmetro.client.gui.widgets.*;
@@ -30,7 +29,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntSupplier;
@@ -103,12 +101,14 @@ public class GuiMarkerAdvanced extends GuiFullScreen
     {
         int fieldW = 75;
         int fieldH = 14;
-        int fieldX = 120;
+        int fieldX = 140;
         int fieldY = 8;//50;
         int buttW = 80;
         int buttH = fieldH + 4;
         int buttX = fieldX + fieldW + 2;
         int lineHeight = 18;
+        int stringXpos = 10;
+        int fontColor = 0xE0E0E0 | this.getAlphaInt(0xFF);
 
         super.initGui();
         this.labelTitle.setText(String.format(
@@ -402,6 +402,73 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                             new CacToast(new TextComponentString(I18n.format("gui.marker.toast.success")),
                                     new TextComponentString(I18n.format("gui.marker.toast.parameter_saved"))));
                 });
+
+        int labelY = 6;
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+                .setText(I18n.format("gui.marker.marker_group")).setAlignY(Align.CENTERED)
+                .setIcon(new Image(GuiTheme.getCurrentResourceLocation("icon/marker_group")).setColor(0xFFFFFF));
+        labelY += lineHeight;
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+                .setText(I18n.format("gui.marker.marker_name")).setAlignY(Align.CENTERED)
+                .setIcon(new Image(GuiTheme.getCurrentResourceLocation("icon/marker_name")).setColor(0xFFFFFF));
+        labelY += lineHeight;
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+                .setText(I18n.format("gui.marker.rail_height")).setAlignY(Align.CENTERED)
+                .setIcon(new Image(GuiTheme.getCurrentResourceLocation("icon/marker_edit_line"))
+                        .setColor(RenderMarkerBlock.MarkerElement.HEIGHT.getColor()));
+        labelY += lineHeight;
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+                .setText(I18n.format("gui.marker.horizontal_length")).setAlignY(Align.CENTERED)
+                .setIcon(new Image(GuiTheme.getCurrentResourceLocation("icon/marker_edit_line"))
+                        .setColor(RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor()));
+        labelY += lineHeight;
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+                .setText(I18n.format("gui.marker.anchor_yaw")).setAlignY(Align.CENTERED)
+                .setIcon(new Image(GuiTheme.getCurrentResourceLocation("icon/marker_edit_line"))
+                        .setColor(RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor()));
+        labelY += lineHeight;
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+                .setText(I18n.format("gui.marker.vertical_length")).setAlignY(Align.CENTERED)
+                .setIcon(new Image(GuiTheme.getCurrentResourceLocation("icon/marker_edit_line"))
+                        .setColor(RenderMarkerBlock.MarkerElement.VERTICAL.getColor()));
+        labelY += lineHeight;
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+                .setText(I18n.format("gui.marker.anchor_pitch")).setAlignY(Align.CENTERED)
+                .setIcon(new Image(GuiTheme.getCurrentResourceLocation("icon/marker_edit_line"))
+                        .setColor(RenderMarkerBlock.MarkerElement.VERTICAL.getColor()));
+        labelY += lineHeight;
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+                .setText(I18n.format("gui.marker.cant_edge")).setAlignY(Align.CENTERED)
+                .setIcon(new Image(GuiTheme.getCurrentResourceLocation("icon/marker_edit_line"))
+                        .setColor(RenderMarkerBlock.MarkerElement.CANT_EDGE.getColor()));
+        labelY += lineHeight;
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+                .setText(I18n.format("gui.marker.cant_center")).setAlignY(Align.CENTERED)
+                .setIcon(new Image(GuiTheme.getCurrentResourceLocation("icon/marker_edit_line"))
+                        .setColor(RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor()));
+        labelY += lineHeight;
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+                .setText(I18n.format("gui.marker.cant_random")).setAlignY(Align.CENTERED)
+                .setIcon(new Image(GuiTheme.getCurrentResourceLocation("icon/marker_edit_line"))
+                        .setColor(RenderMarkerBlock.MarkerElement.CANT_EDGE.getColor()));
+        labelY += 34;
+
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 150, 18, fontColor)
+                .setText(I18n.format("gui.marker.edit_status_h")).setAlignY(Align.CENTERED)
+                .setIcon(new Image(GuiTheme.getCurrentResourceLocation("icon/marker_edit_line"))
+                        .setColor(RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor()));
+        labelY += 20;
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 150, 18, fontColor)
+                .setText(I18n.format("gui.marker.edit_status_v")).setAlignY(Align.CENTERED)
+                .setIcon(new Image(GuiTheme.getCurrentResourceLocation("icon/marker_edit_line"))
+                        .setColor(RenderMarkerBlock.MarkerElement.VERTICAL.getColor()));
+        labelY += 20;
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 150, 18, fontColor)
+                .setText(I18n.format("gui.marker.rail_drawing_scheme")).setAlignY(Align.CENTERED)
+                .setIcon(new Image(GuiTheme.getCurrentResourceLocation("icon/marker_edit_line"))
+                        .setColor(RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor()));
+        labelY += 20;
+
         this.controlEnable();
     }
 
@@ -643,109 +710,9 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         {
             if (!(pScr instanceof GuiMarkerAdvanced)) return;
             GuiMarkerAdvanced pScr = ((GuiMarkerAdvanced) this.pScr);
-            int stringXpos = 10;
-            int stringYpos = 3 + 8;//8;
-            int fontColor = 0xE0E0E0 | pScr.getAlphaInt(0xFF);
-            int fontColorGrey = 0xA0A0A0 | pScr.getAlphaInt(0xFF);
+            int stringYpos = 192;
+            CacGuiUtils.drawRect(10, stringYpos , 400, stringYpos + 1, 0x555555 | pScr.getAlphaInt(0xFF));
 
-            //title line
-//            pScr.drawString(pScr.fontRenderer,
-//                    String.format(TextFormatting.BOLD + "Editing rail marker" + TextFormatting.RESET + " \"%s\"
-//                    (%d, %d, %d)",
-//                            pScr.marker.getName(), pScr.marker.getX(), pScr.marker.getY(), pScr.marker.getZ()),
-//                            stringXpos, stringYpos,
-//                    fontColor);
-//            stringYpos += 12;
-//            pScr.drawString(pScr.fontRenderer,
-//                    TextFormatting.GRAY + TextFormatting.ITALIC.toString() +
-//                            "Tips: You can use arrow keys or mouse wheel to adjust values.",
-//                    stringXpos, stringYpos, fontColorGrey);
-//            stringYpos += 12;
-//            pScr.drawString(pScr.fontRenderer,
-//                    TextFormatting.GRAY + TextFormatting.ITALIC.toString() + "LShift increases step(x10), LAlt
-//                    decreases step(x0.1).",
-//                    stringXpos, stringYpos, fontColorGrey);
-//            stringYpos += 20;
-            stringXpos += 15;
-            //groupId
-            pScr.drawString(pScr.fontRenderer, I18n.format("gui.marker.marker_group"), stringXpos, stringYpos,
-                    fontColor);
-            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                    0xFFFFFF | pScr.getAlphaInt(0xFF));
-            stringYpos += 18;
-            //name
-            pScr.drawString(pScr.fontRenderer, I18n.format("gui.marker.marker_name"), stringXpos, stringYpos,
-                    fontColor);
-            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                    0xFFFFFF | pScr.getAlphaInt(0xFF));
-            stringYpos += 18;
-            //rail height
-            pScr.drawString(pScr.fontRenderer, I18n.format("gui.marker.rail_height"), stringXpos, stringYpos,
-                    fontColor);
-            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                    RenderMarkerBlock.MarkerElement.HEIGHT.getColor() | pScr.getAlphaInt(0xFF));
-            stringYpos += 18;
-            //anchor length horizontal
-            pScr.drawString(pScr.fontRenderer, I18n.format("gui.marker.horizontal_length"), stringXpos, stringYpos,
-                    fontColor);
-            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                    RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | pScr.getAlphaInt(0xFF));
-            stringYpos += 18;
-            //anchor yaw
-            pScr.drawString(pScr.fontRenderer, I18n.format("gui.marker.anchor_yaw"), stringXpos, stringYpos, fontColor);
-            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                    RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | pScr.getAlphaInt(0xFF));
-            stringYpos += 18;
-            //anchor length vertical
-            pScr.drawString(pScr.fontRenderer, I18n.format("gui.marker.vertical_length"), stringXpos, stringYpos,
-                    fontColor);
-            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                    RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | pScr.getAlphaInt(0xFF));
-            stringYpos += 18;
-            //anchor pitch
-            pScr.drawString(pScr.fontRenderer, I18n.format("gui.marker.anchor_pitch"), stringXpos, stringYpos,
-                    fontColor);
-            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                    RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | pScr.getAlphaInt(0xFF));
-            stringYpos += 18;
-            //cant edge
-            pScr.drawString(pScr.fontRenderer, I18n.format("gui.marker.cant_edge"), stringXpos, stringYpos, fontColor);
-            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                    RenderMarkerBlock.MarkerElement.CANT_EDGE.getColor() | pScr.getAlphaInt(0xFF));
-            stringYpos += 18;
-            //cant center
-            pScr.drawString(pScr.fontRenderer, I18n.format("gui.marker.cant_center"), stringXpos, stringYpos,
-                    fontColor);
-            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                    RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor() | pScr.getAlphaInt(0xFF));
-            stringYpos += 18;
-            //cant random
-            pScr.drawString(pScr.fontRenderer, I18n.format("gui.marker.cant_random"), stringXpos, stringYpos,
-                    fontColor);
-            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                    RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor() | pScr.getAlphaInt(0xFF));
-            stringYpos += 24;
-//        pScr.drawHorizontalLine(10, 400, stringYpos - 4, 0x333333 | pScr.getAlphaInt(0xFF));
-            CacGuiUtils.drawRect(10, stringYpos - 4, 400, stringYpos - 4 + 1, 0x555555 | pScr.getAlphaInt(0xFF));
-            stringYpos += 10;
-            //horizontal edit status
-            pScr.drawString(pScr.fontRenderer, I18n.format("gui.marker.edit_status_h"), stringXpos, stringYpos,
-                    fontColor);
-            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                    RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | pScr.getAlphaInt(0xFF));
-            stringYpos += 20;
-            //vertical edit status
-            pScr.drawString(pScr.fontRenderer, I18n.format("gui.marker.edit_status_v"), stringXpos, stringYpos,
-                    fontColor);
-            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                    RenderMarkerBlock.MarkerElement.VERTICAL.getColor() | pScr.getAlphaInt(0xFF));
-            stringYpos += 20;
-            //rail drawing scheme
-            pScr.drawString(pScr.fontRenderer, I18n.format("gui.marker.rail_drawing_scheme"), stringXpos, stringYpos,
-                    fontColor);
-            CacGuiUtils.drawRect(stringXpos - 13, stringYpos, stringXpos - 5, stringYpos + 8,
-                    RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor() | pScr.getAlphaInt(0xFF));
-            stringYpos += 20;
         }
     }
 }

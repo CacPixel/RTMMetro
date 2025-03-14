@@ -3,19 +3,21 @@ package net.cacpixel.rtmmetro.client.gui;
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.util.ModLog;
+import net.cacpixel.rtmmetro.util.RTMMetroException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.resource.ISelectiveResourceReloadListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public class GuiTheme
 {
-    public static final String[] RESOURCE_NAMES = new String[]{"widgets", "save"};
+    public static final List<String> RESOURCE_NAMES = new ArrayList<>();
     public static GuiTheme defaultTheme;
     public static GuiTheme minecraftTheme;
 
@@ -25,15 +27,22 @@ public class GuiTheme
 
     static
     {
+        RESOURCE_NAMES.add("widgets");
+        RESOURCE_NAMES.add("icon/save");
+        RESOURCE_NAMES.add("icon/marker_group");
+        RESOURCE_NAMES.add("icon/marker_name");
+        RESOURCE_NAMES.add("icon/marker_edit_line");
         onResourcePackReload();
     }
 
     public static void init()
     {
-        IReloadableResourceManager resourceManager = (IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager();
-        resourceManager.registerReloadListener((ISelectiveResourceReloadListener) (resourceManager1, resourcePredicate) -> {
-            onResourcePackReload();
-        });
+        IReloadableResourceManager resourceManager = (IReloadableResourceManager) Minecraft.getMinecraft()
+                .getResourceManager();
+        resourceManager.registerReloadListener(
+                (ISelectiveResourceReloadListener) (resourceManager1, resourcePredicate) -> {
+                    onResourcePackReload();
+                });
     }
 
     public static void onResourcePackReload()
@@ -46,18 +55,26 @@ public class GuiTheme
     public GuiTheme(String name, String modID)
     {
         this.name = name;
-        Stream.of(RESOURCE_NAMES).forEach(x -> {
-            ResourceLocation res = new ResourceLocation(modID, "textures/gui/theme/" + this.name + "/" + x + ".png");
-            try
+        RESOURCE_NAMES.forEach(x -> {
+            ResourceLocation[] locations = new ResourceLocation[]{
+                    new ResourceLocation(modID, "textures/gui/theme/" + this.name + "/" + x + ".png"),
+                    new ResourceLocation(modID, "textures/gui/theme/default/" + x + ".png"),
+                    new ResourceLocation(modID, "textures/gui/" + x + ".png"),
+            };
+            for (ResourceLocation res : locations)
             {
-                Minecraft.getMinecraft().getResourceManager().getResource(res);
-                this.locationMap.put(x, res);
+                try
+                {
+                    Minecraft.getMinecraft().getResourceManager().getResource(res);
+                    this.locationMap.put(x, res);
+                    return;
+                }
+                catch (IOException e)
+                {
+                    ModLog.debug("Could not found file: " + res);
+                }
             }
-            catch (IOException e)
-            {
-                ModLog.debug("Could not found " + res + " in GuiTheme " + name + ". Use default texture instead.");
-                this.locationMap.put(x, new ResourceLocation(modID, "textures/gui/theme/" + defaultTheme.name + "/" + x + ".png"));
-            }
+            throw new RTMMetroException("Could not found: " + x + ".png");
         });
     }
 

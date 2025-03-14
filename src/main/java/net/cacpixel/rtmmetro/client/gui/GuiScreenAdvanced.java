@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.function.IntSupplier;
 
 @SideOnly(Side.CLIENT)
 public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHolder
@@ -806,6 +807,18 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     {
         return 0;
     }
+
+    @Override
+    public int getX() {return x;}
+
+    @Override
+    public int getY() {return y;}
+
+    @Override
+    public int getWidth() {return width;}
+
+    @Override
+    public int getHeight() {return height;}
 
     public enum AnimationStatus
     {

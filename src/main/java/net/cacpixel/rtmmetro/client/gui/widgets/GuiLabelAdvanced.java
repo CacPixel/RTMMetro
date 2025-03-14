@@ -49,6 +49,12 @@ public class GuiLabelAdvanced extends GuiWidget
         return this;
     }
 
+    public GuiLabelAdvanced setIcon(Image icon)
+    {
+        this.icon = icon;
+        return this;
+    }
+
     public GuiLabelAdvanced setAlignX(Align align)
     {
         this.alignX = align;

@@ -39,10 +39,10 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
             this.windowHeight = screenHeight;
         this.width = windowWidth;
         this.height = windowHeight;
-        buttonClose = this.addWidget(GuiButtonAdvanced.class, this.getNextWidgetId(),
+        buttonClose = this.addWidget(GuiButtonAdvanced.class,
                         () -> 5, () -> 5, () -> 20, () -> 20)
                 .setDisplayString("x").setListener(this::closeButtonCallback);
-        labelTitle = this.addWidget(GuiLabelAdvanced.class, this.getNextWidgetId(),
+        labelTitle = this.addWidget(GuiLabelAdvanced.class,
                 (IntSupplier) () -> 30, 0,
                 (IntSupplier) () -> this.width - 30, 30, 0xE0E0E0).setAlignY(Align.CENTERED);
     }
