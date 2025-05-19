@@ -20,7 +20,7 @@ public abstract class GuiWidget
     private boolean dragging = false;
     public int lastClickedX;
     public int lastClickedY;
-    private IActionListener<? extends GuiButtonAdvanced> listener;
+    private IActionListener<? extends GuiWidget> listener;
     public IntSupplier xSupplier = this::getX;
     public IntSupplier ySupplier = this::getY;
     public IntSupplier widthSupplier = this::getWidth;
@@ -63,7 +63,7 @@ public abstract class GuiWidget
     @SuppressWarnings("unchecked")
     public <T extends GuiWidget> T setListener(IActionListener<T> listener)
     {
-        this.listener = (IActionListener<? extends GuiButtonAdvanced>) listener;
+        this.listener = listener;
         return (T) this;
     }
 
