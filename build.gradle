@@ -1,21 +1,21 @@
 buildscript {
     repositories {
-//        mavenCentral()
-//        maven { url = "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
-//        maven { url = "https://maven.aliyun.com/nexus/content/groups/public" }
-//        maven { url = "https://maven.aliyun.com/nexus/content/repositories/google" }
-//        maven { url = "https://repo.spongepowered.org/maven" }
-//        maven { url = "https://files.minecraftforge.net/maven" }
-        maven {
-            name = "forge"
-            url = "https://lss233.littleservice.cn/repositories/minecraft"
-        }
+        mavenCentral()
+        maven { url = "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
+        maven { url = "https://maven.aliyun.com/nexus/content/groups/public" }
+        maven { url = "https://maven.aliyun.com/nexus/content/repositories/google" }
+        maven { url = "https://repo.spongepowered.org/maven" }
+        maven { url = "https://files.minecraftforge.net/maven" }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:5.+' //2.3-SNAPSHOT
         classpath 'org.spongepowered:mixingradle:0.7.+'
     }
 }
+
+//plugins {
+//    id "io.github.themrmilchmann.ecj" version "0.2.0"
+//}
 
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
@@ -33,16 +33,15 @@ mixin {
 }
 
 repositories {
-//    mavenCentral()
-//    maven { url = "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
-//    maven { url = "https://maven.aliyun.com/nexus/content/groups/public" }
-//    maven { url = "https://maven.aliyun.com/nexus/content/repositories/google" }
-//
-//    maven { url = "https://cursemaven.com" }
-//    maven { url = "https://repo.spongepowered.org/maven" }
-//    maven { url = "https://api.modrinth.com/maven" }
     maven { url = 'https://maven.cleanroommc.com' }
-    maven { url 'https://lss233.littleservice.cn/repositories/minecraft' }
+    mavenCentral()
+    maven { url = "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
+    maven { url = "https://maven.aliyun.com/nexus/content/groups/public" }
+    maven { url = "https://maven.aliyun.com/nexus/content/repositories/google" }
+
+    maven { url = "https://cursemaven.com" }
+    maven { url = "https://repo.spongepowered.org/maven" }
+    maven { url = "https://api.modrinth.com/maven" }
 }
 
 modId = property("modId").toString()
@@ -75,6 +74,7 @@ jarLibList = property("jarLibList").toString()
 sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 compileJava {
     sourceCompatibility = targetCompatibility = '1.8'
+//    options.compilerArgs << "-nowarn" << "-proceedOnError"
 }
 
 minecraft {

@@ -169,19 +169,6 @@ public interface IWidgetHolder
 
     Queue<GuiWidget> getActionQueue();
 
-    int getScissorX();
-
-    int getScissorY();
-
-    int getScissorWidth();
-
-    int getScissorHeight();
-
-    default void applyScissor(int xIn, int yIn, int wIn, int hIn)
-    {
-
-    }
-
     int getX();
 
     int getY();
