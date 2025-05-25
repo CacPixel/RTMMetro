@@ -59,6 +59,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public float scaleY = 1.0F;
     public boolean initialized = false;
     public int glStackCount = 0;
+    public ScissorManager scissorManager = new ScissorManager();
 
     public GuiScreenAdvanced()
     {
@@ -124,8 +125,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         if (this.mc.currentScreen == this)
             this.handleInput();
         this.glPushMatrix();
-//        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-//        GL11.glScissor(0, 0, this.mc.displayWidth, this.mc.displayHeight);
         translationX = translationY = 0;
         if (x != 0 || y != 0)
         {
@@ -170,6 +169,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             this.draw(mouseX, mouseY, partialTicks);
             if (glStackCount > 0)
                 throw new RTMMetroException("glStackCount > 0, glPushMatrix too much!");
+            scissorManager.checkStackEmpty();
         }
         catch (Throwable e)
         {
@@ -181,11 +181,11 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         }
         finally
         {
-            GL11.glDisable(GL11.GL_SCISSOR_TEST);
             while (glStackCount > 0)
             {
                 this.glPopMatrix();
             }
+            scissorManager.forceDisableScissor();
         }
     }
 
@@ -196,7 +196,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     public void drawScreenAfter(int mouseX, int mouseY, float partialTicks)
     {
-        GL11.glDisable(GL11.GL_SCISSOR_TEST);
         this.glPopMatrix();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.disableBlend();

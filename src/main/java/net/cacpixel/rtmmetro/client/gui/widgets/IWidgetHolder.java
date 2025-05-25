@@ -177,12 +177,6 @@ public interface IWidgetHolder
 
     int getHeight();
 
-    default void applyScissorFullScreen()
-    {
-        Minecraft mc = Minecraft.getMinecraft();
-        GL11.glScissor(0, 0, mc.displayWidth, mc.displayHeight);
-    }
-
     default GuiParam fromWidth()
     {
         return this::getWidth;
