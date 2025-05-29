@@ -169,7 +169,5 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
         this.translationY += (this.height * (1 - scale)) / 2.0F;
         this.scaleX = scale;
         this.scaleY = scale;
-        GlStateManager.translate(translationX, translationY, 0.0F);
-        GlStateManager.scale(scale, scale, 1.0F);
     }
 }

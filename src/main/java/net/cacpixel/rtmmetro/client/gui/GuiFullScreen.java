@@ -3,7 +3,7 @@ package net.cacpixel.rtmmetro.client.gui;
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiButtonAdvanced;
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiLabelAdvanced;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
-import net.minecraft.client.renderer.GlStateManager;
+import net.cacpixel.rtmmetro.util.ModLog;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.function.IntSupplier;
@@ -44,10 +44,8 @@ public abstract class GuiFullScreen extends GuiScreenAdvanced
     protected void updateAnimation(float partialTicks)
     {
         super.updateAnimation(partialTicks);
-        boolean isLastScreen = this.parentScreen == null && this.mc.currentScreen == this;
-        boolean isThisScreen = this.mc.currentScreen == this;
         float progress = 1.0F;
-        float lowerBnd = (isLastScreen) ? 0.9F : (isThisScreen) ? -0.02F : 0.5F;
+        float lowerBnd = (isLastScreen()) ? 0.9F : 0;
         float upperBnd = 1.0F;
         BezierCurveAdvanced curve = CacGuiUtils.guiBezierTranslation;
         if (this.isOpening())
@@ -58,10 +56,14 @@ public abstract class GuiFullScreen extends GuiScreenAdvanced
         {
             progress = (float) MathHelper.clampedLerp(lowerBnd, upperBnd, 1 - this.getAnimationProgress(curve));
         }
-        this.translationX +=
-                (isLastScreen) ? 0.0F : (isThisScreen) ? (1.0F - progress) * this.width : (progress - 1.0F) / 2.0F * this.width;
-        this.translationY += (isLastScreen) ? (progress - 1.0F) * this.height : 0.0F;
-        GlStateManager.translate(translationX, translationY, 0.0F);
+        this.translationX += (isLastScreen()) ? 0.0F : (isThisScreen()) ? (1.0F - progress) * this.width :
+                (progress - 1.0F) * this.width / 4;
+        this.translationY += (isLastScreen()) ? (progress - 1.0F) * this.height : 0.0F;
+        if (!isLastScreen() && !isThisScreen())
+        {
+            // +2 是为了美观, -translationX是因为ScissorManager已经做了屏幕平移方面的处理，x y w h四个参数都是基于screen位置自动处理过的
+            this.getScissorManager().push(new ScissorParam(x, y, (int) (progress * this.width - translationX + 2), height));
+        }
     }
 
     @Override

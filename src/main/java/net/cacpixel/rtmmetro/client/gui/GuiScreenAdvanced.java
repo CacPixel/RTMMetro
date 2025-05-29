@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
-import java.util.function.IntSupplier;
 
 @SideOnly(Side.CLIENT)
 public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHolder
@@ -59,7 +58,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public float scaleY = 1.0F;
     public boolean initialized = false;
     public int glStackCount = 0;
-    public ScissorManager scissorManager = new ScissorManager();
+    private final ScissorManager scissorManager = new ScissorManager(this);
 
     public GuiScreenAdvanced()
     {
@@ -135,6 +134,15 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         this.updateAnimation(partialTicks);
         this.updateAlpha();
+        if (translationX != 0.0F || translationY != 0.0F)
+            GlStateManager.translate(translationX, translationY, 0.0F);
+        if (scaleX != 1.0F || scaleY != 1.0F)
+            GlStateManager.scale(scaleX, scaleY, 1.0F);
+
+        if (!isLastScreen() && !isThisScreen())
+        {
+            this.getScissorManager().apply();
+        }
     }
 
     public void handleInput()
@@ -169,7 +177,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             this.draw(mouseX, mouseY, partialTicks);
             if (glStackCount > 0)
                 throw new RTMMetroException("glStackCount > 0, glPushMatrix too much!");
-            scissorManager.checkStackEmpty();
+            getScissorManager().checkStackEmpty();
         }
         catch (Throwable e)
         {
@@ -185,7 +193,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             {
                 this.glPopMatrix();
             }
-            scissorManager.forceDisableScissor();
+            getScissorManager().forceDisableScissor();
         }
     }
 
@@ -196,6 +204,10 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     public void drawScreenAfter(int mouseX, int mouseY, float partialTicks)
     {
+        if (!isLastScreen() && !isThisScreen())
+        {
+            this.getScissorManager().pop();
+        }
         this.glPopMatrix();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.disableBlend();
@@ -426,7 +438,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     protected void switchGuiScreenToPrevious()
     {
-        boolean animationDone = (this.parentScreen == null) ? animationTime >= duration / 10
+        boolean animationDone = (this.parentScreen == null) ? animationTime >= duration / 8
                 : this.getAnimationStatus() == AnimationStatus.CLOSED;
         if (animationDone && closeFlag)
         {
@@ -792,6 +804,21 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     @Override
     public int getHeight() {return height;}
+
+    public ScissorManager getScissorManager()
+    {
+        return scissorManager;
+    }
+
+    public boolean isLastScreen()
+    {
+        return this.parentScreen == null && isThisScreen();
+    }
+
+    public boolean isThisScreen()
+    {
+        return this.mc.currentScreen == this;
+    }
 
     public enum AnimationStatus
     {

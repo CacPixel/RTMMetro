@@ -10,15 +10,15 @@ import java.util.Stack;
 
 public class ScissorManager
 {
-    public static final ScissorManager INSTANCE = new ScissorManager();
+    public GuiScreenAdvanced screen;
     private final Stack<ScissorParam> scissorStack = new Stack<>();
 
-    public ScissorManager()
+    public ScissorManager(GuiScreenAdvanced screen)
     {
-
+        this.screen = screen;
     }
 
-    private void apply(GuiScreenAdvanced screen, int xIn, int yIn, int wIn, int hIn)
+    private void apply(int xIn, int yIn, int wIn, int hIn)
     {
         if (screen.getScreen() == null)
             return;
@@ -36,11 +36,11 @@ public class ScissorManager
         GL11.glScissor(x, y, w, h);
     }
 
-    public void apply(ScissorParam param)
+    private void apply(ScissorParam param)
     {
         if (param != null)
         {
-            this.apply(param.screen, param.x, param.y, param.width, param.height);
+            this.apply(param.x, param.y, param.width, param.height);
         }
         else
         {
@@ -48,12 +48,40 @@ public class ScissorManager
         }
     }
 
-    public void push(ScissorParam param)
+    public void apply()
     {
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
+        apply(peek());
+    }
+
+    public void push(ScissorParam param)
+    {
+        ScissorParam old = peek();
+        if (old != null)
+        {
+            int sxNew = param.x;
+            int syNew = param.y;
+            int exNew = param.x + param.width - 1;
+            int eyNew = param.y + param.height - 1;
+            int sxOld = old.x;
+            int syOld = old.y;
+            int exOld = old.x + old.width - 1;
+            int eyOld = old.y + old.height - 1;
+            int sx = Math.max(sxNew, sxOld);
+            int sy = Math.max(syNew, syOld);
+            int ex = Math.min(exNew, exOld);
+            int ey = Math.min(eyNew, eyOld);
+            pushOrigin(new ScissorParam(sx, sy, ex - sx + 1, ey - sy + 1));
+        }
+        else
+        {
+            pushOrigin(param);
+        }
+    }
+
+    public void pushOrigin(ScissorParam param)
+    {
         scissorStack.push(param);
-//        ModLog.debug("scissor stack push: x %d, y %d, w %d, h %d", param.x, param.y, param.width, param.height);
-        this.apply(param);
     }
 
     public ScissorParam pop()
@@ -81,7 +109,7 @@ public class ScissorManager
 
     public void checkStackEmpty()
     {
-         if (!scissorStack.isEmpty())
+        if (!scissorStack.isEmpty())
             throw new RTMMetroException("ScissorManager stack is not empty, ScissorManager.push() too much!");
     }
 

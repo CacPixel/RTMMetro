@@ -8,12 +8,10 @@ import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 import java.util.function.IntSupplier;
@@ -156,7 +154,8 @@ public class GuiScroll extends GuiWidgetBundle
         this.animationTime += dt;
         int xDiff = this.yButton.isVisible() ? scrollButtonWidth : 0;
         int yDiff = this.xButton.isVisible() ? scrollButtonWidth : 0;
-        ScissorManager.INSTANCE.push(new ScissorParam(this.getScreen(), x, y - yDiff, width - xDiff, height - yDiff));
+        this.getScreen().getScissorManager().push(new ScissorParam(x, y, width - xDiff, height - yDiff));
+        this.getScreen().getScissorManager().apply();
         if (scrollUpDown)
         {
             float d = this.getAnimationProgress() * dy;
@@ -192,8 +191,7 @@ public class GuiScroll extends GuiWidgetBundle
 
     public void drawAfter(int mouseX, int mouseY, float partialTicks)
     {
-
-        ScissorManager.INSTANCE.pop();
+        this.getScreen().getScissorManager().pop();
         this.pScr.glPopMatrix();
     }
 
