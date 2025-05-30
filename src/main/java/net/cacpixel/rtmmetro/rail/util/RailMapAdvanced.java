@@ -720,7 +720,19 @@ public class RailMapAdvanced extends RailMapBasic
 
     public static float getRadius(RailPosition startRP, RailPosition endRP, RailDrawingScheme scheme)
     {
-        /* TODO : get radius when DRAW_CIRCLE, return 0.0f otherwise*/
-        return 0.0f;
+        if (scheme != RailDrawingScheme.DRAW_CIRCLE)
+            return 0.0f;
+
+        double startX = startRP.posX;
+        double startZ = startRP.posZ;
+        double endX = endRP.posX;
+        double endZ = endRP.posZ;
+        double lengthXZ = Math.sqrt((endZ - startZ) * (endZ - startZ) + (endX - startX) * (endX - startX));
+        double dz = endZ - startZ;
+        double dx = endX - startX;
+        double theta = Math.atan2(dx, dz);
+        double angle = Math.abs(theta - NGTMath.toRadians(NGTMath.normalizeAngle(startRP.anchorYaw)));
+        double radius = (lengthXZ / 2.0F / Math.sin(angle));
+        return (float) radius;
     }
 }
