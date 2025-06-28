@@ -11,8 +11,8 @@ public class ScissorParam
      {
           this.x = x;
           this.y = y;
-          this.width = width;
-          this.height = height;
+          this.width = Math.max(0, width);
+          this.height = Math.max(0, height);
      }
 
 }

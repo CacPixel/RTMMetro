@@ -45,6 +45,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public boolean hasValueUpdated; // todo: move to text field (no no no move to GuiWidget instead)
     private int nextWidgetId;
     public ArrayList<GuiWidget> widgets = new ArrayList<>();
+    public GuiLayoutBase layout = new GuiLayoutNone(this);
     public PriorityQueue<GuiWidget> actionQueue = new PriorityQueue<>(
             Comparator.comparing(GuiWidget::getzLevel).reversed());
     protected float alpha;
@@ -103,7 +104,10 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     public void screenResize()
     {
-        this.getAllWidgets().forEach(GuiWidget::updatePosAndSize);
+        this.getLayout().makeLayout();
+        this.getLayout().makeLayout();
+        this.getAllWidgetFromClass(IWidgetHolder.class).forEach(it -> it.getLayout().makeLayout());
+        this.getAllWidgetFromClass(IWidgetHolder.class).forEach(it -> it.getLayout().makeLayout());
     }
 
     @Override
@@ -818,6 +822,18 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public boolean isThisScreen()
     {
         return this.mc.currentScreen == this;
+    }
+
+    @Override
+    public GuiLayoutBase getLayout()
+    {
+        return layout;
+    }
+
+    @Override
+    public void setLayout(GuiLayoutBase layout)
+    {
+        this.layout = layout;
     }
 
     public enum AnimationStatus

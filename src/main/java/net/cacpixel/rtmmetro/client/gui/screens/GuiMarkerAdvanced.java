@@ -45,6 +45,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
     private final RailPosition currentRP;
     private GuiCalculateCant guiCalculateCant;
     private GuiScroll mainScroll;
+    private GuiScroll infoScroll;
 
     // Field
     private GuiTextFieldAdvanced fieldMarkerName;
@@ -99,6 +100,53 @@ public class GuiMarkerAdvanced extends GuiFullScreen
     @Override
     public void initGui()
     {
+        super.initGui();
+        this.labelTitle.setText(String.format(
+                TextFormatting.BOLD + I18n.format("gui.marker.title") + TextFormatting.RESET + " \"%s\" " +
+                        TextFormatting.YELLOW + "(%d, %d, %d)",
+                this.marker.getName(), this.marker.getX(), this.marker.getY(), this.marker.getZ()));
+        this.initMainScroll();
+        this.initInfoScroll();
+        this.controlEnable();
+    }
+
+    private void initInfoScroll()
+    {
+        infoScroll = new GuiScroll(this, getNextWidgetId(),
+                fromWidth().thenMultiply(1.0 / 3.0).thenApply(it -> width - Math.min(it, 150)),
+                () -> 30,
+//                () -> width * (1.0/3.0) > 150 ? 150 : (int) (width * (2.0 / 3.0)),
+                fromWidth().thenMultiply(1.0 / 3.0).thenApply(it -> Math.min(it, 150)),
+                fromHeight().thenMinusBy(40 + 30).thenApply(it -> Math.max(it, 1))
+        );
+        infoScroll.setLayout(new GuiLayoutFlex(infoScroll).setFlow(GuiLayoutFlex.FlexFlow.ROW_WRAP_REVERSE)
+                .setPrimaryAlign(GuiLayoutFlex.FlexAlign.ALIGN_SPACE_BETWEEN)
+                .setSecondaryAlign(GuiLayoutFlex.FlexAlign.ALIGN_SPACE_BETWEEN));
+        this.add(infoScroll);
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("1");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("2");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("3");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("4");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("5");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("6");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("7");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("8");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("9");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("10");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("11");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("12");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("13");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("14");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("15");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("16");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("17");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("18");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("19");
+        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("20");
+    }
+
+    private void initMainScroll()
+    {
         int fieldW = 75;
         int fieldH = 14;
         int fieldX = 140;
@@ -110,16 +158,13 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         int stringXpos = 10;
         int fontColor = 0xE0E0E0 | this.getAlphaInt(0xFF);
 
-        super.initGui();
-        this.labelTitle.setText(String.format(
-                TextFormatting.BOLD + I18n.format("gui.marker.title") + TextFormatting.RESET + " \"%s\" " +
-                        TextFormatting.YELLOW + "(%d, %d, %d)",
-                this.marker.getName(), this.marker.getX(), this.marker.getY(), this.marker.getZ()));
         this.mainScroll = new Scroll(this, this.getNextWidgetId(),
                 () -> 0,
                 () -> 30,
-                () -> this.width,
-                () -> Math.max(1, this.height - 40 - 30));
+                fromWidth().thenMultiply(1.0 / 3.0).thenApply(it -> width - Math.min(it, 150) - 2),
+//                () -> Math.max(1, this.height - 40 - 30)
+                fromHeight().thenMinusBy(40 + 30).thenApply(it -> Math.max(it, 1))
+        );
         this.add(mainScroll);
 
         //groupId
@@ -285,8 +330,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                         fieldCantEdge.fieldValue = (float) x;
                         fieldCantEdge.checkValueAndSetText();
                     }).setWindowSize(250, 200).setParent(this);
-//                    displayGuiScreen(guiCalculateCant);
-                    displayGuiScreen(new GuiMarkerAdvanced(this.marker).setParent(this));
+                    displayGuiScreen(guiCalculateCant);
                 });
         this.buttonCopyNeighborCantEdge = WidgetFactory.addButton(mainScroll, buttX + buttH + buttW, fieldY - 2, buttW,
                         buttH, I18n.format("gui.marker.equ_neighbor"))
@@ -468,8 +512,6 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                 .setIcon(new Image(GuiTheme.getCurrentResourceLocation("icon/marker_edit_line"))
                         .setColor(RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor()));
         labelY += 20;
-
-        this.controlEnable();
     }
 
     @Override
@@ -711,7 +753,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
             if (!(pScr instanceof GuiMarkerAdvanced)) return;
             GuiMarkerAdvanced pScr = ((GuiMarkerAdvanced) this.pScr);
             int stringYpos = 192;
-            CacGuiUtils.drawRect(10, stringYpos , 400, stringYpos + 1, 0x555555 | pScr.getAlphaInt(0xFF));
+            CacGuiUtils.drawRect(10, stringYpos, 400, stringYpos + 1, 0x555555 | pScr.getAlphaInt(0xFF));
 
         }
     }

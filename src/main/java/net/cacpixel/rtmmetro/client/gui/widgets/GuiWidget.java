@@ -44,10 +44,10 @@ public abstract class GuiWidget
         this.holder = holder;
         this.pScr = holder.getScreen();
         this.id = id;
-        this.xSupplier = xSupplier;
-        this.ySupplier = ySupplier;
-        this.widthSupplier = widthSupplier;
-        this.heightSupplier = heightSupplier;
+        if (xSupplier != null) this.xSupplier = xSupplier;
+        if (ySupplier != null) this.ySupplier = ySupplier;
+        if (widthSupplier != null) this.widthSupplier = widthSupplier;
+        if (heightSupplier != null) this.heightSupplier = heightSupplier;
         this.updatePosAndSize(this.getXSupplier().getAsInt(),
                 this.getYSupplier().getAsInt(),
                 this.getWidthSupplier().getAsInt(),
@@ -161,6 +161,10 @@ public abstract class GuiWidget
 
     public int getHeight() {return height;}
 
+    public int getActualWidth() {return width;}
+
+    public int getActualHeight() {return height;}
+
     public final GuiWidget updatePosAndSize(int x, int y, int w, int h)
     {
         this.x = x;
@@ -242,4 +246,6 @@ public abstract class GuiWidget
     {
         this.dragging = dragging;
     }
+
+    public void onMakeLayoutFinish() {}
 }

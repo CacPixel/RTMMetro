@@ -1,11 +1,10 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
+import net.cacpixel.rtmmetro.client.gui.GuiLayoutBase;
 import net.cacpixel.rtmmetro.client.gui.GuiParam;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
 import net.cacpixel.rtmmetro.util.RTMMetroException;
 import net.cacpixel.rtmmetro.util.RTMMetroUtils;
-import net.minecraft.client.Minecraft;
-import org.lwjgl.opengl.GL11;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -21,6 +20,10 @@ public interface IWidgetHolder
     List<GuiWidget> getWidgets();
 
     GuiScreenAdvanced getScreen();
+
+    GuiLayoutBase getLayout();
+
+    void setLayout(GuiLayoutBase layout);
 
     default IWidgetHolder add(GuiWidget... widgets)
     {
@@ -116,18 +119,18 @@ public interface IWidgetHolder
         return list;
     }
 
-    default <T extends GuiWidget> List<T> getWidgetFromClass(Class<T> clazz)
+    default <T> List<T> getWidgetFromClass(Class<T> clazz)
     {
         return this.getWidgetFromClass(clazz, false);
     }
 
-    default <T extends GuiWidget> List<T> getAllWidgetFromClass(Class<T> clazz)
+    default <T> List<T> getAllWidgetFromClass(Class<T> clazz)
     {
         return this.getWidgetFromClass(clazz, true);
     }
 
     @SuppressWarnings("unchecked")
-    default <T extends GuiWidget> List<T> getWidgetFromClass(Class<T> clazz, boolean reentrant)
+    default <T> List<T> getWidgetFromClass(Class<T> clazz, boolean reentrant)
     {
         List<T> ret = new ArrayList<>();
         if (reentrant)
@@ -201,4 +204,13 @@ public interface IWidgetHolder
     {
         return GuiParam.from(x);
     }
+
+    default void onMakeLayoutFinish() {}
+
+    default GuiWidget updatePosAndSize() { return null; }
+
+    default int getActualWidth() {return getWidth();}
+
+    default int getActualHeight() {return getHeight();}
+
 }

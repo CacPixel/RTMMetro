@@ -1,7 +1,9 @@
 package net.cacpixel.rtmmetro.client.gui;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 public interface GuiParam extends IntSupplier
 {
@@ -40,6 +42,8 @@ public interface GuiParam extends IntSupplier
         return () -> (int) (i / this.getAsInt());
     }
 
+    // Supplier
+
     default GuiParam thenAdd(IntSupplier i)
     {
         return () -> this.getAsInt() + i.getAsInt();
@@ -68,5 +72,11 @@ public interface GuiParam extends IntSupplier
     default GuiParam thenDividend(DoubleSupplier i)
     {
         return () -> (int) (i.getAsDouble() / this.getAsInt());
+    }
+
+
+    default GuiParam thenApply(IntFunction<Integer> block)
+    {
+        return () -> block.apply(this.getAsInt());
     }
 }

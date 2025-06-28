@@ -1,34 +1,34 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
+import net.cacpixel.rtmmetro.client.gui.GuiLayoutBase;
+import net.cacpixel.rtmmetro.client.gui.GuiLayoutNone;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
-import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 import java.util.function.IntSupplier;
 
-public class GuiWidgetBundle extends GuiWidget implements IWidgetHolder
+public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
 {
+    public GuiLayoutBase layout = new GuiLayoutNone(this);
     public List<GuiWidget> widgets = new ArrayList<>();
     public PriorityQueue<GuiWidget> actionQueue = new PriorityQueue<>(Comparator.comparing(GuiWidget::getzLevel).reversed());
 
-    public GuiWidgetBundle(IWidgetHolder holder, int id, IntSupplier x, IntSupplier y, IntSupplier width,
-                           IntSupplier height)
+    public GuiWidgetContainer(IWidgetHolder holder, int id, IntSupplier x, IntSupplier y, IntSupplier width,
+                              IntSupplier height)
     {
         super(holder, id, x, y, width, height);
     }
 
-    public GuiWidgetBundle(GuiScreenAdvanced pScr, int id)
+    public GuiWidgetContainer(GuiScreenAdvanced pScr, int id)
     {
         this(pScr, id, ZERO, ZERO, ZERO, ZERO);
     }
 
     @Override
-    public GuiWidgetBundle add(GuiWidget... widgets)
+    public GuiWidgetContainer add(GuiWidget... widgets)
     {
-        GuiWidgetBundle ret = (GuiWidgetBundle) IWidgetHolder.super.add(widgets);
+        GuiWidgetContainer ret = (GuiWidgetContainer) IWidgetHolder.super.add(widgets);
         ret.widgets.removeIf(w -> w == this); // avoid add itself, it will cause infinity loop
         return ret;
     }
@@ -91,5 +91,17 @@ public class GuiWidgetBundle extends GuiWidget implements IWidgetHolder
     public Queue<GuiWidget> getActionQueue()
     {
         return actionQueue;
+    }
+
+    @Override
+    public GuiLayoutBase getLayout()
+    {
+        return layout;
+    }
+
+    @Override
+    public void setLayout(GuiLayoutBase layout)
+    {
+        this.layout = layout;
     }
 }

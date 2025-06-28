@@ -2,7 +2,6 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
-import net.cacpixel.rtmmetro.client.gui.ScissorManager;
 import net.cacpixel.rtmmetro.client.gui.ScissorParam;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.minecraft.client.Minecraft;
@@ -17,7 +16,7 @@ import java.util.*;
 import java.util.function.IntSupplier;
 import java.util.stream.Stream;
 
-public class GuiScroll extends GuiWidgetBundle
+public class GuiScroll extends GuiWidgetContainer
 {
     public int scrollButtonWidth;
     public int scrollDistance = 60;
@@ -25,6 +24,8 @@ public class GuiScroll extends GuiWidgetBundle
     public boolean scrollLeftRight = true;
     protected int yMax = 0;
     protected int xMax = 0;
+    protected int yMin = 0;
+    protected int xMin = 0;
     protected int yNow = 0;
     protected int xNow = 0;
     protected int yNowPrev = 0;
@@ -91,8 +92,8 @@ public class GuiScroll extends GuiWidgetBundle
         if (xButton.barClicked)
         {
             dx = 0;
-            float d = (float) (xButton.lastClickedX - mouseX) / (xButton.width - xButton.length) * xMax;
-            xNow = (int) MathHelper.clamp(xNowPrev - d, 0, xMax);
+            float d = (float) (xButton.lastClickedX - mouseX) / (xButton.width - xButton.length) * (xMax - xMin);
+            xNow = (int) MathHelper.clamp(xNowPrev - d, xMin, xMax);
         }
         else
         {
@@ -102,8 +103,8 @@ public class GuiScroll extends GuiWidgetBundle
         if (yButton.barClicked)
         {
             dy = 0;
-            float d = (float) (yButton.lastClickedY - mouseY) / (yButton.height - yButton.length) * yMax;
-            yNow = (int) MathHelper.clamp(yNowPrev - d, 0, yMax);
+            float d = (float) (yButton.lastClickedY - mouseY) / (yButton.height - yButton.length) * (yMax - yMin);
+            yNow = (int) MathHelper.clamp(yNowPrev - d, yMin, yMax);
         }
         else
         {
@@ -121,7 +122,7 @@ public class GuiScroll extends GuiWidgetBundle
                         button.length : -button.length;
                 scroll *= 2;
                 this.dx = 0;
-                this.xNow = MathHelper.clamp(xNow - scroll, 0, xMax);
+                this.xNow = MathHelper.clamp(xNow - scroll, xMin, xMax);
             }
         }
         if (button == yButton)
@@ -132,7 +133,7 @@ public class GuiScroll extends GuiWidgetBundle
                         button.length : -button.length;
                 scroll *= 2;
                 this.dy = 0;
-                this.yNow = MathHelper.clamp(yNow - scroll, 0, yMax);
+                this.yNow = MathHelper.clamp(yNow - scroll, yMin, yMax);
             }
         }
     }
@@ -144,8 +145,8 @@ public class GuiScroll extends GuiWidgetBundle
         int dy = holder.shiftMouseY();
         return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isMouseInside) :
                 CacGuiUtils.isMouseInside(x + dx, y + dy,
-                        width - ((yButton.isVisible()) ? scrollButtonWidth : 0),
-                        height - ((xButton.isVisible()) ? scrollButtonWidth : 0));
+                        getActualWidth(),
+                        getActualHeight());
     }
 
     protected void updateAnimation(float partialTicks)
@@ -255,7 +256,7 @@ public class GuiScroll extends GuiWidgetBundle
                     dx = 0;
                 }
                 int targetScroll = (int) ((float) -scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * scrollDistance);
-                int clamped = MathHelper.clamp(targetScroll, -yNow - dy,
+                int clamped = MathHelper.clamp(targetScroll, yMin - yNow - dy,
                         yMax - yNow - dy);
                 float d = this.getAnimationProgress() * (dy);
                 dy += clamped;
@@ -274,7 +275,7 @@ public class GuiScroll extends GuiWidgetBundle
                     dy = 0;
                 }
                 int targetScroll = (int) ((float) -scroll / CacGuiUtils.DEFAULT_SCROLL_VALUE * scrollDistance);
-                int clamped = MathHelper.clamp(targetScroll, -xNow - dx,
+                int clamped = MathHelper.clamp(targetScroll, xMin - xNow - dx,
                         xMax - xNow - dx);
                 float d = this.getAnimationProgress() * (dx);
                 dx += clamped;
@@ -314,19 +315,6 @@ public class GuiScroll extends GuiWidgetBundle
     public GuiScroll add(GuiWidget... widgets)
     {
         super.add(widgets);
-        this.updatePosAndSize();
-        return this;
-    }
-
-    @Override
-    public GuiScroll updatePosAndSize()
-    {
-        super.updatePosAndSize();
-        this.xMax = 0;
-        this.yMax = 0;
-        this.expandMaxValue(this.widgets.toArray(new GuiWidget[0]));
-//        this.scrollButtonWidth = (int) (30.0F / new ScaledResolution(this.pScr.mc).getScaleFactor());
-        this.updateButton();
         return this;
     }
 
@@ -334,17 +322,21 @@ public class GuiScroll extends GuiWidgetBundle
     {
         int xDiff = this.yButton.isVisible() ? scrollButtonWidth : 0;
         int yDiff = this.xButton.isVisible() ? scrollButtonWidth : 0;
-        this.xButton.updatePosAndSize(width - xDiff, xMax, this.getCurrentX());
-        this.yButton.updatePosAndSize(height - yDiff, yMax, this.getCurrentY());
+        this.xButton.updatePosAndSize(width - xDiff, xMin, xMax, this.getCurrentX());
+        this.yButton.updatePosAndSize(height - yDiff, yMin, yMax, this.getCurrentY());
     }
 
-    public void expandMaxValue(GuiWidget... widgets)
+    public void onMakeLayoutFinish()
     {
-        this.expandMaxValue(scrollButtonWidth, scrollButtonWidth, widgets);
+        this.expandMaxValue(scrollButtonWidth, scrollButtonWidth, this.widgets.toArray(new GuiWidget[0]));
     }
 
     public void expandMaxValue(int xIn, int yIn, GuiWidget... widgets)
     {
+        this.xMax = 0;
+        this.yMax = 0;
+        this.xMin = 0;
+        this.yMin = 0;
         if (autoExpandMaxValue)
         {
             GuiWidget widget = Arrays.stream(widgets).filter(Objects::nonNull)
@@ -352,10 +344,31 @@ public class GuiScroll extends GuiWidgetBundle
                             .thenComparingInt(w -> w.getY() + w.getHeight())).orElse(null);
             if (widget != null)
             {
-                this.yMax = Math.max(this.yMax, widget.y + widget.height + scrollButtonWidth - this.height);
-                this.xMax = Math.max(this.xMax, widget.x + widget.width + scrollButtonWidth - this.width);
-                if (this.yMax != 0) this.yMax += yIn;
-                if (this.xMax != 0) this.xMax += xIn;
+                this.yMax = Math.max(this.yMax, widget.y + widget.height - this.height);
+                this.xMax = Math.max(this.xMax, widget.x + widget.width - this.width);
+                if (this.yMax > 0)
+                {
+                    this.yMax += scrollButtonWidth;
+                    if (widget.x + widget.width > this.getActualWidth())
+                        xMax += scrollButtonWidth;
+                }
+                if (this.xMax > 0)
+                {
+                    this.xMax += scrollButtonWidth;
+                    if (widget.y + widget.height > this.getActualHeight())
+                        yMax += scrollButtonWidth;
+                }
+            }
+
+            widget = Arrays.stream(widgets).filter(Objects::nonNull)
+                    .min(Comparator.comparingInt(GuiWidget::getX)
+                            .thenComparingInt(GuiWidget::getY)).orElse(null);
+            if (widget != null)
+            {
+                this.yMin = Math.min(this.yMin, widget.y);
+                this.xMin = Math.min(this.xMin, widget.x);
+                if (this.yMin < 0) this.yMin -= scrollButtonWidth;
+                if (this.xMin < 0) this.xMin -= scrollButtonWidth;
             }
         }
         else
@@ -365,10 +378,11 @@ public class GuiScroll extends GuiWidgetBundle
         }
         if (this.xMax == 0) yMax = Math.max(yMax - scrollButtonWidth, 0);
         if (this.yMax == 0) xMax = Math.max(xMax - scrollButtonWidth, 0);
-        this.xButton.setVisible(this.xMax != 0);
-        this.yButton.setVisible(this.yMax != 0);
-        yNow = Math.min(yNow, yMax);
-        xNow = Math.min(xNow, xMax);
+
+        this.xButton.setVisible(this.xMax != 0 || this.xMin != 0);
+        this.yButton.setVisible(this.yMax != 0 || this.yMin != 0);
+        yNow = MathHelper.clamp(yNow, yMin, yMax);
+        xNow = MathHelper.clamp(xNow, xMin, xMax);
     }
 
     public GuiScroll setYMax(int yMax)
@@ -425,6 +439,18 @@ public class GuiScroll extends GuiWidgetBundle
     public float getCurrentY()
     {
         return (this.yNow + this.dy * this.getAnimationProgress());
+    }
+
+    @Override
+    public int getActualWidth()
+    {
+        return width - ((yMin != 0 || yMax != 0) ? scrollButtonWidth : 0);
+    }
+
+    @Override
+    public int getActualHeight()
+    {
+        return height - ((xMin != 0 || xMax != 0) ? scrollButtonWidth : 0);
     }
 
     public static class ScrollButton extends GuiButtonAdvanced
@@ -511,10 +537,10 @@ public class GuiScroll extends GuiWidgetBundle
             return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height);
         }
 
-        public void updatePosAndSize(int size, int max, float current)
+        public void updatePosAndSize(int size, int min, int max, float current)
         {
-            this.length = (size == 0) ? 0 : (int) ((float) size / (float) (size + max) * (float) size);
-            this.pos = (max == 0) ? 0 : (int) ((size - length) * current / max);
+            this.length = (size == 0) ? 0 : (int) ((float) size / (float) (size + (max - min)) * (float) size);
+            this.pos = (max == 0 && min == 0) ? 0 : (int) ((size - length) * (current - min) / (max - min));
             super.updatePosAndSize();
         }
 

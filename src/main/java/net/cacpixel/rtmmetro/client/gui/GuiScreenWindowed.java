@@ -133,9 +133,6 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
     @Override
     public void drawDefaultBackground()
     {
-        int hw = this.getHalfWidth();
-        int hh = this.getHalfHeight();
-        // todo : 计算出 需要偏移的真实位置。cant那边控件位置 也需要修改逻辑，看看是怎么改更加好
         super.drawDefaultBackground();
     }
 
