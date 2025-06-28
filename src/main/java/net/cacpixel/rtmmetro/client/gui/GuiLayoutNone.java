@@ -16,6 +16,6 @@ public class GuiLayoutNone extends GuiLayoutBase
         holder.updatePosAndSize();
         holder.getAllWidgets().forEach(GuiWidget::updatePosAndSize);
         holder.onMakeLayoutFinish();
-        holder.getWidgets().stream().filter(it-> !(it instanceof IWidgetHolder)).forEach(GuiWidget::onMakeLayoutFinish);
+        holder.getWidgets().stream().filter(it -> !(it instanceof IWidgetHolder)).forEach(GuiWidget::onMakeLayoutFinish);
     }
 }

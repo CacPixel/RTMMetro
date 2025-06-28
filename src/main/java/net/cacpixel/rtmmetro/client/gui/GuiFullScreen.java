@@ -3,7 +3,6 @@ package net.cacpixel.rtmmetro.client.gui;
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiButtonAdvanced;
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiLabelAdvanced;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
-import net.cacpixel.rtmmetro.util.ModLog;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.function.IntSupplier;

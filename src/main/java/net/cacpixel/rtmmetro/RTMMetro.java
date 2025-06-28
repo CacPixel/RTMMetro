@@ -1,8 +1,5 @@
 package net.cacpixel.rtmmetro;
 
-import jp.ngt.ngtlib.io.NGTLog;
-import jp.ngt.rtm.modelpack.ModelPackManager;
-import jp.ngt.rtm.modelpack.ResourceType;
 import net.cacpixel.rtmmetro.client.gui.RTMMetroGUIHandler;
 import net.cacpixel.rtmmetro.event.RTMMetroEventHandler;
 import net.cacpixel.rtmmetro.modelpack.init.ModelPackManagerEx;
@@ -16,10 +13,6 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.apache.logging.log4j.Logger;
-
-import java.lang.reflect.Field;
-import java.util.Map;
-import java.util.Set;
 
 
 @Mod(

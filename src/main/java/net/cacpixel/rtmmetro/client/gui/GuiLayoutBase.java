@@ -10,5 +10,6 @@ public abstract class GuiLayoutBase
     {
         this.holder = holder;
     }
+
     public abstract void makeLayout();
 }

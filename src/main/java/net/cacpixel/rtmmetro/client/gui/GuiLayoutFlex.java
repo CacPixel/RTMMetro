@@ -1,6 +1,5 @@
 package net.cacpixel.rtmmetro.client.gui;
 
-import net.cacpixel.rtmmetro.client.gui.widgets.GuiScroll;
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiWidget;
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiWidgetDummy;
 import net.cacpixel.rtmmetro.client.gui.widgets.IWidgetHolder;
@@ -115,7 +114,7 @@ public class GuiLayoutFlex extends GuiLayoutBase
             }
         }
         holder.onMakeLayoutFinish();
-        holder.getWidgets().stream().filter(it-> !(it instanceof IWidgetHolder)).forEach(GuiWidget::onMakeLayoutFinish);
+        holder.getWidgets().stream().filter(it -> !(it instanceof IWidgetHolder)).forEach(GuiWidget::onMakeLayoutFinish);
     }
 
     public GuiLayoutFlex setFlow(FlexFlow flow)

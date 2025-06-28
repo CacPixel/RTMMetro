@@ -207,7 +207,7 @@ public interface IWidgetHolder
 
     default void onMakeLayoutFinish() {}
 
-    default GuiWidget updatePosAndSize() { return null; }
+    default GuiWidget updatePosAndSize() {return null;}
 
     default int getActualWidth() {return getWidth();}
 
