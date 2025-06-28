@@ -328,7 +328,7 @@ public class GuiScroll extends GuiWidgetContainer
 
     public void onMakeLayoutFinish()
     {
-        this.expandMaxValue(scrollButtonWidth, scrollButtonWidth, this.widgets.toArray(new GuiWidget[0]));
+        this.expandMaxValue(0, 0, this.widgets.toArray(new GuiWidget[0]));
     }
 
     public void expandMaxValue(int xIn, int yIn, GuiWidget... widgets)
@@ -348,13 +348,11 @@ public class GuiScroll extends GuiWidgetContainer
                 this.xMax = Math.max(this.xMax, widget.x + widget.width - this.width);
                 if (this.yMax > 0)
                 {
-                    this.yMax += scrollButtonWidth;
                     if (widget.x + widget.width > this.getActualWidth())
                         xMax += scrollButtonWidth;
                 }
                 if (this.xMax > 0)
                 {
-                    this.xMax += scrollButtonWidth;
                     if (widget.y + widget.height > this.getActualHeight())
                         yMax += scrollButtonWidth;
                 }
@@ -376,8 +374,6 @@ public class GuiScroll extends GuiWidgetContainer
             this.yMax = yIn;
             this.xMax = xIn;
         }
-        if (this.xMax == 0) yMax = Math.max(yMax - scrollButtonWidth, 0);
-        if (this.yMax == 0) xMax = Math.max(xMax - scrollButtonWidth, 0);
 
         this.xButton.setVisible(this.xMax != 0 || this.xMin != 0);
         this.yButton.setVisible(this.yMax != 0 || this.yMin != 0);
