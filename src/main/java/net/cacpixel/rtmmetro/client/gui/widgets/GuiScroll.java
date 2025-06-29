@@ -340,17 +340,22 @@ public class GuiScroll extends GuiWidgetContainer
         if (autoExpandMaxValue)
         {
             GuiWidget widget = Arrays.stream(widgets).filter(Objects::nonNull)
-                    .max(Comparator.<GuiWidget>comparingInt(w -> w.getX() + w.getWidth())
-                            .thenComparingInt(w -> w.getY() + w.getHeight())).orElse(null);
+                    .max(Comparator.comparingInt(w -> w.getY() + w.getHeight())).orElse(null);
             if (widget != null)
             {
                 this.yMax = Math.max(this.yMax, widget.y + widget.height - this.height);
-                this.xMax = Math.max(this.xMax, widget.x + widget.width - this.width);
                 if (this.yMax > 0)
                 {
                     if (widget.x + widget.width > this.getActualWidth())
                         xMax += scrollButtonWidth;
                 }
+            }
+
+            widget = Arrays.stream(widgets).filter(Objects::nonNull)
+                    .max(Comparator.comparingInt(w -> w.getX() + w.getWidth())).orElse(null);
+            if (widget != null)
+            {
+                this.xMax = Math.max(this.xMax, widget.x + widget.width - this.width);
                 if (this.xMax > 0)
                 {
                     if (widget.y + widget.height > this.getActualHeight())
@@ -359,13 +364,18 @@ public class GuiScroll extends GuiWidgetContainer
             }
 
             widget = Arrays.stream(widgets).filter(Objects::nonNull)
-                    .min(Comparator.comparingInt(GuiWidget::getX)
-                            .thenComparingInt(GuiWidget::getY)).orElse(null);
+                    .max(Comparator.comparingInt(GuiWidget::getY)).orElse(null);
             if (widget != null)
             {
                 this.yMin = Math.min(this.yMin, widget.y);
-                this.xMin = Math.min(this.xMin, widget.x);
                 if (this.yMin < 0) this.yMin -= scrollButtonWidth;
+            }
+
+            widget = Arrays.stream(widgets).filter(Objects::nonNull)
+                    .max(Comparator.comparingInt(GuiWidget::getX)).orElse(null);
+            if (widget != null)
+            {
+                this.xMin = Math.min(this.xMin, widget.x);
                 if (this.xMin < 0) this.xMin -= scrollButtonWidth;
             }
         }
