@@ -82,24 +82,24 @@ public class GuiLayoutFlex extends GuiLayoutBase
                 .ifPresent(x -> secondaryLength.getAndAdd(flow.isColumn() ? x.height : x.width)));
 
         int prevSecondaryMaxLen;            // 记录上行或者列的位置
-        int currentPosSecondary = 0;        // 记录上行或者列的位置
+        float currentPosSecondary = 0;        // 记录上行或者列的位置
         // 处理所有的 row Or Columns
         for (List<GuiWidget> list : rowOrColumns)
         {
             GuiWidget prev = new GuiWidgetDummy(holder, 0, 0, 0, 0, 0); // 记录上一个物品的位置
-            int currentPos = 0;                                                        // 记录上一个物品的位置
+            float currentPos = 0;                                                        // 记录上一个物品的位置
 
             prevSecondaryMaxLen = list.stream().max(Comparator.comparingInt(this::getSecondarySize))
                     .map(this::getSecondarySize)
                     .orElse(0);
             AtomicInteger currentRowOrColumnLength = new AtomicInteger(0);    // 当前行或者列的所有元素的primaryVal长度（宽或者高）全部加起来
             list.forEach(x -> currentRowOrColumnLength.getAndAdd(flow.isColumn() ? x.height : x.width));
-            int dist = primaryJdgVal - currentRowOrColumnLength.get();
-            int dist2 = secondaryJdgVal - secondaryLength.get();
-            int a = primaryAlign.getDistanceSide(dist, list.size());
-            int b = primaryAlign.getDistanceMid(dist, list.size());
-            int as = secondaryAlign.getDistanceSide(dist2, rowOrColumns.size());
-            int bs = secondaryAlign.getDistanceMid(dist2, rowOrColumns.size());
+            float dist = primaryJdgVal - currentRowOrColumnLength.get();
+            float dist2 = secondaryJdgVal - secondaryLength.get();
+            float a = primaryAlign.getDistanceSide(dist, list.size());
+            float b = primaryAlign.getDistanceMid(dist, list.size());
+            float as = secondaryAlign.getDistanceSide(dist2, rowOrColumns.size());
+            float bs = secondaryAlign.getDistanceMid(dist2, rowOrColumns.size());
 
             currentPosSecondary = (rowOrColumns.indexOf(list) == 0) ? currentPosSecondary + as :
                     currentPosSecondary + prevSecondaryMaxLen + bs;
@@ -108,8 +108,8 @@ public class GuiLayoutFlex extends GuiLayoutBase
             {
                 currentPos = (list.indexOf(curr) == 0) ? currentPos + a : currentPos + getPrimarySize(prev) + b;
 
-                setPrimaryPos(curr, currentPos);
-                setSecondaryPos(curr, currentPosSecondary);
+                setPrimaryPos(curr, Math.round(currentPos));
+                setSecondaryPos(curr, Math.round(currentPosSecondary));
                 prev = curr;
             }
         }
@@ -234,9 +234,9 @@ public class GuiLayoutFlex extends GuiLayoutBase
         ALIGN_SPACE_AROUND,
         ALIGN_SPACE_BETWEEN;
 
-        public int getDistanceSide(int dist, int size)
+        public float getDistanceSide(float dist, int size)
         {
-            int a = 0;
+            float a = 0;
             switch (this)
             {
             case ALIGN_START:       // a=0, b=0
@@ -251,8 +251,8 @@ public class GuiLayoutFlex extends GuiLayoutBase
                 a = (dist) / (size + 1);
                 break;
             case ALIGN_SPACE_AROUND:    // a=b/2, b=剩下的间距/(元素个数)
-                int b = dist / (size);
-                a = b / 2;
+                float b = dist / (size);
+                a = b / 2.0f;
                 break;
             case ALIGN_SPACE_BETWEEN:   // a=0, b=剩下的间距/(元素个数-1)
                 break;
@@ -262,9 +262,9 @@ public class GuiLayoutFlex extends GuiLayoutBase
             return Math.max(a, 0);
         }
 
-        public int getDistanceMid(int dist, int size)
+        public float getDistanceMid(float dist, int size)
         {
-            int b = 0;
+            float b = 0;
             switch (this)
             {
             case ALIGN_START:       // a=0, b=0
