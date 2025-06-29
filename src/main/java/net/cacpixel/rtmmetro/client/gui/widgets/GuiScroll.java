@@ -339,44 +339,57 @@ public class GuiScroll extends GuiWidgetContainer
         this.yMin = 0;
         if (autoExpandMaxValue)
         {
-            GuiWidget widget = Arrays.stream(widgets).filter(Objects::nonNull)
+            GuiWidget yMaxWidget = Arrays.stream(widgets).filter(Objects::nonNull)
                     .max(Comparator.comparingInt(w -> w.getY() + w.getHeight())).orElse(null);
-            if (widget != null)
+            GuiWidget xMaxWidget = Arrays.stream(widgets).filter(Objects::nonNull)
+                    .max(Comparator.comparingInt(w -> w.getX() + w.getWidth())).orElse(null);
+            GuiWidget yMinWidget = Arrays.stream(widgets).filter(Objects::nonNull)
+                    .max(Comparator.comparingInt(GuiWidget::getY)).orElse(null);
+            GuiWidget xMinWidget = Arrays.stream(widgets).filter(Objects::nonNull)
+                    .max(Comparator.comparingInt(GuiWidget::getX)).orElse(null);
+            // Expand max/min values
+            if (yMaxWidget != null)
             {
-                this.yMax = Math.max(this.yMax, widget.y + widget.height - this.height);
+                this.yMax = Math.max(this.yMax, yMaxWidget.y + yMaxWidget.height - this.height);
+            }
+            if (xMaxWidget != null)
+            {
+                this.xMax = Math.max(this.xMax, xMaxWidget.x + xMaxWidget.width - this.width);
+            }
+            if (yMinWidget != null)
+            {
+                this.yMin = Math.min(this.yMin, yMinWidget.y);
+            }
+            if (xMinWidget != null)
+            {
+                this.xMin = Math.min(this.xMin, xMinWidget.x);
+            }
+
+            // Expand value for scrollButtonWidth
+            if (yMaxWidget != null)
+            {
                 if (this.yMax > 0)
                 {
-                    if (widget.x + widget.width > this.getActualWidth())
-                        xMax += scrollButtonWidth;
+                    if (xMaxWidget.x + xMaxWidget.width > this.getActualWidth())
+                        xMax += Math.min(scrollButtonWidth, xMaxWidget.x + xMaxWidget.width - this.getActualWidth());
                 }
             }
-
-            widget = Arrays.stream(widgets).filter(Objects::nonNull)
-                    .max(Comparator.comparingInt(w -> w.getX() + w.getWidth())).orElse(null);
-            if (widget != null)
+            if (xMaxWidget != null)
             {
-                this.xMax = Math.max(this.xMax, widget.x + widget.width - this.width);
                 if (this.xMax > 0)
                 {
-                    if (widget.y + widget.height > this.getActualHeight())
-                        yMax += scrollButtonWidth;
+                    if (yMaxWidget.y + yMaxWidget.height > this.getActualHeight())
+                        yMax += Math.min(scrollButtonWidth, yMaxWidget.y + yMaxWidget.height - this.getActualHeight());
                 }
             }
-
-            widget = Arrays.stream(widgets).filter(Objects::nonNull)
-                    .max(Comparator.comparingInt(GuiWidget::getY)).orElse(null);
-            if (widget != null)
+            // 若yMax被修改，保证xMax再次被加。yMax被修改则xMax一定大于0，无需再次判断
+            if (yMaxWidget != null)
             {
-                this.yMin = Math.min(this.yMin, widget.y);
-                if (this.yMin < 0) this.yMin -= scrollButtonWidth;
-            }
-
-            widget = Arrays.stream(widgets).filter(Objects::nonNull)
-                    .max(Comparator.comparingInt(GuiWidget::getX)).orElse(null);
-            if (widget != null)
-            {
-                this.xMin = Math.min(this.xMin, widget.x);
-                if (this.xMin < 0) this.xMin -= scrollButtonWidth;
+                if (this.yMax > 0)
+                {
+                    if (xMaxWidget.x + xMaxWidget.width > this.getActualWidth())
+                        xMax += Math.min(scrollButtonWidth, xMaxWidget.x + xMaxWidget.width - this.getActualWidth());
+                }
             }
         }
         else
@@ -411,16 +424,6 @@ public class GuiScroll extends GuiWidgetContainer
     public void addXMax(int xMax)
     {
         this.xMax += xMax;
-    }
-
-    public int getEndX()
-    {
-        return x + width;
-    }
-
-    public int getEndY()
-    {
-        return y + height;
     }
 
     @Override

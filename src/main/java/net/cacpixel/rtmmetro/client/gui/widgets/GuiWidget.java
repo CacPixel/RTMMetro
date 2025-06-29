@@ -161,6 +161,10 @@ public abstract class GuiWidget
 
     public int getHeight() {return height;}
 
+    public int getEndX() {return x + width;}
+
+    public int getEndY() {return y + height;}
+
     public int getActualWidth() {return width;}
 
     public int getActualHeight() {return height;}
