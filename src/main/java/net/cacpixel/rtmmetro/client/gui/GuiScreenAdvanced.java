@@ -105,8 +105,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public void screenResize()
     {
         this.getLayout().makeLayout();
-        this.getLayout().makeLayout();
-        this.getAllWidgetFromClass(IWidgetHolder.class).forEach(it -> it.getLayout().makeLayout());
         this.getAllWidgetFromClass(IWidgetHolder.class).forEach(it -> it.getLayout().makeLayout());
     }
 

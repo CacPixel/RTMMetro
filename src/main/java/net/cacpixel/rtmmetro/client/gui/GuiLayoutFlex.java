@@ -21,6 +21,16 @@ public class GuiLayoutFlex extends GuiLayoutBase
     @Override
     public void makeLayout()
     {
+        for (int i = 0; i < 2; i++) // 做两次的原因如下
+        {
+            makeLayoutFlex(); // i=1: onMakeLayoutFinish时Scroll可能缩减ActualWidth、height，所以再次makeLayoutFlex。
+            holder.onMakeLayoutFinish(); // i=1: 布局改变还会有可能需要再次让Scroll expandMaxValue，所以必须再次通知
+            holder.getWidgets().stream().filter(it -> !(it instanceof IWidgetHolder)).forEach(GuiWidget::onMakeLayoutFinish);
+        }
+    }
+
+    private void makeLayoutFlex()
+    {
         Queue<GuiWidget> widgets;
         if (flow.isReverse())
         {
@@ -113,8 +123,6 @@ public class GuiLayoutFlex extends GuiLayoutBase
                 prev = curr;
             }
         }
-        holder.onMakeLayoutFinish();
-        holder.getWidgets().stream().filter(it -> !(it instanceof IWidgetHolder)).forEach(GuiWidget::onMakeLayoutFinish);
     }
 
     public GuiLayoutFlex setFlow(FlexFlow flow)
