@@ -21,6 +21,7 @@ public class GuiButtonAdvanced extends GuiWidget
     public Image icon;
     public Align alignX = Align.CENTERED;
     public Align alignY = Align.CENTERED;
+    private boolean wrapString = false;
 
     public GuiButtonAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier)
     {
@@ -80,7 +81,7 @@ public class GuiButtonAdvanced extends GuiWidget
             String buttonText = this.displayString;
             color |= pScr.getAlphaInt(0xFF);
             CacGuiUtils.drawString(buttonText, x, y, width, height, color, alignX, alignY, icon == null ? null :
-                    new Image(icon).setColor(icon.color | pScr.getAlphaInt(0xFF)));
+                    new Image(icon).setColor(icon.color | pScr.getAlphaInt(0xFF)), wrapString);
         }
     }
 
@@ -147,5 +148,16 @@ public class GuiButtonAdvanced extends GuiWidget
     {
         return new Image(GuiTheme.getCurrentResourceLocation("icon/save"),
                 0, 0, 64, 64, 64, 64, 0xFFFFFF);
+    }
+
+    public boolean isWrapString()
+    {
+        return wrapString;
+    }
+
+    public GuiButtonAdvanced setWrapString(boolean wrapString)
+    {
+        this.wrapString = wrapString;
+        return this;
     }
 }

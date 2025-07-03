@@ -24,6 +24,7 @@ public class GuiLabelAdvanced extends GuiWidget
     public int border;
     public int lineHeight = 10;
     private boolean hasBackground = false;
+    private boolean wrapString = false;
 
     public GuiLabelAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
                             IntSupplier widthSupplier, IntSupplier heightSupplier, int colorIn)
@@ -84,7 +85,7 @@ public class GuiLabelAdvanced extends GuiWidget
                 sb.append("\n");
             }
             CacGuiUtils.drawString(sb.toString(), x, y, width, height, textColor | pScr.getAlphaInt(0xFF), alignX,
-                    alignY, icon == null ? null : new Image(icon).setColor(icon.color | pScr.getAlphaInt(0xFF)));
+                    alignY, icon == null ? null : new Image(icon).setColor(icon.color | pScr.getAlphaInt(0xFF)), wrapString);
         }
     }
 
@@ -110,4 +111,14 @@ public class GuiLabelAdvanced extends GuiWidget
         this.drawLabel(mouseX, mouseY, partialTicks);
     }
 
+    public boolean isWrapString()
+    {
+        return wrapString;
+    }
+
+    public GuiLabelAdvanced setWrapString(boolean wrapString)
+    {
+        this.wrapString = wrapString;
+        return this;
+    }
 }

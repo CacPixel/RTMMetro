@@ -298,21 +298,21 @@ public class CacGuiUtils
     }
 
     public static void drawString(String textIn, int x, int y, int w, int h, int color,
-                                  Align alignX, Align alignY, Image image)
+                                  Align alignX, Align alignY, Image image, boolean wrap)
     {
-        drawString(textIn, x, y, w, h, color, alignX, alignY, DEFAULT_LINE_HEIGHT, image);
+        drawString(textIn, x, y, w, h, color, alignX, alignY, DEFAULT_LINE_HEIGHT, image, wrap);
     }
 
     public static void drawString(String textIn, int x, int y, int w, int h, int color,
-                                  Align alignX, Align alignY, int lineHeight, Image image)
+                                  Align alignX, Align alignY, int lineHeight, Image image, boolean wrap)
     {
         List<String> strList = Arrays.stream(textIn.replaceAll("\r\n", "\n").split("\n"))
                 .collect(Collectors.toList());
-        drawString(strList, x, y, w, h, color, alignX, alignY, lineHeight, image);
+        drawString(strList, x, y, w, h, color, alignX, alignY, lineHeight, image, wrap);
     }
 
     public static void drawString(List<String> strListIn, int x, int y, int w, int h, int color,
-                                  Align alignX, Align alignY, int lineHeight, Image image)
+                                  Align alignX, Align alignY, int lineHeight, Image image, boolean wrap)
     {
         ResourceLocation icon = null;
         int iconColor = 0;
@@ -327,11 +327,20 @@ public class CacGuiUtils
         int iconSize = icon != null ? (int) (fontHeight * iconScale) : 0;
         int diff = (int) (iconSize * 0.5f);
         w = Math.max(w, fontHeight + iconSize + 1); // 保证宽度足够，否则wrapFormattedStringToWidth会报stackoverflow
-        List<String> strList = new ArrayList<>();
-        for (String str : strListIn)
+        List<String> strList;
+        if (wrap)
         {
-            strList.addAll(fontRendererIn.listFormattedStringToWidth(str, w - iconSize - diff));
+            strList = new ArrayList<>();
+            for (String str : strListIn)
+            {
+                strList.addAll(fontRendererIn.listFormattedStringToWidth(str, w - iconSize - diff));
+            }
         }
+        else
+        {
+            strList = strListIn;
+        }
+
         int offset = alignY == Align.LEFT_OR_UP_ALIGNED ? 0 :
                 alignY == Align.RIGHT_OR_DOWN_ALIGNED ? (lineHeight - fontHeight) :
                         (lineHeight - fontHeight) / 2;
