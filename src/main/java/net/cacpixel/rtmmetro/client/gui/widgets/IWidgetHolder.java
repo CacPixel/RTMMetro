@@ -213,4 +213,9 @@ public interface IWidgetHolder
 
     default int getActualHeight() {return getHeight();}
 
+    default void makeLayout()
+    {
+        this.getLayout().makeLayout();
+        this.getWidgetFromClass(IWidgetHolder.class).forEach(IWidgetHolder::makeLayout);
+    }
 }
