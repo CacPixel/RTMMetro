@@ -46,6 +46,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
     private GuiCalculateCant guiCalculateCant;
     private GuiScroll mainScroll;
     private GuiScroll infoScroll;
+    private GuiWidgetContainer infoContainer;
 
     // Field
     private GuiTextFieldAdvanced fieldMarkerName;
@@ -112,37 +113,52 @@ public class GuiMarkerAdvanced extends GuiFullScreen
 
     private void initInfoScroll()
     {
-        infoScroll = new GuiScroll(this, getNextWidgetId(),
+        infoScroll = this.addWidget(GuiScroll.class,
                 fromWidth().thenMultiply(1.0 / 3.0).thenApply(it -> width - Math.min(it, 150)),
                 () -> 30,
 //                () -> width * (1.0/3.0) > 150 ? 150 : (int) (width * (2.0 / 3.0)),
                 fromWidth().thenMultiply(1.0 / 3.0).thenApply(it -> Math.min(it, 150)),
                 fromHeight().thenMinusBy(40 + 30).thenApply(it -> Math.max(it, 1))
         );
-        infoScroll.setLayout(new GuiLayoutFlex(infoScroll).setFlow(GuiLayoutFlex.FlexFlow.ROW_WRAP_REVERSE)
-                .setPrimaryAlign(GuiLayoutFlex.FlexAlign.ALIGN_SPACE_BETWEEN)
-                .setSecondaryAlign(GuiLayoutFlex.FlexAlign.ALIGN_SPACE_BETWEEN));
-        this.add(infoScroll);
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("1");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("2");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("3");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("4");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("5");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("6");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("7");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("8");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("9");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("10");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("11");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("12");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("13");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("14");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("15");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("16");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("17");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("18");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("19");
-        infoScroll.addWidget(GuiButtonAdvanced.class, 0, 0, 40, 40).setDisplayString("20");
+        infoContainer = infoScroll.addWidget(GuiWidgetContainer.class,
+                fromInt(10), fromInt(10), () -> (int) (infoScroll.width * 1.5F), () -> infoScroll.height - 20
+        );
+        infoContainer.setLayout(new GuiLayoutFlex(infoContainer).setFlow(GuiLayoutFlex.FlexFlow.COLUMN)
+                .setPrimaryAlign(GuiLayoutFlex.FlexAlign.ALIGN_START)
+                .setSecondaryAlign(GuiLayoutFlex.FlexAlign.ALIGN_START));
+
+        /*   add widget   */
+        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
+                .setText(String.format("Rail length: %d", 0))
+                .setAlignY(Align.CENTERED);
+        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 20, 0xFFFFFF)
+                .setText(String.format("Switch type: %d", 0))
+                .setAlignY(Align.CENTERED);
+        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
+                .setText(String.format("Curve radius: %d", 233))
+                .setAlignY(Align.CENTERED);
+        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
+                .setText(String.format("Markers:"))
+                .setAlignY(Align.CENTERED);
+        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
+                .setText(String.format("    \"marker0\": "))
+                .setAlignY(Align.CENTERED);
+        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
+                .setText(String.format("        type: Normal"))
+                .setAlignY(Align.CENTERED);
+        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
+                .setText(String.format("        pos: %d, %d, %d", marker.getX(), marker.getY(), marker.getZ()))
+                .setAlignY(Align.CENTERED);
+        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
+                .setText(String.format("    \"marker1\": "))
+                .setAlignY(Align.CENTERED);
+        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
+                .setText(String.format("        type: Normal"))
+                .setAlignY(Align.CENTERED);
+        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
+                .setText(String.format("        pos: %d, %d, %d", marker.getX(), marker.getY(), marker.getZ()))
+                .setAlignY(Align.CENTERED);
+
     }
 
     private void initMainScroll()
