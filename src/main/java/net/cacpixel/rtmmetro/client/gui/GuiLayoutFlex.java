@@ -23,7 +23,11 @@ public class GuiLayoutFlex extends GuiLayoutBase
     {
         for (int i = 0; i < 2; i++) // 做两次的原因如下
         {
+            holder.onMakeLayoutStart();
+            holder.getWidgets().stream().filter(it -> !(it instanceof IWidgetHolder)).forEach(GuiWidget::onMakeLayoutStart);
+
             makeLayoutFlex(); // i=1: onMakeLayoutFinish时Scroll可能缩减ActualWidth、height，所以再次makeLayoutFlex。
+
             holder.onMakeLayoutFinish(); // i=1: 布局改变还会有可能需要再次让Scroll expandMaxValue，所以必须再次通知
             holder.getWidgets().stream().filter(it -> !(it instanceof IWidgetHolder)).forEach(GuiWidget::onMakeLayoutFinish);
         }

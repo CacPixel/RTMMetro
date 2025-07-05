@@ -48,10 +48,7 @@ public abstract class GuiWidget
         if (ySupplier != null) this.ySupplier = ySupplier;
         if (widthSupplier != null) this.widthSupplier = widthSupplier;
         if (heightSupplier != null) this.heightSupplier = heightSupplier;
-        this.updatePosAndSize(this.getXSupplier().getAsInt(),
-                this.getYSupplier().getAsInt(),
-                this.getWidthSupplier().getAsInt(),
-                this.getHeightSupplier().getAsInt());
+        this.updatePosAndSize();
     }
 
     public GuiWidget(GuiScreenAdvanced pScr, IntSupplier xSupplier, IntSupplier ySupplier,
@@ -169,22 +166,22 @@ public abstract class GuiWidget
 
     public int getActualHeight() {return height;}
 
-    public final GuiWidget updatePosAndSize(int x, int y, int w, int h)
+    public final void updatePosAndSize()
     {
-        this.x = x;
-        this.y = y;
-        this.width = w;
-        this.height = h;
-        return this;
+        updatePos();
+        updateSize();
     }
 
-    public GuiWidget updatePosAndSize()
+    public final void updatePos()
     {
-        this.updatePosAndSize(this.getXSupplier().getAsInt(),
-                this.getYSupplier().getAsInt(),
-                this.getWidthSupplier().getAsInt(),
-                this.getHeightSupplier().getAsInt());
-        return this;
+        x = xSupplier.getAsInt();
+        y = ySupplier.getAsInt();
+    }
+
+    public final void updateSize()
+    {
+        width = widthSupplier.getAsInt();
+        height = heightSupplier.getAsInt();
     }
 
     public IntSupplier getXSupplier()
@@ -250,6 +247,8 @@ public abstract class GuiWidget
     {
         this.dragging = dragging;
     }
+
+    public void onMakeLayoutStart() {}
 
     public void onMakeLayoutFinish() {}
 }

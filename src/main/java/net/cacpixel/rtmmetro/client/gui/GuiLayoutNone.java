@@ -13,8 +13,15 @@ public class GuiLayoutNone extends GuiLayoutBase
     @Override
     public void makeLayout()
     {
-        holder.updatePosAndSize();
-        holder.getWidgets().forEach(GuiWidget::updatePosAndSize);
+        holder.doAsGuiWidget(GuiWidget::updateSize);
+        holder.getWidgets().forEach(GuiWidget::updateSize);
+
+        holder.onMakeLayoutStart();
+        holder.getWidgets().stream().filter(it -> !(it instanceof IWidgetHolder)).forEach(GuiWidget::onMakeLayoutStart);
+
+        holder.doAsGuiWidget(GuiWidget::updatePos);
+        holder.getWidgets().forEach(GuiWidget::updatePos);
+
         holder.onMakeLayoutFinish();
         holder.getWidgets().stream().filter(it -> !(it instanceof IWidgetHolder)).forEach(GuiWidget::onMakeLayoutFinish);
     }

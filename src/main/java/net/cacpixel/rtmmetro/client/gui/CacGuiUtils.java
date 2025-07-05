@@ -297,6 +297,31 @@ public class CacGuiUtils
         Minecraft.getMinecraft().getTextureManager().bindTexture(rl);
     }
 
+    public static List<String> extractNewLine(List<String> strIn, boolean extractCRLF)
+    {
+        StringBuilder sb = new StringBuilder();
+        for (String str : strIn)
+        {
+            sb.append(str);
+            sb.append("\n");
+        }
+        return extractNewLine(sb.toString(), extractCRLF);
+    }
+
+    public static List<String> extractNewLine(String strIn, boolean extractCRLF)
+    {
+        if (extractCRLF)
+        {
+            return Arrays.stream(strIn.replaceAll("\r\n", "\n").split("\n"))
+                    .collect(Collectors.toList());
+        }
+        else
+        {
+            return Arrays.stream(strIn.split("\n"))
+                    .collect(Collectors.toList());
+        }
+    }
+
     public static void drawString(String textIn, int x, int y, int w, int h, int color,
                                   Align alignX, Align alignY, Image image, boolean wrap)
     {
@@ -306,9 +331,7 @@ public class CacGuiUtils
     public static void drawString(String textIn, int x, int y, int w, int h, int color,
                                   Align alignX, Align alignY, int lineHeight, Image image, boolean wrap)
     {
-        List<String> strList = Arrays.stream(textIn.replaceAll("\r\n", "\n").split("\n"))
-                .collect(Collectors.toList());
-        drawString(strList, x, y, w, h, color, alignX, alignY, lineHeight, image, wrap);
+        drawString(extractNewLine(textIn, true), x, y, w, h, color, alignX, alignY, lineHeight, image, wrap);
     }
 
     public static void drawString(List<String> strListIn, int x, int y, int w, int h, int color,

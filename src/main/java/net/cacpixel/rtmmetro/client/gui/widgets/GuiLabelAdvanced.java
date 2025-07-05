@@ -4,6 +4,7 @@ import net.cacpixel.rtmmetro.client.gui.Align;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.Image;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ public class GuiLabelAdvanced extends GuiWidget
     public int lineHeight = 10;
     private boolean hasBackground = false;
     private boolean wrapString = false;
+    private boolean autoExpand = false;
 
     public GuiLabelAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
                             IntSupplier widthSupplier, IntSupplier heightSupplier, int colorIn)
@@ -71,6 +73,7 @@ public class GuiLabelAdvanced extends GuiWidget
     public void drawLabel(int mouseX, int mouseY, float partialTicks)
     {
         Minecraft mc = pScr.mc;
+        FontRenderer fontRenderer = mc.fontRenderer;
         if (this.visible)
         {
             GlStateManager.enableBlend();
@@ -78,14 +81,10 @@ public class GuiLabelAdvanced extends GuiWidget
                     GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                     GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
             this.drawLabelBackground(mc, mouseX, mouseY);
-            StringBuilder sb = new StringBuilder();
-            for (String str : this.labels)
-            {
-                sb.append(str);
-                sb.append("\n");
-            }
-            CacGuiUtils.drawString(sb.toString(), x, y, width, height, textColor | pScr.getAlphaInt(0xFF), alignX,
-                    alignY, icon == null ? null : new Image(icon).setColor(icon.color | pScr.getAlphaInt(0xFF)), wrapString);
+            CacGuiUtils.drawString(CacGuiUtils.extractNewLine(labels, true), x, y, width, height, textColor | pScr.getAlphaInt(0xFF),
+                    alignX, alignY, CacGuiUtils.DEFAULT_LINE_HEIGHT,
+                    icon == null ? null : new Image(icon).setColor(icon.color | pScr.getAlphaInt(0xFF)),
+                    wrapString);
         }
     }
 
@@ -120,5 +119,43 @@ public class GuiLabelAdvanced extends GuiWidget
     {
         this.wrapString = wrapString;
         return this;
+    }
+
+    public boolean isAutoExpand()
+    {
+        return autoExpand;
+    }
+
+    public GuiLabelAdvanced setAutoExpand(boolean autoExpand)
+    {
+        this.autoExpand = autoExpand;
+        return this;
+    }
+
+    public void doExpand()
+    {
+        List<String> list = CacGuiUtils.extractNewLine(this.labels, true);
+        for (String str : list)
+        {
+            int strWidth = pScr.mc.fontRenderer.getStringWidth(str) + 2;
+            if (width < strWidth)
+            {
+                width = strWidth;
+            }
+        }
+        int strHeightTotal = labels.size() * (pScr.mc.fontRenderer.FONT_HEIGHT - 1) + 2;
+        if (height < strHeightTotal)
+        {
+            height = strHeightTotal;
+        }
+    }
+
+    @Override
+    public void onMakeLayoutStart()
+    {
+        if (autoExpand)
+        {
+            doExpand();
+        }
     }
 }

@@ -46,7 +46,6 @@ public class GuiMarkerAdvanced extends GuiFullScreen
     private GuiCalculateCant guiCalculateCant;
     private GuiScroll mainScroll;
     private GuiScroll infoScroll;
-    private GuiWidgetContainer infoContainer;
 
     // Field
     private GuiTextFieldAdvanced fieldMarkerName;
@@ -120,44 +119,10 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                 fromWidth().thenMultiply(1.0 / 3.0).thenApply(it -> Math.min(it, 150)),
                 fromHeight().thenMinusBy(40 + 30).thenApply(it -> Math.max(it, 1))
         );
-        infoContainer = infoScroll.addWidget(GuiWidgetContainer.class,
-                fromInt(10), fromInt(10), () -> (int) (infoScroll.width * 1.5F), () -> infoScroll.height - 20
-        );
-        infoContainer.setLayout(new GuiLayoutFlex(infoContainer).setFlow(GuiLayoutFlex.FlexFlow.COLUMN)
-                .setPrimaryAlign(GuiLayoutFlex.FlexAlign.ALIGN_START)
-                .setSecondaryAlign(GuiLayoutFlex.FlexAlign.ALIGN_START));
 
-        /*   add widget   */
-        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
-                .setText(String.format("Rail length: %d", 0))
-                .setAlignY(Align.CENTERED);
-        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 20, 0xFFFFFF)
-                .setText(String.format("Switch type: %d", 0))
-                .setAlignY(Align.CENTERED);
-        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
-                .setText(String.format("Curve radius: %d", 233))
-                .setAlignY(Align.CENTERED);
-        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
-                .setText(String.format("Markers:"))
-                .setAlignY(Align.CENTERED);
-        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
-                .setText(String.format("    \"marker0\": "))
-                .setAlignY(Align.CENTERED);
-        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
-                .setText(String.format("        type: Normal"))
-                .setAlignY(Align.CENTERED);
-        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
-                .setText(String.format("        pos: %d, %d, %d", marker.getX(), marker.getY(), marker.getZ()))
-                .setAlignY(Align.CENTERED);
-        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
-                .setText(String.format("    \"marker1\": "))
-                .setAlignY(Align.CENTERED);
-        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
-                .setText(String.format("        type: Normal"))
-                .setAlignY(Align.CENTERED);
-        infoContainer.addWidget(GuiLabelAdvanced.class, 0, 0, (IntSupplier) () -> infoContainer.width, 16, 0xFFFFFF)
-                .setText(String.format("        pos: %d, %d, %d", marker.getX(), marker.getY(), marker.getZ()))
-                .setAlignY(Align.CENTERED);
+        infoScroll.addWidget(GuiLabelAdvanced.class, 5, 5, (IntSupplier) () -> infoScroll.width - 5, 16, 0xFFFFFF)
+                .setText(String.format("Rail length: %d, 233333333333333333333333333333333\n2nd line!!!!!!!!!!\r\nCRLF test!!!!!!!!", 0))
+                .setWrapString(false).setAutoExpand(true);
 
     }
 

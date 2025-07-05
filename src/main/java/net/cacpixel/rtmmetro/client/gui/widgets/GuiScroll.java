@@ -322,8 +322,8 @@ public class GuiScroll extends GuiWidgetContainer
     {
         int xDiff = this.yButton.isVisible() ? scrollButtonWidth : 0;
         int yDiff = this.xButton.isVisible() ? scrollButtonWidth : 0;
-        this.xButton.updatePosAndSize(width - xDiff, xMin, xMax, this.getCurrentX());
-        this.yButton.updatePosAndSize(height - yDiff, yMin, yMax, this.getCurrentY());
+        this.xButton.updateLengthAndPos(width - xDiff, xMin, xMax, this.getCurrentX());
+        this.yButton.updateLengthAndPos(height - yDiff, yMin, yMax, this.getCurrentY());
     }
 
     public void onMakeLayoutFinish()
@@ -546,11 +546,11 @@ public class GuiScroll extends GuiWidgetContainer
             return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height);
         }
 
-        public void updatePosAndSize(int size, int min, int max, float current)
+        public void updateLengthAndPos(int size, int min, int max, float current)
         {
             this.length = (size == 0) ? 0 : (int) ((float) size / (float) (size + (max - min)) * (float) size);
             this.pos = (max == 0 && min == 0) ? 0 : (int) ((size - length) * (current - min) / (max - min));
-            super.updatePosAndSize();
+            updatePosAndSize();
         }
 
         @Override

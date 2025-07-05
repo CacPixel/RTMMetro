@@ -205,9 +205,9 @@ public interface IWidgetHolder
         return GuiParam.from(x);
     }
 
-    default void onMakeLayoutFinish() {}
+    default void onMakeLayoutStart() {}
 
-    default GuiWidget updatePosAndSize() {return null;}
+    default void onMakeLayoutFinish() {}
 
     default int getActualWidth() {return getWidth();}
 
@@ -217,5 +217,13 @@ public interface IWidgetHolder
     {
         this.getLayout().makeLayout();
         this.getWidgetFromClass(IWidgetHolder.class).forEach(IWidgetHolder::makeLayout);
+    }
+
+    default void doAsGuiWidget(Consumer<GuiWidget> consumer)
+    {
+        if (this instanceof GuiWidget)
+        {
+            consumer.accept((GuiWidget) this);
+        }
     }
 }
