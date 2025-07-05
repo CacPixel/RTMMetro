@@ -16,6 +16,9 @@ import net.minecraftforge.fml.common.Loader;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BlockUtils
@@ -62,6 +65,52 @@ public class BlockUtils
             return ((TileEntityMarkerAdvanced) te).getMarkerRP();
         else
             return null;
+    }
+
+    public static BlockPos getPosFromRP(RailPosition position)
+    {
+        return new BlockPos(position.blockX, position.blockY, position.blockZ);
+    }
+
+    public static List<TileEntityMarkerAdvanced> getAllMarkers(World world, List<BlockPos> markerPosList, BlockPos currentPos)
+    {
+        return markerPosList.stream()
+                .map(it -> getMarkerFromPos(world, it))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    public static List<TileEntityMarkerAdvanced> getOtherMarkers(World world, List<BlockPos> markerPosList, BlockPos currentPos)
+    {
+        return markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentPos))
+                .map(it -> getMarkerFromPos(world, it))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    public static TileEntityMarkerAdvanced getOppositeMarker(World world, List<BlockPos> markerPosList, BlockPos currentPos)
+    {
+        return markerPosList.stream().filter(m -> !BlockUtils.isPosEqual(m, currentPos))
+                .map(it -> getMarkerFromPos(world, it))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static List<RailPosition> getAllRPs(World world, List<BlockPos> markerPosList, BlockPos currentPos)
+    {
+        return getAllMarkers(world, markerPosList, currentPos).stream().map(it -> it.rp).collect(Collectors.toList());
+    }
+
+    public static List<RailPosition> getOtherRPs(World world, List<BlockPos> markerPosList, BlockPos currentPos)
+    {
+        return getOtherMarkers(world, markerPosList, currentPos).stream().map(it -> it.rp).collect(Collectors.toList());
+    }
+
+    public static RailPosition getOppositeRP(World world, List<BlockPos> markerPosList, BlockPos currentPos)
+    {
+        TileEntityMarkerAdvanced marker = getOppositeMarker(world, markerPosList, currentPos);
+        return (marker == null) ? null : marker.rp;
     }
 
     public static boolean cancelRailBlockBreak(World world, EntityPlayer player, BlockPos pos)
