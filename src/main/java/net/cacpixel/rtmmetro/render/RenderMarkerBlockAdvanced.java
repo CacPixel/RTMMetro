@@ -32,6 +32,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
@@ -49,6 +50,11 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
     public static final RenderMarkerBlockAdvanced INSTANCE = new RenderMarkerBlockAdvanced();
     private static final double FIT_RANGE_SQ = 4.0D;
     private String[] displayStrings = new String[RTMCore.markerDisplayDistance / 10];
+    public static TextFormatting[] splitColors = new TextFormatting[]{
+            TextFormatting.GREEN, TextFormatting.AQUA, TextFormatting.RED,
+            TextFormatting.GOLD, TextFormatting.GRAY, TextFormatting.BLUE,
+            TextFormatting.LIGHT_PURPLE, TextFormatting.YELLOW, TextFormatting.WHITE
+    };
 
     private RenderMarkerBlockAdvanced()
     {
@@ -306,7 +312,6 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
         GL11.glPushMatrix();
         GL11.glTranslatef(x, y, z);
         NGTTessellator ngttessellator = NGTTessellator.instance;
-        int[] color = new int[]{0x00F5FF, 0xFFD700, 0xFF6A6A, 0x00FF7F, 0xFFC1C1, 0xBA55D3, 0xDAA520, 0x3CB371};
         try
         {
             for (int i1 = 0; i1 < marker.linePos.length; ++i1)
@@ -326,7 +331,9 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                     float f2 = (float) (railmap1.getStartRP().posZ - marker.getMarkerRP().posZ);
                     GL11.glTranslatef(f, f1, f2);
                     ngttessellator.startDrawing(3);
-                    ngttessellator.setColorOpaque_I(color[i1 % color.length]);
+                    int colorCode = NGTUtilClient.getMinecraft().fontRenderer
+                            .getColorCode(splitColors[i1 % splitColors.length].toString().charAt(1)) & 0xFFFFFF;
+                    ngttessellator.setColorOpaque_I(colorCode);
 
                     for (int k = 0; k < marker.linePos[i1].length; ++k)
                     {

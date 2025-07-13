@@ -57,6 +57,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     private int count;
     public boolean shouldUpdateClientLines = false; // 其他玩家修改了Line后置true，发送数据包给所有玩家更新Line
     public int splits = 2;
+    public SwitchType switchType = null;
     /******************************************************************/
     public static final int DEFAULT_GROUP_ID = 1;
     public static final int GROUP_ID_INDIVIDUAL = 0;
@@ -260,6 +261,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         BlockPos blockpos = null;
         if (list.size() == 1)
         {
+            switchType = null;
             RailPosition railposition = this.getMarkerRP(list.get(0));
             if (railposition != null && railposition.hasScript())
             {
@@ -276,6 +278,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
         }
         else if (list.size() == 2)
         {
+            switchType = null;
             if (list.get(0) != null && list.get(1) != null)
             {
                 RailPosition startRP = this.getMarkerRP(list.get(0));
@@ -337,6 +340,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             }
 
             SwitchType switchtype = (new RailMaker(this.getWorld(), list2)).getSwitch();
+            this.switchType = switchtype;
             if (switchtype != null)
             {
                 // Todo: 使用新的SwitchType或者依次手动clone railMaps为RailMapSwitchAdvanced (RailMapSwitch final class，临时解决方案)

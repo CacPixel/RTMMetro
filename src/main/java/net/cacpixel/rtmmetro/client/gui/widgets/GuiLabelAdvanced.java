@@ -45,6 +45,33 @@ public class GuiLabelAdvanced extends GuiWidget
         return this;
     }
 
+    public GuiLabelAdvanced clearLabels()
+    {
+        this.labels.clear();
+        return this;
+    }
+
+    public GuiLabelAdvanced removeLine(String line)
+    {
+        this.labels.removeIf(line::equals);
+        return this;
+    }
+
+    public GuiLabelAdvanced removeLine(int index)
+    {
+        if (index < labels.size())
+        {
+            labels.remove(index);
+        }
+        return this;
+    }
+
+    public GuiLabelAdvanced removeIfContains(String str)
+    {
+        this.labels.removeIf(str::contains);
+        return this;
+    }
+
     public GuiLabelAdvanced setText(String text)
     {
         this.labels.clear();

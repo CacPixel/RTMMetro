@@ -62,3 +62,10 @@ gui.marker.edit_status_h=水平方向锁定状态（绿线）
 gui.marker.edit_status_v=垂直方向锁定状态（橙线）
 gui.marker.rail_drawing_scheme=轨道绘制方案
 gui.marker.textbox_straight_line=当前为直线
+
+gui.marker.info_rm_title=RailMap 信息:
+gui.marker.info_rm_none_title=无 RailMap.
+gui.marker.info_rm_split_title=分割后的 RailMap 信息:
+gui.marker.info_length=长度: %.2f
+gui.marker.info_radius=曲线半径: %.2f
+gui.marker.info_section=分区 %d:

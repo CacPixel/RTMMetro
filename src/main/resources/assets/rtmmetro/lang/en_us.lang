@@ -62,3 +62,11 @@ gui.marker.edit_status_h=Lock status of Horizontal
 gui.marker.edit_status_v=Lock status of Vertical
 gui.marker.rail_drawing_scheme=Rail Drawing Scheme
 gui.marker.textbox_straight_line=Straight Line
+
+gui.marker.info_rm_title=RailMap Information:
+gui.marker.info_rm_none_title=No RailMap.
+gui.marker.info_rm_split_title=Split RailMap Information:
+gui.marker.info_length=Length: %.2f
+gui.marker.info_radius=Radius: %.2f
+gui.marker.info_section=Section %d:
+

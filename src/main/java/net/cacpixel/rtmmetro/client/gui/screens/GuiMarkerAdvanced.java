@@ -4,7 +4,9 @@ import jp.ngt.ngtlib.block.BlockUtil;
 import jp.ngt.ngtlib.math.NGTMath;
 import jp.ngt.rtm.rail.BlockMarker;
 import jp.ngt.rtm.rail.RenderMarkerBlock;
+import jp.ngt.rtm.rail.util.RailMap;
 import jp.ngt.rtm.rail.util.RailPosition;
+import jp.ngt.rtm.rail.util.SwitchType;
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.RTMMetro;
 import net.cacpixel.rtmmetro.RTMMetroBlock;
@@ -17,6 +19,7 @@ import net.cacpixel.rtmmetro.rail.tileentity.TileEntityMarkerAdvanced;
 import net.cacpixel.rtmmetro.rail.util.AnchorEditStatus;
 import net.cacpixel.rtmmetro.rail.util.RailDrawingScheme;
 import net.cacpixel.rtmmetro.rail.util.RailMapAdvanced;
+import net.cacpixel.rtmmetro.render.RenderMarkerBlockAdvanced;
 import net.cacpixel.rtmmetro.util.BlockUtils;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.tileentity.TileEntity;
@@ -30,8 +33,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.IntSupplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SideOnly(Side.CLIENT)
@@ -87,6 +92,9 @@ public class GuiMarkerAdvanced extends GuiFullScreen
     private GuiOptionButton<RailDrawingScheme> buttonDrawingScheme;
     private GuiButtonAdvanced buttonRedraw;
 
+    // Info scroll contents
+    private GuiLabelAdvanced infoLabel;
+
     public GuiMarkerAdvanced(TileEntityMarkerAdvanced marker)
     {
         super();
@@ -112,18 +120,18 @@ public class GuiMarkerAdvanced extends GuiFullScreen
 
     private void initInfoScroll()
     {
+        int fontColor = 0xE0E0E0 | this.getAlphaInt(0xFF);
         infoScroll = this.addWidget(GuiScroll.class,
-                fromWidth().thenMultiply(1.0 / 3.0).thenApply(it -> width - Math.min(it, 150)),
+                fromWidth().thenMultiply(1.0 / 3.0).thenApply(it -> width - Math.min(it, 200)),
                 () -> 30,
 //                () -> width * (1.0/3.0) > 150 ? 150 : (int) (width * (2.0 / 3.0)),
-                fromWidth().thenMultiply(1.0 / 3.0).thenApply(it -> Math.min(it, 150)),
+                fromWidth().thenMultiply(1.0 / 3.0).thenApply(it -> Math.min(it, 200)),
                 fromHeight().thenMinusBy(40 + 30).thenApply(it -> Math.max(it, 1))
         );
 
-        infoScroll.addWidget(GuiLabelAdvanced.class, 5, 5, (IntSupplier) () -> infoScroll.width - 5, 16, 0xFFFFFF)
-                .setText(String.format("Rail length: %d, 233333333333333333333333333333333\n2nd line!!!!!!!!!!\r\nCRLF test!!!!!!!!", 0))
+        infoLabel = infoScroll.addWidget(GuiLabelAdvanced.class, 5, 5, (IntSupplier) () -> infoScroll.width - 5, 16, fontColor)
                 .setWrapString(false).setAutoExpand(true);
-
+        updateInfoLabel();
     }
 
     private void initMainScroll()
@@ -142,7 +150,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         this.mainScroll = new Scroll(this, this.getNextWidgetId(),
                 () -> 0,
                 () -> 30,
-                fromWidth().thenMultiply(1.0 / 3.0).thenApply(it -> width - Math.min(it, 150) - 2),
+                fromWidth().thenMultiply(1.0 / 3.0).thenApply(it -> width - Math.min(it, 200) - 2),
 //                () -> Math.max(1, this.height - 40 - 30)
                 fromHeight().thenMinusBy(40 + 30).thenApply(it -> Math.max(it, 1))
         );
@@ -546,6 +554,50 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         }
     }
 
+    private void updateInfoLabel()
+    {
+        StringBuilder sb = new StringBuilder();
+        SwitchType switchType = marker.switchType;
+        List<RailMap> rmList = Arrays.stream(marker.getRailMaps()).collect(Collectors.toList());
+        RailMapAdvanced rmOriginal = marker.getOriginalRailMap();
+        String in = "  ";
+
+        if (rmOriginal != null && switchType == null)           // 直线情况
+        {
+            sb.append(TextFormatting.BOLD + I18n.format("gui.marker.info_rm_title") + "\n");
+            sb.append(in);
+            sb.append(I18n.format("gui.marker.info_length", (float) rmOriginal.getLength()));
+            sb.append("\n");
+            if (marker.drawingScheme == RailDrawingScheme.DRAW_CIRCLE)
+            {
+                sb.append(in);
+                sb.append(I18n.format("gui.marker.info_radius",
+                        RailMapAdvanced.getRadius(rmOriginal.getStartRP(), rmOriginal.getEndRP(), marker.drawingScheme)));
+                sb.append("\n");
+            }
+            sb.append("\n");
+            sb.append(TextFormatting.BOLD + I18n.format("gui.marker.info_rm_split_title") + "\n");
+            for (RailMap rm : rmList)
+            {
+                TextFormatting textFormatting =
+                        RenderMarkerBlockAdvanced.splitColors[rmList.indexOf(rm) & RenderMarkerBlockAdvanced.splitColors.length];
+                sb.append(textFormatting);
+                sb.append(in + TextFormatting.UNDERLINE + I18n.format("gui.marker.info_section", rmList.indexOf(rm) + 1) + "\n");
+                sb.append(textFormatting);
+                sb.append(in + in + I18n.format("gui.marker.info_length", (float) rm.getLength()) + "\n");
+            }
+        }
+        else if (rmOriginal == null && switchType == null)      // 道岔情况
+        {
+            sb.append(TextFormatting.BOLD + I18n.format("gui.marker.info_rm_title") + "\n");
+        }
+        else    // 没rm的情况
+        {
+            sb.append(I18n.format("gui.marker.info_rm_none_title"));
+        }
+        infoLabel.setText(sb.toString());
+    }
+
     @Override
     public void updateScreen()
     {
@@ -591,6 +643,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
             this.updateValueFromWidgets();
             this.hasValueUpdated = false;
         }
+        updateInfoLabel();
     }
 
     @Override
