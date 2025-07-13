@@ -56,11 +56,11 @@ public class WidgetFactory
         return field;
     }
 
-    public static GuiTextFieldAdvancedFloat addTextField(IWidgetHolder thiz, int xPos, int yPos, int w, int h,
-                                                         float value, float min, float max, boolean loop)
+    public static GuiTextFieldAdvancedNumber addTextField(IWidgetHolder thiz, int xPos, int yPos, int w, int h,
+                                                          float value, float min, float max, boolean loop)
     {
-        GuiTextFieldAdvancedFloat field = new GuiTextFieldAdvancedFloat(thiz, thiz.getScreen().getNextWidgetId(),
-                () -> xPos, () -> yPos, () -> w, () -> h).setInitialValue(value).setMinMax(min, max, loop);
+        GuiTextFieldAdvancedNumber field = new GuiTextFieldAdvancedNumber(thiz, thiz.getScreen().getNextWidgetId(),
+                () -> xPos, () -> yPos, () -> w, () -> h).setFloatValue(value).setMinMax(min, max, loop);
         field.setMaxStringLength(32767);
         field.setFocused(false);
         field.setText(String.valueOf(value));
@@ -68,11 +68,12 @@ public class WidgetFactory
         return field;
     }
 
-    public static GuiTextFieldAdvancedInt addTextField(IWidgetHolder thiz, int xPos, int yPos, int w, int h, int value,
+    public static GuiTextFieldAdvancedNumber addTextField(IWidgetHolder thiz, int xPos, int yPos, int w, int h, int value,
                                                        int min, int max, boolean loop)
     {
-        GuiTextFieldAdvancedInt field = new GuiTextFieldAdvancedInt(thiz, thiz.getScreen().getNextWidgetId(),
-                () -> xPos, () -> yPos, () -> w, () -> h).setInitialValue(value).setMinMax(min, max, loop);
+        GuiTextFieldAdvancedNumber field = new GuiTextFieldAdvancedNumber(thiz, thiz.getScreen().getNextWidgetId(),
+                () -> xPos, () -> yPos, () -> w, () -> h).setIntValue(value).setMinMax(min, max, loop)
+                .setFormatPattern(GuiTextFieldAdvancedNumber.INT_PATTERN).setStep(1.0);
         field.setMaxStringLength(32767);
         field.setFocused(false);
         field.setText(String.valueOf(value));
@@ -144,13 +145,13 @@ public class WidgetFactory
         return field;
     }
 
-    public static GuiTextFieldAdvancedFloat addTextField(IWidgetHolder thiz, IntSupplier xSupplier,
-                                                         IntSupplier ySupplier, IntSupplier widthSupplier,
-                                                         IntSupplier heightSupplier, float value, float min, float max,
-                                                         boolean loop)
+    public static GuiTextFieldAdvancedNumber addTextField(IWidgetHolder thiz, IntSupplier xSupplier,
+                                                          IntSupplier ySupplier, IntSupplier widthSupplier,
+                                                          IntSupplier heightSupplier, float value, float min, float max,
+                                                          boolean loop)
     {
-        GuiTextFieldAdvancedFloat field = new GuiTextFieldAdvancedFloat(thiz, thiz.getScreen().getNextWidgetId(),
-                xSupplier, ySupplier, widthSupplier, heightSupplier).setInitialValue(value).setMinMax(min, max, loop);
+        GuiTextFieldAdvancedNumber field = new GuiTextFieldAdvancedNumber(thiz, thiz.getScreen().getNextWidgetId(),
+                xSupplier, ySupplier, widthSupplier, heightSupplier).setFloatValue(value).setMinMax(min, max, loop);
         field.setMaxStringLength(32767);
         field.setFocused(false);
         field.setText(String.valueOf(value));
@@ -158,12 +159,13 @@ public class WidgetFactory
         return field;
     }
 
-    public static GuiTextFieldAdvancedInt addTextField(IWidgetHolder thiz, IntSupplier xSupplier, IntSupplier ySupplier,
+    public static GuiTextFieldAdvancedNumber addTextField(IWidgetHolder thiz, IntSupplier xSupplier, IntSupplier ySupplier,
                                                        IntSupplier widthSupplier, IntSupplier heightSupplier, int value,
                                                        int min, int max, boolean loop)
     {
-        GuiTextFieldAdvancedInt field = new GuiTextFieldAdvancedInt(thiz, thiz.getScreen().getNextWidgetId(), xSupplier,
-                ySupplier, widthSupplier, heightSupplier).setInitialValue(value).setMinMax(min, max, loop);
+        GuiTextFieldAdvancedNumber field = new GuiTextFieldAdvancedNumber(thiz, thiz.getScreen().getNextWidgetId(), xSupplier,
+                ySupplier, widthSupplier, heightSupplier).setIntValue(value).setMinMax(min, max, loop)
+                .setFormatPattern(GuiTextFieldAdvancedNumber.INT_PATTERN).setStep(1.0);
         field.setMaxStringLength(32767);
         field.setFocused(false);
         field.setText(String.valueOf(value));

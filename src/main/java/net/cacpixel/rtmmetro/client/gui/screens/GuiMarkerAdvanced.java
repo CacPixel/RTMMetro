@@ -54,15 +54,15 @@ public class GuiMarkerAdvanced extends GuiFullScreen
 
     // Field
     private GuiTextFieldAdvanced fieldMarkerName;
-    private GuiTextFieldAdvancedInt fieldGroup;
-    private GuiTextFieldAdvancedInt fieldRailHeight;
-    private GuiTextFieldAdvancedFloat fieldAnchorLengthHorizontal;
-    private GuiTextFieldAdvancedFloat fieldAnchorYaw;
-    private GuiTextFieldAdvancedFloat fieldAnchorLengthVertical;
-    private GuiTextFieldAdvancedFloat fieldAnchorPitch;
-    private GuiTextFieldAdvancedFloat fieldCantEdge;
-    private GuiTextFieldAdvancedFloat fieldCantCenter;
-    private GuiTextFieldAdvancedFloat fieldCantRandom;
+    private GuiTextFieldAdvancedNumber fieldGroup;
+    private GuiTextFieldAdvancedNumber fieldRailHeight;
+    private GuiTextFieldAdvancedNumber fieldAnchorLengthHorizontal;
+    private GuiTextFieldAdvancedNumber fieldAnchorYaw;
+    private GuiTextFieldAdvancedNumber fieldAnchorLengthVertical;
+    private GuiTextFieldAdvancedNumber fieldAnchorPitch;
+    private GuiTextFieldAdvancedNumber fieldCantEdge;
+    private GuiTextFieldAdvancedNumber fieldCantCenter;
+    private GuiTextFieldAdvancedNumber fieldCantRandom;
 
     // Button
     private GuiButtonAdvanced buttonOK;
@@ -172,7 +172,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                 this.currentRP.height, 0, 15, false);
         this.buttonResetHeight = WidgetFactory.addButton(mainScroll, buttX, fieldY - 2, buttH, buttH, "0")
                 .setListener((w) -> {
-                    this.fieldRailHeight.fieldValue = 0;
+                    this.fieldRailHeight.setIntValue(0);
                     this.fieldRailHeight.checkValueAndSetText();
                 });
         fieldY += lineHeight;
@@ -183,14 +183,14 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                 (float) ModConfig.railGeneratingDistance, false);
         this.buttonResetLengthH = WidgetFactory.addButton(mainScroll, buttX, fieldY - 2, buttH, buttH, "0")
                 .setListener((w) -> {
-                    fieldAnchorLengthHorizontal.fieldValue = 0;
+                    fieldAnchorLengthHorizontal.setFloatValue(0);
                     fieldAnchorLengthHorizontal.checkValueAndSetText();
                 });
         this.buttonStraightLineH = WidgetFactory.addButton(mainScroll, buttX + buttH, fieldY - 2, buttW, buttH,
                         I18n.format("gui.marker.straight_line"))
                 .setListener((w) -> {
                     this.currentValues.forEach(v -> v.rp.anchorLengthHorizontal = 0);
-                    fieldAnchorLengthHorizontal.fieldValue = 0;
+                    fieldAnchorLengthHorizontal.setFloatValue(0);
                     fieldAnchorLengthHorizontal.checkValueAndSetText();
                 });
         this.buttonMagicNumberH = WidgetFactory.addButton(mainScroll, buttX + buttH + buttW, fieldY - 2, buttW, buttH,
@@ -202,10 +202,10 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                                 TileEntity te = BlockUtil.getTileEntity(marker.getWorld(), pos);
                                 if (te instanceof TileEntityMarkerAdvanced)
                                 {
-                                    fieldAnchorLengthHorizontal.fieldValue = RailMapAdvanced.getDefaultHorizontal(
+                                    fieldAnchorLengthHorizontal.setFloatValue(RailMapAdvanced.getDefaultHorizontal(
                                             currentRP,
                                             ((TileEntityMarkerAdvanced) te).getMarkerRP(),
-                                            this.currentMarkerValue.drawingScheme);
+                                            this.currentMarkerValue.drawingScheme));
                                     fieldAnchorLengthHorizontal.checkValueAndSetText();
                                 }
                             });
@@ -219,7 +219,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                 true);
         this.buttonResetAnchorYaw = WidgetFactory.addButton(mainScroll, buttX, fieldY - 2, buttH, buttH, "0")
                 .setListener((w) -> {
-                    fieldAnchorYaw.fieldValue = NGTMath.wrapAngle(currentRP.direction * 45.0F);
+                    fieldAnchorYaw.setFloatValue(NGTMath.wrapAngle(currentRP.direction * 45.0F));
                     fieldAnchorYaw.checkValueAndSetText();
                 });
         this.buttonCopyNeighborYaw = WidgetFactory.addButton(mainScroll, buttX + buttH, fieldY - 2, buttW, buttH,
@@ -228,7 +228,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                     RailPosition rp = TileEntityMarkerAdvanced.getNeighborRP(this.marker);
                     if (rp != null)
                     {
-                        this.fieldAnchorYaw.fieldValue = MathHelper.wrapDegrees(rp.anchorYaw + 180.0F);
+                        this.fieldAnchorYaw.setFloatValue(MathHelper.wrapDegrees(rp.anchorYaw + 180.0F));
                         this.fieldAnchorYaw.checkValueAndSetText();
                     }
                 });
@@ -241,9 +241,9 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                                 TileEntity te = BlockUtil.getTileEntity(marker.getWorld(), pos);
                                 if (te instanceof TileEntityMarkerAdvanced)
                                 {
-                                    fieldAnchorYaw.fieldValue = RailMapAdvanced.getDefaultYaw(currentRP,
+                                    fieldAnchorYaw.setFloatValue(RailMapAdvanced.getDefaultYaw(currentRP,
                                             ((TileEntityMarkerAdvanced) te).getMarkerRP(),
-                                            this.currentMarkerValue.drawingScheme);
+                                            this.currentMarkerValue.drawingScheme));
                                     fieldAnchorYaw.checkValueAndSetText();
                                 }
                             });
@@ -251,7 +251,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         this.buttonRotateYaw = WidgetFactory.addUnicodeGlyphButton(mainScroll, buttX - fieldW - buttH - 4, fieldY - 2,
                 buttH, buttH,
                 GuiUtils.UNDO_CHAR, 2.0F).setListener((w) -> {
-            this.fieldAnchorYaw.fieldValue += 45.0F;
+            this.fieldAnchorYaw.setFloatValue(this.fieldAnchorYaw.getFloatValue() + 45.0F);
             this.fieldAnchorYaw.checkValueAndSetText();
         });
         fieldY += lineHeight;
@@ -262,21 +262,21 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                 (float) ModConfig.railGeneratingDistance, false);
         this.buttonResetLengthV = WidgetFactory.addButton(mainScroll, buttX, fieldY - 2, buttH, buttH, "0")
                 .setListener((w) -> {
-                    fieldAnchorLengthVertical.fieldValue = 0;
+                    fieldAnchorLengthVertical.setFloatValue(0);
                     fieldAnchorLengthVertical.checkValueAndSetText();
                 });
         this.buttonStraightLineV = WidgetFactory.addButton(mainScroll, buttX + buttH, fieldY - 2, buttW, buttH,
                         I18n.format("gui.marker.straight_line"))
                 .setListener((w) -> {
                     this.currentValues.forEach(v -> v.rp.anchorLengthVertical = 0);
-                    fieldAnchorLengthVertical.fieldValue = 0;
+                    fieldAnchorLengthVertical.setFloatValue(0);
                     fieldAnchorLengthVertical.checkValueAndSetText();
                 });
         this.buttonMagicNumberV = WidgetFactory.addButton(mainScroll, buttX + buttH + buttW, fieldY - 2, buttW, buttH,
                         I18n.format("gui.marker.magic_number"))
                 .setListener((w) -> {
-                    fieldAnchorLengthVertical.fieldValue = RailMapAdvanced.getDefaultVertical(
-                            this.marker.getOriginalRailMap());
+                    fieldAnchorLengthVertical.setFloatValue(RailMapAdvanced.getDefaultVertical(
+                            this.marker.getOriginalRailMap()));
                     fieldAnchorLengthVertical.checkValueAndSetText();
                 });
         fieldY += lineHeight;
@@ -288,7 +288,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                 false);
         this.buttonResetAnchorPitch = WidgetFactory.addButton(mainScroll, buttX, fieldY - 2, buttH, buttH, "0")
                 .setListener((w) -> {
-                    fieldAnchorPitch.fieldValue = 0.0F;
+                    fieldAnchorPitch.setFloatValue(0.0F);
                     fieldAnchorPitch.checkValueAndSetText();
                 });
         this.buttonCopyNeighborPitch = WidgetFactory.addButton(mainScroll, buttX + buttH, fieldY - 2, buttW, buttH,
@@ -297,7 +297,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                     RailPosition rp = TileEntityMarkerAdvanced.getNeighborRP(this.marker);
                     if (rp != null)
                     {
-                        this.fieldAnchorPitch.fieldValue = MathHelper.wrapDegrees(-rp.anchorPitch);
+                        this.fieldAnchorPitch.setFloatValue(MathHelper.wrapDegrees(-rp.anchorPitch));
                         this.fieldAnchorPitch.checkValueAndSetText();
                     }
                 });
@@ -309,14 +309,14 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                 false);
         this.buttonResetCantEdge = WidgetFactory.addButton(mainScroll, buttX, fieldY - 2, buttH, buttH, "0")
                 .setListener((w) -> {
-                    fieldCantEdge.fieldValue = 0;
+                    fieldCantEdge.setFloatValue(0);
                     fieldCantEdge.checkValueAndSetText();
                 });
         this.buttonCalcCantEdge = WidgetFactory.addButton(mainScroll, buttX + buttH, fieldY - 2, buttW, buttH,
                         I18n.format("gui.marker.calculate"))
                 .setListener((w) -> {
                     guiCalculateCant = new GuiCalculateCant(x -> {
-                        fieldCantEdge.fieldValue = (float) x;
+                        fieldCantEdge.setFloatValue((float) x);
                         fieldCantEdge.checkValueAndSetText();
                     }).setWindowSize(250, 200).setParent(this);
                     displayGuiScreen(guiCalculateCant);
@@ -327,14 +327,14 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                     RailPosition rp = TileEntityMarkerAdvanced.getNeighborRP(this.marker);
                     if (rp != null)
                     {
-                        this.fieldCantEdge.fieldValue = MathHelper.wrapDegrees(-rp.cantEdge);
+                        this.fieldCantEdge.setFloatValue(MathHelper.wrapDegrees(-rp.cantEdge));
                         this.fieldCantEdge.checkValueAndSetText();
                     }
                 });
         this.buttonFlipCantEdge = WidgetFactory.addButton(mainScroll, buttX - fieldW - buttH - 4, fieldY - 2, buttH,
                         buttH, "-")
                 .setListener((w) -> {
-                    this.fieldCantEdge.fieldValue = -this.fieldCantEdge.fieldValue;
+                    this.fieldCantEdge.setFloatValue(-this.fieldCantEdge.getFloatValue());
                     this.fieldCantEdge.checkValueAndSetText();
                 });
         fieldY += lineHeight;
@@ -346,14 +346,14 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                 false);
         this.buttonResetCantCenter = WidgetFactory.addButton(mainScroll, buttX, fieldY - 2, buttH, buttH, "0")
                 .setListener((w) -> {
-                    fieldCantCenter.fieldValue = 0;
+                    fieldCantCenter.setFloatValue(0);
                     fieldCantCenter.checkValueAndSetText();
                 });
         this.buttonCalcCantCenter = WidgetFactory.addButton(mainScroll, buttX + buttH, fieldY - 2, buttW, buttH,
                         I18n.format("gui.marker.calculate"))
                 .setListener((w) -> {
                     guiCalculateCant = new GuiCalculateCant(x -> {
-                        fieldCantCenter.fieldValue = (float) x;
+                        fieldCantCenter.setFloatValue((float) x);
                         fieldCantCenter.checkValueAndSetText();
                     }).setWindowSize(250, 200).setParent(this);
                     displayGuiScreen(guiCalculateCant);
@@ -361,7 +361,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         this.buttonFlipCantCenter = WidgetFactory.addButton(mainScroll, buttX - fieldW - buttH - 4, fieldY - 2, buttH,
                         buttH, "-")
                 .setListener((w) -> {
-                    this.fieldCantCenter.fieldValue = -this.fieldCantCenter.fieldValue;
+                    this.fieldCantCenter.setFloatValue(-this.fieldCantCenter.getFloatValue());
                     this.fieldCantCenter.checkValueAndSetText();
                 });
         fieldY += lineHeight;
@@ -373,7 +373,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                 false);
         this.buttonResetCantRandom = WidgetFactory.addButton(mainScroll, buttX, fieldY - 2, buttH, buttH, "0")
                 .setListener((w) -> {
-                    fieldCantRandom.fieldValue = 0;
+                    fieldCantRandom.setFloatValue(0);
                     fieldCantRandom.checkValueAndSetText();
                 });
         fieldY += lineHeight + 2 + 10;
@@ -401,13 +401,13 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                         if (te != null)
                         {
                             // this marker
-                            fieldAnchorYaw.fieldValue = RailMapAdvanced.getDefaultYaw(currentRP, te.getMarkerRP(),
-                                    this.currentMarkerValue.drawingScheme);
+                            fieldAnchorYaw.setFloatValue(RailMapAdvanced.getDefaultYaw(currentRP, te.getMarkerRP(),
+                                    this.currentMarkerValue.drawingScheme));
                             fieldAnchorYaw.checkValueAndSetText();
                             this.updateValueFromWidgets();
-                            fieldAnchorLengthHorizontal.fieldValue = RailMapAdvanced.getDefaultHorizontal(currentRP,
+                            fieldAnchorLengthHorizontal.setFloatValue(RailMapAdvanced.getDefaultHorizontal(currentRP,
                                     te.getMarkerRP(),
-                                    this.currentMarkerValue.drawingScheme);
+                                    this.currentMarkerValue.drawingScheme));
                             fieldAnchorLengthHorizontal.checkValueAndSetText();
                             //another marker
                             this.currentValues.stream()
@@ -659,12 +659,12 @@ public class GuiMarkerAdvanced extends GuiFullScreen
     public void drawScreenBefore(int mouseX, int mouseY, float partialTicks)
     {
         Stream.of(fieldAnchorLengthHorizontal, fieldAnchorLengthVertical).forEach(f -> {
-            if (f.fieldValue < 0 && !f.isFocused())
+            if (f.getFloatValue() < 0 && !f.isFocused())
             {
                 f.setText(I18n.format("gui.marker.textbox_straight_line"));
                 f.prefixTextFormatting = TextFormatting.GRAY + TextFormatting.ITALIC.toString();
             }
-            if (f.fieldValue < 0 && f.isFocused())
+            if (f.getFloatValue() < 0 && f.isFocused())
             {
                 f.setText("");
                 f.prefixTextFormatting = "";
@@ -724,16 +724,16 @@ public class GuiMarkerAdvanced extends GuiFullScreen
 
     public void updateValueFromWidgets()
     {
-        this.currentMarkerValue.groupId = this.fieldGroup.fieldValue;
+        this.currentMarkerValue.groupId = this.fieldGroup.getIntValue();
         this.currentMarkerValue.name = this.fieldMarkerName.getText();
-        this.currentMarkerValue.rp.height = (byte) this.fieldRailHeight.fieldValue;
-        this.currentMarkerValue.rp.anchorLengthHorizontal = this.fieldAnchorLengthHorizontal.fieldValue;
-        this.currentMarkerValue.rp.anchorLengthVertical = this.fieldAnchorLengthVertical.fieldValue;
-        this.currentMarkerValue.rp.anchorYaw = this.fieldAnchorYaw.fieldValue;
-        this.currentMarkerValue.rp.anchorPitch = this.fieldAnchorPitch.fieldValue;
-        this.currentMarkerValue.rp.cantCenter = this.fieldCantCenter.fieldValue;
-        this.currentMarkerValue.rp.cantEdge = this.fieldCantEdge.fieldValue;
-        this.currentMarkerValue.rp.cantRandom = this.fieldCantRandom.fieldValue;
+        this.currentMarkerValue.rp.height = (byte) this.fieldRailHeight.getIntValue();
+        this.currentMarkerValue.rp.anchorLengthHorizontal = this.fieldAnchorLengthHorizontal.getFloatValue();
+        this.currentMarkerValue.rp.anchorLengthVertical = this.fieldAnchorLengthVertical.getFloatValue();
+        this.currentMarkerValue.rp.anchorYaw = this.fieldAnchorYaw.getFloatValue();
+        this.currentMarkerValue.rp.anchorPitch = this.fieldAnchorPitch.getFloatValue();
+        this.currentMarkerValue.rp.cantCenter = this.fieldCantCenter.getFloatValue();
+        this.currentMarkerValue.rp.cantEdge = this.fieldCantEdge.getFloatValue();
+        this.currentMarkerValue.rp.cantRandom = this.fieldCantRandom.getFloatValue();
         this.currentMarkerValue.editStatusH = this.buttonEditStatusH.getSelectedOption();
         this.currentMarkerValue.editStatusV = this.buttonEditStatusV.getSelectedOption();
         this.currentMarkerValue.drawingScheme = this.buttonDrawingScheme.getSelectedOption();

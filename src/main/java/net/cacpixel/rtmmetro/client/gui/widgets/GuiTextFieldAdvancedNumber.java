@@ -4,29 +4,27 @@ import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Keyboard;
 
+import java.text.DecimalFormat;
 import java.util.function.IntSupplier;
 
-public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
+public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
 {
-    public int fieldValue;
-    public int step = 1;
-    public int minValue = Integer.MIN_VALUE;
-    public int maxValue = Integer.MAX_VALUE;
-    public boolean loop = false;
+    private double fieldValue;
+    private double step = 0.100000000001;
+    private double minValue = Double.MIN_VALUE;
+    private double maxValue = Double.MAX_VALUE;
+    private boolean loop = false;
+    private String formatPattern = FLOAT_PATTERN;
+    public static final String INT_PATTERN = "#";
+    public static final String FLOAT_PATTERN = "0.0##";
 
-    public GuiTextFieldAdvancedInt(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
-                                   IntSupplier widthSupplier, IntSupplier heightSupplier)
+    public GuiTextFieldAdvancedNumber(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+                                      IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
         super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
     }
 
-    public GuiTextFieldAdvancedInt setInitialValue(int val)
-    {
-        this.fieldValue = val;
-        return this;
-    }
-
-    public GuiTextFieldAdvancedInt setMinMax(int min, int max, boolean loop)
+    public GuiTextFieldAdvancedNumber setMinMax(double min, double max, boolean loop)
     {
         this.minValue = min;
         this.maxValue = max;
@@ -34,12 +32,11 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
         return this;
     }
 
-    public GuiTextFieldAdvancedInt setStep(int step)
+    public GuiTextFieldAdvancedNumber setStep(double step)
     {
         this.step = step;
         return this;
     }
-
 
     @Override
     public void onScroll(int mouseX, int mouseY, int scroll)
@@ -101,7 +98,7 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
     public void incValue(int scroll)
     {
         super.incValue(scroll);
-        int step = this.step;
+        double step = this.step;
         if (GuiScreen.isShiftKeyDown())
         {
             step *= 10;
@@ -117,20 +114,29 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
 
     public boolean isValueValid()
     {
-        return this.fieldValue >= this.minValue && this.fieldValue <= this.maxValue;
+        return !(this.fieldValue < this.minValue) && !(this.fieldValue > this.maxValue)
+                && !Double.isNaN(this.fieldValue) && !Double.isInfinite(this.fieldValue);
     }
 
     @Override
     public void checkValueAndSetText()
     {
         this.checkValue();
-        this.setText(String.valueOf(this.fieldValue));
+        this.setText(new DecimalFormat(formatPattern).format(this.fieldValue));
         this.pScr.hasValueUpdated = true;
     }
 
     @Override
     public void checkValue()
     {
+        if (Double.isNaN(fieldValue) || Double.isInfinite(fieldValue))
+        {
+            this.fieldValue = 0.0;
+        }
+        if (-1e-6 < this.fieldValue && this.fieldValue < 1e-6)
+        {
+            this.fieldValue = 0.0;
+        }
         if (!loop)
         {
             this.fieldValue = Math.max(this.fieldValue, this.minValue);
@@ -138,7 +144,7 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
         }
         else
         {
-            int div = maxValue - minValue;
+            double div = maxValue - minValue;
             fieldValue = fieldValue % div;
             if (fieldValue > maxValue)
             {
@@ -149,5 +155,49 @@ public class GuiTextFieldAdvancedInt extends GuiTextFieldAdvanced
                 fieldValue += div;
             }
         }
+    }
+
+    public float getFloatValue()
+    {
+        return (float) fieldValue;
+    }
+
+    public GuiTextFieldAdvancedNumber setFloatValue(float fieldValue)
+    {
+        this.fieldValue = fieldValue;
+        return this;
+    }
+
+    public double getDoubleValue()
+    {
+        return fieldValue;
+    }
+
+    public GuiTextFieldAdvancedNumber setDoubleValue(double fieldValue)
+    {
+        this.fieldValue = fieldValue;
+        return this;
+    }
+
+    public int getIntValue()
+    {
+        return (int) fieldValue;
+    }
+
+    public GuiTextFieldAdvancedNumber setIntValue(int fieldValue)
+    {
+        this.fieldValue = fieldValue;
+        return this;
+    }
+
+    public String getFormatPattern()
+    {
+        return formatPattern;
+    }
+
+    public GuiTextFieldAdvancedNumber setFormatPattern(String formatPattern)
+    {
+        this.formatPattern = formatPattern;
+        return this;
     }
 }

@@ -2,10 +2,7 @@ package net.cacpixel.rtmmetro.client.gui.screens;
 
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenWindowed;
-import net.cacpixel.rtmmetro.client.gui.widgets.GuiButtonAdvanced;
-import net.cacpixel.rtmmetro.client.gui.widgets.GuiCheckBoxAdvanced;
-import net.cacpixel.rtmmetro.client.gui.widgets.GuiTextFieldAdvancedInt;
-import net.cacpixel.rtmmetro.client.gui.widgets.WidgetFactory;
+import net.cacpixel.rtmmetro.client.gui.widgets.*;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
@@ -20,9 +17,9 @@ public class GuiCalculateCant extends GuiScreenWindowed
     public static int radius = 600;
     public static int gauge = 1435;
     private final DoubleConsumer consumer;
-    private GuiTextFieldAdvancedInt fieldSpeed;
-    private GuiTextFieldAdvancedInt fieldRadius;
-    private GuiTextFieldAdvancedInt fieldGauge;
+    private GuiTextFieldAdvancedNumber fieldSpeed;
+    private GuiTextFieldAdvancedNumber fieldRadius;
+    private GuiTextFieldAdvancedNumber fieldGauge;
     private GuiButtonAdvanced buttonOK;
     private GuiCheckBoxAdvanced checkBoxFlip;
     private float addedHeight;
@@ -62,9 +59,9 @@ public class GuiCalculateCant extends GuiScreenWindowed
                 () -> 20, I18n.format("gui.set_value")).setListener((w) -> {
             if (!(Float.isNaN(cant) || Float.isInfinite(cant))) this.consumer.accept(this.cant);
             this.displayPrevScreen();
-            speed = fieldSpeed.fieldValue;
-            radius = fieldRadius.fieldValue;
-            gauge = fieldGauge.fieldValue;
+            speed = fieldSpeed.getIntValue();
+            radius = fieldRadius.getIntValue();
+            gauge = fieldGauge.getIntValue();
         });
     }
 
@@ -77,8 +74,8 @@ public class GuiCalculateCant extends GuiScreenWindowed
         int fontColor = 0xE0E0E0 | this.getAlphaInt(0xFF);
         this.drawDefaultBackground();
         super.draw(mouseX, mouseY, partialTicks);
-        addedHeight = getAddHeight(fieldSpeed.fieldValue, fieldRadius.fieldValue);
-        cant = getCantValue(fieldGauge.fieldValue, addedHeight);
+        addedHeight = getAddHeight(fieldSpeed.getIntValue(), fieldRadius.getIntValue());
+        cant = getCantValue(fieldGauge.getIntValue(), addedHeight);
         cant = this.checkBoxFlip.isChecked() ? -cant : cant;
         String colorPrefix = addedHeight > 0.150F ? TextFormatting.RED.toString() : TextFormatting.GREEN.toString();
 //        this.drawCenteredString(this.fontRenderer, TextFormatting.BOLD + "Calculate Rail Cant", hw, hh - 80 + 4,
