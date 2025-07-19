@@ -1,6 +1,7 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
+import net.cacpixel.rtmmetro.client.gui.MouseGrabber;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.client.config.GuiUtils;
 
@@ -34,9 +35,9 @@ public class GuiCheckBoxAdvanced extends GuiButtonAdvanced
     @Override
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partial)
     {
-        if (super.isVisible())
+        if (this.isVisible())
         {
-            this.hovered = this.isMouseInside();
+            this.hovered = this.isMouseInside() && !MouseGrabber.INSTANCE.isGrabbed();
 //            GuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46, this.boxWidth, this
 //            .height, 200, 20, 2,
 //            3, 2, 2, this.zLevel);

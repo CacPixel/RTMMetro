@@ -74,10 +74,9 @@ public abstract class GuiWidget
         if (this.isEnabled() && this.isVisible() && this.isMouseInside())
         {
             this.holder.addWidgetToActionQueue(this);
-            this.dragging = true;
-            this.lastClickedX = mouseX;
-            this.lastClickedY = mouseY;
         }
+        this.lastClickedX = mouseX;
+        this.lastClickedY = mouseY;
     }
 
     public void onClick(int mouseX, int mouseY, int button)
@@ -122,6 +121,10 @@ public abstract class GuiWidget
 
     public void onLeftClickAndDrag(int mouseX, int mouseY, long timeSinceLastClick)
     {
+        if (!dragging && (Math.abs(mouseX - lastClickedX) > 1 || Math.abs(mouseY - lastClickedY) > 1))
+        {
+            dragging = true;
+        }
     }
 
     public void onMouseReleased(int mouseX, int mouseY, int state)
@@ -146,6 +149,13 @@ public abstract class GuiWidget
         int dx = holder.shiftMouseX();
         int dy = holder.shiftMouseY();
         return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height) && holder.isMouseInside();
+    }
+
+    public boolean isLastClickInside()
+    {
+        int dx = holder.shiftMouseX();
+        int dy = holder.shiftMouseY();
+        return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, lastClickedX, lastClickedY) && holder.isMouseInside();
     }
 
     public abstract void draw(int mouseX, int mouseY, float partialTicks);

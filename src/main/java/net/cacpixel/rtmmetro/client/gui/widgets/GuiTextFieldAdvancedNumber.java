@@ -1,6 +1,7 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
+import net.cacpixel.rtmmetro.client.gui.MouseGrabber;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Keyboard;
 
@@ -22,6 +23,7 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
                                       IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
         super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+        canDragEdit = true;
     }
 
     public GuiTextFieldAdvancedNumber setMinMax(double min, double max, boolean loop)
@@ -36,6 +38,44 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
     {
         this.step = step;
         return this;
+    }
+
+    @Override
+    public void onLeftClick(int mouseX, int mouseY)
+    {
+        super.onLeftClick(mouseX, mouseY);
+        MouseGrabber.INSTANCE.prevMouseXForScroll = mouseX;
+        MouseGrabber.INSTANCE.prevMouseYForScroll = mouseY;
+    }
+
+    @Override
+    public void onLeftClickAndDrag(int mouseX, int mouseY, long timeSinceLastClick)
+    {
+        super.onLeftClickAndDrag(mouseX, mouseY, timeSinceLastClick);
+        int dx = holder.shiftMouseX();
+        int dy = holder.shiftMouseY();
+        boolean flag = CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, lastClickedX, lastClickedY) &&
+                (holder.isMouseInside() || MouseGrabber.INSTANCE.isGrabbed());
+        if (isEnabled() && isVisible() && !isFocused() && flag)
+        {
+            if (isDragging() && !MouseGrabber.INSTANCE.isGrabbed())
+            {
+                MouseGrabber.INSTANCE.grabMouseCursor();
+            }
+            MouseGrabber.INSTANCE.mouseXYChange();
+            this.incValue((MouseGrabber.INSTANCE.prevMouseXForScroll + MouseGrabber.INSTANCE.prevMouseYForScroll) *
+                    CacGuiUtils.DEFAULT_SCROLL_VALUE);
+        }
+    }
+
+    @Override
+    public void onMouseReleased(int mouseX, int mouseY, int state)
+    {
+        super.onMouseReleased(mouseX, mouseY, state);
+        if (MouseGrabber.INSTANCE.isGrabbed())
+        {
+            MouseGrabber.INSTANCE.ungrabMouseCursor();
+        }
     }
 
     @Override

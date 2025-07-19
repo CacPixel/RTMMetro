@@ -1,6 +1,7 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
+import net.cacpixel.rtmmetro.client.gui.MouseGrabber;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 
@@ -24,9 +25,9 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced
     @Override
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partial)
     {
-        if (super.isVisible())
+        if (this.isVisible())
         {
-            this.hovered = this.isMouseInside();
+            this.hovered = this.isMouseInside() && !MouseGrabber.INSTANCE.isGrabbed();
             if (this.pScr != mc.currentScreen || pScr.isInAnimation())
             {
                 this.hovered = false;

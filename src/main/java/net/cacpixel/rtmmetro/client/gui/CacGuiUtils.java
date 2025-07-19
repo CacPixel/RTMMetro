@@ -444,4 +444,10 @@ public class CacGuiUtils
         return x <= mouseX && mouseX < (x + width)
                 && y <= mouseY && mouseY < (y + height);
     }
+
+    public static boolean isMouseInside(int x, int y, int width, int height, int mouseX, int mouseY)
+    {
+        return x <= mouseX && mouseX < (x + width)
+                && y <= mouseY && mouseY < (y + height);
+    }
 }

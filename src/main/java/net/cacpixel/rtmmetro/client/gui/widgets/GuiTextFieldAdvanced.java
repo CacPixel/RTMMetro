@@ -23,6 +23,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Keyboard;
 
 import javax.script.ScriptEngine;
 import java.util.ArrayList;
@@ -51,6 +52,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
     private final List<String> tips = new ArrayList<>();
     public boolean setTextIgnoreValidator = true;
     public String prefixTextFormatting = "";
+    public boolean canDragEdit = false;
 
     public GuiTextFieldAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
                                 IntSupplier widthSupplier, IntSupplier heightSupplier)
@@ -129,8 +131,14 @@ public class GuiTextFieldAdvanced extends GuiWidget
 
     public void onWidgetUpdate()
     {
-        if (this.isEnabled() && this.isVisible() && this.isFocused())
+        if (this.isDragging())
+        {
+            this.cursorCounter = 0;
+        }
+        else if (this.isEnabled() && this.isVisible() && this.isFocused())
+        {
             ++this.cursorCounter;
+        }
     }
 
     public <T extends GuiTextFieldAdvanced> T setText(String textIn)
@@ -376,7 +384,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
         {
             switch (keyCode)
             {
-            case 14:
+            case Keyboard.KEY_BACK:
 
                 if (GuiScreen.isCtrlKeyDown())
                 {
@@ -391,7 +399,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
                 }
 
                 return true;
-            case 199:
+            case Keyboard.KEY_HOME:
 
                 if (GuiScreen.isShiftKeyDown())
                 {
@@ -403,7 +411,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
                 }
 
                 return true;
-            case 203:
+            case Keyboard.KEY_LEFT:
 
                 if (GuiScreen.isShiftKeyDown())
                 {
@@ -426,7 +434,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
                 }
 
                 return true;
-            case 205:
+            case Keyboard.KEY_RIGHT:
 
                 if (GuiScreen.isShiftKeyDown())
                 {
@@ -449,7 +457,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
                 }
 
                 return true;
-            case 207:
+            case Keyboard.KEY_END:
 
                 if (GuiScreen.isShiftKeyDown())
                 {
@@ -461,7 +469,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
                 }
 
                 return true;
-            case 211:
+            case Keyboard.KEY_DELETE:
 
                 if (GuiScreen.isCtrlKeyDown())
                 {
@@ -492,34 +500,6 @@ public class GuiTextFieldAdvanced extends GuiWidget
                     return false;
                 }
             }
-        }
-    }
-
-    public boolean mouseClicked(int mouseX, int mouseY)
-    {
-        boolean flag = this.isMouseInside();
-
-        if (this.canLoseFocus)
-        {
-            this.setFocused(flag);
-        }
-
-        if (this.isFocused && flag)
-        {
-            int i = mouseX - this.x;
-
-            if (this.enableBackgroundDrawing)
-            {
-                i -= 4;
-            }
-
-            String s = this.fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
-            this.setCursorPosition(this.fontRenderer.trimStringToWidth(s, i).length() + this.lineScrollOffset);
-            return true;
-        }
-        else
-        {
-            return false;
         }
     }
 
@@ -698,6 +678,10 @@ public class GuiTextFieldAdvanced extends GuiWidget
         {
             Minecraft.getMinecraft().currentScreen.setFocused(isFocusedIn);
         }
+        if (!isFocusedIn)
+        {
+            cursorPosition = selectionEnd;
+        }
     }
 
     public boolean isFocused()
@@ -717,11 +701,11 @@ public class GuiTextFieldAdvanced extends GuiWidget
 
     public void setSelectionPos(int position)
     {
-        int i = this.text.length();
+        int textLen = this.text.length();
 
-        if (position > i)
+        if (position > textLen)
         {
-            position = i;
+            position = textLen;
         }
 
         if (position < 0)
@@ -733,30 +717,40 @@ public class GuiTextFieldAdvanced extends GuiWidget
 
         if (this.fontRenderer != null)
         {
-            if (this.lineScrollOffset > i)
+            if (this.lineScrollOffset > textLen)
             {
-                this.lineScrollOffset = i;
+                this.lineScrollOffset = textLen;
             }
 
-            int j = this.getWidth();
-            String s = this.fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), j);
+            int textBoxWidth = this.getWidth();
+            String s = this.fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), textBoxWidth);
             int k = s.length() + this.lineScrollOffset;
 
             if (position == this.lineScrollOffset)
             {
-                this.lineScrollOffset -= this.fontRenderer.trimStringToWidth(this.text, j, true).length();
+                if (GuiScreen.isShiftKeyDown() && (Keyboard.isKeyDown(Keyboard.KEY_LEFT) || Keyboard.isKeyDown(Keyboard.KEY_RIGHT)))
+                {
+                    this.lineScrollOffset -= this.fontRenderer.trimStringToWidth(this.text, textBoxWidth, true).length() / 2;
+                }
+                else
+                {
+                    this.lineScrollOffset -= 1;
+                }
             }
 
-            if (position > k)
+            if (position >= k)
             {
-                this.lineScrollOffset += position - k;
+                this.lineScrollOffset += Math.max(1, position - k + 1);
             }
             else if (position <= this.lineScrollOffset)
             {
                 this.lineScrollOffset -= this.lineScrollOffset - position;
             }
-
-            this.lineScrollOffset = MathHelper.clamp(this.lineScrollOffset, 0, i);
+            if (s.isEmpty() || fontRenderer.getStringWidth(text) < textBoxWidth)
+            {
+                this.lineScrollOffset = 0;
+            }
+            this.lineScrollOffset = MathHelper.clamp(this.lineScrollOffset, 0, textLen - s.length());
         }
     }
 
@@ -793,16 +787,71 @@ public class GuiTextFieldAdvanced extends GuiWidget
     public void onLeftClick(int mouseX, int mouseY)
     {
         super.onLeftClick(mouseX, mouseY);
-        if (this.isEnabled() && this.isVisible())
+        if (this.isEnabled() && this.isVisible() && this.canLoseFocus)
         {
-            this.mouseClicked(mouseX, mouseY);
+            if (this.isMouseInside())
+            {
+                if (!this.canDragEdit)
+                {
+                    this.setFocused(true);
+                    setCursorPositionRemake(mouseX, mouseY);
+                }
+            }
+            else
+            {
+                this.setFocused(false);
+            }
         }
     }
 
     @Override
     public void onLeftClickAndDrag(int mouseX, int mouseY, long timeSinceLastClick)
     {
-        // TODO: mouse drag to select on Text field (may not use this method)
+        super.onLeftClickAndDrag(mouseX, mouseY, timeSinceLastClick);
+        if (this.isEnabled() && this.isVisible() && isFocused())
+        {
+            setCursorPositionRemake(mouseX, mouseY);
+        }
+    }
+
+    @Override
+    public void onMouseReleased(int mouseX, int mouseY, int state)
+    {
+        if (this.isEnabled() && this.isVisible() && canLoseFocus
+                && this.isMouseInside() && this.isLastClickInside() && !isDragging() && canDragEdit)
+        {
+            this.setFocused(true);
+            setCursorPositionRemake(mouseX, mouseY);
+        }
+        super.onMouseReleased(mouseX, mouseY, state);
+    }
+
+    public void setCursorPositionRemake(int mouseX, int mouseY)
+    {
+        int i = mouseX - (this.x + holder.shiftMouseX());
+        int nextCharWidth;
+
+        if (this.enableBackgroundDrawing)
+        {
+            i -= 4;
+        }
+
+        String s = this.fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
+        String clamped = this.fontRenderer.trimStringToWidth(s, i);
+        String clamped2 = s.substring(clamped.length());
+        char afterSelected = clamped2.isEmpty() ? ' ' : clamped2.charAt(0);
+        nextCharWidth = fontRenderer.getCharWidth(afterSelected);
+        int strlen = this.fontRenderer.trimStringToWidth(s, i).length();
+        int strlen2 = this.fontRenderer.trimStringToWidth(s, i + nextCharWidth / 2).length();
+        int pos = ((strlen2 - strlen > 1) ? strlen + 1 : strlen2) + this.lineScrollOffset;
+        if (isDragging() || GuiScreen.isShiftKeyDown())
+        {
+            setSelectionPos(pos);
+        }
+        else
+        {
+            setCursorPosition(pos);
+        }
     }
 
     @Override

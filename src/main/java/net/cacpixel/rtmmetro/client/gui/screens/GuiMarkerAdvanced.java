@@ -112,7 +112,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         this.labelTitle.setText(String.format(
                 TextFormatting.BOLD + I18n.format("gui.marker.title") + TextFormatting.RESET + " \"%s\" " +
                         TextFormatting.YELLOW + "(%d, %d, %d)",
-                this.marker.getName(), this.marker.getX(), this.marker.getY(), this.marker.getZ()));
+                this.marker.getName(), this.marker.getX(), this.marker.getY(), this.marker.getZ())).setWrapString(true);
         this.initMainScroll();
         this.initInfoScroll();
         this.controlEnable();
@@ -658,20 +658,37 @@ public class GuiMarkerAdvanced extends GuiFullScreen
     @Override
     public void drawScreenBefore(int mouseX, int mouseY, float partialTicks)
     {
+        this.drawDefaultBackgroundBefore();
+        super.drawScreenBefore(mouseX, mouseY, partialTicks);
+    }
+
+    @Override
+    public void drawScreenAfter(int mouseX, int mouseY, float partialTicks)
+    {
+        super.drawScreenAfter(mouseX, mouseY, partialTicks);
+        String msg = I18n.format("gui.marker.textbox_straight_line");
         Stream.of(fieldAnchorLengthHorizontal, fieldAnchorLengthVertical).forEach(f -> {
-            if (f.getFloatValue() < 0 && !f.isFocused())
+            if (f.getFloatValue() <= 0)
             {
-                f.setText(I18n.format("gui.marker.textbox_straight_line"));
-                f.prefixTextFormatting = TextFormatting.GRAY + TextFormatting.ITALIC.toString();
+                if (!f.isFocused())
+                {
+                    f.setText(msg);
+                    f.prefixTextFormatting = TextFormatting.GRAY + TextFormatting.ITALIC.toString();
+                }
+                else
+                {
+                    f.prefixTextFormatting = "";
+                    if (f.getText().equals(msg))
+                    {
+                        f.setText("");
+                    }
+                }
             }
-            if (f.getFloatValue() < 0 && f.isFocused())
+            if (f.getFloatValue() > 0 || f.isFocused())
             {
-                f.setText("");
                 f.prefixTextFormatting = "";
             }
         });
-        this.drawDefaultBackgroundBefore();
-        super.drawScreenBefore(mouseX, mouseY, partialTicks);
     }
 
     @Override

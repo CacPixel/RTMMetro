@@ -1,9 +1,6 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
-import net.cacpixel.rtmmetro.client.gui.Align;
-import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
-import net.cacpixel.rtmmetro.client.gui.GuiTheme;
-import net.cacpixel.rtmmetro.client.gui.Image;
+import net.cacpixel.rtmmetro.client.gui.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -59,7 +56,7 @@ public class GuiButtonAdvanced extends GuiWidget
     {
         if (this.isVisible())
         {
-            this.hovered = this.isMouseInside();
+            this.hovered = this.isMouseInside() && !MouseGrabber.INSTANCE.isGrabbed();
             if (this.pScr != mc.currentScreen || pScr.isInAnimation())
             {
                 this.hovered = false;
