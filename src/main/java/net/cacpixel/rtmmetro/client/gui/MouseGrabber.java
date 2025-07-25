@@ -31,6 +31,7 @@ public class MouseGrabber
 
     public boolean isGrabbed()
     {
-        return grabbed;
+//        return grabbed;
+        return Mouse.isGrabbed();
     }
 }

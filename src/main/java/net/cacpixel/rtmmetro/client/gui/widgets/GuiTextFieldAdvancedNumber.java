@@ -62,9 +62,12 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
             {
                 MouseGrabber.INSTANCE.grabMouseCursor();
             }
-            MouseGrabber.INSTANCE.mouseXYChange();
-            this.incValue((MouseGrabber.INSTANCE.prevMouseXForScroll + MouseGrabber.INSTANCE.prevMouseYForScroll) *
-                    CacGuiUtils.DEFAULT_SCROLL_VALUE);
+            if (MouseGrabber.INSTANCE.isGrabbed())
+            {
+                MouseGrabber.INSTANCE.mouseXYChange();
+                this.incValue((MouseGrabber.INSTANCE.prevMouseXForScroll + MouseGrabber.INSTANCE.prevMouseYForScroll) *
+                        CacGuiUtils.DEFAULT_SCROLL_VALUE);
+            }
         }
     }
 
