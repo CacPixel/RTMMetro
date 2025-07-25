@@ -166,8 +166,7 @@ public interface IWidgetHolder
         do
         {
             this.onWidgetAction(w);
-        }
-        while ((w = this.getActionQueue().poll()) != null);
+        } while ((w = this.getActionQueue().poll()) != null);
     }
 
     Queue<GuiWidget> getActionQueue();

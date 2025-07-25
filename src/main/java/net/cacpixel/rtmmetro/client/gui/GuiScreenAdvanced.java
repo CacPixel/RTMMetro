@@ -3,7 +3,6 @@ package net.cacpixel.rtmmetro.client.gui;
 import jp.ngt.ngtlib.gui.GuiContainerCustom;
 import jp.ngt.ngtlib.gui.GuiScreenCustom;
 import net.cacpixel.rtmmetro.ModConfig;
-import net.cacpixel.rtmmetro.client.gui.widgets.GuiTextFieldAdvanced;
 import net.cacpixel.rtmmetro.client.gui.widgets.GuiWidget;
 import net.cacpixel.rtmmetro.client.gui.widgets.IWidgetHolder;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
@@ -11,8 +10,6 @@ import net.cacpixel.rtmmetro.util.ModLog;
 import net.cacpixel.rtmmetro.util.RTMMetroException;
 import net.cacpixel.rtmmetro.util.RTMMetroUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ISound;
-import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -20,8 +17,6 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
@@ -243,12 +238,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     @Override
     public void onUpdate()
     {
-        // update CursorCounter
-        GuiTextFieldAdvanced fieldCurrent = this.getScreen().getCurrentTextField();
-        if (fieldCurrent != null && fieldCurrent.isEnabled() && fieldCurrent.isVisible())
-        {
-//            fieldCurrent.updateCursorCounter();
-        }
         IWidgetHolder.super.onUpdate();
     }
 
@@ -553,23 +542,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     protected void onPressingEnter()
     {
-        GuiTextFieldAdvanced field = this.getFocusedTextField();
-        if (field != null)
-        {
-            field.checkValueAndSetText();
-            field.setFocused(false);
-            Minecraft mc = this.mc;
-            PositionedSoundRecord soundRecord = new PositionedSoundRecord(
-                    SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP.getSoundName(),
-                    SoundCategory.MASTER, 0.25f, 1.0F, false, 0, ISound.AttenuationType.NONE,
-                    (float) mc.player.posX, (float) mc.player.posY, (float) mc.player.posZ);
-            this.mc.getSoundHandler().playSound(soundRecord);
-        }
-        field = this.getNextTextField(field, true);
-        if (field != null)
-        {
-            field.setFocused(true);
-        }
     }
 
     @Override
@@ -599,83 +571,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             Minecraft.getMinecraft().displayGuiScreen(null);
             Minecraft.getMinecraft().setIngameFocus();
         }
-    }
-
-    public GuiTextFieldAdvanced getFocusedTextField()
-    {
-        List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
-        this.getAllWidgets().stream().filter(w -> w instanceof GuiTextFieldAdvanced)
-                .forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
-        if (textFields.isEmpty())
-        {
-            return null;
-        }
-        for (GuiTextFieldAdvanced field : textFields)
-        {
-            if (field.isFocused())
-            {
-                return field instanceof GuiTextFieldAdvanced ? field : null;
-            }
-        }
-        return null;
-    }
-
-    public GuiTextFieldAdvanced getNextTextField(GuiTextFieldAdvanced fieldIn, boolean loop)
-    {
-        List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
-        this.getAllWidgets().stream().filter(w -> w instanceof GuiTextFieldAdvanced)
-                .forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
-        if (textFields.isEmpty())
-        {
-            return null;
-        }
-        ListIterator<GuiTextFieldAdvanced> it = textFields.listIterator();
-        while (it.hasNext())
-        {
-            GuiTextFieldAdvanced field = it.next();
-            if (field == fieldIn)
-            {
-                if (it.hasNext())
-                {
-                    return it.next();
-                }
-                else if (loop)
-                {
-                    return textFields.get(0);
-                }
-                else return null;
-            }
-        }
-        return null;
-    }
-
-    public GuiTextFieldAdvanced getPrevTextField(GuiTextFieldAdvanced fieldIn, boolean loop)
-    {
-        List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
-        this.getAllWidgets().stream().filter(w -> w instanceof GuiTextFieldAdvanced)
-                .forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
-        if (textFields.isEmpty())
-        {
-            return null;
-        }
-        ListIterator<GuiTextFieldAdvanced> it = textFields.listIterator();
-        while (it.hasPrevious())
-        {
-            GuiTextFieldAdvanced field = it.previous();
-            if (field == fieldIn)
-            {
-                if (it.hasPrevious())
-                {
-                    return it.previous();
-                }
-                else if (loop)
-                {
-                    return textFields.get(textFields.size() - 1);
-                }
-                else return null;
-            }
-        }
-        return null;
     }
 
     public static void drawHoveringTextS(List<String> textLines, int x, int y, GuiScreen screen)
