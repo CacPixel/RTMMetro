@@ -150,14 +150,6 @@ public class CacGuiUtils
         }
     }
 
-    public static void drawTexturedModalRect(int x, int y, int width, int height, float zLevel, Image image)
-    {
-        CacGuiUtils.bindTexture(image.location);
-        glColor(image.color);
-        drawTexturedModalRect((double) x, y, width, height, image.u, image.v, image.uWidth, image.vHeight,
-                zLevel, image.textureWidth, image.textureHeight);
-    }
-
     public static void drawTexturedModalRect(int x, int y, int width, int height, int u, int v, int uw, int vh,
                                              float zLevel, int textureWidth, int textureHeight)
     {

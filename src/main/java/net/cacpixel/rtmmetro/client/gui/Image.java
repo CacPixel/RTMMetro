@@ -37,6 +37,14 @@ public class Image
                 image.color);
     }
 
+    public void drawImage(int x, int y, int width, int height, float zLevel)
+    {
+        CacGuiUtils.bindTexture(location);
+        CacGuiUtils.glColor(color);
+        CacGuiUtils.drawTexturedModalRect(x, y, width, height, this.u, this.v,
+                this.uWidth, this.vHeight, zLevel, this.textureWidth, this.textureHeight);
+    }
+
     public Image setColor(int color)
     {
         this.color = color;
