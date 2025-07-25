@@ -806,7 +806,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
                     float yawValue = NGTMath.toDegrees(f2);
                     if (element == MarkerElement.HORIZONTIAL)
                     {
-                        switch (marker.editStatusH)
+                        switch (marker.getEditStatusH())
                         {
                         case FOLLOW_NEIGHBOR:
                             if (railposition3 != null)
@@ -835,7 +835,7 @@ public class RenderMarkerBlockAdvanced extends TileEntitySpecialRenderer<TileEnt
 //                            double d4 = vec3d.y - thisRP.posY;
 //                            pitchValue = (float) NGTMath.toDegrees(Math.atan2(d4, NGTMath.firstSqrt(d6 * d6 + d7 * d7)));
 //                        }
-                        switch (marker.editStatusV)
+                        switch (marker.getEditStatusV())
                         {
                         case FOLLOW_NEIGHBOR:
                             if (railposition3 != null)

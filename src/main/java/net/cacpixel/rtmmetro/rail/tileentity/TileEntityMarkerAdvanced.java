@@ -37,7 +37,6 @@ import java.util.stream.Stream;
 public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITickable
 {
     private static final int SEARCH_COUNT = 40;
-    public RailPosition rp;
     public BlockPos startPos;
     private RailMap[] railMaps;
     private RailMapAdvanced originalRailMap; // don't use when switch rail
@@ -58,17 +57,18 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     public boolean shouldUpdateClientLines = false; // 其他玩家修改了Line后置true，发送数据包给所有玩家更新Line
     public int splits = 2;
     public SwitchType switchType = null;
-    /******************************************************************/
     public static final int DEFAULT_GROUP_ID = 1;
     public static final int GROUP_ID_INDIVIDUAL = 0;
     public static final String DEFAULT_NAME = "marker";
+
+    /************************* Stored Parameters BEGIN *************************/
+    private RailPosition rp;
     private int groupId; // groupId=0 则为未分组的marker
     private String name; // 名字，最好是唯一的
-    public RailDrawingScheme drawingScheme; // 画轨方案，默认 RTM_DEFAULT
-    public AnchorEditStatus editStatusH; // 绿线编辑状态，默认 FOLLOW_NEIGHBOR
-    public AnchorEditStatus editStatusV;
-
-    /******************************************************************/
+    private RailDrawingScheme drawingScheme; // 画轨方案，默认 RTM_DEFAULT
+    private AnchorEditStatus editStatusH; // 绿线编辑状态，默认 FOLLOW_NEIGHBOR
+    private AnchorEditStatus editStatusV;
+    /************************* Stored Parameters END *************************/
 
     public TileEntityMarkerAdvanced()
     {
@@ -198,6 +198,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     public void setMarkerRP(RailPosition par1)
     {
         this.rp = par1;
+        markDirty();
     }
 
     public RailPosition getMarkerRP(BlockPos pos)
@@ -618,6 +619,7 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
     public void setName(String name)
     {
         this.name = name.trim();
+        markDirty();
     }
 
     public int getGroupId()
@@ -631,11 +633,45 @@ public class TileEntityMarkerAdvanced extends TileEntityCustom implements ITicka
             this.groupId = groupId;
         else
             this.groupId = 0;
+        markDirty();
     }
 
     public RailMapAdvanced getOriginalRailMap()
     {
         return originalRailMap;
+    }
+
+    public RailDrawingScheme getDrawingScheme()
+    {
+        return drawingScheme;
+    }
+
+    public void setDrawingScheme(RailDrawingScheme drawingScheme)
+    {
+        this.drawingScheme = drawingScheme;
+        markDirty();
+    }
+
+    public AnchorEditStatus getEditStatusH()
+    {
+        return editStatusH;
+    }
+
+    public void setEditStatusH(AnchorEditStatus editStatusH)
+    {
+        this.editStatusH = editStatusH;
+        markDirty();
+    }
+
+    public AnchorEditStatus getEditStatusV()
+    {
+        return editStatusV;
+    }
+
+    public void setEditStatusV(AnchorEditStatus editStatusV)
+    {
+        this.editStatusV = editStatusV;
+        markDirty();
     }
 
     public static class MarkerCriticalValues

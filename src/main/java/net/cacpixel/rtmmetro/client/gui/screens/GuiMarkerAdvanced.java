@@ -776,9 +776,9 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                 marker.getMarkerRP().cantCenter = v.rp.cantCenter;
                 marker.getMarkerRP().cantEdge = v.rp.cantEdge;
                 marker.getMarkerRP().cantRandom = v.rp.cantRandom;
-                marker.editStatusH = v.editStatusH;
-                marker.editStatusV = v.editStatusV;
-                marker.drawingScheme = v.drawingScheme;
+                marker.setEditStatusH(v.editStatusH);
+                marker.setEditStatusV(v.editStatusV);
+                marker.setDrawingScheme(v.drawingScheme);
             }
         });
     }

@@ -99,18 +99,18 @@ public class BlockUtils
 
     public static List<RailPosition> getAllRPs(World world, List<BlockPos> markerPosList, BlockPos currentPos)
     {
-        return getAllMarkers(world, markerPosList, currentPos).stream().map(it -> it.rp).collect(Collectors.toList());
+        return getAllMarkers(world, markerPosList, currentPos).stream().map(it -> it.getMarkerRP()).collect(Collectors.toList());
     }
 
     public static List<RailPosition> getOtherRPs(World world, List<BlockPos> markerPosList, BlockPos currentPos)
     {
-        return getOtherMarkers(world, markerPosList, currentPos).stream().map(it -> it.rp).collect(Collectors.toList());
+        return getOtherMarkers(world, markerPosList, currentPos).stream().map(it -> it.getMarkerRP()).collect(Collectors.toList());
     }
 
     public static RailPosition getOppositeRP(World world, List<BlockPos> markerPosList, BlockPos currentPos)
     {
         TileEntityMarkerAdvanced marker = getOppositeMarker(world, markerPosList, currentPos);
-        return (marker == null) ? null : marker.rp;
+        return (marker == null) ? null : marker.getMarkerRP();
     }
 
     public static boolean cancelRailBlockBreak(World world, EntityPlayer player, BlockPos pos)
