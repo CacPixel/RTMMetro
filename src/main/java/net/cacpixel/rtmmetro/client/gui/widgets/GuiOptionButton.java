@@ -31,7 +31,7 @@ public class GuiOptionButton<E extends Enum<E>> extends GuiButtonAdvanced
         if (this.isEnabled() && this.isVisible() && this.isMouseInside())
         {
             this.rollOptions();
-            this.pScr.hasValueUpdated = true;
+            this.setValueUpdated(true);
         }
     }
 
@@ -81,6 +81,6 @@ public class GuiOptionButton<E extends Enum<E>> extends GuiButtonAdvanced
     public void rollOptions()
     {
         this.setSelectedOption(this.getNextOption());
-        this.pScr.hasValueUpdated = true;
+        this.setValueUpdated(true);
     }
 }

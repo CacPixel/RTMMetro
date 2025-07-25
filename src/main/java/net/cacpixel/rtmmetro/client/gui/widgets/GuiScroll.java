@@ -65,25 +65,25 @@ public class GuiScroll extends GuiWidgetContainer
     public void drawBefore(int mouseX, int mouseY, float partialTicks)
     {
         // up
-        CacGuiUtils.drawRect(x - 1, y - 1, getEndX() + 1, y, 0x303030 | this.pScr.getAlphaInt(0x80));
+        CacGuiUtils.drawRect(x - 1, y - 1, getEndX() + 1, y, 0x303030 | this.screen.getAlphaInt(0x80));
         // down
         CacGuiUtils.drawRect(x - 1, getEndY(), getEndX() + 1, getEndY() + 1,
-                0x303030 | this.pScr.getAlphaInt(0x80));
+                0x303030 | this.screen.getAlphaInt(0x80));
         // left
-        CacGuiUtils.drawRect(x - 1, y, x, getEndY(), 0x303030 | this.pScr.getAlphaInt(0x80));
+        CacGuiUtils.drawRect(x - 1, y, x, getEndY(), 0x303030 | this.screen.getAlphaInt(0x80));
         // right
         CacGuiUtils.drawRect(getEndX(), y, getEndX() + 1, getEndY(),
-                0x303030 | this.pScr.getAlphaInt(0x80));
+                0x303030 | this.screen.getAlphaInt(0x80));
 //        CacGuiUtils.drawRect(x, y, getEndX(), getEndY(), 0x101010 | this.pScr.getAlphaInt(0x60));
-        this.pScr.glPushMatrix();
+        this.screen.glPushMatrix();
         if (!this.isPositionIndependent())
             GlStateManager.translate(x, y, 0);
         this.xButton.draw(mouseX, mouseY, partialTicks);
         this.yButton.draw(mouseX, mouseY, partialTicks);
         this.processButtonDrag(mouseX, mouseY, partialTicks);
         this.updateButton();
-        this.pScr.glPopMatrix();
-        this.pScr.glPushMatrix();
+        this.screen.glPopMatrix();
+        this.screen.glPushMatrix();
         this.updateAnimation(partialTicks);
     }
 
@@ -193,7 +193,7 @@ public class GuiScroll extends GuiWidgetContainer
     public void drawAfter(int mouseX, int mouseY, float partialTicks)
     {
         this.getScreen().getScissorManager().pop();
-        this.pScr.glPopMatrix();
+        this.screen.glPopMatrix();
     }
 
     @Override
@@ -488,7 +488,7 @@ public class GuiScroll extends GuiWidgetContainer
             if (this.isVisible())
             {
                 this.hovered = this.isMouseInBar();
-                if (this.pScr != mc.currentScreen || pScr.isInAnimation())
+                if (this.screen != mc.currentScreen || screen.isInAnimation())
                 {
                     this.hovered = false;
                 }
@@ -496,7 +496,7 @@ public class GuiScroll extends GuiWidgetContainer
                 // disabled texture
                 CacGuiUtils.drawContinuousTexturedBox(getButtonTexture(), this.x, this.y, 0, 46, this.width,
                         this.height, 200,
-                        20, 2, 3, 2, 2, this.zLevel, pScr);
+                        20, 2, 3, 2, 2, this.zLevel, screen);
                 // enabled texture
                 int x = xScrolling ? pos : this.x;
                 int y = xScrolling ? this.y : pos;
@@ -504,7 +504,7 @@ public class GuiScroll extends GuiWidgetContainer
                 int h = xScrolling ? this.height : length;
                 CacGuiUtils.drawContinuousTexturedBox(getButtonTexture(), x, y, 0, 46 + k * 20,
                         w, h, 200,
-                        20, 2, 3, 2, 2, this.zLevel, pScr);
+                        20, 2, 3, 2, 2, this.zLevel, screen);
                 int color = 0xE0E0E0;
                 if (!super.isEnabled())
                 {
@@ -516,7 +516,7 @@ public class GuiScroll extends GuiWidgetContainer
                 }
 
                 String buttonText = this.displayString;
-                color |= pScr.getAlphaInt(0xFF);
+                color |= screen.getAlphaInt(0xFF);
                 CacGuiUtils.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2,
                         this.y + (this.height - 8) / 2, color);
             }

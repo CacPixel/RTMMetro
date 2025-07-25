@@ -7,8 +7,8 @@ import java.util.function.IntSupplier;
 
 public abstract class GuiWidget
 {
-    public GuiScreenAdvanced pScr;
-    public IWidgetHolder holder;
+    public final GuiScreenAdvanced screen;
+    public final IWidgetHolder holder;
     public int x;
     public int y;
     public int width;
@@ -20,6 +20,7 @@ public abstract class GuiWidget
     private boolean dragging = false;
     public int lastClickedX;
     public int lastClickedY;
+    private boolean hasValueUpdated;    //  GuiScreen 通知用
     private IActionListener<? extends GuiWidget> listener;
     public IntSupplier xSupplier = this::getX;
     public IntSupplier ySupplier = this::getY;
@@ -30,7 +31,7 @@ public abstract class GuiWidget
     public GuiWidget(IWidgetHolder holder, int id, int x, int y, int width, int height)
     {
         this.holder = holder;
-        this.pScr = holder.getScreen();
+        this.screen = holder.getScreen();
         this.id = id;
         this.x = x;
         this.y = y;
@@ -42,7 +43,7 @@ public abstract class GuiWidget
                      IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
         this.holder = holder;
-        this.pScr = holder.getScreen();
+        this.screen = holder.getScreen();
         this.id = id;
         if (xSupplier != null) this.xSupplier = xSupplier;
         if (ySupplier != null) this.ySupplier = ySupplier;
@@ -261,4 +262,22 @@ public abstract class GuiWidget
     public void onMakeLayoutStart() {}
 
     public void onMakeLayoutFinish() {}
+
+    public boolean checkValueUpdated()
+    {
+        if (hasValueUpdated)
+        {
+            hasValueUpdated = false;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public void setValueUpdated(boolean hasValueUpdated)
+    {
+        this.hasValueUpdated = hasValueUpdated;
+    }
 }

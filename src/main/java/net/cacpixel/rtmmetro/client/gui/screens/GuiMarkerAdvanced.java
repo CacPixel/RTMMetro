@@ -31,7 +31,6 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -568,11 +567,11 @@ public class GuiMarkerAdvanced extends GuiFullScreen
             sb.append(in);
             sb.append(I18n.format("gui.marker.info_length", (float) rmOriginal.getLength()));
             sb.append("\n");
-            if (marker.drawingScheme == RailDrawingScheme.DRAW_CIRCLE)
+            if (marker.getDrawingScheme() == RailDrawingScheme.DRAW_CIRCLE)
             {
                 sb.append(in);
                 sb.append(I18n.format("gui.marker.info_radius",
-                        RailMapAdvanced.getRadius(rmOriginal.getStartRP(), rmOriginal.getEndRP(), marker.drawingScheme)));
+                        RailMapAdvanced.getRadius(rmOriginal.getStartRP(), rmOriginal.getEndRP(), marker.getDrawingScheme())));
                 sb.append("\n");
             }
             sb.append("\n");
@@ -599,9 +598,9 @@ public class GuiMarkerAdvanced extends GuiFullScreen
     }
 
     @Override
-    public void updateScreen()
+    public void onUpdate()
     {
-        super.updateScreen();
+        super.onUpdate();
         this.controlEnable();
 
         // 根据世界数据进行增添
@@ -637,12 +636,6 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                         this.undoValues.add(new TileEntityMarkerAdvanced.MarkerCriticalValues(
                                 (TileEntityMarkerAdvanced) te).clone());
                 });
-
-        if (this.hasValueUpdated)
-        {
-            this.updateValueFromWidgets();
-            this.hasValueUpdated = false;
-        }
         updateInfoLabel();
     }
 
@@ -697,28 +690,6 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         super.onPressingEsc();
         this.restoreValues();
         this.sendPacket();
-    }
-
-    @Override
-    public void handleMouseInput() throws IOException
-    {
-        super.handleMouseInput();
-        if (this.hasValueUpdated)
-        {
-            this.updateValueFromWidgets();
-            this.hasValueUpdated = false;
-        }
-    }
-
-    @Override
-    public void handleKeyboardInput() throws IOException
-    {
-        super.handleKeyboardInput();
-        if (this.hasValueUpdated)
-        {
-            this.updateValueFromWidgets();
-            this.hasValueUpdated = false;
-        }
     }
 
     @Override
@@ -801,8 +772,8 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         @Override
         public void drawCustom(int mouseX, int mouseY, float partialTicks)
         {
-            if (!(pScr instanceof GuiMarkerAdvanced)) return;
-            GuiMarkerAdvanced pScr = ((GuiMarkerAdvanced) this.pScr);
+            if (!(screen instanceof GuiMarkerAdvanced)) return;
+            GuiMarkerAdvanced pScr = ((GuiMarkerAdvanced) this.screen);
             int stringYpos = 192;
             CacGuiUtils.drawRect(10, stringYpos, 400, stringYpos + 1, 0x555555 | pScr.getAlphaInt(0xFF));
 

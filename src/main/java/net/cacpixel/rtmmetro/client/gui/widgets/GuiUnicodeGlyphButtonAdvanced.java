@@ -28,7 +28,7 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced
         if (this.isVisible())
         {
             this.hovered = this.isMouseInside() && !MouseGrabber.INSTANCE.isGrabbed();
-            if (this.pScr != mc.currentScreen || pScr.isInAnimation())
+            if (this.screen != mc.currentScreen || screen.isInAnimation())
             {
                 this.hovered = false;
             }
@@ -36,7 +36,7 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced
             CacGuiUtils.drawContinuousTexturedBox(getButtonTexture(), this.x, this.y, 0, 46 + k * 20, this.width,
                     this.height, 200,
                     20,
-                    2, 3, 2, 2, this.zLevel, pScr);
+                    2, 3, 2, 2, this.zLevel, screen);
             int color = 14737632;
             if (!super.isEnabled())
             {
@@ -46,7 +46,7 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced
             {
 //                color = 16777120;
             }
-            color |= pScr.getAlphaInt(0xFF);
+            color |= screen.getAlphaInt(0xFF);
 
             String buttonText = this.displayString;
             int glyphWidth = (int) (mc.fontRenderer.getStringWidth(glyph) * glyphScale);
@@ -60,13 +60,13 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced
             strWidth = mc.fontRenderer.getStringWidth(buttonText);
             totalWidth = glyphWidth + strWidth;
 
-            this.pScr.glPushMatrix();
+            this.screen.glPushMatrix();
             GlStateManager.scale(glyphScale, glyphScale, 1.0F);
             CacGuiUtils.drawCenteredString(mc.fontRenderer, glyph,
                     (int) (((this.x + (this.width / 2) - (strWidth / 2)) / glyphScale) -
                             (glyphWidth / (2 * glyphScale)) + 2),
                     (int) (((this.y + ((this.height - 8) / glyphScale) / 2) - 1) / glyphScale), color);
-            this.pScr.glPopMatrix();
+            this.screen.glPopMatrix();
 
             CacGuiUtils.drawCenteredString(mc.fontRenderer, buttonText,
                     (int) (this.x + (this.width / 2) + (glyphWidth / glyphScale)),

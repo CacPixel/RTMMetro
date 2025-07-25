@@ -58,7 +58,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
                                 IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
         super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
-        this.fontRenderer = pScr.mc.fontRenderer;
+        this.fontRenderer = screen.mc.fontRenderer;
     }
 
     public <T> T getFieldValue(T defaultVal)
@@ -510,13 +510,13 @@ public class GuiTextFieldAdvanced extends GuiWidget
             if (this.getEnableBackgroundDrawing())
             {
                 CacGuiUtils.drawRect(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1,
-                        0xA0A0A0 | pScr.getAlphaInt(0xFF));
+                        0xA0A0A0 | screen.getAlphaInt(0xFF));
                 CacGuiUtils.drawRect(this.x, this.y, this.x + this.width, this.y + this.height,
-                        0x0 | pScr.getAlphaInt(0xFF));
+                        0x0 | screen.getAlphaInt(0xFF));
             }
 
-            int color = this.isEnabled() ? this.enabledColor | pScr.getAlphaInt(0xFF) :
-                    this.disabledColor | pScr.getAlphaInt(0xFF);
+            int color = this.isEnabled() ? this.enabledColor | screen.getAlphaInt(0xFF) :
+                    this.disabledColor | screen.getAlphaInt(0xFF);
             int j = this.cursorPosition - this.lineScrollOffset;
             int k = this.selectionEnd - this.lineScrollOffset;
             String s = this.fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
@@ -561,7 +561,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
                 if (flag2)
                 {
                     CacGuiUtils.drawRect(k1, i1 - 1, k1 + 1, i1 + 1 + this.fontRenderer.FONT_HEIGHT,
-                            0xD0D0D0 | pScr.getAlphaInt(0xFF));
+                            0xD0D0D0 | screen.getAlphaInt(0xFF));
                 }
                 else
                 {
@@ -579,7 +579,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
         boolean hovered = isMouseInside();
         if (hovered && !this.tips.isEmpty())
         {
-            GuiScreenAdvanced.drawHoveringTextS(this.tips, mouseX, mouseY, this.pScr);
+            GuiScreenAdvanced.drawHoveringTextS(this.tips, mouseX, mouseY, this.screen);
         }
     }
 
@@ -762,11 +762,11 @@ public class GuiTextFieldAdvanced extends GuiWidget
     public void incValue(int scroll)
     {
         float pitch = GuiScreen.isAltKeyDown() ? 2.0F : GuiScreen.isShiftKeyDown() ? 1.0F : 1.5F;
-        Minecraft mc = pScr.mc;
+        Minecraft mc = screen.mc;
         PositionedSoundRecord soundRecord = new PositionedSoundRecord(SoundEvents.BLOCK_NOTE_HAT.getSoundName(),
                 SoundCategory.MASTER, 0.25f, pitch, false, 0, ISound.AttenuationType.NONE,
                 (float) mc.player.posX, (float) mc.player.posY, (float) mc.player.posZ);
-        this.pScr.mc.getSoundHandler().playSound(soundRecord);
+        this.screen.mc.getSoundHandler().playSound(soundRecord);
     }
 
     public GuiTextFieldAdvanced addTips(String par1)

@@ -111,14 +111,14 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
                 this.incValue(CacGuiUtils.DEFAULT_SCROLL_VALUE);
                 this.fieldValue = this.getFieldValue(this.fieldValue, false);
                 this.checkValueAndSetText();
-                this.pScr.hasValueUpdated = true;
+                this.setValueUpdated(true);
             }
             else if (code == Keyboard.KEY_DOWN)
             {
                 this.incValue(-CacGuiUtils.DEFAULT_SCROLL_VALUE);
                 this.fieldValue = this.getFieldValue(this.fieldValue, false);
                 this.checkValueAndSetText();
-                this.pScr.hasValueUpdated = true;
+                this.setValueUpdated(true);
             }
             else
             {
@@ -126,7 +126,7 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
                 this.fieldValue = this.getFieldValue(this.fieldValue, doScript);
                 if (this.isValueValid())
                 {
-                    this.pScr.hasValueUpdated = true;
+                    this.setValueUpdated(true);
                 }
                 else
                 {
@@ -166,7 +166,7 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
     {
         this.checkValue();
         this.setText(new DecimalFormat(formatPattern).format(this.fieldValue));
-        this.pScr.hasValueUpdated = true;
+        this.setValueUpdated(true);
     }
 
     @Override

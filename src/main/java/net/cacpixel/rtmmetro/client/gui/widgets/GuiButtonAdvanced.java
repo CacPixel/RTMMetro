@@ -57,14 +57,14 @@ public class GuiButtonAdvanced extends GuiWidget
         if (this.isVisible())
         {
             this.hovered = this.isMouseInside() && !MouseGrabber.INSTANCE.isGrabbed();
-            if (this.pScr != mc.currentScreen || pScr.isInAnimation())
+            if (this.screen != mc.currentScreen || screen.isInAnimation())
             {
                 this.hovered = false;
             }
             int k = this.getHoverState(this.hovered);
             CacGuiUtils.drawContinuousTexturedBox(getButtonTexture(), this.x, this.y, 0, 46 + k * 20, this.width,
                     this.height, 200,
-                    20, 2, 3, 2, 2, this.zLevel, pScr);
+                    20, 2, 3, 2, 2, this.zLevel, screen);
             int color = 0xE0E0E0;
             if (!super.isEnabled())
             {
@@ -76,15 +76,15 @@ public class GuiButtonAdvanced extends GuiWidget
             }
 
             String buttonText = this.displayString;
-            color |= pScr.getAlphaInt(0xFF);
+            color |= screen.getAlphaInt(0xFF);
             CacGuiUtils.drawString(buttonText, x, y, width, height, color, alignX, alignY, icon == null ? null :
-                    new Image(icon).setColor(icon.color | pScr.getAlphaInt(0xFF)), wrapString);
+                    new Image(icon).setColor(icon.color | screen.getAlphaInt(0xFF)), wrapString);
         }
     }
 
     public boolean mousePressed(Minecraft mc, int mouseX, int mouseY)
     {
-        return !pScr.isInAnimation() && this.isEnabled() && this.isVisible() && this.isMouseInside();
+        return !screen.isInAnimation() && this.isEnabled() && this.isVisible() && this.isMouseInside();
     }
 
     public boolean isMouseOver()
@@ -100,7 +100,7 @@ public class GuiButtonAdvanced extends GuiWidget
     @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
-        this.drawButton(pScr.mc, mouseX, mouseY, partialTicks);
+        this.drawButton(screen.mc, mouseX, mouseY, partialTicks);
     }
 
     @SuppressWarnings("unchecked")
@@ -137,7 +137,7 @@ public class GuiButtonAdvanced extends GuiWidget
         super.onLeftClick(mouseX, mouseY);
         if (this.isEnabled() && this.isVisible() && this.isMouseInside())
         {
-            this.playPressSound(this.pScr.mc.getSoundHandler());
+            this.playPressSound(this.screen.mc.getSoundHandler());
         }
     }
 

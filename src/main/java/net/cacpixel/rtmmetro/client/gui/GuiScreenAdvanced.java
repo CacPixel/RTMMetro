@@ -37,7 +37,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public boolean drawParent = false;
     public int x = 0;
     public int y = 0;
-    public boolean hasValueUpdated; // todo: move to text field (no no no move to GuiWidget instead)
     private int nextWidgetId;
     public ArrayList<GuiWidget> widgets = new ArrayList<>();
     public GuiLayoutBase layout = new GuiLayoutNone(this);
@@ -47,7 +46,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     private AnimationStatus animationStatus;
     protected float animationTime;
     protected float duration;
-    protected boolean closeFlag;
     public float translationX;
     public float translationY;
     public float scaleX = 1.0F;
@@ -62,7 +60,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         alpha = 0.05f;
         this.setAnimationStatus(AnimationStatus.NONE);
         duration = ModConfig.guiAnimationDuration;
-        closeFlag = false;
     }
 
     public void glPushMatrix()
@@ -166,7 +163,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             {
                 parentScreen.drawScreen(mouseX, mouseY, partialTicks);
             }
-            else if (parentScreen != null && (this.isInAnimation() || this.closeFlag))
+            else if (parentScreen != null && !isOpened())
             {
                 parentScreen.draw(mouseX, mouseY, partialTicks);
             }
@@ -215,12 +212,16 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     }
 
     @Override
-    public void updateScreen()
+    public final void updateScreen()
     {
         // update holders
         try
         {
             this.onUpdate();
+            if (this.widgetValueUpdated())
+            {
+                this.updateValueFromWidgets();
+            }
         }
         catch (ConcurrentModificationException e)
         {
@@ -411,14 +412,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         return this.getAlpha() * finalAlphaFloat;
     }
 
-    public boolean isInAnimation()
-    {
-        return this.isOpening() || this.isClosing();
-    }
-
     protected void displayPrevScreen()
     {
-        this.closeFlag = true;
         this.setAnimationStatus(AnimationStatus.CLOSING);
         if (parentScreen != null && !this.drawParent)
         {
@@ -428,9 +423,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     protected void switchGuiScreenToPrevious()
     {
-        boolean animationDone = (this.parentScreen == null) ? animationTime >= duration / 8
-                : this.getAnimationStatus() == AnimationStatus.CLOSED;
-        if (animationDone && closeFlag)
+        if (this.getAnimationStatus() == AnimationStatus.CLOSED ||
+                ((this.parentScreen == null) && (animationTime >= duration / 8) && (this.getAnimationStatus() == AnimationStatus.CLOSING)))
         {
             if (parentScreen == null)
             {
@@ -450,7 +444,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         int mouseY = CacGuiUtils.getMouseY() - this.y;
         try
         {
-            if (!this.isInAnimation() && !this.closeFlag)
+            if (isOpened())
             {
                 this.getAllWidgets().forEach(w -> {
                     w.onClick(mouseX, mouseY, button);
@@ -475,7 +469,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             super.keyTyped(typedChar, keyCode); // Close ALL Gui without animation while pressing ESC
             return;
         }
-        if (!this.isInAnimation() && !this.closeFlag)
+        if (isOpened())
         {
             this.getAllWidgets().forEach(w -> w.onKeyTyped(typedChar, keyCode));
         }
@@ -493,12 +487,16 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         int y = CacGuiUtils.getMouseY() - this.y;
         int button = Mouse.getEventButton();
         int scroll = Mouse.getEventDWheel();
-        if (!this.isInAnimation() && !this.closeFlag)
+        if (isOpened())
         {
             if (scroll != 0)
             {
                 this.getAllWidgets().forEach(w -> w.onScroll(x, y, scroll));
             }
+        }
+        if (this.widgetValueUpdated())
+        {
+            this.updateValueFromWidgets();
         }
     }
 
@@ -508,7 +506,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         int mouseX = CacGuiUtils.getMouseX() - this.x;
         int mouseY = CacGuiUtils.getMouseY() - this.y;
         super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
-        if (!this.isInAnimation() && !this.closeFlag)
+        if (isOpened())
         {
             this.getAllWidgets().forEach(w -> {
                 w.onClickAndDrag(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
@@ -522,7 +520,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         int mouseX = CacGuiUtils.getMouseX() - this.x;
         int mouseY = CacGuiUtils.getMouseY() - this.y;
         super.mouseReleased(mouseX, mouseY, state);
-        if (!this.isInAnimation() && !this.closeFlag)
+        if (isOpened())
         {
             this.getAllWidgets().forEach(w -> {
                 w.onMouseReleased(mouseX, mouseY, state);
@@ -534,6 +532,10 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public void handleKeyboardInput() throws IOException
     {
         super.handleKeyboardInput();
+        if (this.widgetValueUpdated())
+        {
+            this.updateValueFromWidgets();
+        }
     }
 
     protected void onPressingEsc()
@@ -656,6 +658,16 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         return this.getAnimationStatus() == AnimationStatus.CLOSING;
     }
 
+    public boolean isOpened()
+    {
+        return this.getAnimationStatus() == AnimationStatus.OPENED;
+    }
+
+    public boolean isInAnimation()
+    {
+        return this.isOpening() || this.isClosing();
+    }
+
     public AnimationStatus getAnimationStatus()
     {
         return animationStatus;
@@ -726,6 +738,11 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public void setLayout(GuiLayoutBase layout)
     {
         this.layout = layout;
+    }
+
+    public boolean widgetValueUpdated()
+    {
+        return getAllWidgets().stream().anyMatch(GuiWidget::checkValueUpdated);
     }
 
     public enum AnimationStatus

@@ -64,12 +64,12 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
         if (!this.isVisible()) {return;}
-        this.pScr.glPushMatrix();
+        this.screen.glPushMatrix();
         if (!this.isPositionIndependent())
             GlStateManager.translate(x, y, 0);
         this.widgets.forEach(x -> x.draw(mouseX, mouseY, partialTicks));
         this.drawCustom(mouseX, mouseY, partialTicks);
-        this.pScr.glPopMatrix();
+        this.screen.glPopMatrix();
     }
 
     public void drawCustom(int mouseX, int mouseY, float partialTicks)
@@ -84,7 +84,7 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
     @Override
     public GuiScreenAdvanced getScreen()
     {
-        return pScr;
+        return screen;
     }
 
     @Override

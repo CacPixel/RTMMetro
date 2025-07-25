@@ -99,7 +99,7 @@ public class GuiLabelAdvanced extends GuiWidget
 
     public void drawLabel(int mouseX, int mouseY, float partialTicks)
     {
-        Minecraft mc = pScr.mc;
+        Minecraft mc = screen.mc;
         FontRenderer fontRenderer = mc.fontRenderer;
         if (this.visible)
         {
@@ -108,9 +108,9 @@ public class GuiLabelAdvanced extends GuiWidget
                     GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                     GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
             this.drawLabelBackground(mc, mouseX, mouseY);
-            CacGuiUtils.drawString(CacGuiUtils.extractNewLine(labels, true), x, y, width, height, textColor | pScr.getAlphaInt(0xFF),
+            CacGuiUtils.drawString(CacGuiUtils.extractNewLine(labels, true), x, y, width, height, textColor | screen.getAlphaInt(0xFF),
                     alignX, alignY, CacGuiUtils.DEFAULT_LINE_HEIGHT,
-                    icon == null ? null : new Image(icon).setColor(icon.color | pScr.getAlphaInt(0xFF)),
+                    icon == null ? null : new Image(icon).setColor(icon.color | screen.getAlphaInt(0xFF)),
                     wrapString);
         }
     }
@@ -164,13 +164,13 @@ public class GuiLabelAdvanced extends GuiWidget
         List<String> list = CacGuiUtils.extractNewLine(this.labels, true);
         for (String str : list)
         {
-            int strWidth = pScr.mc.fontRenderer.getStringWidth(str) + 2;
+            int strWidth = screen.mc.fontRenderer.getStringWidth(str) + 2;
             if (width < strWidth)
             {
                 width = strWidth;
             }
         }
-        int strHeightTotal = labels.size() * (pScr.mc.fontRenderer.FONT_HEIGHT - 1) + 2;
+        int strHeightTotal = labels.size() * (screen.mc.fontRenderer.FONT_HEIGHT - 1) + 2;
         if (height < strHeightTotal)
         {
             height = strHeightTotal;
