@@ -92,7 +92,7 @@ public class GuiScroll extends GuiWidgetContainer
         if (xButton.barClicked)
         {
             dx = 0;
-            float d = (float) (xButton.lastClickedX - mouseX) / (xButton.width - xButton.length) * (xMax - xMin);
+            float d = (float) (xButton.getLastClickedX() - mouseX) / (xButton.width - xButton.length) * (xMax - xMin);
             xNow = (int) MathHelper.clamp(xNowPrev - d, xMin, xMax);
         }
         else
@@ -103,7 +103,7 @@ public class GuiScroll extends GuiWidgetContainer
         if (yButton.barClicked)
         {
             dy = 0;
-            float d = (float) (yButton.lastClickedY - mouseY) / (yButton.height - yButton.length) * (yMax - yMin);
+            float d = (float) (yButton.getLastClickedY() - mouseY) / (yButton.height - yButton.length) * (yMax - yMin);
             yNow = (int) MathHelper.clamp(yNowPrev - d, yMin, yMax);
         }
         else
@@ -144,9 +144,25 @@ public class GuiScroll extends GuiWidgetContainer
         int dx = holder.shiftMouseX();
         int dy = holder.shiftMouseY();
         return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isMouseInside) :
-                CacGuiUtils.isMouseInside(x + dx, y + dy,
-                        getActualWidth(),
-                        getActualHeight());
+                CacGuiUtils.isMouseInside(x + dx, y + dy, getActualWidth(), getActualHeight());
+    }
+
+    @Override
+    public boolean isMouseInside(int mouseX, int mouseY)
+    {
+        int dx = holder.shiftMouseX();
+        int dy = holder.shiftMouseY();
+        return this.isPositionIndependent() ? this.widgets.stream().anyMatch(w -> w.isMouseInside(mouseX, mouseY)) :
+                CacGuiUtils.isMouseInside(x + dx, y + dy, getActualWidth(), getActualHeight(), mouseX, mouseY);
+    }
+
+    @Override
+    public boolean isLastClickInside()
+    {
+        int dx = holder.shiftMouseX();
+        int dy = holder.shiftMouseY();
+        return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isLastClickInside) :
+                CacGuiUtils.isMouseInside(x + dx, y + dy, getActualWidth(), getActualHeight(), getLastClickedX(), getLastClickedY());
     }
 
     protected void updateAnimation(float partialTicks)

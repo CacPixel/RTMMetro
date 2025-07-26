@@ -61,6 +61,20 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
     }
 
     @Override
+    public boolean isMouseInside(int mouseX, int mouseY)
+    {
+        return this.isPositionIndependent() ? this.widgets.stream().anyMatch(w -> w.isMouseInside(mouseX, mouseY)) :
+                super.isMouseInside(mouseX, mouseY);
+    }
+
+    @Override
+    public boolean isLastClickInside()
+    {
+        return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isLastClickInside) :
+                super.isLastClickInside();
+    }
+
+    @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
         if (!this.isVisible()) {return;}

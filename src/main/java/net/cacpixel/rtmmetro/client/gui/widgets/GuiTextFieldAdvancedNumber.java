@@ -54,9 +54,10 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
         super.onLeftClickAndDrag(mouseX, mouseY, timeSinceLastClick);
         int dx = holder.shiftMouseX();
         int dy = holder.shiftMouseY();
-        boolean flag = CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, lastClickedX, lastClickedY) &&
-                (holder.isMouseInside() || MouseGrabber.INSTANCE.isGrabbed());
-        if (isEnabled() && isVisible() && !isFocused() && flag)
+        boolean flag1 = CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, getLastClickedX(), getLastClickedY());
+        boolean flag2 = holder.isMouseInside() && holder.isLastClickInside();
+        boolean flag3 = MouseGrabber.INSTANCE.isGrabbed();
+        if (isEnabled() && isVisible() && !isFocused() && flag1 && (flag2 || flag3))
         {
             if (isDragging() && !MouseGrabber.INSTANCE.isGrabbed())
             {

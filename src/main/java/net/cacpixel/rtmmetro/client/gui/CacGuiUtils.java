@@ -433,8 +433,7 @@ public class CacGuiUtils
     {
         int mouseX = CacGuiUtils.getMouseX();
         int mouseY = CacGuiUtils.getMouseY();
-        return x <= mouseX && mouseX < (x + width)
-                && y <= mouseY && mouseY < (y + height);
+        return isMouseInside(x, y, width, height, mouseX, mouseY);
     }
 
     public static boolean isMouseInside(int x, int y, int width, int height, int mouseX, int mouseY)

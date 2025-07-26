@@ -145,6 +145,10 @@ public interface IWidgetHolder
 
     boolean isMouseInside();
 
+    boolean isMouseInside(int mouseX, int mouseY);
+
+    boolean isLastClickInside();
+
     default void onWidgetAction(GuiWidget w)
     {
         IActionListener<? extends GuiWidget> listener = w.getListener();

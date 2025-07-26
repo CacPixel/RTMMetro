@@ -18,8 +18,6 @@ public abstract class GuiWidget
     private boolean enabled = true;
     private boolean visible = true;
     private boolean dragging = false;
-    public int lastClickedX;
-    public int lastClickedY;
     private boolean hasValueUpdated;    //  GuiScreen 通知用
     private IActionListener<? extends GuiWidget> listener;
     public IntSupplier xSupplier = this::getX;
@@ -76,8 +74,6 @@ public abstract class GuiWidget
         {
             this.holder.addWidgetToActionQueue(this);
         }
-        this.lastClickedX = mouseX;
-        this.lastClickedY = mouseY;
     }
 
     public void onClick(int mouseX, int mouseY, int button)
@@ -122,7 +118,7 @@ public abstract class GuiWidget
 
     public void onLeftClickAndDrag(int mouseX, int mouseY, long timeSinceLastClick)
     {
-        if (!dragging && (Math.abs(mouseX - lastClickedX) > 1 || Math.abs(mouseY - lastClickedY) > 1))
+        if (!dragging && (Math.abs(mouseX - getLastClickedX()) > 1 || Math.abs(mouseY - getLastClickedY()) > 1))
         {
             dragging = true;
         }
@@ -152,11 +148,19 @@ public abstract class GuiWidget
         return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height) && holder.isMouseInside();
     }
 
+    public boolean isMouseInside(int mouseX, int mouseY)
+    {
+        int dx = holder.shiftMouseX();
+        int dy = holder.shiftMouseY();
+        return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, mouseX, mouseY) && holder.isMouseInside(mouseX, mouseY);
+    }
+
     public boolean isLastClickInside()
     {
         int dx = holder.shiftMouseX();
         int dy = holder.shiftMouseY();
-        return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, lastClickedX, lastClickedY) && holder.isMouseInside();
+        return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, getLastClickedX(), getLastClickedY())
+                && holder.isLastClickInside();
     }
 
     public abstract void draw(int mouseX, int mouseY, float partialTicks);
@@ -279,5 +283,15 @@ public abstract class GuiWidget
     public void setValueUpdated(boolean hasValueUpdated)
     {
         this.hasValueUpdated = hasValueUpdated;
+    }
+
+    public int getLastClickedX()
+    {
+        return screen.getLastClickedX();
+    }
+
+    public int getLastClickedY()
+    {
+        return screen.getLastClickedY();
     }
 }

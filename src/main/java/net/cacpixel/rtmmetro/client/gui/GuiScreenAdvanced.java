@@ -53,6 +53,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public boolean initialized = false;
     public int glStackCount = 0;
     private final ScissorManager scissorManager = new ScissorManager(this);
+    private int lastClickedX;
+    private int lastClickedY;
 
     public GuiScreenAdvanced()
     {
@@ -438,10 +440,12 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     }
 
     @Override
-    protected void mouseClicked(int x, int y, int button)
+    protected void mouseClicked(int xUnused, int yUnused, int button)
     {
         int mouseX = CacGuiUtils.getMouseX() - this.x;
         int mouseY = CacGuiUtils.getMouseY() - this.y;
+        this.lastClickedX = mouseX;
+        this.lastClickedY = mouseY;
         try
         {
             if (isOpened())
@@ -633,9 +637,22 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         return this.height / 2;
     }
 
+    @Override
     public boolean isMouseInside()
     {
         return CacGuiUtils.isMouseInside(x, y, width, height);
+    }
+
+    @Override
+    public boolean isMouseInside(int mouseX, int mouseY)
+    {
+        return CacGuiUtils.isMouseInside(x, y, width, height, mouseX, mouseY);
+    }
+
+    @Override
+    public boolean isLastClickInside()
+    {
+        return CacGuiUtils.isMouseInside(x, y, width, height, getLastClickedX(), getLastClickedY());
     }
 
     public int shiftMouseX()
@@ -743,6 +760,16 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public boolean widgetValueUpdated()
     {
         return getAllWidgets().stream().anyMatch(GuiWidget::checkValueUpdated);
+    }
+
+    public int getLastClickedX()
+    {
+        return lastClickedX;
+    }
+
+    public int getLastClickedY()
+    {
+        return lastClickedY;
     }
 
     public enum AnimationStatus
