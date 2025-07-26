@@ -26,10 +26,10 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
     }
 
     @Override
-    public GuiWidgetContainer add(GuiWidget... widgets)
+    public <T extends GuiWidget> T add(T widget)
     {
-        GuiWidgetContainer ret = (GuiWidgetContainer) IWidgetHolder.super.add(widgets);
-        ret.widgets.removeIf(w -> w == this); // avoid add itself, it will cause infinity loop
+        T ret = IWidgetHolder.super.add(widget);
+        this.widgets.removeIf(w -> w == this); // avoid add itself, it will cause infinity loop
         return ret;
     }
 

@@ -5,11 +5,13 @@ import java.util.function.IntSupplier;
 public class WidgetFactory
 {
 
-    public static <E extends Enum<E>> GuiOptionButton<E> addOptionButton(IWidgetHolder thiz, int x, int y, int w, int h,
-                                                                         String prefix, E[] values, E initVal)
+    public static <E> GuiOptionButton<E> addOptionButton(IWidgetHolder thiz, int x, int y, int w, int h,
+                                                                             String prefix, E[] values, E initVal)
     {
-        GuiOptionButton<E> button = new GuiOptionButton<>(thiz, thiz.getScreen().getNextWidgetId(), () -> x, () -> y,
-                () -> w, () -> h, prefix, values, initVal);
+        GuiOptionButton<E> button = new GuiOptionButton<E>(thiz, thiz.getScreen().getNextWidgetId(), () -> x, () -> y,
+                () -> w, () -> h, prefix)
+                .addRawOptions(values)
+                .setSelectedOption(initVal);
         thiz.add(button);
         return button;
     }
@@ -82,18 +84,6 @@ public class WidgetFactory
     }
 
     /* ********************* With Supplier ************************ */
-
-    public static <E extends Enum<E>> GuiOptionButton<E> addOptionButton(IWidgetHolder thiz, IntSupplier xSupplier,
-                                                                         IntSupplier ySupplier,
-                                                                         IntSupplier widthSupplier,
-                                                                         IntSupplier heightSupplier, String prefix,
-                                                                         E[] values, E initVal)
-    {
-        GuiOptionButton<E> button = new GuiOptionButton<>(thiz, thiz.getScreen().getNextWidgetId(), xSupplier,
-                ySupplier, widthSupplier, heightSupplier, prefix, values, initVal);
-        thiz.add(button);
-        return button;
-    }
 
     public static GuiUnicodeGlyphButtonAdvanced addUnicodeGlyphButton(IWidgetHolder thiz, IntSupplier xSupplier,
                                                                       IntSupplier ySupplier, IntSupplier widthSupplier,

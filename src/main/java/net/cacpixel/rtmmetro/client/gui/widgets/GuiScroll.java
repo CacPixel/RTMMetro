@@ -327,13 +327,6 @@ public class GuiScroll extends GuiWidgetContainer
         }
     }
 
-    @Override
-    public GuiScroll add(GuiWidget... widgets)
-    {
-        super.add(widgets);
-        return this;
-    }
-
     public void updateButton()
     {
         int xDiff = this.yButton.isVisible() ? scrollButtonWidth : 0;

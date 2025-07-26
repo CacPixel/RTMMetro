@@ -378,9 +378,10 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         fieldY += lineHeight + 2 + 10;
 
         //horizontal edit status
-        this.buttonEditStatusH = WidgetFactory.addOptionButton(mainScroll, buttX - fieldW / 2, fieldY, 160, 20, "",
-                AnchorEditStatus.values(),
-                this.currentMarkerValue.editStatusH);
+        this.buttonEditStatusH = mainScroll.add(new GuiOptionButton<AnchorEditStatus>(mainScroll, getNextWidgetId(),
+                        buttX - fieldW / 2, fieldY, 160, 20, ""))
+                .addRawOptions(AnchorEditStatus.values())
+                .setSelectedOption(this.currentMarkerValue.editStatusH);
         fieldY += lineHeight + 2;
         //vertical edit status
         this.buttonEditStatusV = WidgetFactory.addOptionButton(mainScroll, buttX - fieldW / 2, fieldY, 160, 20, "",
@@ -722,9 +723,9 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         this.currentMarkerValue.rp.cantCenter = this.fieldCantCenter.getFloatValue();
         this.currentMarkerValue.rp.cantEdge = this.fieldCantEdge.getFloatValue();
         this.currentMarkerValue.rp.cantRandom = this.fieldCantRandom.getFloatValue();
-        this.currentMarkerValue.editStatusH = this.buttonEditStatusH.getSelectedOption();
-        this.currentMarkerValue.editStatusV = this.buttonEditStatusV.getSelectedOption();
-        this.currentMarkerValue.drawingScheme = this.buttonDrawingScheme.getSelectedOption();
+        this.currentMarkerValue.editStatusH = this.buttonEditStatusH.getSelectedRawOption();
+        this.currentMarkerValue.editStatusV = this.buttonEditStatusV.getSelectedRawOption();
+        this.currentMarkerValue.drawingScheme = this.buttonDrawingScheme.getSelectedRawOption();
         List<TileEntityMarkerAdvanced.MarkerCriticalValues> list = new ArrayList<>();
         list.add(this.currentMarkerValue);
         list.addAll(this.currentValues);

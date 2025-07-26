@@ -25,11 +25,11 @@ public interface IWidgetHolder
 
     void setLayout(GuiLayoutBase layout);
 
-    default IWidgetHolder add(GuiWidget... widgets)
+    default <T extends GuiWidget> T add(T widget)
     {
 //        this.getWidgets().removeIf(w -> Arrays.stream(widgets).anyMatch(widgetIn -> widgetIn.getId() == w.getId()));
-        this.getWidgets().addAll(Arrays.asList(widgets));
-        return this;
+        this.getWidgets().add(widget);
+        return widget;
     }
 
     default <T extends GuiWidget> T addWidget(Class<T> clazz, IntSupplier x, IntSupplier y,
