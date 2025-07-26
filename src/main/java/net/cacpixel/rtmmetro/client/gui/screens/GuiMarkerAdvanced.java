@@ -146,7 +146,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         int stringXpos = 10;
         int fontColor = 0xE0E0E0 | this.getAlphaInt(0xFF);
 
-        this.mainScroll = new Scroll(this, this.getNextWidgetId(),
+        this.mainScroll = new Scroll(this,
                 () -> 0,
                 () -> 30,
                 fromWidth().thenMultiply(1.0 / 3.0).thenApply(it -> width - Math.min(it, 200) - 2),
@@ -378,7 +378,7 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         fieldY += lineHeight + 2 + 10;
 
         //horizontal edit status
-        this.buttonEditStatusH = mainScroll.add(new GuiOptionButton<AnchorEditStatus>(mainScroll, getNextWidgetId(),
+        this.buttonEditStatusH = mainScroll.add(new GuiOptionButton<AnchorEditStatus>(mainScroll,
                         buttX - fieldW / 2, fieldY, 160, 20, ""))
                 .addRawOptions(AnchorEditStatus.values())
                 .setSelectedOption(this.currentMarkerValue.editStatusH);
@@ -765,9 +765,9 @@ public class GuiMarkerAdvanced extends GuiFullScreen
 
     private static class Scroll extends GuiScroll
     {
-        public Scroll(IWidgetHolder holder, int id, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height)
+        public Scroll(IWidgetHolder holder, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height)
         {
-            super(holder, id, x, y, width, height);
+            super(holder, x, y, width, height);
         }
 
         @Override

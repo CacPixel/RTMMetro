@@ -19,10 +19,10 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
     public static final String INT_PATTERN = "#";
     public static final String FLOAT_PATTERN = "0.0##";
 
-    public GuiTextFieldAdvancedNumber(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiTextFieldAdvancedNumber(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier,
                                       IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
-        super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+        super(holder, xSupplier, ySupplier, widthSupplier, heightSupplier);
         canDragEdit = true;
     }
 

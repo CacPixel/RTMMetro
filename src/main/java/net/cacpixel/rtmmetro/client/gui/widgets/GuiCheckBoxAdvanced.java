@@ -12,11 +12,11 @@ public class GuiCheckBoxAdvanced extends GuiButtonAdvanced
     private boolean isChecked;
     private final int boxWidth;
 
-    public GuiCheckBoxAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiCheckBoxAdvanced(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier,
                                IntSupplier widthSupplier, IntSupplier heightSupplier,
                                String displayString, boolean isChecked)
     {
-        super(holder, id, xSupplier, ySupplier, () -> 200, () -> 13);
+        super(holder, xSupplier, ySupplier, () -> 200, () -> 13);
         this.isChecked = isChecked;
         this.boxWidth = 13;
         this.height = 13;
@@ -26,10 +26,10 @@ public class GuiCheckBoxAdvanced extends GuiButtonAdvanced
         this.setDisplayString(displayString);
     }
 
-    public GuiCheckBoxAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiCheckBoxAdvanced(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier,
                                String displayString, boolean isChecked)
     {
-        this(holder, id, xSupplier, ySupplier, null, null, displayString, isChecked);
+        this(holder, xSupplier, ySupplier, null, null, displayString, isChecked);
     }
 
     @Override

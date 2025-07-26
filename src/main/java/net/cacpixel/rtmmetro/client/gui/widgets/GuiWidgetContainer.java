@@ -14,15 +14,15 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
     public List<GuiWidget> widgets = new ArrayList<>();
     public PriorityQueue<GuiWidget> actionQueue = new PriorityQueue<>(Comparator.comparing(GuiWidget::getzLevel).reversed());
 
-    public GuiWidgetContainer(IWidgetHolder holder, int id, IntSupplier x, IntSupplier y, IntSupplier width,
+    public GuiWidgetContainer(IWidgetHolder holder, IntSupplier x, IntSupplier y, IntSupplier width,
                               IntSupplier height)
     {
-        super(holder, id, x, y, width, height);
+        super(holder, x, y, width, height);
     }
 
-    public GuiWidgetContainer(GuiScreenAdvanced pScr, int id)
+    public GuiWidgetContainer(GuiScreenAdvanced pScr)
     {
-        this(pScr, id, ZERO, ZERO, ZERO, ZERO);
+        this(pScr, ZERO, ZERO, ZERO, ZERO);
     }
 
     @Override

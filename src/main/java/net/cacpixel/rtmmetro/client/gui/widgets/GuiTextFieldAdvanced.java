@@ -54,10 +54,10 @@ public class GuiTextFieldAdvanced extends GuiWidget
     public String prefixTextFormatting = "";
     public boolean canDragEdit = false;
 
-    public GuiTextFieldAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiTextFieldAdvanced(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier,
                                 IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
-        super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+        super(holder, xSupplier, ySupplier, widthSupplier, heightSupplier);
         this.fontRenderer = screen.mc.fontRenderer;
     }
 

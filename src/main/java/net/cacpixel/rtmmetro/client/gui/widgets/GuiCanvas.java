@@ -9,14 +9,14 @@ public class GuiCanvas extends GuiWidget
     private IDrawCallback callback = null;
     private Image image;
 
-    public GuiCanvas(IWidgetHolder holder, int id, int x, int y, int width, int height)
+    public GuiCanvas(IWidgetHolder holder, int x, int y, int width, int height)
     {
-        super(holder, id, x, y, width, height);
+        super(holder, x, y, width, height);
     }
 
-    public GuiCanvas(IWidgetHolder holder, int id, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height)
+    public GuiCanvas(IWidgetHolder holder, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height)
     {
-        super(holder, id, x, y, width, height);
+        super(holder, x, y, width, height);
     }
 
     @Override

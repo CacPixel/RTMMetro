@@ -100,7 +100,7 @@ public class GuiLayoutFlex extends GuiLayoutBase
         // 处理所有的 row Or Columns
         for (List<GuiWidget> list : rowOrColumns)
         {
-            GuiWidget prev = new GuiWidgetDummy(holder, 0, 0, 0, 0, 0); // 记录上一个物品的位置
+            GuiWidget prev = new GuiWidgetDummy(holder, 0, 0, 0, 0); // 记录上一个物品的位置
             float currentPos = 0;                                                        // 记录上一个物品的位置
 
             prevSecondaryMaxLen = list.stream().max(Comparator.comparingInt(this::getSecondarySize))

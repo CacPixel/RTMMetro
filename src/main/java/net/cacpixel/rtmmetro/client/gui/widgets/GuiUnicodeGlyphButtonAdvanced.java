@@ -12,11 +12,11 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced
     public String glyph;
     public float glyphScale;
 
-    public GuiUnicodeGlyphButtonAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiUnicodeGlyphButtonAdvanced(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier,
                                          IntSupplier widthSupplier, IntSupplier heightSupplier, String displayString,
                                          String glyph, float glyphScale)
     {
-        super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+        super(holder, xSupplier, ySupplier, widthSupplier, heightSupplier);
         this.glyph = glyph;
         this.glyphScale = glyphScale;
         this.setDisplayString(displayString);

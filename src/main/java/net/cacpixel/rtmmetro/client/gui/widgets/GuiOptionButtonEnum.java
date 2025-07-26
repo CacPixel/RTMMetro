@@ -14,10 +14,10 @@ public class GuiOptionButtonEnum<E extends Enum<E>> extends GuiButtonAdvanced
     private E selectedOption;
     public String prefix;
 
-    public GuiOptionButtonEnum(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiOptionButtonEnum(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier,
                                IntSupplier widthSupplier, IntSupplier heightSupplier, String prefix, E[] values, E initVal)
     {
-        super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+        super(holder, xSupplier, ySupplier, widthSupplier, heightSupplier);
         this.prefix = prefix;
         this.options.addAll(Arrays.asList(values));
         Arrays.stream(values).forEach(v -> this.options.set(v.ordinal(), v));

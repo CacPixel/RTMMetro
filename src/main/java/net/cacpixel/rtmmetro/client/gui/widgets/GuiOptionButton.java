@@ -16,17 +16,17 @@ public class GuiOptionButton<T> extends GuiButtonAdvanced
     private GuiOption<T> selectedOption;
     public String prefix;
 
-    public GuiOptionButton(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiOptionButton(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier,
                            IntSupplier widthSupplier, IntSupplier heightSupplier, String prefix)
     {
-        super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+        super(holder, xSupplier, ySupplier, widthSupplier, heightSupplier);
         this.prefix = prefix;
     }
 
-    public GuiOptionButton(IWidgetHolder holder, int id, int x, int y,
+    public GuiOptionButton(IWidgetHolder holder, int x, int y,
                            int width, int height, String prefix)
     {
-        super(holder, id, GuiParam.from(x), GuiParam.from(y), GuiParam.from(width), GuiParam.from(height));
+        super(holder, GuiParam.from(x), GuiParam.from(y), GuiParam.from(width), GuiParam.from(height));
         this.prefix = prefix;
     }
 

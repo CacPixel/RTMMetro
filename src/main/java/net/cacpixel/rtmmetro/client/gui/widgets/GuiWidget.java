@@ -26,34 +26,28 @@ public abstract class GuiWidget
     public IntSupplier heightSupplier = this::getHeight;
     public static final IntSupplier ZERO = () -> 0;
 
-    public GuiWidget(IWidgetHolder holder, int id, int x, int y, int width, int height)
+    public GuiWidget(IWidgetHolder holder, int x, int y, int width, int height)
     {
         this.holder = holder;
         this.screen = holder.getScreen();
-        this.id = id;
+        this.id = screen.getNextWidgetId();
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
     }
 
-    public GuiWidget(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiWidget(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier,
                      IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
         this.holder = holder;
         this.screen = holder.getScreen();
-        this.id = id;
+        this.id = screen.getNextWidgetId();
         if (xSupplier != null) this.xSupplier = xSupplier;
         if (ySupplier != null) this.ySupplier = ySupplier;
         if (widthSupplier != null) this.widthSupplier = widthSupplier;
         if (heightSupplier != null) this.heightSupplier = heightSupplier;
         this.updatePosAndSize();
-    }
-
-    public GuiWidget(GuiScreenAdvanced pScr, IntSupplier xSupplier, IntSupplier ySupplier,
-                     IntSupplier widthSupplier, IntSupplier heightSupplier)
-    {
-        this(pScr, pScr.getNextWidgetId(), xSupplier, ySupplier, widthSupplier, heightSupplier);
     }
 
     @SuppressWarnings("unchecked")

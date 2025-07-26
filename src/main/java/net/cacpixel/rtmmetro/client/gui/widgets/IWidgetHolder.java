@@ -46,7 +46,6 @@ public interface IWidgetHolder
         {
             List<Object> params = new ArrayList<>();
             params.add(this);
-            params.add(this.getScreen().getNextWidgetId());
             params.add(x instanceof IntSupplier ? x : fromInt((int) x));
             params.add(y instanceof IntSupplier ? y : fromInt((int) y));
             params.add(width instanceof IntSupplier ? width : fromInt((int) width));

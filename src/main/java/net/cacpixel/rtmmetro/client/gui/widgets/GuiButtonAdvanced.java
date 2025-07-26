@@ -20,15 +20,15 @@ public class GuiButtonAdvanced extends GuiWidget
     public Align alignY = Align.CENTERED;
     private boolean wrapString = false;
 
-    public GuiButtonAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier)
+    public GuiButtonAdvanced(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier)
     {
-        this(holder, id, xSupplier, ySupplier, () -> 200, () -> 20);
+        this(holder, xSupplier, ySupplier, () -> 200, () -> 20);
     }
 
-    public GuiButtonAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiButtonAdvanced(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier,
                              IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
-        super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+        super(holder, xSupplier, ySupplier, widthSupplier, heightSupplier);
     }
 
     public static ResourceLocation getButtonTexture()

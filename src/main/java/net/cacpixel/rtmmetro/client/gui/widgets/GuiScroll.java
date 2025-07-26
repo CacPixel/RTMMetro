@@ -40,21 +40,21 @@ public class GuiScroll extends GuiWidgetContainer
     private ScrollButton xButton;
     private ScrollButton yButton;
 
-    public GuiScroll(IWidgetHolder holder, int id, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height)
+    public GuiScroll(IWidgetHolder holder, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height)
     {
-        super(holder, id, x, y, width, height);
+        super(holder, x, y, width, height);
         this.duration = ModConfig.guiAnimationDuration;
 //        this.scrollButtonWidth = (int) (30.0F / new ScaledResolution(this.pScr.mc).getScaleFactor());
         this.scrollButtonWidth = 7;
         // 以下两个button不会进入widget list
         int i = 0;
-        this.xButton = new ScrollButton(this, this.getScreen().getNextWidgetId(),
+        this.xButton = new ScrollButton(this,
                 () -> i,
                 () -> this.height - scrollButtonWidth,
                 () -> this.width - (this.yButton != null && this.yButton.isVisible() ? scrollButtonWidth : 0) - i,
                 () -> scrollButtonWidth - i,
                 true).setListener(b -> this.buttonCallback((ScrollButton) b));
-        this.yButton = new ScrollButton(this, this.getScreen().getNextWidgetId(),
+        this.yButton = new ScrollButton(this,
                 () -> this.width - scrollButtonWidth,
                 () -> i,
                 () -> scrollButtonWidth - i,
@@ -478,10 +478,10 @@ public class GuiScroll extends GuiWidgetContainer
         boolean xScrolling; // false: yScrolling
         boolean barClicked = false;
 
-        public ScrollButton(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+        public ScrollButton(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier,
                             IntSupplier widthSupplier, IntSupplier heightSupplier, boolean xScrolling)
         {
-            super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+            super(holder, xSupplier, ySupplier, widthSupplier, heightSupplier);
             this.xScrolling = xScrolling;
             if (!(holder instanceof GuiScroll))
             {

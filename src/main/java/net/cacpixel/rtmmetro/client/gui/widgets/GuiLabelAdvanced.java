@@ -28,10 +28,10 @@ public class GuiLabelAdvanced extends GuiWidget
     private boolean wrapString = false;
     private boolean autoExpand = false;
 
-    public GuiLabelAdvanced(IWidgetHolder holder, int id, IntSupplier xSupplier, IntSupplier ySupplier,
+    public GuiLabelAdvanced(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier,
                             IntSupplier widthSupplier, IntSupplier heightSupplier, int colorIn)
     {
-        super(holder, id, xSupplier, ySupplier, widthSupplier, heightSupplier);
+        super(holder, xSupplier, ySupplier, widthSupplier, heightSupplier);
         this.textColor = colorIn;
         this.backColor = -1;
         this.ulColor = -1;
