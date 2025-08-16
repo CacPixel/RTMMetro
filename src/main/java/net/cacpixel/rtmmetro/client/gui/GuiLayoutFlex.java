@@ -218,7 +218,7 @@ public class GuiLayoutFlex extends GuiLayoutBase
 
         public boolean hasProperty(int mask)
         {
-            return (val & mask) > 0;
+            return (val & mask) != 0;
         }
 
         public boolean isColumn()

@@ -26,8 +26,6 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.*;
 
 @SideOnly(Side.CLIENT)
@@ -55,6 +53,9 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     private final ScissorManager scissorManager = new ScissorManager(this);
     private int lastClickedX;
     private int lastClickedY;
+    private int eventButton;
+    private long lastMouseEvent;
+    private int touchValue;
 
     public GuiScreenAdvanced()
     {
@@ -440,31 +441,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     }
 
     @Override
-    protected void mouseClicked(int xUnused, int yUnused, int button)
-    {
-        int mouseX = CacGuiUtils.getMouseX() - this.x;
-        int mouseY = CacGuiUtils.getMouseY() - this.y;
-        this.lastClickedX = mouseX;
-        this.lastClickedY = mouseY;
-        try
-        {
-            if (isOpened())
-            {
-                this.getAllWidgets().forEach(w -> {
-                    w.onClick(mouseX, mouseY, button);
-                });
-            }
-        }
-        catch (ConcurrentModificationException e)
-        {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            ModLog.debug("Unexpected widget modification: " + sw);
-        }
-    }
-
-    @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (keyCode == Keyboard.KEY_ESCAPE)
@@ -484,20 +460,45 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     }
 
     @Override
-    public void handleMouseInput() throws IOException
+    public void handleMouseInput()
     {
-        super.handleMouseInput();
-        int x = CacGuiUtils.getMouseX() - this.x;
-        int y = CacGuiUtils.getMouseY() - this.y;
+        int x = CacGuiUtils.getMouseX();// - shiftMouseX();
+        int y = CacGuiUtils.getMouseY();// - shiftMouseY();
         int button = Mouse.getEventButton();
         int scroll = Mouse.getEventDWheel();
-        if (isOpened())
+
+        label:
         {
-            if (scroll != 0)
+            if (Mouse.getEventButtonState())
             {
-                this.getAllWidgets().forEach(w -> w.onScroll(x, y, scroll));
+                if (this.mc.gameSettings.touchscreen && this.touchValue++ > 0)
+                {
+                    break label;
+                }
+                this.eventButton = button;
+                this.lastMouseEvent = Minecraft.getSystemTime();
+                this.mouseClicked(x, y, this.eventButton);
+            }
+            else if (button != -1)
+            {
+                if (this.mc.gameSettings.touchscreen && --this.touchValue > 0)
+                {
+                    break label;
+                }
+                this.eventButton = -1;
+                this.mouseReleased(x, y, button);
+            }
+            else if (this.eventButton != -1 && this.lastMouseEvent > 0L)
+            {
+                long l = Minecraft.getSystemTime() - this.lastMouseEvent;
+                this.mouseClickMove(x, y, this.eventButton, l);
             }
         }
+        if (scroll != 0)
+        {
+            this.mouseScroll(x, y, scroll);
+        }
+
         if (this.widgetValueUpdated())
         {
             this.updateValueFromWidgets();
@@ -505,30 +506,39 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     }
 
     @Override
-    protected void mouseClickMove(int x, int y, int clickedMouseButton, long timeSinceLastClick)
+    protected void mouseClicked(int x, int y, int button)
     {
-        int mouseX = CacGuiUtils.getMouseX() - this.x;
-        int mouseY = CacGuiUtils.getMouseY() - this.y;
-        super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+        this.lastClickedX = x;
+        this.lastClickedY = y;
         if (isOpened())
         {
-            this.getAllWidgets().forEach(w -> {
-                w.onClickAndDrag(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
-            });
+            this.getAllWidgets().forEach(w -> w.onClick(x, y, button));
+        }
+    }
+
+    @Override
+    protected void mouseClickMove(int x, int y, int clickedMouseButton, long timeSinceLastClick)
+    {
+        if (isOpened())
+        {
+            this.getAllWidgets().forEach(w -> w.onClickAndDrag(x, y, clickedMouseButton, timeSinceLastClick));
         }
     }
 
     @Override
     protected void mouseReleased(int x, int y, int state)
     {
-        int mouseX = CacGuiUtils.getMouseX() - this.x;
-        int mouseY = CacGuiUtils.getMouseY() - this.y;
-        super.mouseReleased(mouseX, mouseY, state);
         if (isOpened())
         {
-            this.getAllWidgets().forEach(w -> {
-                w.onMouseReleased(mouseX, mouseY, state);
-            });
+            this.getAllWidgets().forEach(w -> w.onMouseReleased(x, y, state));
+        }
+    }
+
+    protected void mouseScroll(int x, int y, int scroll)
+    {
+        if (isOpened())
+        {
+            this.getAllWidgets().forEach(w -> w.onScroll(x, y, scroll));
         }
     }
 

@@ -17,7 +17,7 @@ public abstract class GuiWidget
     public int id;
     private boolean enabled = true;
     private boolean visible = true;
-    private boolean dragging = false;
+    private DragStatus dragStatus = DragStatus.NOT_DRAGGING;
     private boolean hasValueUpdated;    //  GuiScreen 通知用
     private IActionListener<? extends GuiWidget> listener;
     public IntSupplier xSupplier = this::getX;
@@ -66,6 +66,7 @@ public abstract class GuiWidget
     {
         if (this.isEnabled() && this.isVisible() && this.isMouseInside())
         {
+            dragStatus = DragStatus.MOUSE_HOLD;
             this.holder.addWidgetToActionQueue(this);
         }
     }
@@ -112,15 +113,15 @@ public abstract class GuiWidget
 
     public void onLeftClickAndDrag(int mouseX, int mouseY, long timeSinceLastClick)
     {
-        if (!dragging && (Math.abs(mouseX - getLastClickedX()) > 1 || Math.abs(mouseY - getLastClickedY()) > 1))
+        if (dragStatus == DragStatus.MOUSE_HOLD && (Math.abs(mouseX - getLastClickedX()) > 1 || Math.abs(mouseY - getLastClickedY()) > 1))
         {
-            dragging = true;
+            dragStatus = DragStatus.DRAGGING;
         }
     }
 
     public void onMouseReleased(int mouseX, int mouseY, int state)
     {
-        this.dragging = false;
+        this.dragStatus = DragStatus.NOT_DRAGGING;
     }
 
     public void onScroll(int mouseX, int mouseY, int scroll)
@@ -139,7 +140,8 @@ public abstract class GuiWidget
     {
         int dx = holder.shiftMouseX();
         int dy = holder.shiftMouseY();
-        return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height) && holder.isMouseInside();
+        return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, CacGuiUtils.getMouseX(), CacGuiUtils.getMouseY())
+                && holder.isMouseInside();
     }
 
     public boolean isMouseInside(int mouseX, int mouseY)
@@ -249,12 +251,12 @@ public abstract class GuiWidget
 
     public boolean isDragging()
     {
-        return dragging;
+        return dragStatus == DragStatus.DRAGGING;
     }
 
-    public void setDragging(boolean dragging)
+    public boolean isMouseHolding()
     {
-        this.dragging = dragging;
+        return dragStatus == DragStatus.MOUSE_HOLD || dragStatus == DragStatus.DRAGGING;
     }
 
     public void onMakeLayoutStart() {}
@@ -287,5 +289,12 @@ public abstract class GuiWidget
     public int getLastClickedY()
     {
         return screen.getLastClickedY();
+    }
+
+    public enum DragStatus
+    {
+        NOT_DRAGGING,
+        MOUSE_HOLD,
+        DRAGGING,
     }
 }

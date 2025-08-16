@@ -102,7 +102,7 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
     @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
-        if (this.labelTitle.isDragging())
+        if (this.labelTitle.isMouseHolding())
         {
             x = mouseX - (labelTitle.getLastClickedX());
             y = mouseY - (labelTitle.getLastClickedY());
@@ -139,7 +139,7 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
     protected void mouseClicked(int x, int y, int button)
     {
         super.mouseClicked(x, y, button);
-        if (!CacGuiUtils.isMouseInside(this.x, this.y, this.width, this.height))
+        if (!isMouseInside())
         {
             blinkCounter = 20;
             Toolkit.getDefaultToolkit().beep();

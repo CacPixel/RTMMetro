@@ -44,8 +44,8 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
     public void onLeftClick(int mouseX, int mouseY)
     {
         super.onLeftClick(mouseX, mouseY);
-        MouseGrabber.INSTANCE.prevMouseXForScroll = mouseX;
-        MouseGrabber.INSTANCE.prevMouseYForScroll = mouseY;
+        MouseGrabber.INSTANCE.dx = mouseX;
+        MouseGrabber.INSTANCE.dy = mouseY;
     }
 
     @Override
@@ -65,9 +65,12 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
             }
             if (MouseGrabber.INSTANCE.isGrabbed())
             {
-                MouseGrabber.INSTANCE.mouseXYChange();
-                this.incValue((MouseGrabber.INSTANCE.prevMouseXForScroll + MouseGrabber.INSTANCE.prevMouseYForScroll) *
-                        CacGuiUtils.DEFAULT_SCROLL_VALUE);
+                int step = 3;
+                int[] add = MouseGrabber.INSTANCE.step(step);
+                if (add[0] != 0 || add[1] != 0)
+                {
+                    this.incValue((add[0] / step + add[1] / step) * CacGuiUtils.DEFAULT_SCROLL_VALUE);
+                }
             }
         }
     }

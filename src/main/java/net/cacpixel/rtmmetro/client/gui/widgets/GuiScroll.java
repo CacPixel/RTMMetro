@@ -144,7 +144,8 @@ public class GuiScroll extends GuiWidgetContainer
         int dx = holder.shiftMouseX();
         int dy = holder.shiftMouseY();
         return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isMouseInside) :
-                CacGuiUtils.isMouseInside(x + dx, y + dy, getActualWidth(), getActualHeight());
+                CacGuiUtils.isMouseInside(x, y, getActualWidth(), getActualHeight(),
+                        CacGuiUtils.getMouseX() - dx, CacGuiUtils.getMouseY() - dy);
     }
 
     @Override
@@ -539,9 +540,10 @@ public class GuiScroll extends GuiWidgetContainer
         @Override
         public boolean isMouseInside()
         {
-            int dx = ((GuiScroll) holder).x;
-            int dy = ((GuiScroll) holder).y;
-            return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height);
+            GuiScroll scroll = (GuiScroll) holder;
+            int dx = scroll.x + scroll.holder.shiftMouseX();
+            int dy = scroll.y + scroll.holder.shiftMouseY();
+            return CacGuiUtils.isMouseInside(x, y, width, height, CacGuiUtils.getMouseX() - dx, CacGuiUtils.getMouseY() - dy);
         }
 
         public boolean isMouseInBar()
@@ -550,9 +552,10 @@ public class GuiScroll extends GuiWidgetContainer
             int y = xScrolling ? this.y : pos;
             int width = xScrolling ? length : this.width;
             int height = xScrolling ? this.height : length;
-            int dx = ((GuiScroll) holder).x;
-            int dy = ((GuiScroll) holder).y;
-            return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height);
+            GuiScroll scroll = (GuiScroll) holder;
+            int dx = scroll.x + scroll.holder.shiftMouseX();
+            int dy = scroll.y + scroll.holder.shiftMouseY();
+            return CacGuiUtils.isMouseInside(x, y, width, height, CacGuiUtils.getMouseX() - dx, CacGuiUtils.getMouseY() - dy);
         }
 
         public void updateLengthAndPos(int size, int min, int max, float current)

@@ -764,7 +764,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
         float pitch = GuiScreen.isAltKeyDown() ? 2.0F : GuiScreen.isShiftKeyDown() ? 1.0F : 1.5F;
         Minecraft mc = screen.mc;
         PositionedSoundRecord soundRecord = new PositionedSoundRecord(SoundEvents.BLOCK_NOTE_HAT.getSoundName(),
-                SoundCategory.MASTER, 0.25f, pitch, false, 0, ISound.AttenuationType.NONE,
+                SoundCategory.MASTER, 0.1f, pitch, false, 0, ISound.AttenuationType.NONE,
                 (float) mc.player.posX, (float) mc.player.posY, (float) mc.player.posZ);
         this.screen.mc.getSoundHandler().playSound(soundRecord);
     }
@@ -817,8 +817,10 @@ public class GuiTextFieldAdvanced extends GuiWidget
     @Override
     public void onMouseReleased(int mouseX, int mouseY, int state)
     {
+        boolean isMouseInside = isMouseInside();
+        boolean isLastClickInside = isLastClickInside();
         if (this.isEnabled() && this.isVisible() && canLoseFocus
-                && this.isMouseInside() && this.isLastClickInside() && !isDragging() && canDragEdit)
+                && isMouseInside && isLastClickInside && !isDragging() && canDragEdit)
         {
             this.setFocused(true);
             setCursorPositionRemake(mouseX, mouseY);
@@ -828,7 +830,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
 
     public void setCursorPositionRemake(int mouseX, int mouseY)
     {
-        int i = mouseX - (this.x + holder.shiftMouseX());
+        int i = mouseX - this.x;
         int nextCharWidth;
 
         if (this.enableBackgroundDrawing)
