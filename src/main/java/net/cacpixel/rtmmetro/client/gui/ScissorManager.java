@@ -6,16 +6,33 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.opengl.GL11;
 
+import java.util.EmptyStackException;
 import java.util.Stack;
 
 public class ScissorManager
 {
     public GuiScreenAdvanced screen;
     private final Stack<ScissorParam> scissorStack = new Stack<>();
+    private final Stack<ScissorParam> disabledScissorStack = new Stack<>();
+    private boolean glScissorEnabled = false;
 
     public ScissorManager(GuiScreenAdvanced screen)
     {
         this.screen = screen;
+    }
+
+    private void glDisableScissor()
+    {
+        if (glScissorEnabled)
+            GL11.glDisable(GL11.GL_SCISSOR_TEST);
+        glScissorEnabled = false;
+    }
+
+    private void glEnableScissor()
+    {
+        if (!glScissorEnabled)
+            GL11.glEnable(GL11.GL_SCISSOR_TEST);
+        glScissorEnabled = true;
     }
 
     private void apply(int xIn, int yIn, int wIn, int hIn)
@@ -50,12 +67,17 @@ public class ScissorManager
 
     public void apply()
     {
-        GL11.glEnable(GL11.GL_SCISSOR_TEST);
+        glEnableScissor();
         apply(peek());
     }
 
+    /* 按照提供的ScissorParam和当前栈顶ScissorParam比较、限制范围后再push */
     public void push(ScissorParam param)
     {
+        if (!disabledScissorStack.empty())
+        {
+            enableAll();
+        }
         ScissorParam old = peek();
         if (old != null)
         {
@@ -91,14 +113,14 @@ public class ScissorManager
         {
             popped = scissorStack.pop();
         }
-        catch (Exception e)
+        catch (EmptyStackException e)
         {
-            throw new RTMMetroException("ScissorManager stack is empty, ScissorManager.pop() too much!");
+            throw new RTMMetroException("ScissorManager stack is empty, ScissorManager.pop() too much!", e);
         }
         if (!scissorStack.empty())
-            this.apply(scissorStack.peek());
+            apply();
         else
-            GL11.glDisable(GL11.GL_SCISSOR_TEST);
+            glDisableScissor();
         return popped;
     }
 
@@ -109,7 +131,7 @@ public class ScissorManager
 
     public void checkStackEmpty()
     {
-        if (!scissorStack.isEmpty())
+        if (!scissorStack.empty())
             throw new RTMMetroException("ScissorManager stack is not empty, ScissorManager.push() too much!");
     }
 
@@ -120,5 +142,59 @@ public class ScissorManager
             GL11.glDisable(GL11.GL_SCISSOR_TEST);
             this.scissorStack.clear();
         }
+        if (!disabledScissorStack.empty())
+        {
+            this.disabledScissorStack.clear();
+        }
+    }
+
+    public void disable(int count)
+    {
+        try
+        {
+            for (int i = 0; i < count; i++)
+            {
+                ScissorParam popped = scissorStack.pop();
+                disabledScissorStack.push(popped);
+            }
+        }
+        catch (EmptyStackException e)
+        {
+            throw new RTMMetroException("scissorStack is empty, count too large!", e);
+        }
+        if (!scissorStack.empty())
+            apply();
+        else
+            glDisableScissor();
+    }
+
+    public void disableAll()
+    {
+        disable(scissorStack.size());
+    }
+
+    public void enable(int count)
+    {
+        try
+        {
+            for (int i = 0; i < count; i++)
+            {
+                ScissorParam popped = disabledScissorStack.pop();
+                scissorStack.push(popped);
+            }
+        }
+        catch (EmptyStackException e)
+        {
+            throw new RTMMetroException("disabledScissorStack is empty, count too large!", e);
+        }
+        if (!scissorStack.empty())
+            apply();
+        else
+            glDisableScissor();
+    }
+
+    public void enableAll()
+    {
+        enable(disabledScissorStack.size());
     }
 }
