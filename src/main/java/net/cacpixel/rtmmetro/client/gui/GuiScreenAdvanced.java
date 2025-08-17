@@ -721,9 +721,13 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             {
                 screen.setAnimationStatus(AnimationStatus.OPENING);
             }
-            if (screen.parentScreen != null && !screen.drawParent)
+            if (screen.parentScreen != null)
             {
-                screen.parentScreen.setAnimationStatus(AnimationStatus.CLOSING);
+                screen.parentScreen.eventButton = -1;
+                if (!screen.drawParent)
+                {
+                    screen.parentScreen.setAnimationStatus(AnimationStatus.CLOSING);
+                }
             }
         }
     }
