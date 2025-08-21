@@ -44,8 +44,6 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
     public void onLeftClick(int mouseX, int mouseY)
     {
         super.onLeftClick(mouseX, mouseY);
-        MouseGrabber.INSTANCE.dx = mouseX;
-        MouseGrabber.INSTANCE.dy = mouseY;
     }
 
     @Override

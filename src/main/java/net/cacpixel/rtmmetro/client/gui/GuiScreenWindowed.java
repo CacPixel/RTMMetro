@@ -104,8 +104,8 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
     {
         if (this.labelTitle.isMouseHolding())
         {
-            x = mouseX - (labelTitle.getLastClickedX());
-            y = mouseY - (labelTitle.getLastClickedY());
+            x = mouseX - getLastClickedX() + lastX;
+            y = mouseY - getLastClickedY() + lastY;
             alignX = alignY = Align.FREE;
         }
         else
