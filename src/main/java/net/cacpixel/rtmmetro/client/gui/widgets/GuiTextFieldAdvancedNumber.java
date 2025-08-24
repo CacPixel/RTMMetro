@@ -122,6 +122,19 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
                 this.checkValueAndSetText();
                 this.setValueUpdated(true);
             }
+            else if (GuiScreen.isCtrlKeyDown() && code == Keyboard.KEY_RETURN)
+            {
+                this.fieldValue = this.getFieldValue(this.fieldValue);
+                this.checkValueAndSetText();
+                if (this.isValueValid())
+                {
+                    this.setValueUpdated(true);
+                }
+                else
+                {
+                    this.checkValue();
+                }
+            }
             else
             {
                 boolean doScript = code != Keyboard.KEY_LSHIFT && code != Keyboard.KEY_LMENU;
