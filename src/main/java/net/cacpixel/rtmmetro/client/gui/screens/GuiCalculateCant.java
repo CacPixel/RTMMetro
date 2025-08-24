@@ -2,7 +2,10 @@ package net.cacpixel.rtmmetro.client.gui.screens;
 
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenWindowed;
-import net.cacpixel.rtmmetro.client.gui.widgets.*;
+import net.cacpixel.rtmmetro.client.gui.widgets.GuiButtonAdvanced;
+import net.cacpixel.rtmmetro.client.gui.widgets.GuiCheckBoxAdvanced;
+import net.cacpixel.rtmmetro.client.gui.widgets.GuiTextFieldAdvancedNumber;
+import net.cacpixel.rtmmetro.client.gui.widgets.WidgetFactory;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
@@ -16,6 +19,7 @@ public class GuiCalculateCant extends GuiScreenWindowed
     public static int speed = 80;
     public static int radius = 600;
     public static int gauge = 1435;
+    public static boolean reverse = false;
     private final DoubleConsumer consumer;
     private GuiTextFieldAdvancedNumber fieldSpeed;
     private GuiTextFieldAdvancedNumber fieldRadius;
@@ -52,7 +56,7 @@ public class GuiCalculateCant extends GuiScreenWindowed
                 () -> fieldHeight, gauge, 500, 3000, false);
         //reversed
         this.checkBoxFlip = WidgetFactory.addCheckBox(this, () -> this.getHalfWidth(), () -> this.getHalfHeight() + 10,
-                I18n.format("gui.calculate_cant.flip_button"), false);
+                I18n.format("gui.calculate_cant.flip_button"), reverse);
         //ok
         this.buttonOK = WidgetFactory.addButton(this, () -> this.getHalfWidth() - 40,
                 () -> this.getHalfHeight() + 70, () -> 80,
@@ -62,6 +66,7 @@ public class GuiCalculateCant extends GuiScreenWindowed
             speed = fieldSpeed.getIntValue();
             radius = fieldRadius.getIntValue();
             gauge = fieldGauge.getIntValue();
+            reverse = checkBoxFlip.isChecked();
         });
     }
 
