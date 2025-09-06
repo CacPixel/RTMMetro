@@ -27,11 +27,7 @@ public class GuiTheme
 
     static
     {
-        RESOURCE_NAMES.add("widgets");
-        RESOURCE_NAMES.add("icon/save");
-        RESOURCE_NAMES.add("icon/marker_group");
-        RESOURCE_NAMES.add("icon/marker_name");
-        RESOURCE_NAMES.add("icon/marker_edit_line");
+        RESOURCE_NAMES.addAll(ResourceConstants.RESOURCE_LIST);
         onResourcePackReload();
     }
 

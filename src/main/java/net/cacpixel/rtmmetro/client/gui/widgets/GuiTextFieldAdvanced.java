@@ -53,12 +53,13 @@ public class GuiTextFieldAdvanced extends GuiWidget
     public boolean setTextIgnoreValidator = true;
     public String prefixTextFormatting = "";
     public boolean canDragEdit = false;
+    private boolean editable = true;
 
     public GuiTextFieldAdvanced(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier,
                                 IntSupplier widthSupplier, IntSupplier heightSupplier)
     {
         super(holder, xSupplier, ySupplier, widthSupplier, heightSupplier);
-        this.fontRenderer = screen.mc.fontRenderer;
+        this.fontRenderer = getScreen().mc.fontRenderer;
     }
 
     public <T> T getFieldValue(T defaultVal)
@@ -79,8 +80,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
         try
         {
             // 禁用词：换行符 分号 字符串 importClass importPackage load class ClassLoader invoke null exec System java
-            // test str: NGTMath.class.getClassLoader().loadClass("java.lang.Runtime").getMethod("getRuntime").invoke
-            // (null).exec("calc");
+            // test str: NGTMath.class.getClassLoader().loadClass("java.lang.Runtime").getMethod("getRuntime").invoke(null).exec("calc");
             if (Stream.of("\r", "\n", ";", "\"", "import", "class", "package", "load", "invoke", "null", "exec",
                             "system", "java")
                     .anyMatch(text.toLowerCase()::contains))
@@ -510,13 +510,13 @@ public class GuiTextFieldAdvanced extends GuiWidget
             if (this.getEnableBackgroundDrawing())
             {
                 CacGuiUtils.drawRect(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1,
-                        0xA0A0A0 | screen.getAlphaInt(0xFF));
+                        0xA0A0A0 | getScreen().getAlphaInt(0xFF));
                 CacGuiUtils.drawRect(this.x, this.y, this.x + this.width, this.y + this.height,
-                        0x0 | screen.getAlphaInt(0xFF));
+                        0x0 | getScreen().getAlphaInt(0xFF));
             }
 
-            int color = this.isEnabled() ? this.enabledColor | screen.getAlphaInt(0xFF) :
-                    this.disabledColor | screen.getAlphaInt(0xFF);
+            int color = this.isEnabled() ? this.enabledColor | getScreen().getAlphaInt(0xFF) :
+                    this.disabledColor | getScreen().getAlphaInt(0xFF);
             int j = this.cursorPosition - this.lineScrollOffset;
             int k = this.selectionEnd - this.lineScrollOffset;
             String s = this.fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
@@ -561,7 +561,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
                 if (flag2)
                 {
                     CacGuiUtils.drawRect(k1, i1 - 1, k1 + 1, i1 + 1 + this.fontRenderer.FONT_HEIGHT,
-                            0xD0D0D0 | screen.getAlphaInt(0xFF));
+                            0xD0D0D0 | getScreen().getAlphaInt(0xFF));
                 }
                 else
                 {
@@ -579,7 +579,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
         boolean hovered = isMouseInside();
         if (hovered && !this.tips.isEmpty())
         {
-            GuiScreenAdvanced.drawHoveringTextS(this.tips, mouseX, mouseY, this.screen);
+            GuiScreenAdvanced.drawHoveringTextS(this.tips, mouseX, mouseY, this.getScreen());
         }
     }
 
@@ -762,11 +762,11 @@ public class GuiTextFieldAdvanced extends GuiWidget
     public void incValue(int scroll)
     {
         float pitch = GuiScreen.isAltKeyDown() ? 2.0F : GuiScreen.isShiftKeyDown() ? 1.0F : 1.5F;
-        Minecraft mc = screen.mc;
+        Minecraft mc = getScreen().mc;
         PositionedSoundRecord soundRecord = new PositionedSoundRecord(SoundEvents.BLOCK_NOTE_HAT.getSoundName(),
                 SoundCategory.MASTER, 0.1f, pitch, false, 0, ISound.AttenuationType.NONE,
                 (float) mc.player.posX, (float) mc.player.posY, (float) mc.player.posZ);
-        this.screen.mc.getSoundHandler().playSound(soundRecord);
+        this.getScreen().mc.getSoundHandler().playSound(soundRecord);
     }
 
     public GuiTextFieldAdvanced addTips(String par1)
@@ -787,7 +787,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
     public void onLeftClick(int mouseX, int mouseY)
     {
         super.onLeftClick(mouseX, mouseY);
-        if (this.isEnabled() && this.isVisible() && this.canLoseFocus)
+        if (this.isEnabled() && this.isVisible() && this.canLoseFocus && editable)
         {
             if (this.isMouseInside())
             {
@@ -815,7 +815,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
     }
 
     @Override
-    public void onMouseReleased(int mouseX, int mouseY, int state)
+    public void onRelease(int mouseX, int mouseY, int state)
     {
         boolean isMouseInside = isMouseInside();
         boolean isLastClickInside = isLastClickInside();
@@ -825,7 +825,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
             this.setFocused(true);
             setCursorPositionRemake(mouseX, mouseY);
         }
-        super.onMouseReleased(mouseX, mouseY, state);
+        super.onRelease(mouseX, mouseY, state);
     }
 
     public void setCursorPositionRemake(int mouseX, int mouseY)
@@ -866,5 +866,16 @@ public class GuiTextFieldAdvanced extends GuiWidget
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
         this.drawTextBox(mouseX, mouseY);
+    }
+
+    public boolean isEditable()
+    {
+        return editable;
+    }
+
+    public GuiTextFieldAdvanced setEditable(boolean editable)
+    {
+        this.editable = editable;
+        return this;
     }
 }

@@ -65,25 +65,25 @@ public class GuiScroll extends GuiWidgetContainer
     public void drawBefore(int mouseX, int mouseY, float partialTicks)
     {
         // up
-        CacGuiUtils.drawRect(x - 1, y - 1, getEndX() + 1, y, 0x303030 | this.screen.getAlphaInt(0x80));
+        CacGuiUtils.drawRect(x - 1, y - 1, getEndX() + 1, y, 0x303030 | this.getScreen().getAlphaInt(0x80));
         // down
         CacGuiUtils.drawRect(x - 1, getEndY(), getEndX() + 1, getEndY() + 1,
-                0x303030 | this.screen.getAlphaInt(0x80));
+                0x303030 | this.getScreen().getAlphaInt(0x80));
         // left
-        CacGuiUtils.drawRect(x - 1, y, x, getEndY(), 0x303030 | this.screen.getAlphaInt(0x80));
+        CacGuiUtils.drawRect(x - 1, y, x, getEndY(), 0x303030 | this.getScreen().getAlphaInt(0x80));
         // right
         CacGuiUtils.drawRect(getEndX(), y, getEndX() + 1, getEndY(),
-                0x303030 | this.screen.getAlphaInt(0x80));
+                0x303030 | this.getScreen().getAlphaInt(0x80));
 //        CacGuiUtils.drawRect(x, y, getEndX(), getEndY(), 0x101010 | this.pScr.getAlphaInt(0x60));
-        this.screen.glPushMatrix();
+        this.getScreen().glPushMatrix();
         if (!this.isPositionIndependent())
             GlStateManager.translate(x, y, 0);
         this.xButton.draw(mouseX, mouseY, partialTicks);
         this.yButton.draw(mouseX, mouseY, partialTicks);
         this.processButtonDrag(mouseX, mouseY, partialTicks);
         this.updateButton();
-        this.screen.glPopMatrix();
-        this.screen.glPushMatrix();
+        this.getScreen().glPopMatrix();
+        this.getScreen().glPushMatrix();
         this.updateAnimation(partialTicks);
     }
 
@@ -141,29 +141,32 @@ public class GuiScroll extends GuiWidgetContainer
     @Override
     public boolean isMouseInside()
     {
-        int dx = holder.shiftMouseX();
-        int dy = holder.shiftMouseY();
+        int dx = getHolder().shiftMouseX();
+        int dy = getHolder().shiftMouseY();
         return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isMouseInside) :
-                CacGuiUtils.isMouseInside(x, y, getActualWidth(), getActualHeight(),
+                getScreen().isMousePassThrough() && CacGuiUtils.isMouseInside(x, y, getActualWidth(), getActualHeight(),
                         CacGuiUtils.getMouseX() - dx, CacGuiUtils.getMouseY() - dy);
     }
 
     @Override
     public boolean isMouseInside(int mouseX, int mouseY)
     {
-        int dx = holder.shiftMouseX();
-        int dy = holder.shiftMouseY();
+        int dx = getHolder().shiftMouseX();
+        int dy = getHolder().shiftMouseY();
         return this.isPositionIndependent() ? this.widgets.stream().anyMatch(w -> w.isMouseInside(mouseX, mouseY)) :
-                CacGuiUtils.isMouseInside(x + dx, y + dy, getActualWidth(), getActualHeight(), mouseX, mouseY);
+                getScreen().isMousePassThrough() &&
+                        CacGuiUtils.isMouseInside(x + dx, y + dy, getActualWidth(), getActualHeight(), mouseX, mouseY);
     }
 
     @Override
     public boolean isLastClickInside()
     {
-        int dx = holder.shiftMouseX();
-        int dy = holder.shiftMouseY();
+        int dx = getHolder().shiftMouseX();
+        int dy = getHolder().shiftMouseY();
         return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isLastClickInside) :
-                CacGuiUtils.isMouseInside(x + dx, y + dy, getActualWidth(), getActualHeight(), getLastClickedX(), getLastClickedY());
+                getScreen().isMousePassThrough() &&
+                        CacGuiUtils.isMouseInside(x + dx, y + dy, getActualWidth(), getActualHeight(), getLastClickedX(),
+                                getLastClickedY());
     }
 
     protected void updateAnimation(float partialTicks)
@@ -172,7 +175,9 @@ public class GuiScroll extends GuiWidgetContainer
         this.animationTime += dt;
         int xDiff = this.yButton.isVisible() ? scrollButtonWidth : 0;
         int yDiff = this.xButton.isVisible() ? scrollButtonWidth : 0;
-        this.getScreen().getScissorManager().push(new ScissorParam(x, y, width - xDiff, height - yDiff));
+        // todo 此处的176 177能否放在189行后面？？？如果可以，那么scissor操作完全可以搬到widgetcontainer的draw方法内了（更统一）
+        this.getScreen().getScissorManager()
+                .push(new ScissorParam(x + getHolder().shiftMouseX(), y + getHolder().shiftMouseY(), width - xDiff, height - yDiff));
         this.getScreen().getScissorManager().apply();
         if (scrollUpDown)
         {
@@ -210,7 +215,7 @@ public class GuiScroll extends GuiWidgetContainer
     public void drawAfter(int mouseX, int mouseY, float partialTicks)
     {
         this.getScreen().getScissorManager().pop();
-        this.screen.glPopMatrix();
+        this.getScreen().glPopMatrix();
     }
 
     @Override
@@ -249,11 +254,11 @@ public class GuiScroll extends GuiWidgetContainer
     }
 
     @Override
-    public void onMouseReleased(int mouseX, int mouseY, int state)
+    public void onRelease(int mouseX, int mouseY, int state)
     {
-        super.onMouseReleased(mouseX, mouseY, state);
+        super.onRelease(mouseX, mouseY, state);
         Stream.of(xButton, yButton).forEach(w -> {
-            w.onMouseReleased(mouseX, mouseY, state);
+            w.onRelease(mouseX, mouseY, state);
         });
     }
 
@@ -498,7 +503,7 @@ public class GuiScroll extends GuiWidgetContainer
             if (this.isVisible())
             {
                 this.hovered = this.isMouseInBar();
-                if (this.screen != mc.currentScreen || screen.isInAnimation())
+                if (this.getScreen() != mc.currentScreen || getScreen().isInAnimation())
                 {
                     this.hovered = false;
                 }
@@ -506,7 +511,7 @@ public class GuiScroll extends GuiWidgetContainer
                 // disabled texture
                 CacGuiUtils.drawContinuousTexturedBox(getButtonTexture(), this.x, this.y, 0, 46, this.width,
                         this.height, 200,
-                        20, 2, 3, 2, 2, this.zLevel, screen);
+                        20, 2, 3, 2, 2, this.zLevel, getScreen());
                 // enabled texture
                 int x = xScrolling ? pos : this.x;
                 int y = xScrolling ? this.y : pos;
@@ -514,7 +519,7 @@ public class GuiScroll extends GuiWidgetContainer
                 int h = xScrolling ? this.height : length;
                 CacGuiUtils.drawContinuousTexturedBox(getButtonTexture(), x, y, 0, 46 + k * 20,
                         w, h, 200,
-                        20, 2, 3, 2, 2, this.zLevel, screen);
+                        20, 2, 3, 2, 2, this.zLevel, getScreen());
                 int color = 0xE0E0E0;
                 if (!super.isEnabled())
                 {
@@ -526,7 +531,7 @@ public class GuiScroll extends GuiWidgetContainer
                 }
 
                 String buttonText = this.displayString;
-                color |= screen.getAlphaInt(0xFF);
+                color |= getScreen().getAlphaInt(0xFF);
                 CacGuiUtils.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2,
                         this.y + (this.height - 8) / 2, color);
             }
@@ -540,10 +545,11 @@ public class GuiScroll extends GuiWidgetContainer
         @Override
         public boolean isMouseInside()
         {
-            GuiScroll scroll = (GuiScroll) holder;
-            int dx = scroll.x + scroll.holder.shiftMouseX();
-            int dy = scroll.y + scroll.holder.shiftMouseY();
-            return CacGuiUtils.isMouseInside(x, y, width, height, CacGuiUtils.getMouseX() - dx, CacGuiUtils.getMouseY() - dy);
+            GuiScroll scroll = (GuiScroll) getHolder();
+            int dx = scroll.x + scroll.getHolder().shiftMouseX();
+            int dy = scroll.y + scroll.getHolder().shiftMouseY();
+            return getScreen().isMousePassThrough() &&
+                    CacGuiUtils.isMouseInside(x, y, width, height, CacGuiUtils.getMouseX() - dx, CacGuiUtils.getMouseY() - dy);
         }
 
         public boolean isMouseInBar()
@@ -552,10 +558,11 @@ public class GuiScroll extends GuiWidgetContainer
             int y = xScrolling ? this.y : pos;
             int width = xScrolling ? length : this.width;
             int height = xScrolling ? this.height : length;
-            GuiScroll scroll = (GuiScroll) holder;
-            int dx = scroll.x + scroll.holder.shiftMouseX();
-            int dy = scroll.y + scroll.holder.shiftMouseY();
-            return CacGuiUtils.isMouseInside(x, y, width, height, CacGuiUtils.getMouseX() - dx, CacGuiUtils.getMouseY() - dy);
+            GuiScroll scroll = (GuiScroll) getHolder();
+            int dx = scroll.x + scroll.getHolder().shiftMouseX();
+            int dy = scroll.y + scroll.getHolder().shiftMouseY();
+            return getScreen().isMousePassThrough() &&
+                    CacGuiUtils.isMouseInside(x, y, width, height, CacGuiUtils.getMouseX() - dx, CacGuiUtils.getMouseY() - dy);
         }
 
         public void updateLengthAndPos(int size, int min, int max, float current)
@@ -576,9 +583,9 @@ public class GuiScroll extends GuiWidgetContainer
         }
 
         @Override
-        public void onMouseReleased(int mouseX, int mouseY, int state)
+        public void onRelease(int mouseX, int mouseY, int state)
         {
-            super.onMouseReleased(mouseX, mouseY, state);
+            super.onRelease(mouseX, mouseY, state);
             if (barClicked)
             {
                 this.barClicked = false;

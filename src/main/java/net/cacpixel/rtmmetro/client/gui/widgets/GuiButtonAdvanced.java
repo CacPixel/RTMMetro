@@ -33,7 +33,7 @@ public class GuiButtonAdvanced extends GuiWidget
 
     public static ResourceLocation getButtonTexture()
     {
-        return GuiTheme.getCurrentResourceLocation("widgets");
+        return GuiTheme.getCurrentResourceLocation(ResourceConstants.TEXTURE_WIDGETS);
     }
 
     protected int getHoverState(boolean mouseOver)
@@ -57,14 +57,14 @@ public class GuiButtonAdvanced extends GuiWidget
         if (this.isVisible())
         {
             this.hovered = this.isMouseInside() && !MouseGrabber.INSTANCE.isGrabbed();
-            if (this.screen != mc.currentScreen || screen.isInAnimation())
+            if (this.getScreen() != mc.currentScreen || getScreen().isInAnimation())
             {
                 this.hovered = false;
             }
             int k = this.getHoverState(this.hovered);
             CacGuiUtils.drawContinuousTexturedBox(getButtonTexture(), this.x, this.y, 0, 46 + k * 20, this.width,
                     this.height, 200,
-                    20, 2, 3, 2, 2, this.zLevel, screen);
+                    20, 2, 3, 2, 2, this.zLevel, getScreen());
             int color = 0xE0E0E0;
             if (!super.isEnabled())
             {
@@ -76,15 +76,15 @@ public class GuiButtonAdvanced extends GuiWidget
             }
 
             String buttonText = this.displayString;
-            color |= screen.getAlphaInt(0xFF);
-            CacGuiUtils.drawString(buttonText, x, y, width, height, color, alignX, alignY, icon == null ? null :
-                    new Image(icon).setColor(icon.color | screen.getAlphaInt(0xFF)), wrapString);
+            color |= getScreen().getAlphaInt(0xFF);
+            CacGuiUtils.drawString(buttonText, x + 4, y + 4, width - 8, height - 8, color, alignX, alignY, icon == null ? null :
+                    new Image(icon).setColor(icon.color | getScreen().getAlphaInt(0xFF)), wrapString);
         }
     }
 
     public boolean mousePressed(Minecraft mc, int mouseX, int mouseY)
     {
-        return !screen.isInAnimation() && this.isEnabled() && this.isVisible() && this.isMouseInside();
+        return !getScreen().isInAnimation() && this.isEnabled() && this.isVisible() && this.isMouseInside();
     }
 
     public boolean isMouseOver()
@@ -100,7 +100,7 @@ public class GuiButtonAdvanced extends GuiWidget
     @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
-        this.drawButton(screen.mc, mouseX, mouseY, partialTicks);
+        this.drawButton(getScreen().mc, mouseX, mouseY, partialTicks);
     }
 
     @SuppressWarnings("unchecked")
@@ -137,13 +137,13 @@ public class GuiButtonAdvanced extends GuiWidget
         super.onLeftClick(mouseX, mouseY);
         if (this.isEnabled() && this.isVisible() && this.isMouseInside())
         {
-            this.playPressSound(this.screen.mc.getSoundHandler());
+            this.playPressSound(this.getScreen().mc.getSoundHandler());
         }
     }
 
     public static Image getSaveIcon()
     {
-        return new Image(GuiTheme.getCurrentResourceLocation("icon/save"),
+        return new Image(ResourceConstants.ICON_SAVE,
                 0, 0, 64, 64, 64, 64, 0xFFFFFF);
     }
 

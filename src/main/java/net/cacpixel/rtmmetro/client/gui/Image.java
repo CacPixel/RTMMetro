@@ -26,9 +26,27 @@ public class Image
         this.color = color;
     }
 
+    public Image(String locationStr, int u, int v, int uWidth, int vHeight,
+                 int textureWidth, int textureHeight, int color)
+    {
+        this.location = GuiTheme.getCurrentResourceLocation(locationStr);
+        this.u = u;
+        this.v = v;
+        this.uWidth = uWidth;
+        this.vHeight = vHeight;
+        this.textureWidth = textureWidth;
+        this.textureHeight = textureHeight;
+        this.color = color;
+    }
+
     public Image(ResourceLocation location)
     {
         this.location = location;
+    }
+
+    public Image(String locationStr)
+    {
+        this(GuiTheme.getCurrentResourceLocation(locationStr));
     }
 
     public Image(Image image)

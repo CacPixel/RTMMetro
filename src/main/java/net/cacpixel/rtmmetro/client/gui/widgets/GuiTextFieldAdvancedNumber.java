@@ -50,10 +50,11 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
     public void onLeftClickAndDrag(int mouseX, int mouseY, long timeSinceLastClick)
     {
         super.onLeftClickAndDrag(mouseX, mouseY, timeSinceLastClick);
-        int dx = holder.shiftMouseX();
-        int dy = holder.shiftMouseY();
-        boolean flag1 = CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, getLastClickedX(), getLastClickedY());
-        boolean flag2 = holder.isMouseInside() && holder.isLastClickInside();
+        int dx = getHolder().shiftMouseX();
+        int dy = getHolder().shiftMouseY();
+        boolean flag1 = getScreen().isMousePassThrough() &&
+                CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, getLastClickedX(), getLastClickedY());
+        boolean flag2 = getHolder().isMouseInside() && getHolder().isLastClickInside();
         boolean flag3 = MouseGrabber.INSTANCE.isGrabbed();
         if (isEnabled() && isVisible() && !isFocused() && flag1 && (flag2 || flag3))
         {
@@ -74,9 +75,9 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
     }
 
     @Override
-    public void onMouseReleased(int mouseX, int mouseY, int state)
+    public void onRelease(int mouseX, int mouseY, int state)
     {
-        super.onMouseReleased(mouseX, mouseY, state);
+        super.onRelease(mouseX, mouseY, state);
         if (MouseGrabber.INSTANCE.isGrabbed())
         {
             MouseGrabber.INSTANCE.ungrabMouseCursor();

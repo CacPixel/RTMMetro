@@ -56,6 +56,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     private int eventButton;
     private long lastMouseEvent;
     private int touchValue;
+    private boolean mousePassThrough = true;
 
     public GuiScreenAdvanced()
     {
@@ -100,6 +101,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public void screenResize()
     {
         makeLayout();
+        this.widgets.forEach(GuiWidget::onScreenResize);
     }
 
     @Override
@@ -195,7 +197,9 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
-        this.widgets.forEach(x -> x.draw(mouseX, mouseY, partialTicks));
+        this.widgets.stream()
+                .sorted(Comparator.comparingInt(GuiWidget::getLayer))
+                .forEach(x -> x.draw(mouseX, mouseY, partialTicks));
     }
 
     public void drawScreenAfter(int mouseX, int mouseY, float partialTicks)
@@ -466,6 +470,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         int y = CacGuiUtils.getMouseY();// - shiftMouseY();
         int button = Mouse.getEventButton();
         int scroll = Mouse.getEventDWheel();
+        setMousePassThrough(true);
 
         label:
         {
@@ -505,6 +510,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         }
     }
 
+    /******************* 鼠标操作汇总 BEGIN *******************/
+
     @Override
     protected void mouseClicked(int x, int y, int button)
     {
@@ -530,7 +537,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     {
         if (isOpened())
         {
-            this.getAllWidgets().forEach(w -> w.onMouseReleased(x, y, state));
+            this.getAllWidgets().forEach(w -> w.onRelease(x, y, state));
         }
     }
 
@@ -541,6 +548,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             this.getAllWidgets().forEach(w -> w.onScroll(x, y, scroll));
         }
     }
+
+    /******************* 鼠标操作汇总 END *******************/
 
     @Override
     public void handleKeyboardInput() throws IOException
@@ -656,13 +665,15 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     @Override
     public boolean isMouseInside(int mouseX, int mouseY)
     {
-        return CacGuiUtils.isMouseInside(x, y, width, height, mouseX, mouseY);
+        return isMousePassThrough()
+                && CacGuiUtils.isMouseInside(x, y, width, height, mouseX, mouseY);
     }
 
     @Override
     public boolean isLastClickInside()
     {
-        return CacGuiUtils.isMouseInside(x, y, width, height, getLastClickedX(), getLastClickedY());
+        return isMousePassThrough()
+                && CacGuiUtils.isMouseInside(x, y, width, height, getLastClickedX(), getLastClickedY());
     }
 
     public int shiftMouseX()
@@ -771,6 +782,12 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         this.layout = layout;
     }
 
+    @Override
+    public IWidgetHolder getHolder()
+    {
+        return this;
+    }
+
     public boolean widgetValueUpdated()
     {
         return getAllWidgets().stream().anyMatch(GuiWidget::checkValueUpdated);
@@ -784,6 +801,16 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public int getLastClickedY()
     {
         return lastClickedY;
+    }
+
+    public boolean isMousePassThrough()
+    {
+        return mousePassThrough;
+    }
+
+    public void setMousePassThrough(boolean mousePassThrough)
+    {
+        this.mousePassThrough = mousePassThrough;
     }
 
     public enum AnimationStatus

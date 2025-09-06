@@ -40,7 +40,9 @@ public abstract class GuiScreenWindowed extends GuiScreenAdvanced
         this.height = windowHeight;
         buttonClose = this.addWidget(GuiButtonAdvanced.class,
                         () -> 5, () -> 5, () -> 20, () -> 20)
-                .setDisplayString("x").setListener(this::closeButtonCallback);
+                .<GuiButtonAdvanced>setAlignX(Align.LEFT_OR_UP_ALIGNED)
+                .<GuiButtonAdvanced>setIcon(new Image(ResourceConstants.ICON_CLOSE))
+                .setListener(this::closeButtonCallback);
         labelTitle = this.addWidget(GuiLabelAdvanced.class,
                 (IntSupplier) () -> 30, 0,
                 (IntSupplier) () -> this.width - 30, 30, 0xE0E0E0).setAlignY(Align.CENTERED);

@@ -17,8 +17,20 @@ public class GuiOption<R>
     {
         if (this.obj instanceof ITranslatable)
         {
-            this.str = ((ITranslatable<?>) this.obj).getTranslateKey();
+            return ((ITranslatable<?>) this.obj).getTranslateKey();
         }
-        return this.str;
+        else
+        {
+            return this.str;
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof GuiOption))
+            return false;
+        else
+            return this.obj.equals(((GuiOption<?>) obj).obj);
     }
 }

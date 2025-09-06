@@ -46,7 +46,7 @@ public class GuiCheckBoxAdvanced extends GuiButtonAdvanced
             {
                 color = 10526880;
             }
-            color |= screen.getAlphaInt(0xFF);
+            color |= getScreen().getAlphaInt(0xFF);
 
             mc.getTextureManager().bindTexture(getButtonTexture());
             CacGuiUtils.glColor(color);

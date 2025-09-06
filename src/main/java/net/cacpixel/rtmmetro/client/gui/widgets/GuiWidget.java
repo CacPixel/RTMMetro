@@ -7,13 +7,14 @@ import java.util.function.IntSupplier;
 
 public abstract class GuiWidget
 {
-    public final GuiScreenAdvanced screen;
-    public final IWidgetHolder holder;
+    private final GuiScreenAdvanced screen;
+    private final IWidgetHolder holder;
     public int x;
     public int y;
     public int width;
     public int height;
     public float zLevel; // From Gui
+    private int layer = 0;
     public int id;
     private boolean enabled = true;
     private boolean visible = true;
@@ -60,6 +61,10 @@ public abstract class GuiWidget
     public IActionListener<? extends GuiWidget> getListener()
     {
         return listener;
+    }
+
+    public void onScreenResize()
+    {
     }
 
     public void onLeftClick(int mouseX, int mouseY)
@@ -119,7 +124,7 @@ public abstract class GuiWidget
         }
     }
 
-    public void onMouseReleased(int mouseX, int mouseY, int state)
+    public void onRelease(int mouseX, int mouseY, int state)
     {
         this.dragStatus = DragStatus.NOT_DRAGGING;
     }
@@ -140,7 +145,8 @@ public abstract class GuiWidget
     {
         int dx = holder.shiftMouseX();
         int dy = holder.shiftMouseY();
-        return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, CacGuiUtils.getMouseX(), CacGuiUtils.getMouseY())
+        return screen.isMousePassThrough()
+                && CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, CacGuiUtils.getMouseX(), CacGuiUtils.getMouseY())
                 && holder.isMouseInside();
     }
 
@@ -148,14 +154,17 @@ public abstract class GuiWidget
     {
         int dx = holder.shiftMouseX();
         int dy = holder.shiftMouseY();
-        return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, mouseX, mouseY) && holder.isMouseInside(mouseX, mouseY);
+        return screen.isMousePassThrough()
+                && CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, mouseX, mouseY)
+                && holder.isMouseInside(mouseX, mouseY);
     }
 
     public boolean isLastClickInside()
     {
         int dx = holder.shiftMouseX();
         int dy = holder.shiftMouseY();
-        return CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, getLastClickedX(), getLastClickedY())
+        return screen.isMousePassThrough()
+                && CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, getLastClickedX(), getLastClickedY())
                 && holder.isLastClickInside();
     }
 
@@ -289,6 +298,28 @@ public abstract class GuiWidget
     public int getLastClickedY()
     {
         return screen.getLastClickedY();
+    }
+
+    public GuiScreenAdvanced getScreen()
+    {
+        return screen;
+    }
+
+    public IWidgetHolder getHolder()
+    {
+        return holder;
+    }
+
+    public int getLayer()
+    {
+        return layer;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends GuiWidget> T setLayer(int layer)
+    {
+        this.layer = layer;
+        return (T) this;
     }
 
     public enum DragStatus

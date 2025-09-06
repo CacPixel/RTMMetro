@@ -21,6 +21,8 @@ public interface IWidgetHolder
 
     GuiScreenAdvanced getScreen();
 
+    IWidgetHolder getHolder();
+
     GuiLayoutBase getLayout();
 
     void setLayout(GuiLayoutBase layout);
@@ -138,9 +140,9 @@ public interface IWidgetHolder
         return ret;
     }
 
-    default int shiftMouseX() {return this.getScreen().shiftMouseX();}
+    default int shiftMouseX() {return this.getScreen().shiftMouseX();}  //todo delete
 
-    default int shiftMouseY() {return this.getScreen().shiftMouseY();}
+    default int shiftMouseY() {return this.getScreen().shiftMouseY();}//todo delete
 
     boolean isMouseInside();
 

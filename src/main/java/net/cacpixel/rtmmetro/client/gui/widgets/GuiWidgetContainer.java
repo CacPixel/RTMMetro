@@ -42,15 +42,15 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
     @Override
     public int shiftMouseX()
     {
-        return this.isPositionIndependent() ? IWidgetHolder.super.shiftMouseX() :
-                this.getX() + IWidgetHolder.super.shiftMouseX();
+        return this.isPositionIndependent() ? getHolder().shiftMouseX() :
+                this.getX() + getHolder().shiftMouseX();
     }
 
     @Override
     public int shiftMouseY()
     {
-        return this.isPositionIndependent() ? IWidgetHolder.super.shiftMouseY() :
-                this.getY() + IWidgetHolder.super.shiftMouseY();
+        return this.isPositionIndependent() ? getHolder().shiftMouseY() :
+                this.getY() + getHolder().shiftMouseY();
     }
 
     @Override
@@ -78,12 +78,14 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
         if (!this.isVisible()) {return;}
-        this.screen.glPushMatrix();
+        this.getScreen().glPushMatrix();
         if (!this.isPositionIndependent())
             GlStateManager.translate(x, y, 0);
-        this.widgets.forEach(x -> x.draw(mouseX, mouseY, partialTicks));
+        this.widgets.stream()
+                .sorted(Comparator.comparingInt(GuiWidget::getLayer))
+                .forEach(x -> x.draw(mouseX, mouseY, partialTicks));
         this.drawCustom(mouseX, mouseY, partialTicks);
-        this.screen.glPopMatrix();
+        this.getScreen().glPopMatrix();
     }
 
     public void drawCustom(int mouseX, int mouseY, float partialTicks)
@@ -93,12 +95,6 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
     public List<GuiWidget> getWidgets()
     {
         return this.widgets;
-    }
-
-    @Override
-    public GuiScreenAdvanced getScreen()
-    {
-        return screen;
     }
 
     @Override
@@ -117,5 +113,12 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
     public void setLayout(GuiLayoutBase layout)
     {
         this.layout = layout;
+    }
+
+    @Override
+    public void onScreenResize()
+    {
+        super.onScreenResize();
+        this.widgets.forEach(GuiWidget::onScreenResize);
     }
 }
