@@ -100,8 +100,8 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     public void screenResize()
     {
-        makeLayout();
         this.widgets.forEach(GuiWidget::onScreenResize);
+        makeLayout();
     }
 
     @Override
@@ -519,7 +519,9 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         this.lastClickedY = y;
         if (isOpened())
         {
-            this.getAllWidgets().forEach(w -> w.onClick(x, y, button));
+            this.getWidgets().stream()
+                    .sorted(Comparator.comparingInt(GuiWidget::getLayer).reversed())
+                    .forEach(w -> w.onClick(x, y, button));
         }
     }
 
@@ -528,7 +530,9 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     {
         if (isOpened())
         {
-            this.getAllWidgets().forEach(w -> w.onClickAndDrag(x, y, clickedMouseButton, timeSinceLastClick));
+            this.getWidgets().stream()
+                    .sorted(Comparator.comparingInt(GuiWidget::getLayer).reversed())
+                    .forEach(w -> w.onClickAndDrag(x, y, clickedMouseButton, timeSinceLastClick));
         }
     }
 
@@ -537,7 +541,9 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     {
         if (isOpened())
         {
-            this.getAllWidgets().forEach(w -> w.onRelease(x, y, state));
+            this.getWidgets().stream()
+                    .sorted(Comparator.comparingInt(GuiWidget::getLayer).reversed())
+                    .forEach(w -> w.onRelease(x, y, state));
         }
     }
 
@@ -545,7 +551,9 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     {
         if (isOpened())
         {
-            this.getAllWidgets().forEach(w -> w.onScroll(x, y, scroll));
+            this.getWidgets().stream()
+                    .sorted(Comparator.comparingInt(GuiWidget::getLayer).reversed())
+                    .forEach(w -> w.onScroll(x, y, scroll));
         }
     }
 

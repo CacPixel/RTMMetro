@@ -121,4 +121,40 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
         super.onScreenResize();
         this.widgets.forEach(GuiWidget::onScreenResize);
     }
+
+    @Override
+    public void onClick(int mouseX, int mouseY, int button)
+    {
+        this.getWidgets().stream()
+                .sorted(Comparator.comparingInt(GuiWidget::getLayer).reversed())
+                .forEach(w -> w.onClick(mouseX, mouseY, button));
+        super.onClick(mouseX, mouseY, button);
+    }
+
+    @Override
+    public void onClickAndDrag(int mouseX, int mouseY, int mouseButton, long timeSinceLastClick)
+    {
+        this.getWidgets().stream()
+                .sorted(Comparator.comparingInt(GuiWidget::getLayer).reversed())
+                .forEach(w -> w.onClickAndDrag(mouseX, mouseY, mouseButton, timeSinceLastClick));
+        super.onClickAndDrag(mouseX, mouseY, mouseButton, timeSinceLastClick);
+    }
+
+    @Override
+    public void onRelease(int mouseX, int mouseY, int state)
+    {
+        this.getWidgets().stream()
+                .sorted(Comparator.comparingInt(GuiWidget::getLayer).reversed())
+                .forEach(w -> w.onRelease(mouseX, mouseY, state));
+        super.onRelease(mouseX, mouseY, state);
+    }
+
+    @Override
+    public void onScroll(int mouseX, int mouseY, int scroll)
+    {
+        this.getWidgets().stream()
+                .sorted(Comparator.comparingInt(GuiWidget::getLayer).reversed())
+                .forEach(w -> w.onScroll(mouseX, mouseY, scroll));
+        super.onScroll(mouseX, mouseY, scroll);
+    }
 }
