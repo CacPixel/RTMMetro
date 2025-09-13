@@ -2,6 +2,7 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
+import net.cacpixel.rtmmetro.client.gui.ScissorManager;
 import net.cacpixel.rtmmetro.client.gui.ScissorParam;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.minecraft.client.Minecraft;
@@ -37,8 +38,8 @@ public class GuiScroll extends GuiWidgetContainer
     private int dy = 0;
     private int dx = 0;
     private int prevScrollDir = 0;
-    private ScrollButton xButton;
-    private ScrollButton yButton;
+    protected ScrollButton xButton;
+    protected ScrollButton yButton;
 
     public GuiScroll(IWidgetHolder holder, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height)
     {
@@ -60,31 +61,6 @@ public class GuiScroll extends GuiWidgetContainer
                 () -> scrollButtonWidth - i,
                 () -> this.height - (this.xButton != null && this.xButton.isVisible() ? scrollButtonWidth : 0) - i,
                 false).setListener(b -> this.buttonCallback((ScrollButton) b));
-    }
-
-    public void drawBefore(int mouseX, int mouseY, float partialTicks)
-    {
-        // up
-        CacGuiUtils.drawRect(x - 1, y - 1, getEndX() + 1, y, 0x303030 | this.getScreen().getAlphaInt(0x80));
-        // down
-        CacGuiUtils.drawRect(x - 1, getEndY(), getEndX() + 1, getEndY() + 1,
-                0x303030 | this.getScreen().getAlphaInt(0x80));
-        // left
-        CacGuiUtils.drawRect(x - 1, y, x, getEndY(), 0x303030 | this.getScreen().getAlphaInt(0x80));
-        // right
-        CacGuiUtils.drawRect(getEndX(), y, getEndX() + 1, getEndY(),
-                0x303030 | this.getScreen().getAlphaInt(0x80));
-//        CacGuiUtils.drawRect(x, y, getEndX(), getEndY(), 0x101010 | this.pScr.getAlphaInt(0x60));
-        this.getScreen().glPushMatrix();
-        if (!this.isPositionIndependent())
-            GlStateManager.translate(x, y, 0);
-        this.xButton.draw(mouseX, mouseY, partialTicks);
-        this.yButton.draw(mouseX, mouseY, partialTicks);
-        this.processButtonDrag(mouseX, mouseY, partialTicks);
-        this.updateButton();
-        this.getScreen().glPopMatrix();
-        this.getScreen().glPushMatrix();
-        this.updateAnimation(partialTicks);
     }
 
     protected void processButtonDrag(int mouseX, int mouseY, float partialTicks)
@@ -173,12 +149,6 @@ public class GuiScroll extends GuiWidgetContainer
     {
         float dt = partialTicks / 20.0F;
         this.animationTime += dt;
-        int xDiff = this.yButton.isVisible() ? scrollButtonWidth : 0;
-        int yDiff = this.xButton.isVisible() ? scrollButtonWidth : 0;
-        // todo 此处的176 177能否放在189行后面？？？如果可以，那么scissor操作完全可以搬到widgetcontainer的draw方法内了（更统一）
-        this.getScreen().getScissorManager()
-                .push(new ScissorParam(x + getHolder().shiftMouseX(), y + getHolder().shiftMouseY(), width - xDiff, height - yDiff));
-        this.getScreen().getScissorManager().apply();
         if (scrollUpDown)
         {
             float d = this.getAnimationProgress() * dy;
@@ -212,9 +182,33 @@ public class GuiScroll extends GuiWidgetContainer
         return MathHelper.clamp((float) point, 0f, 1.0f);
     }
 
+    public void drawBefore(int mouseX, int mouseY, float partialTicks)
+    {
+        // up
+        CacGuiUtils.drawRect(x - 1, y - 1, getEndX() + 1, y, 0x303030 | this.getScreen().getAlphaInt(0x80));
+        // down
+        CacGuiUtils.drawRect(x - 1, getEndY(), getEndX() + 1, getEndY() + 1,
+                0x303030 | this.getScreen().getAlphaInt(0x80));
+        // left
+        CacGuiUtils.drawRect(x - 1, y, x, getEndY(), 0x303030 | this.getScreen().getAlphaInt(0x80));
+        // right
+        CacGuiUtils.drawRect(getEndX(), y, getEndX() + 1, getEndY(),
+                0x303030 | this.getScreen().getAlphaInt(0x80));
+//        CacGuiUtils.drawRect(x, y, getEndX(), getEndY(), 0x101010 | this.pScr.getAlphaInt(0x60));
+        this.getScreen().glPushMatrix();
+        if (!this.isPositionIndependent())
+            GlStateManager.translate(x, y, 0);
+        this.xButton.draw(mouseX, mouseY, partialTicks);
+        this.yButton.draw(mouseX, mouseY, partialTicks);
+        this.processButtonDrag(mouseX, mouseY, partialTicks);
+        this.updateButton();
+        this.getScreen().glPopMatrix();
+        this.getScreen().glPushMatrix();
+        this.updateAnimation(partialTicks);
+    }
+
     public void drawAfter(int mouseX, int mouseY, float partialTicks)
     {
-        this.getScreen().getScissorManager().pop();
         this.getScreen().glPopMatrix();
     }
 
@@ -225,6 +219,27 @@ public class GuiScroll extends GuiWidgetContainer
         this.drawBefore(mouseX, mouseY, partialTicks);
         super.draw(mouseX, mouseY, partialTicks);
         this.drawAfter(mouseX, mouseY, partialTicks);
+    }
+
+    @Override
+    public void doScissorBefore()
+    {
+        ScissorManager scissorManager = this.getScreen().getScissorManager();
+        int xDiff = this.yButton.isVisible() ? scrollButtonWidth : 0;
+        int yDiff = this.xButton.isVisible() ? scrollButtonWidth : 0;
+        ScissorParam param = new ScissorParam(x + getHolder().shiftMouseX(),
+                y + getHolder().shiftMouseY(),
+                width - xDiff,
+                height - yDiff);
+        scissorManager.push(param);
+        scissorManager.apply();
+    }
+
+    @Override
+    public void doScissorAfter()
+    {
+        ScissorManager scissorManager = this.getScreen().getScissorManager();
+        scissorManager.pop();
     }
 
     @Override
@@ -268,6 +283,7 @@ public class GuiScroll extends GuiWidgetContainer
         this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced)
                 .forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
         if (textFields.stream().noneMatch(f -> f.isMouseInside() && f.isFocused())) // focused并且鼠标在内，不允许滚动GuiScroll
+        // todo: 新作的鼠标scroll将会修改这边
         {
             if (scrollUpDown && !leftRightDirection)
             {
@@ -413,8 +429,8 @@ public class GuiScroll extends GuiWidgetContainer
             this.xMax = xIn;
         }
 
-        this.xButton.setVisible(this.xMax != 0 || this.xMin != 0);
-        this.yButton.setVisible(this.yMax != 0 || this.yMin != 0);
+        this.xButton.setVisible((this.xMax != 0 || this.xMin != 0) && scrollLeftRight);
+        this.yButton.setVisible((this.yMax != 0 || this.yMin != 0) && scrollUpDown);
         yNow = MathHelper.clamp(yNow, yMin, yMax);
         xNow = MathHelper.clamp(xNow, xMin, xMax);
     }

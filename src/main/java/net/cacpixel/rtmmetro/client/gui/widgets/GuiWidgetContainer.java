@@ -1,8 +1,6 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
-import net.cacpixel.rtmmetro.client.gui.GuiLayoutBase;
-import net.cacpixel.rtmmetro.client.gui.GuiLayoutNone;
-import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
+import net.cacpixel.rtmmetro.client.gui.*;
 import net.minecraft.client.renderer.GlStateManager;
 
 import java.util.*;
@@ -12,7 +10,8 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
 {
     public GuiLayoutBase layout = new GuiLayoutNone(this);
     public List<GuiWidget> widgets = new ArrayList<>();
-    public PriorityQueue<GuiWidget> actionQueue = new PriorityQueue<>(Comparator.comparing(GuiWidget::getzLevel).reversed());
+    public PriorityQueue<GuiWidget> actionQueue = new PriorityQueue<>(Comparator.comparing(GuiWidget::getLayer).reversed());
+    protected int scissorDisableLayers;     // 上次禁用scissor时层数记录用
 
     public GuiWidgetContainer(IWidgetHolder holder, IntSupplier x, IntSupplier y, IntSupplier width,
                               IntSupplier height)
@@ -74,18 +73,53 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
                 super.isLastClickInside();
     }
 
+    public void doScissorBefore()
+    {
+        ScissorManager scissorManager = this.getScreen().getScissorManager();
+        if (isPositionIndependent())
+        {
+            scissorDisableLayers = scissorManager.disableAll();
+        }
+        else
+        {
+            ScissorParam param = new ScissorParam(x + getHolder().shiftMouseX(), y + getHolder().shiftMouseY(), width, height);
+            scissorManager.push(param);
+            scissorManager.apply();
+        }
+    }
+
+    public void doScissorAfter()
+    {
+        ScissorManager scissorManager = this.getScreen().getScissorManager();
+        if (isPositionIndependent())
+        {
+            scissorManager.enable(scissorDisableLayers);
+        }
+        else
+        {
+            scissorManager.pop();
+        }
+    }
+
     @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
         if (!this.isVisible()) {return;}
+
+        doScissorBefore();
         this.getScreen().glPushMatrix();
+
+        // draw begin
         if (!this.isPositionIndependent())
             GlStateManager.translate(x, y, 0);
         this.widgets.stream()
                 .sorted(Comparator.comparingInt(GuiWidget::getLayer))
                 .forEach(x -> x.draw(mouseX, mouseY, partialTicks));
         this.drawCustom(mouseX, mouseY, partialTicks);
+        // draw end
+
         this.getScreen().glPopMatrix();
+        doScissorAfter();
     }
 
     public void drawCustom(int mouseX, int mouseY, float partialTicks)

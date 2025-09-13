@@ -39,7 +39,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public ArrayList<GuiWidget> widgets = new ArrayList<>();
     public GuiLayoutBase layout = new GuiLayoutNone(this);
     public PriorityQueue<GuiWidget> actionQueue = new PriorityQueue<>(
-            Comparator.comparing(GuiWidget::getzLevel).reversed());
+            Comparator.comparing(GuiWidget::getLayer).reversed());
     protected float alpha;
     private AnimationStatus animationStatus;
     protected float animationTime;

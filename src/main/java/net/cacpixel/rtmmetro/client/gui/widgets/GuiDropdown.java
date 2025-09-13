@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 
 public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWithOption<T>
 {
-    private final GuiScroll scroll;
-    private final GuiTextFieldAdvanced field;
-    private final GuiButtonAdvanced buttonExpand;
+    private final DropdownScroll scroll;
+    private final DropdownTextField field;
+    private final DropdownButton buttonExpand;
     //    private GuiOption<T> selectedOption;
     private ButtonOption<T> selectedOptionButton;
     private boolean optionListExpanded = false;
@@ -34,19 +34,19 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
         heightSupplierOriginal = heightSupplier;
 
         // 初始化外层的控件
-        field = add(new GuiTextFieldAdvanced(this,
+        field = add(new DropdownTextField(this,
                 ZERO,
                 ZERO,
                 () -> widthSupplierOriginal.getAsInt() - heightSupplierOriginal.getAsInt(),
                 heightSupplierOriginal));
-        buttonExpand = add(new GuiButtonAdvanced(this,
+        buttonExpand = add(new DropdownButton(this,
                 () -> field.widthSupplier.getAsInt(),
                 ZERO,
                 heightSupplierOriginal,
                 heightSupplierOriginal))
                 .setAlignX(Align.LEFT_OR_UP_ALIGNED)
                 .setListener(w -> this.setOptionListExpanded(!isOptionListExpanded()));
-        scroll = add(new GuiScroll(this,
+        scroll = add(new DropdownScroll(this,
                 ZERO,
                 heightSupplierOriginal,
                 widthSupplierOriginal,
@@ -84,12 +84,12 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
 
     public void drawBefore(int mouseX, int mouseY, float partialTicks)
     {
-        getScreen().getScissorManager().disableAll();
+//        getScreen().getScissorManager().disableAll();
     }
 
     public void drawAfter(int mouseX, int mouseY, float partialTicks)
     {
-        getScreen().getScissorManager().enableAll();
+//        getScreen().getScissorManager().enableAll();
     }
 
     @Override
@@ -103,7 +103,6 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
     public void onLeftClick(int mouseX, int mouseY)
     {
         super.onLeftClick(mouseX, mouseY);
-        // 待height增长做完后取消注释
         if (this.isEnabled() && this.isVisible() && this.isMouseInside())
         {
             if (isOptionListExpanded())
@@ -274,6 +273,48 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
         public void drawButton(Minecraft mc, int mouseX, int mouseY, float partial)
         {
             super.drawButton(mc, mouseX, mouseY, partial);
+        }
+    }
+
+    public static class DropdownScroll extends GuiScroll
+    {
+        public DropdownScroll(IWidgetHolder holder, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height)
+        {
+            super(holder, x, y, width, height);
+        }
+
+        @Override
+        public void doScissorBefore()
+        {
+            ScissorManager scissorManager = this.getScreen().getScissorManager();
+            int xDiff = this.yButton.isVisible() ? scrollButtonWidth : 0;
+            ScissorParam param = new ScissorParam(
+                    x + getHolder().shiftMouseX(),
+                    getScreen().getY(),
+                    width - xDiff,
+                    getScreen().getHeight());
+            scissorManager.pushOrigin(param);
+            scissorManager.apply();
+        }
+    }
+
+    public static class DropdownButton extends GuiButtonAdvanced
+    {
+
+        public DropdownButton(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier, IntSupplier widthSupplier,
+                              IntSupplier heightSupplier)
+        {
+            super(holder, xSupplier, ySupplier, widthSupplier, heightSupplier);
+        }
+    }
+
+    public static class DropdownTextField extends GuiTextFieldAdvanced
+    {
+
+        public DropdownTextField(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier, IntSupplier widthSupplier,
+                                 IntSupplier heightSupplier)
+        {
+            super(holder, xSupplier, ySupplier, widthSupplier, heightSupplier);
         }
     }
 }

@@ -219,8 +219,8 @@ public interface IWidgetHolder
 
     default void makeLayout()
     {
-        this.getLayout().makeLayout();
         this.getWidgetFromClass(IWidgetHolder.class).forEach(IWidgetHolder::makeLayout);
+        this.getLayout().makeLayout();
     }
 
     default void doAsGuiWidget(Consumer<GuiWidget> consumer)

@@ -1,6 +1,5 @@
 package net.cacpixel.rtmmetro.client.gui;
 
-import net.cacpixel.rtmmetro.util.ModLog;
 import net.cacpixel.rtmmetro.util.RTMMetroException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -61,7 +60,7 @@ public class ScissorManager
         }
         else
         {
-            ModLog.warn("ScissorParam is null");
+            glDisableScissor();
         }
     }
 
@@ -79,7 +78,7 @@ public class ScissorManager
             enableAll();
         }
         ScissorParam old = peek();
-        if (old != null)
+        if (old != null && param != null)
         {
             int sxNew = param.x;
             int syNew = param.y;
@@ -168,9 +167,11 @@ public class ScissorManager
             glDisableScissor();
     }
 
-    public void disableAll()
+    public int disableAll()
     {
-        disable(scissorStack.size());
+        int size = scissorStack.size();
+        disable(size);
+        return size;
     }
 
     public void enable(int count)
