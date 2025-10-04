@@ -66,6 +66,8 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
             }
         };
         setOptionListExpanded(false);
+        getEventClick().setJudgeEventPassCallback(this::canMouseClickEventPass);
+        getEventScroll().setEventPass(false);
     }
 
     public GuiDropdown(IWidgetHolder holder, int x, int y, int width, int height)
@@ -76,19 +78,20 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
     @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
-        if (!this.isVisible()) {return;}
-        this.drawBefore(mouseX, mouseY, partialTicks);
         super.draw(mouseX, mouseY, partialTicks);
-        this.drawAfter(mouseX, mouseY, partialTicks);
     }
 
+    @Override
     public void drawBefore(int mouseX, int mouseY, float partialTicks)
     {
 //        getScreen().getScissorManager().disableAll();
+        super.drawBefore(mouseX, mouseY, partialTicks);
     }
 
+    @Override
     public void drawAfter(int mouseX, int mouseY, float partialTicks)
     {
+        super.drawAfter(mouseX, mouseY, partialTicks);
 //        getScreen().getScissorManager().enableAll();
     }
 
@@ -99,37 +102,40 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
         setOptionListExpanded(false);
     }
 
+    public boolean canMouseClickEventPass()
+    {
+//        if (this.isEnabled() && this.isVisible() && this.canMouseInteract())
+//        {
+//            if (isOptionListExpanded())
+//            {
+//                return false;
+//            }
+//        }
+//        return true;
+        return false;
+    }
+
     @Override
     public void onLeftClick(int mouseX, int mouseY)
     {
         super.onLeftClick(mouseX, mouseY);
-        if (this.isEnabled() && this.isVisible() && this.isMouseInside())
-        {
-            if (isOptionListExpanded())
-            {
-                getScreen().setMousePassThrough(false);
-            }
-        }
     }
 
     @Override
     public void onClick(int mouseX, int mouseY, int button)
     {
-        // 与super方法调用交换位置，
-        // 否则因onLeftClick中将setMousePassThrough设置为false后
-        // 会导致控件不在鼠标内，从而setOptionListExpanded先false后又在callback中设true
-        if (!this.isMouseInside())
+        super.onClick(mouseX, mouseY, button);
+        if (!this.getEventClick().canInteract())
         {
             setOptionListExpanded(false);
         }
-        super.onClick(mouseX, mouseY, button);
     }
 
     @Override
     public void onScroll(int mouseX, int mouseY, int scroll)
     {
         super.onScroll(mouseX, mouseY, scroll);
-        if (!this.isMouseInside())
+        if (!this.getEventClick().canInteract()) // 这边没有使用getEventScroll是因为scroll event不会传递给下层的dropdown
         {
             setOptionListExpanded(false);
         }
@@ -138,7 +144,7 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
     private int calcDropdownHeight()
     {
         int height = getButtonOptionList().size() * heightSupplierOriginal.getAsInt();
-//        height = Math.min(height, getScreen().height - (this.y + this.height));
+//        height = Math.min(height, getScreen().height - (this.y + this.height)); // todo min size
         return height;
     }
 
@@ -243,6 +249,7 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
             this.dropdown = dropdown;
             this.setListener(this::buttonListener);
             this.setAlignX(Align.LEFT_OR_UP_ALIGNED);
+            getEventClick().setEventPass(true);
         }
 
         private void buttonListener(GuiWidget w)
@@ -281,20 +288,21 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
         public DropdownScroll(IWidgetHolder holder, IntSupplier x, IntSupplier y, IntSupplier width, IntSupplier height)
         {
             super(holder, x, y, width, height);
+            getEventClick().setEventPass(true);
         }
 
         @Override
         public void doScissorBefore()
         {
-            ScissorManager scissorManager = this.getScreen().getScissorManager();
+            ScreenScissorManager screenScissorManager = this.getScreen().getScreenScissorManager();
             int xDiff = this.yButton.isVisible() ? scrollButtonWidth : 0;
             ScissorParam param = new ScissorParam(
                     x + getHolder().shiftMouseX(),
                     getScreen().getY(),
                     width - xDiff,
                     getScreen().getHeight());
-            scissorManager.pushOrigin(param);
-            scissorManager.apply();
+            screenScissorManager.pushOrigin(param);
+            screenScissorManager.apply();
         }
     }
 
@@ -305,6 +313,7 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
                               IntSupplier heightSupplier)
         {
             super(holder, xSupplier, ySupplier, widthSupplier, heightSupplier);
+            getEventClick().setEventPass(true);
         }
     }
 
@@ -315,6 +324,7 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
                                  IntSupplier heightSupplier)
         {
             super(holder, xSupplier, ySupplier, widthSupplier, heightSupplier);
+            getEventClick().setEventPass(true);
         }
     }
 }

@@ -27,7 +27,7 @@ public class GuiUnicodeGlyphButtonAdvanced extends GuiButtonAdvanced
     {
         if (this.isVisible())
         {
-            this.hovered = this.isMouseInside() && !MouseGrabber.INSTANCE.isGrabbed();
+            this.hovered = this.getEventClick().canInteract() && !MouseGrabber.INSTANCE.isGrabbed();
             if (this.getScreen() != mc.currentScreen || getScreen().isInAnimation())
             {
                 this.hovered = false;

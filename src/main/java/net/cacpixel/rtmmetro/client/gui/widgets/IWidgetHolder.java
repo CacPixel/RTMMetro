@@ -1,16 +1,12 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
-import net.cacpixel.rtmmetro.client.gui.GuiLayoutBase;
-import net.cacpixel.rtmmetro.client.gui.GuiParam;
-import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
+import net.cacpixel.rtmmetro.client.gui.*;
+import net.cacpixel.rtmmetro.util.ModLog;
 import net.cacpixel.rtmmetro.util.RTMMetroException;
 import net.cacpixel.rtmmetro.util.RTMMetroUtils;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import java.util.stream.Collectors;
@@ -146,8 +142,6 @@ public interface IWidgetHolder
 
     boolean isMouseInside();
 
-    boolean isMouseInside(int mouseX, int mouseY);
-
     boolean isLastClickInside();
 
     default void onWidgetAction(GuiWidget w)
@@ -184,6 +178,10 @@ public interface IWidgetHolder
 
     int getHeight();
 
+    int getXOfScreen();
+
+    int getYOfScreen();
+
     default GuiParam fromWidth()
     {
         return this::getWidth;
@@ -213,9 +211,9 @@ public interface IWidgetHolder
 
     default void onMakeLayoutFinish() {}
 
-    default int getActualWidth() {return getWidth();}
+    default int getHolderWidth() {return getWidth();}       // 获取实际holder可用面积对应的width
 
-    default int getActualHeight() {return getHeight();}
+    default int getHolderHeight() {return getHeight();}     // 获取实际holder可用面积对应的height
 
     default void makeLayout()
     {
@@ -228,6 +226,90 @@ public interface IWidgetHolder
         if (this instanceof GuiWidget)
         {
             consumer.accept((GuiWidget) this);
+        }
+    }
+
+    default void drawWidgetList(int mouseX, int mouseY, float partialTicks)
+    {
+        getWidgets().stream()
+                .sorted(Comparator.comparingInt(GuiWidget::getLayer))
+                .forEach(x -> {
+                    if (x.isVisible())
+                    {
+                        x.drawBefore(mouseX, mouseY, partialTicks);
+                        x.draw(mouseX, mouseY, partialTicks);
+                        x.drawCustom(mouseX, mouseY, partialTicks);
+                        x.drawAfter(mouseX, mouseY, partialTicks);
+                    }
+                    x.drawDebugLayer(mouseX, mouseY, partialTicks);
+                });
+    }
+
+    default void mouseInteractJudge()
+    {
+        List<GuiWidget> sortedWidgets = this.getWidgets().stream()
+                .sorted(Comparator.comparingInt(GuiWidget::getLayer).reversed())
+                .collect(Collectors.toList());
+        getScreen().getMouseScissorManager().push(new ScissorParam(getXOfScreen(), getYOfScreen(), getWidth(), getHeight()));
+        for (GuiWidget widget : sortedWidgets)
+        {
+            boolean isMouseInside = widget.isMouseInside();
+            widget.mouseInteractJudge();
+            GuiMouseEvent[] widgetEvents = widget.getGuiMouseEvents();
+            GuiMouseEvent[] screenEvents = getScreen().getGuiMouseEvents();
+            for (int i = 0; i < widgetEvents.length; i++)
+            {
+                if (screenEvents[i].canInteract())  // 如果screen设置了可交互
+                {
+                    // 控件可不可交互取决于鼠标是否在内（layer高的先被轮到此处判断）
+                    // 鼠标的范围已经经过Scissor裁切
+                    widgetEvents[i].setInteract(isMouseInside);
+                    if (isMouseInside && !widgetEvents[i].canEventPass())
+                    {
+                        // 鼠标在控件内，且不允许穿透，那么后续的控件都不再能响应
+                        screenEvents[i].setInteract(false);
+                    }
+                }
+                else
+                {
+                    // 如果不能交互，说明此前有不允许event pass的控件被允许交互了，接下来的控件全部都禁止交互
+                    widgetEvents[i].setInteract(false);
+                }
+            }
+        }
+        getScreen().getMouseScissorManager().pop();
+    }
+
+    GuiMouseEvent getEventClick();
+
+    GuiMouseEvent getEventLastClick();
+
+    GuiMouseEvent getEventDrag();
+
+    GuiMouseEvent getEventRelease();
+
+    GuiMouseEvent getEventScroll();
+
+    GuiMouseEvent[] getGuiMouseEvents();
+
+    default void printWidgetTree(int depth)
+    {
+        List<GuiWidget> list = this.getWidgets().stream()
+                .sorted(Comparator.comparingInt(GuiWidget::getLayer).reversed())
+                .collect(Collectors.toList());
+        for (GuiWidget widget : list)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < depth; i++)
+            {
+                sb.append("    ");
+            }
+            sb.append("- ");
+            ModLog.debug(sb.toString() + widget.toString());
+            if (widget instanceof IWidgetHolder)
+            {
+                ((IWidgetHolder) widget).printWidgetTree(depth + 1);
+            }
         }
     }
 }

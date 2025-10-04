@@ -37,7 +37,7 @@ public class GuiCheckBoxAdvanced extends GuiButtonAdvanced
     {
         if (this.isVisible())
         {
-            this.hovered = this.isMouseInside() && !MouseGrabber.INSTANCE.isGrabbed();
+            this.hovered = this.getEventClick().canInteract() && !MouseGrabber.INSTANCE.isGrabbed();
 //            GuiUtils.drawContinuousTexturedBox(RTMMETRO_BUTTON_TEXTURES, this.x, this.y, 0, 46, this.boxWidth, this
 //            .height, 200, 20, 2,
 //            3, 2, 2, this.zLevel);
@@ -64,7 +64,7 @@ public class GuiCheckBoxAdvanced extends GuiButtonAdvanced
     public void onLeftClick(int mouseX, int mouseY)
     {
         super.onLeftClick(mouseX, mouseY);
-        if (this.isEnabled() && this.isVisible() && this.isMouseInside())
+        if (this.isEnabled() && this.isVisible() && this.getEventClick().canInteract())
         {
             this.isChecked = !this.isChecked;
         }

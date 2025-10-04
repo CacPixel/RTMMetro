@@ -17,6 +17,11 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
                               IntSupplier height)
     {
         super(holder, x, y, width, height);
+        getEventClick().setEventPass(true);
+        getEventLastClick().setEventPass(true);
+        getEventDrag().setEventPass(true);
+        getEventRelease().setEventPass(true);
+        getEventScroll().setEventPass(true);
     }
 
     public GuiWidgetContainer(GuiScreenAdvanced pScr)
@@ -41,89 +46,91 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
     @Override
     public int shiftMouseX()
     {
-        return this.isPositionIndependent() ? getHolder().shiftMouseX() :
-                this.getX() + getHolder().shiftMouseX();
+        if (this.isPositionIndependent())
+            return getHolder().shiftMouseX();
+        else
+            return this.getX() + getHolder().shiftMouseX();
     }
 
     @Override
     public int shiftMouseY()
     {
-        return this.isPositionIndependent() ? getHolder().shiftMouseY() :
-                this.getY() + getHolder().shiftMouseY();
+        if (this.isPositionIndependent())
+            return getHolder().shiftMouseY();
+        else
+            return this.getY() + getHolder().shiftMouseY();
     }
 
     @Override
     public boolean isMouseInside()
     {
-        return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isMouseInside) :
-                super.isMouseInside();
-    }
-
-    @Override
-    public boolean isMouseInside(int mouseX, int mouseY)
-    {
-        return this.isPositionIndependent() ? this.widgets.stream().anyMatch(w -> w.isMouseInside(mouseX, mouseY)) :
-                super.isMouseInside(mouseX, mouseY);
+        if (this.isPositionIndependent())
+            return this.widgets.stream().anyMatch(GuiWidget::isMouseInside);
+        else
+            return super.isMouseInside();
     }
 
     @Override
     public boolean isLastClickInside()
     {
-        return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isLastClickInside) :
-                super.isLastClickInside();
+        if (this.isPositionIndependent())
+            return this.widgets.stream().anyMatch(GuiWidget::isLastClickInside);
+        else
+            return super.isLastClickInside();
     }
 
     public void doScissorBefore()
     {
-        ScissorManager scissorManager = this.getScreen().getScissorManager();
+        ScreenScissorManager screenScissorManager = this.getScreen().getScreenScissorManager();
         if (isPositionIndependent())
         {
-            scissorDisableLayers = scissorManager.disableAll();
+            scissorDisableLayers = screenScissorManager.disableAll();
         }
         else
         {
             ScissorParam param = new ScissorParam(x + getHolder().shiftMouseX(), y + getHolder().shiftMouseY(), width, height);
-            scissorManager.push(param);
-            scissorManager.apply();
+            screenScissorManager.push(param);
+            screenScissorManager.apply();
         }
     }
 
     public void doScissorAfter()
     {
-        ScissorManager scissorManager = this.getScreen().getScissorManager();
+        ScreenScissorManager screenScissorManager = this.getScreen().getScreenScissorManager();
         if (isPositionIndependent())
         {
-            scissorManager.enable(scissorDisableLayers);
+            screenScissorManager.enable(scissorDisableLayers);
         }
         else
         {
-            scissorManager.pop();
+            screenScissorManager.pop();
         }
+    }
+
+    @Override
+    public void drawBefore(int mouseX, int mouseY, float partialTicks)
+    {
+        doScissorBefore();
+        this.getScreen().glPushMatrix();
+        super.drawBefore(mouseX, mouseY, partialTicks);
     }
 
     @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
-        if (!this.isVisible()) {return;}
-
-        doScissorBefore();
-        this.getScreen().glPushMatrix();
-
         // draw begin
         if (!this.isPositionIndependent())
             GlStateManager.translate(x, y, 0);
-        this.widgets.stream()
-                .sorted(Comparator.comparingInt(GuiWidget::getLayer))
-                .forEach(x -> x.draw(mouseX, mouseY, partialTicks));
-        this.drawCustom(mouseX, mouseY, partialTicks);
+        drawWidgetList(mouseX, mouseY, partialTicks);
         // draw end
-
-        this.getScreen().glPopMatrix();
-        doScissorAfter();
     }
 
-    public void drawCustom(int mouseX, int mouseY, float partialTicks)
+    @Override
+    public void drawAfter(int mouseX, int mouseY, float partialTicks)
     {
+        super.drawAfter(mouseX, mouseY, partialTicks);
+        this.getScreen().glPopMatrix();
+        doScissorAfter();
     }
 
     public List<GuiWidget> getWidgets()
@@ -190,5 +197,12 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
                 .sorted(Comparator.comparingInt(GuiWidget::getLayer).reversed())
                 .forEach(w -> w.onScroll(mouseX, mouseY, scroll));
         super.onScroll(mouseX, mouseY, scroll);
+    }
+
+    @Override
+    public void mouseInteractJudge()
+    {
+        super.mouseInteractJudge();
+        IWidgetHolder.super.mouseInteractJudge();
     }
 }

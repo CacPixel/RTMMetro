@@ -48,8 +48,8 @@ public class GuiLayoutFlex extends GuiLayoutBase
         }
 
         List<List<GuiWidget>> rowOrColumns = new ArrayList<>();
-        int primaryJdgVal = flow.isColumn() ? holder.getActualHeight() : holder.getActualWidth();
-        int secondaryJdgVal = flow.isColumn() ? holder.getActualWidth() : holder.getActualHeight();
+        int primaryJdgVal = flow.isColumn() ? holder.getHolderHeight() : holder.getHolderWidth();
+        int secondaryJdgVal = flow.isColumn() ? holder.getHolderWidth() : holder.getHolderHeight();
 
         if (flow.isWrap())
         {

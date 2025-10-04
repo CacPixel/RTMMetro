@@ -56,7 +56,7 @@ public class GuiButtonAdvanced extends GuiWidget
     {
         if (this.isVisible())
         {
-            this.hovered = this.isMouseInside() && !MouseGrabber.INSTANCE.isGrabbed();
+            this.hovered = this.getEventClick().canInteract() && !MouseGrabber.INSTANCE.isGrabbed();
             if (this.getScreen() != mc.currentScreen || getScreen().isInAnimation())
             {
                 this.hovered = false;
@@ -80,16 +80,6 @@ public class GuiButtonAdvanced extends GuiWidget
             CacGuiUtils.drawString(buttonText, x + 4, y + 4, width - 8, height - 8, color, alignX, alignY, icon == null ? null :
                     new Image(icon).setColor(icon.color | getScreen().getAlphaInt(0xFF)), wrapString);
         }
-    }
-
-    public boolean mousePressed(Minecraft mc, int mouseX, int mouseY)
-    {
-        return !getScreen().isInAnimation() && this.isEnabled() && this.isVisible() && this.isMouseInside();
-    }
-
-    public boolean isMouseOver()
-    {
-        return this.hovered;
     }
 
     public void playPressSound(SoundHandler soundHandlerIn)
@@ -135,7 +125,7 @@ public class GuiButtonAdvanced extends GuiWidget
     public void onLeftClick(int mouseX, int mouseY)
     {
         super.onLeftClick(mouseX, mouseY);
-        if (this.isEnabled() && this.isVisible() && this.isMouseInside())
+        if (this.isEnabled() && this.isVisible() && this.getEventClick().canInteract())
         {
             this.playPressSound(this.getScreen().mc.getSoundHandler());
         }

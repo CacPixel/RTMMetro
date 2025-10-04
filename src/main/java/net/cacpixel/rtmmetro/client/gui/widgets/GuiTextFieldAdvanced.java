@@ -576,7 +576,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
             }
         }
 
-        boolean hovered = isMouseInside();
+        boolean hovered = getEventClick().canInteract();
         if (hovered && !this.tips.isEmpty())
         {
             GuiScreenAdvanced.drawHoveringTextS(this.tips, mouseX, mouseY, this.getScreen());
@@ -789,7 +789,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
         super.onLeftClick(mouseX, mouseY);
         if (this.isEnabled() && this.isVisible() && this.canLoseFocus && editable)
         {
-            if (this.isMouseInside())
+            if (this.getEventClick().canInteract())
             {
                 if (!this.canDragEdit)
                 {
@@ -817,8 +817,8 @@ public class GuiTextFieldAdvanced extends GuiWidget
     @Override
     public void onRelease(int mouseX, int mouseY, int state)
     {
-        boolean isMouseInside = isMouseInside();
-        boolean isLastClickInside = isLastClickInside();
+        boolean isMouseInside = getEventClick().canInteract();
+        boolean isLastClickInside = getEventLastClick().canInteract();
         if (this.isEnabled() && this.isVisible() && canLoseFocus
                 && isMouseInside && isLastClickInside && !isDragging() && canDragEdit)
         {

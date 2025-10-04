@@ -64,7 +64,7 @@ public abstract class GuiFullScreen extends GuiScreenAdvanced
         if (!isLastScreen() && !isThisScreen())
         {
             // +2 是为了美观, -translationX是因为ScissorManager已经做了屏幕平移方面的处理，x y w h四个参数都是基于screen位置自动处理过的
-            this.getScissorManager().push(new ScissorParam(x, y, (int) (progress * this.width - translationX + 2), height));
+            this.getScreenScissorManager().push(new ScissorParam(x, y, (int) (progress * this.width - translationX + 2), height));
         }
     }
 

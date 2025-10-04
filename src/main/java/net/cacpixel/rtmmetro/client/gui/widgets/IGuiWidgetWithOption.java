@@ -9,8 +9,11 @@ import java.util.stream.Collectors;
 public interface IGuiWidgetWithOption<T>
 {
     List<GuiOption<T>> getOptionList();
+
     GuiOption<T> getSelectedOption();
+
     <R extends IGuiWidgetWithOption<T>> R setSelectedOption(GuiOption<T> selectedOption);
+
     void setValueUpdated(boolean value);
 
     default GuiOption<T> getNextOption()

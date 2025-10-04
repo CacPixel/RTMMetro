@@ -28,7 +28,7 @@ public class GuiOptionButtonEnum<E extends Enum<E>> extends GuiButtonAdvanced
     public void onLeftClick(int mouseX, int mouseY)
     {
         super.onLeftClick(mouseX, mouseY);
-        if (this.isEnabled() && this.isVisible() && this.isMouseInside())
+        if (this.isEnabled() && this.isVisible() && this.getEventClick().canInteract())
         {
             this.rollOptions();
         }

@@ -2,8 +2,8 @@ package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.ModConfig;
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
-import net.cacpixel.rtmmetro.client.gui.ScissorManager;
 import net.cacpixel.rtmmetro.client.gui.ScissorParam;
+import net.cacpixel.rtmmetro.client.gui.ScreenScissorManager;
 import net.cacpixel.rtmmetro.math.BezierCurveAdvanced;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
@@ -61,6 +61,7 @@ public class GuiScroll extends GuiWidgetContainer
                 () -> scrollButtonWidth - i,
                 () -> this.height - (this.xButton != null && this.xButton.isVisible() ? scrollButtonWidth : 0) - i,
                 false).setListener(b -> this.buttonCallback((ScrollButton) b));
+        getEventScroll().setEventPass(false);
     }
 
     protected void processButtonDrag(int mouseX, int mouseY, float partialTicks)
@@ -119,19 +120,11 @@ public class GuiScroll extends GuiWidgetContainer
     {
         int dx = getHolder().shiftMouseX();
         int dy = getHolder().shiftMouseY();
-        return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isMouseInside) :
-                getScreen().isMousePassThrough() && CacGuiUtils.isMouseInside(x, y, getActualWidth(), getActualHeight(),
-                        CacGuiUtils.getMouseX() - dx, CacGuiUtils.getMouseY() - dy);
-    }
-
-    @Override
-    public boolean isMouseInside(int mouseX, int mouseY)
-    {
-        int dx = getHolder().shiftMouseX();
-        int dy = getHolder().shiftMouseY();
-        return this.isPositionIndependent() ? this.widgets.stream().anyMatch(w -> w.isMouseInside(mouseX, mouseY)) :
-                getScreen().isMousePassThrough() &&
-                        CacGuiUtils.isMouseInside(x + dx, y + dy, getActualWidth(), getActualHeight(), mouseX, mouseY);
+        if (this.isPositionIndependent())
+            return this.widgets.stream().anyMatch(GuiWidget::isMouseInside);
+        else
+            return getScreen().getMouseScissorManager().isMouseInside(x + dx, y + dy, getHolderWidth(), getHolderHeight(),
+                    CacGuiUtils.getMouseX(), CacGuiUtils.getMouseY());
     }
 
     @Override
@@ -139,10 +132,11 @@ public class GuiScroll extends GuiWidgetContainer
     {
         int dx = getHolder().shiftMouseX();
         int dy = getHolder().shiftMouseY();
-        return this.isPositionIndependent() ? this.widgets.stream().anyMatch(GuiWidget::isLastClickInside) :
-                getScreen().isMousePassThrough() &&
-                        CacGuiUtils.isMouseInside(x + dx, y + dy, getActualWidth(), getActualHeight(), getLastClickedX(),
-                                getLastClickedY());
+        if (this.isPositionIndependent())
+            return this.widgets.stream().anyMatch(GuiWidget::isLastClickInside);
+        else
+            return getScreen().getMouseScissorManager()
+                    .isMouseInside(x + dx, y + dy, getHolderWidth(), getHolderHeight(), getLastClickedX(), getLastClickedY());
     }
 
     protected void updateAnimation(float partialTicks)
@@ -182,6 +176,7 @@ public class GuiScroll extends GuiWidgetContainer
         return MathHelper.clamp((float) point, 0f, 1.0f);
     }
 
+    @Override
     public void drawBefore(int mouseX, int mouseY, float partialTicks)
     {
         // up
@@ -205,41 +200,41 @@ public class GuiScroll extends GuiWidgetContainer
         this.getScreen().glPopMatrix();
         this.getScreen().glPushMatrix();
         this.updateAnimation(partialTicks);
+        super.drawBefore(mouseX, mouseY, partialTicks);
     }
 
+    @Override
     public void drawAfter(int mouseX, int mouseY, float partialTicks)
     {
+        super.drawAfter(mouseX, mouseY, partialTicks);
         this.getScreen().glPopMatrix();
     }
 
     @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
-        if (!this.isVisible()) {return;}
-        this.drawBefore(mouseX, mouseY, partialTicks);
         super.draw(mouseX, mouseY, partialTicks);
-        this.drawAfter(mouseX, mouseY, partialTicks);
     }
 
     @Override
     public void doScissorBefore()
     {
-        ScissorManager scissorManager = this.getScreen().getScissorManager();
+        ScreenScissorManager screenScissorManager = this.getScreen().getScreenScissorManager();
         int xDiff = this.yButton.isVisible() ? scrollButtonWidth : 0;
         int yDiff = this.xButton.isVisible() ? scrollButtonWidth : 0;
         ScissorParam param = new ScissorParam(x + getHolder().shiftMouseX(),
                 y + getHolder().shiftMouseY(),
                 width - xDiff,
                 height - yDiff);
-        scissorManager.push(param);
-        scissorManager.apply();
+        screenScissorManager.push(param);
+        screenScissorManager.apply();
     }
 
     @Override
     public void doScissorAfter()
     {
-        ScissorManager scissorManager = this.getScreen().getScissorManager();
-        scissorManager.pop();
+        ScreenScissorManager screenScissorManager = this.getScreen().getScreenScissorManager();
+        screenScissorManager.pop();
     }
 
     @Override
@@ -254,7 +249,7 @@ public class GuiScroll extends GuiWidgetContainer
     public void onScroll(int mouseX, int mouseY, int scroll)
     {
         super.onScroll(mouseX, mouseY, scroll);
-        if (!this.isMouseInside()) return;
+        if (!this.getEventClick().canInteract()) return;
         boolean leftRightDirection = GuiScreen.isShiftKeyDown() || !this.yButton.isVisible();
         this.scrollPage(scroll, leftRightDirection);
     }
@@ -282,7 +277,7 @@ public class GuiScroll extends GuiWidgetContainer
         List<GuiTextFieldAdvanced> textFields = new ArrayList<>();
         this.widgets.stream().filter(w -> w instanceof GuiTextFieldAdvanced)
                 .forEach(w -> textFields.add((GuiTextFieldAdvanced) w));
-        if (textFields.stream().noneMatch(f -> f.isMouseInside() && f.isFocused())) // focused并且鼠标在内，不允许滚动GuiScroll
+        if (textFields.stream().noneMatch(f -> f.getEventClick().canInteract() && f.isFocused())) // focused并且鼠标在内，不允许滚动GuiScroll
         // todo: 新作的鼠标scroll将会修改这边
         {
             if (scrollUpDown && !leftRightDirection)
@@ -401,16 +396,16 @@ public class GuiScroll extends GuiWidgetContainer
             {
                 if (this.yMax > 0)
                 {
-                    if (xMaxWidget.x + xMaxWidget.width > this.getActualWidth())
-                        xMax += Math.min(scrollButtonWidth, xMaxWidget.x + xMaxWidget.width - this.getActualWidth());
+                    if (xMaxWidget.x + xMaxWidget.width > this.getHolderWidth())
+                        xMax += Math.min(scrollButtonWidth, xMaxWidget.x + xMaxWidget.width - this.getHolderWidth());
                 }
             }
             if (xMaxWidget != null)
             {
                 if (this.xMax > 0)
                 {
-                    if (yMaxWidget.y + yMaxWidget.height > this.getActualHeight())
-                        yMax += Math.min(scrollButtonWidth, yMaxWidget.y + yMaxWidget.height - this.getActualHeight());
+                    if (yMaxWidget.y + yMaxWidget.height > this.getHolderHeight())
+                        yMax += Math.min(scrollButtonWidth, yMaxWidget.y + yMaxWidget.height - this.getHolderHeight());
                 }
             }
             // 若yMax被修改，保证xMax再次被加。yMax被修改则xMax一定大于0，无需再次判断
@@ -418,8 +413,8 @@ public class GuiScroll extends GuiWidgetContainer
             {
                 if (this.yMax > 0)
                 {
-                    if (xMaxWidget.x + xMaxWidget.width > this.getActualWidth())
-                        xMax += Math.min(scrollButtonWidth, xMaxWidget.x + xMaxWidget.width - this.getActualWidth());
+                    if (xMaxWidget.x + xMaxWidget.width > this.getHolderWidth())
+                        xMax += Math.min(scrollButtonWidth, xMaxWidget.x + xMaxWidget.width - this.getHolderWidth());
                 }
             }
         }
@@ -482,13 +477,27 @@ public class GuiScroll extends GuiWidgetContainer
     }
 
     @Override
-    public int getActualWidth()
+    public int getXOfScreen()
+    {
+        int i = x + getHolder().getXOfScreen();
+        return i - (int) getCurrentX();
+    }
+
+    @Override
+    public int getYOfScreen()
+    {
+        int i = y + getHolder().getYOfScreen();
+        return i - (int) getCurrentY();
+    }
+
+    @Override
+    public int getHolderWidth()
     {
         return width - ((yMin != 0 || yMax != 0) ? scrollButtonWidth : 0);
     }
 
     @Override
-    public int getActualHeight()
+    public int getHolderHeight()
     {
         return height - ((xMin != 0 || xMax != 0) ? scrollButtonWidth : 0);
     }
@@ -499,6 +508,7 @@ public class GuiScroll extends GuiWidgetContainer
         int pos = 0;
         boolean xScrolling; // false: yScrolling
         boolean barClicked = false;
+        boolean isMouseInBar = false;
 
         public ScrollButton(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier,
                             IntSupplier widthSupplier, IntSupplier heightSupplier, boolean xScrolling)
@@ -559,16 +569,31 @@ public class GuiScroll extends GuiWidgetContainer
         }
 
         @Override
+        public void mouseInteractJudge()
+        {
+            super.mouseInteractJudge();
+            if (getScreen().getEventClick().canInteract())
+            {
+                judgeMouseInBar();
+            }
+        }
+
+        @Override
         public boolean isMouseInside()
         {
             GuiScroll scroll = (GuiScroll) getHolder();
             int dx = scroll.x + scroll.getHolder().shiftMouseX();
             int dy = scroll.y + scroll.getHolder().shiftMouseY();
-            return getScreen().isMousePassThrough() &&
-                    CacGuiUtils.isMouseInside(x, y, width, height, CacGuiUtils.getMouseX() - dx, CacGuiUtils.getMouseY() - dy);
+            return getScreen().getMouseScissorManager()
+                    .isMouseInside(x, y, width, height, CacGuiUtils.getMouseX() - dx, CacGuiUtils.getMouseY() - dy);
         }
 
         public boolean isMouseInBar()
+        {
+            return isMouseInBar;
+        }
+
+        public void judgeMouseInBar()
         {
             int x = xScrolling ? pos : this.x;
             int y = xScrolling ? this.y : pos;
@@ -577,8 +602,8 @@ public class GuiScroll extends GuiWidgetContainer
             GuiScroll scroll = (GuiScroll) getHolder();
             int dx = scroll.x + scroll.getHolder().shiftMouseX();
             int dy = scroll.y + scroll.getHolder().shiftMouseY();
-            return getScreen().isMousePassThrough() &&
-                    CacGuiUtils.isMouseInside(x, y, width, height, CacGuiUtils.getMouseX() - dx, CacGuiUtils.getMouseY() - dy);
+            isMouseInBar = getScreen().getMouseScissorManager()
+                    .isMouseInside(x, y, width, height, CacGuiUtils.getMouseX() - dx, CacGuiUtils.getMouseY() - dy);
         }
 
         public void updateLengthAndPos(int size, int min, int max, float current)

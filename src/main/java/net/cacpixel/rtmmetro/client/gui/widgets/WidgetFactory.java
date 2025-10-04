@@ -6,7 +6,7 @@ public class WidgetFactory
 {
 
     public static <E> GuiOptionButton<E> addOptionButton(IWidgetHolder thiz, int x, int y, int w, int h,
-                                                                             String prefix, E[] values, E initVal)
+                                                         String prefix, E[] values, E initVal)
     {
         GuiOptionButton<E> button = new GuiOptionButton<E>(thiz, () -> x, () -> y,
                 () -> w, () -> h, prefix)
@@ -71,7 +71,7 @@ public class WidgetFactory
     }
 
     public static GuiTextFieldAdvancedNumber addTextField(IWidgetHolder thiz, int xPos, int yPos, int w, int h, int value,
-                                                       int min, int max, boolean loop)
+                                                          int min, int max, boolean loop)
     {
         GuiTextFieldAdvancedNumber field = new GuiTextFieldAdvancedNumber(thiz,
                 () -> xPos, () -> yPos, () -> w, () -> h).setIntValue(value).setMinMax(min, max, loop)
@@ -150,8 +150,8 @@ public class WidgetFactory
     }
 
     public static GuiTextFieldAdvancedNumber addTextField(IWidgetHolder thiz, IntSupplier xSupplier, IntSupplier ySupplier,
-                                                       IntSupplier widthSupplier, IntSupplier heightSupplier, int value,
-                                                       int min, int max, boolean loop)
+                                                          IntSupplier widthSupplier, IntSupplier heightSupplier, int value,
+                                                          int min, int max, boolean loop)
     {
         GuiTextFieldAdvancedNumber field = new GuiTextFieldAdvancedNumber(thiz, xSupplier,
                 ySupplier, widthSupplier, heightSupplier).setIntValue(value).setMinMax(min, max, loop)

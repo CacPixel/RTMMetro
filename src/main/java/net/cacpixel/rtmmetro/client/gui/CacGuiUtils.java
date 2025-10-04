@@ -192,6 +192,11 @@ public class CacGuiUtils
 
     public static void drawRect(int left, int top, int right, int bottom, int color)
     {
+        drawRect(left, top, right, bottom, 0.0d, color);
+    }
+
+    public static void drawRect(int left, int top, int right, int bottom, double zLevel, int color)
+    {
         if (left < right)
         {
             int i = left;
@@ -219,10 +224,10 @@ public class CacGuiUtils
                 GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.color(f, f1, f2, f3);
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
-        bufferbuilder.pos(left, bottom, 0.0D).endVertex();
-        bufferbuilder.pos(right, bottom, 0.0D).endVertex();
-        bufferbuilder.pos(right, top, 0.0D).endVertex();
-        bufferbuilder.pos(left, top, 0.0D).endVertex();
+        bufferbuilder.pos(left, bottom, zLevel).endVertex();
+        bufferbuilder.pos(right, bottom, zLevel).endVertex();
+        bufferbuilder.pos(right, top, zLevel).endVertex();
+        bufferbuilder.pos(left, top, zLevel).endVertex();
         tessellator.draw();
         GlStateManager.enableTexture2D();
 //        GlStateManager.disableBlend();

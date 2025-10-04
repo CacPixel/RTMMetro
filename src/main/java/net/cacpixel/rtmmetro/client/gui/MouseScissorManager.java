@@ -1,78 +1,60 @@
 package net.cacpixel.rtmmetro.client.gui;
 
 import net.cacpixel.rtmmetro.util.RTMMetroException;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
-import org.lwjgl.opengl.GL11;
 
 import java.util.EmptyStackException;
 import java.util.Stack;
 
-public class ScissorManager
+public class MouseScissorManager
 {
     public GuiScreenAdvanced screen;
     private final Stack<ScissorParam> scissorStack = new Stack<>();
     private final Stack<ScissorParam> disabledScissorStack = new Stack<>();
-    private boolean glScissorEnabled = false;
+    private boolean started = false;
+    private int forceMouseInteractCount = 0;
 
-    public ScissorManager(GuiScreenAdvanced screen)
+    public MouseScissorManager(GuiScreenAdvanced screen)
     {
         this.screen = screen;
     }
 
-    private void glDisableScissor()
+    public void checkStart()
     {
-        if (glScissorEnabled)
-            GL11.glDisable(GL11.GL_SCISSOR_TEST);
-        glScissorEnabled = false;
-    }
-
-    private void glEnableScissor()
-    {
-        if (!glScissorEnabled)
-            GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        glScissorEnabled = true;
-    }
-
-    private void apply(int xIn, int yIn, int wIn, int hIn)
-    {
-        if (screen.getScreen() == null)
-            return;
-        Minecraft mc = Minecraft.getMinecraft();
-        ScaledResolution sr = new ScaledResolution(mc);
-        int f = sr.getScaleFactor();
-        int screenTX = (int) screen.getScreen().translationX;
-        int screenTY = (int) screen.getScreen().translationY;
-        int screenScaleX = (int) screen.getScreen().scaleX;
-        int screenScaleY = (int) screen.getScreen().scaleY;
-        int x = f * (screenTX + xIn * screenScaleX);
-        int y = f * (sr.getScaledHeight() - screenTY - (yIn + hIn) * screenScaleY);
-        int w = f * (wIn * screenScaleX);
-        int h = f * (hIn * screenScaleY);
-        GL11.glScissor(x, y, w, h);
-    }
-
-    private void apply(ScissorParam param)
-    {
-        if (param != null)
+        if (!started)
         {
-            this.apply(param.x, param.y, param.width, param.height);
-        }
-        else
-        {
-            glDisableScissor();
+            throw new RTMMetroException("Not started! can not be used here!");
         }
     }
 
-    public void apply()
+    public boolean isMouseInside(ScissorParam param, int x, int y, int width, int height, int mouseX, int mouseY)
     {
-        glEnableScissor();
-        apply(peek());
+        checkStart();
+        if (param == null)
+        {
+            return false;
+        }
+        boolean flag1 = CacGuiUtils.isMouseInside(param.x, param.y, param.width, param.height, mouseX, mouseY);
+        boolean flag2 = CacGuiUtils.isMouseInside(x, y, width, height, mouseX, mouseY);
+        return flag1 && flag2;
+    }
+
+    public boolean isMouseInside(int x, int y, int width, int height, int mouseX, int mouseY)
+    {
+        ScissorParam param = peek();
+        return isMouseInside(param, x, y, width, height, mouseX, mouseY);
+    }
+
+    public void forceMouseInteract()
+    {
+        checkStart();
+        forceMouseInteractCount += 2;
     }
 
     /* 按照提供的ScissorParam和当前栈顶ScissorParam比较、限制范围后再push */
     public void push(ScissorParam param)
     {
+        checkStart();
         if (!disabledScissorStack.empty())
         {
             enableAll();
@@ -102,11 +84,13 @@ public class ScissorManager
 
     public void pushOrigin(ScissorParam param)
     {
+        checkStart();
         scissorStack.push(param);
     }
 
     public ScissorParam pop()
     {
+        checkStart();
         ScissorParam popped;
         try
         {
@@ -114,31 +98,38 @@ public class ScissorManager
         }
         catch (EmptyStackException e)
         {
-            throw new RTMMetroException("ScissorManager stack is empty, ScissorManager.pop() too much!", e);
+            throw new RTMMetroException("MouseScissorManager stack is empty, MouseScissorManager.pop() too much!", e);
         }
-        if (!scissorStack.empty())
-            apply();
-        else
-            glDisableScissor();
         return popped;
     }
 
     public ScissorParam peek()
     {
-        return scissorStack.empty() ? null : scissorStack.peek();
+        checkStart();
+        return scissorStack.empty() ? getFullSizeParam() : scissorStack.peek();
     }
 
-    public void checkStackEmpty()
+    public ScissorParam getFullSizeParam()
+    {
+        ScaledResolution sr = new ScaledResolution(screen.mc);
+        return new ScissorParam(0, 0, sr.getScaledWidth(), sr.getScaledHeight());
+    }
+
+    public ScissorParam getScreenSizeParam()
+    {
+        return new ScissorParam(screen.x, screen.y, screen.width, screen.height);
+    }
+
+    private void checkStackEmpty()
     {
         if (!scissorStack.empty())
-            throw new RTMMetroException("ScissorManager stack is not empty, ScissorManager.push() too much!");
+            throw new RTMMetroException("MouseScissorManager stack is not empty, MouseScissorManager.push() too much!");
     }
 
-    public void forceDisableScissor()
+    private void forceDisableScissor()
     {
         if (!scissorStack.empty())
         {
-            GL11.glDisable(GL11.GL_SCISSOR_TEST);
             this.scissorStack.clear();
         }
         if (!disabledScissorStack.empty())
@@ -149,6 +140,7 @@ public class ScissorManager
 
     public void disable(int count)
     {
+        checkStart();
         try
         {
             for (int i = 0; i < count; i++)
@@ -161,14 +153,11 @@ public class ScissorManager
         {
             throw new RTMMetroException("scissorStack is empty, count too large!", e);
         }
-        if (!scissorStack.empty())
-            apply();
-        else
-            glDisableScissor();
     }
 
     public int disableAll()
     {
+        checkStart();
         int size = scissorStack.size();
         disable(size);
         return size;
@@ -176,6 +165,7 @@ public class ScissorManager
 
     public void enable(int count)
     {
+        checkStart();
         try
         {
             for (int i = 0; i < count; i++)
@@ -188,14 +178,27 @@ public class ScissorManager
         {
             throw new RTMMetroException("disabledScissorStack is empty, count too large!", e);
         }
-        if (!scissorStack.empty())
-            apply();
-        else
-            glDisableScissor();
     }
 
     public void enableAll()
     {
+        checkStart();
         enable(disabledScissorStack.size());
+    }
+
+    public void start()
+    {
+        if (started)
+            throw new RTMMetroException("Already started!");
+        started = true;
+    }
+
+    public void end()
+    {
+        if (!started)
+            throw new RTMMetroException("Not started!");
+        started = false;
+        checkStackEmpty();
+        forceDisableScissor();
     }
 }

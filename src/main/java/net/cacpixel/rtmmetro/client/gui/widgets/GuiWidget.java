@@ -1,7 +1,11 @@
 package net.cacpixel.rtmmetro.client.gui.widgets;
 
 import net.cacpixel.rtmmetro.client.gui.CacGuiUtils;
+import net.cacpixel.rtmmetro.client.gui.GuiMouseEvent;
 import net.cacpixel.rtmmetro.client.gui.GuiScreenAdvanced;
+import net.cacpixel.rtmmetro.client.gui.MouseScissorManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 
 import java.util.function.IntSupplier;
 
@@ -26,6 +30,11 @@ public abstract class GuiWidget
     public IntSupplier widthSupplier = this::getWidth;
     public IntSupplier heightSupplier = this::getHeight;
     public static final IntSupplier ZERO = () -> 0;
+    private final GuiMouseEvent eventClick = new GuiMouseEvent("Click", false, false);
+    private final GuiMouseEvent eventLastClick = new GuiMouseEvent("LastClick", false, false);
+    private final GuiMouseEvent eventDrag = new GuiMouseEvent("Drag", false, false);
+    private final GuiMouseEvent eventRelease = new GuiMouseEvent("Release", false, false);
+    private final GuiMouseEvent eventScroll = new GuiMouseEvent("Scroll", false, false);
 
     public GuiWidget(IWidgetHolder holder, int x, int y, int width, int height)
     {
@@ -36,6 +45,7 @@ public abstract class GuiWidget
         this.y = y;
         this.width = width;
         this.height = height;
+        getEventScroll().setEventPass(true);
     }
 
     public GuiWidget(IWidgetHolder holder, IntSupplier xSupplier, IntSupplier ySupplier,
@@ -49,6 +59,46 @@ public abstract class GuiWidget
         if (widthSupplier != null) this.widthSupplier = widthSupplier;
         if (heightSupplier != null) this.heightSupplier = heightSupplier;
         this.updatePosAndSize();
+        getEventScroll().setEventPass(true);
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()));
+        sb.append(" | ");
+        sb.append(" ").append("x: ").append(x);
+        sb.append(" ").append("y: ").append(y);
+        sb.append(" ").append("w: ").append(width);
+        sb.append(" ").append("h: ").append(height);
+        sb.append(" | ");
+        if (eventClick.canInteract())
+        {
+            sb.append("Clickable ");
+        }
+        if (eventLastClick.canInteract())
+        {
+            sb.append("LastClickable ");
+        }
+        if (eventDrag.canInteract())
+        {
+            sb.append("Draggable ");
+        }
+        if (eventRelease.canInteract())
+        {
+            sb.append("Releasable ");
+        }
+        if (eventScroll.canInteract())
+        {
+            sb.append("Scrollable ");
+        }
+        attachString(sb);
+        return sb.toString();
+    }
+
+    public void attachString(StringBuilder sb)
+    {
     }
 
     @SuppressWarnings("unchecked")
@@ -69,7 +119,7 @@ public abstract class GuiWidget
 
     public void onLeftClick(int mouseX, int mouseY)
     {
-        if (this.isEnabled() && this.isVisible() && this.isMouseInside())
+        if (this.isEnabled() && this.isVisible() && this.getEventClick().canInteract())
         {
             dragStatus = DragStatus.MOUSE_HOLD;
             this.holder.addWidgetToActionQueue(this);
@@ -145,30 +195,66 @@ public abstract class GuiWidget
     {
         int dx = holder.shiftMouseX();
         int dy = holder.shiftMouseY();
-        return screen.isMousePassThrough()
-                && CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, CacGuiUtils.getMouseX(), CacGuiUtils.getMouseY())
-                && holder.isMouseInside();
-    }
-
-    public boolean isMouseInside(int mouseX, int mouseY)
-    {
-        int dx = holder.shiftMouseX();
-        int dy = holder.shiftMouseY();
-        return screen.isMousePassThrough()
-                && CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, mouseX, mouseY)
-                && holder.isMouseInside(mouseX, mouseY);
+        MouseScissorManager msm = screen.getMouseScissorManager();
+        boolean flag1 = msm.isMouseInside(x + dx, y + dy, width, height, CacGuiUtils.getMouseX(), CacGuiUtils.getMouseY());
+        boolean flag2 = true;// holder.isMouseInside();
+        return flag1 && flag2;
     }
 
     public boolean isLastClickInside()
     {
         int dx = holder.shiftMouseX();
         int dy = holder.shiftMouseY();
-        return screen.isMousePassThrough()
-                && CacGuiUtils.isMouseInside(x + dx, y + dy, width, height, getLastClickedX(), getLastClickedY())
-                && holder.isLastClickInside();
+        MouseScissorManager msm = screen.getMouseScissorManager();
+        boolean flag1 = msm.isMouseInside(x + dx, y + dy, width, height, getLastClickedX(), getLastClickedY());
+        boolean flag2 = true;// holder.isMouseInside();
+        return flag1 && flag2;
+    }
+
+    public void drawBefore(int mouseX, int mouseY, float partialTicks)
+    {
     }
 
     public abstract void draw(int mouseX, int mouseY, float partialTicks);
+
+    public void drawAfter(int mouseX, int mouseY, float partialTicks)
+    {
+    }
+
+    public void drawCustom(int mouseX, int mouseY, float partialTicks)
+    {
+    }
+
+    public void drawDebugLayer(int mouseX, int mouseY, float partialTicks)
+    {
+        boolean flag = (GuiScreenAdvanced.debugType == GuiScreenAdvanced.DEBUG_EVENT_CLICK && getEventClick().canInteract())
+                || (GuiScreenAdvanced.debugType == GuiScreenAdvanced.DEBUG_EVENT_LAST_CLICK && getEventLastClick().canInteract())
+                || (GuiScreenAdvanced.debugType == GuiScreenAdvanced.DEBUG_EVENT_DRAG && getEventDrag().canInteract())
+                || (GuiScreenAdvanced.debugType == GuiScreenAdvanced.DEBUG_EVENT_RELEASE && getEventRelease().canInteract())
+                || (GuiScreenAdvanced.debugType == GuiScreenAdvanced.DEBUG_EVENT_SCROLL && getEventScroll().canInteract());
+        if (flag && GuiScreenAdvanced.debugMode && Minecraft.getMinecraft().currentScreen == screen)
+        {
+            int boxColor;
+            if (!isEnabled())
+                boxColor = 0x50D2042D;
+            else if (!isVisible())
+                boxColor = 0x50FFAC1C;
+            else if (isDragging())
+                boxColor = 0x507CFC00;
+            else if (isMouseHolding())
+                boxColor = 0x507DF9FF;
+            else
+                boxColor = 0x50DA70D6;
+            int size = screen.getScreenScissorManager().disableAll();
+            CacGuiUtils.drawRect(x, y, x + width, y + height, 100, boxColor);
+
+            screen.glPushMatrix();
+            GlStateManager.translate(0, 0, 101);
+            CacGuiUtils.drawString(screen.mc.fontRenderer, toString(), x, y, 0xFFFFFFFF);// todo 跟随鼠标 等待get屏幕范围坐标做完
+            screen.glPopMatrix();
+            screen.getScreenScissorManager().enable(size);
+        }
+    }
 
     public int getX() {return x;}
 
@@ -182,9 +268,15 @@ public abstract class GuiWidget
 
     public int getEndY() {return y + height;}
 
-    public int getActualWidth() {return width;}
+    public int getXOfScreen()
+    {
+        return x + getHolder().getXOfScreen();
+    }
 
-    public int getActualHeight() {return height;}
+    public int getYOfScreen()
+    {
+        return y + getHolder().getYOfScreen();
+    }
 
     public final void updatePosAndSize()
     {
@@ -320,6 +412,40 @@ public abstract class GuiWidget
     {
         this.layer = layer;
         return (T) this;
+    }
+
+    public void mouseInteractJudge()
+    {
+    }
+
+    public GuiMouseEvent getEventClick()
+    {
+        return eventClick;
+    }
+
+    public GuiMouseEvent getEventLastClick()
+    {
+        return eventLastClick;
+    }
+
+    public GuiMouseEvent getEventDrag()
+    {
+        return eventDrag;
+    }
+
+    public GuiMouseEvent getEventRelease()
+    {
+        return eventRelease;
+    }
+
+    public GuiMouseEvent getEventScroll()
+    {
+        return eventScroll;
+    }
+
+    public GuiMouseEvent[] getGuiMouseEvents()
+    {
+        return new GuiMouseEvent[]{eventClick, eventLastClick, eventDrag, eventRelease, eventScroll};
     }
 
     public enum DragStatus

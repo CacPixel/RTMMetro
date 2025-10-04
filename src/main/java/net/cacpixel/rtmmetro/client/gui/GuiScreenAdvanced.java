@@ -19,6 +19,8 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
@@ -40,30 +42,59 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public GuiLayoutBase layout = new GuiLayoutNone(this);
     public PriorityQueue<GuiWidget> actionQueue = new PriorityQueue<>(
             Comparator.comparing(GuiWidget::getLayer).reversed());
-    protected float alpha;
+    protected float alpha = 0.05f;
     private AnimationStatus animationStatus;
     protected float animationTime;
-    protected float duration;
+    protected float duration = ModConfig.guiAnimationDuration;
     public float translationX;
     public float translationY;
     public float scaleX = 1.0F;
     public float scaleY = 1.0F;
     public boolean initialized = false;
     public int glStackCount = 0;
-    private final ScissorManager scissorManager = new ScissorManager(this);
+    private final ScreenScissorManager screenScissorManager = new ScreenScissorManager(this);
+    private final MouseScissorManager mouseScissorManager = new MouseScissorManager(this);
     private int lastClickedX;
     private int lastClickedY;
     private int eventButton;
     private long lastMouseEvent;
     private int touchValue;
-    private boolean mousePassThrough = true;
+    public static boolean debugMode = false;
+    public static int debugType = 0;
+    public static final int DEBUG_EVENT_CLICK = 0;
+    public static final int DEBUG_EVENT_LAST_CLICK = 1;
+    public static final int DEBUG_EVENT_DRAG = 2;
+    public static final int DEBUG_EVENT_RELEASE = 3;
+    public static final int DEBUG_EVENT_SCROLL = 4;
+    // 对于screen，下面flags的作用只是存储遍历的过程中，后续的控件是否还能进行交互
+    // canEventPass字段对于screen来说没什么用
+    private final GuiMouseEvent eventClick = new GuiMouseEvent("Click", true, false);
+    private final GuiMouseEvent eventLastClick = new GuiMouseEvent("LastClick", true, false);
+    private final GuiMouseEvent eventDrag = new GuiMouseEvent("Drag", true, false);
+    private final GuiMouseEvent eventRelease = new GuiMouseEvent("Release", true, false);
+    private final GuiMouseEvent eventScroll = new GuiMouseEvent("Scroll", true, false);
 
     public GuiScreenAdvanced()
     {
         super();
-        alpha = 0.05f;
         this.setAnimationStatus(AnimationStatus.NONE);
-        duration = ModConfig.guiAnimationDuration;
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()));
+        sb.append(" ").append("x: ").append(x);
+        sb.append(" ").append("y: ").append(y);
+        sb.append(" ").append("width: ").append(width);
+        sb.append(" ").append("height: ").append(height);
+        attachString(sb);
+        return sb.toString();
+    }
+
+    public void attachString(StringBuilder sb)
+    {
     }
 
     public void glPushMatrix()
@@ -136,10 +167,18 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             GlStateManager.translate(translationX, translationY, 0.0F);
         if (scaleX != 1.0F || scaleY != 1.0F)
             GlStateManager.scale(scaleX, scaleY, 1.0F);
-
+        if (debugMode)
+        {
+            glPushMatrix();
+            GlStateManager.translate(0, 0, 101);
+            CacGuiUtils.drawString(fontRenderer,
+                    "Gui Debug Mode Enabled (Press F3 to disable), debugType = " + getGuiMouseEvents()[debugType].name,
+                    2, 2, 0xFFFFFFFF);
+            glPopMatrix();
+        }
         if (!isLastScreen() && !isThisScreen())
         {
-            this.getScissorManager().apply();
+            this.getScreenScissorManager().apply();
         }
     }
 
@@ -175,7 +214,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             this.draw(mouseX, mouseY, partialTicks);
             if (glStackCount > 0)
                 throw new RTMMetroException("glStackCount > 0, glPushMatrix too much!");
-            getScissorManager().checkStackEmpty();
+            getScreenScissorManager().checkStackEmpty();
         }
         catch (Throwable e)
         {
@@ -191,22 +230,20 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             {
                 this.glPopMatrix();
             }
-            getScissorManager().forceDisableScissor();
+            getScreenScissorManager().forceDisableScissor();
         }
     }
 
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
-        this.widgets.stream()
-                .sorted(Comparator.comparingInt(GuiWidget::getLayer))
-                .forEach(x -> x.draw(mouseX, mouseY, partialTicks));
+        drawWidgetList(mouseX, mouseY, partialTicks);
     }
 
     public void drawScreenAfter(int mouseX, int mouseY, float partialTicks)
     {
         if (!isLastScreen() && !isThisScreen())
         {
-            this.getScissorManager().pop();
+            this.getScreenScissorManager().pop();
         }
         this.glPopMatrix();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -340,15 +377,15 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public void drawDefaultBackground()
     {
         this.drawWorldBackground(0);
-        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
-                new net.minecraftforge.client.event.GuiScreenEvent.BackgroundDrawnEvent(this));
+        MinecraftForge.EVENT_BUS.post(
+                new GuiScreenEvent.BackgroundDrawnEvent(this));
     }
 
     public void drawDefaultBackground(int left, int top, int right, int bottom)
     {
         this.drawWorldBackground(0, left, top, right, bottom);
-        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
-                new net.minecraftforge.client.event.GuiScreenEvent.BackgroundDrawnEvent(this));
+        MinecraftForge.EVENT_BUS.post(
+                new GuiScreenEvent.BackgroundDrawnEvent(this));
     }
 
     protected float getAnimationProgress(BezierCurveAdvanced curve)
@@ -453,6 +490,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             super.keyTyped(typedChar, keyCode); // Close ALL Gui without animation while pressing ESC
             return;
         }
+
         if (isOpened())
         {
             this.getAllWidgets().forEach(w -> w.onKeyTyped(typedChar, keyCode));
@@ -460,6 +498,32 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         if (keyCode == Keyboard.KEY_RETURN)
         {
             this.onPressingEnter();
+        }
+        if (keyCode == Keyboard.KEY_F3)
+        {
+            debugMode = !debugMode;
+        }
+        if (GuiScreen.isCtrlKeyDown())
+        {
+            if (keyCode == Keyboard.KEY_1)
+                debugType = DEBUG_EVENT_CLICK;
+            else if (keyCode == Keyboard.KEY_2)
+                debugType = DEBUG_EVENT_LAST_CLICK;
+            else if (keyCode == Keyboard.KEY_3)
+                debugType = DEBUG_EVENT_DRAG;
+            else if (keyCode == Keyboard.KEY_4)
+                debugType = DEBUG_EVENT_RELEASE;
+            else if (keyCode == Keyboard.KEY_5)
+                debugType = DEBUG_EVENT_SCROLL;
+            else if (keyCode == Keyboard.KEY_P)
+            {
+                if (debugMode)
+                {
+                    ModLog.debug("################# Widget details of %s: #################", this);
+                    printWidgetTree(0);
+                    ModLog.debug("################# End of widget details #################");
+                }
+            }
         }
     }
 
@@ -470,8 +534,9 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         int y = CacGuiUtils.getMouseY();// - shiftMouseY();
         int button = Mouse.getEventButton();
         int scroll = Mouse.getEventDWheel();
-        setMousePassThrough(true);
-
+        getScreen().getMouseScissorManager().start();
+        mouseInteractJudge();
+        getScreen().getMouseScissorManager().end();
         label:
         {
             if (Mouse.getEventButtonState())
@@ -591,6 +656,12 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             {
                 this.initGui();
                 initialized = true;
+                if (debugMode)
+                {
+                    ModLog.debug("################# Widget details of %s: #################", this);
+                    printWidgetTree(0);
+                    ModLog.debug("################# End of widget details #################");
+                }
             }
             this.screenResize();
             if (parentScreen != null)
@@ -667,21 +738,13 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     @Override
     public boolean isMouseInside()
     {
-        return CacGuiUtils.isMouseInside(x, y, width, height);
-    }
-
-    @Override
-    public boolean isMouseInside(int mouseX, int mouseY)
-    {
-        return isMousePassThrough()
-                && CacGuiUtils.isMouseInside(x, y, width, height, mouseX, mouseY);
+        return CacGuiUtils.isMouseInside(x, y, width, height, CacGuiUtils.getMouseX(), CacGuiUtils.getMouseY());
     }
 
     @Override
     public boolean isLastClickInside()
     {
-        return isMousePassThrough()
-                && CacGuiUtils.isMouseInside(x, y, width, height, getLastClickedX(), getLastClickedY());
+        return CacGuiUtils.isMouseInside(x, y, width, height, getLastClickedX(), getLastClickedY());
     }
 
     public int shiftMouseX()
@@ -763,9 +826,19 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     @Override
     public int getHeight() {return height;}
 
-    public ScissorManager getScissorManager()
+    public int getXOfScreen()
     {
-        return scissorManager;
+        return x;
+    }
+
+    public int getYOfScreen()
+    {
+        return y;
+    }
+
+    public ScreenScissorManager getScreenScissorManager()
+    {
+        return screenScissorManager;
     }
 
     public boolean isLastScreen()
@@ -811,14 +884,49 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         return lastClickedY;
     }
 
-    public boolean isMousePassThrough()
+    public MouseScissorManager getMouseScissorManager()
     {
-        return mousePassThrough;
+        return mouseScissorManager;
     }
 
-    public void setMousePassThrough(boolean mousePassThrough)
+    @Override
+    public void mouseInteractJudge()
     {
-        this.mousePassThrough = mousePassThrough;
+        IWidgetHolder.super.mouseInteractJudge();
+        for (GuiMouseEvent event : getGuiMouseEvents())
+        {
+            event.setInteract(true);
+        }
+    }
+
+    public GuiMouseEvent getEventClick()
+    {
+        return eventClick;
+    }
+
+    public GuiMouseEvent getEventLastClick()
+    {
+        return eventLastClick;
+    }
+
+    public GuiMouseEvent getEventDrag()
+    {
+        return eventDrag;
+    }
+
+    public GuiMouseEvent getEventRelease()
+    {
+        return eventRelease;
+    }
+
+    public GuiMouseEvent getEventScroll()
+    {
+        return eventScroll;
+    }
+
+    public GuiMouseEvent[] getGuiMouseEvents()
+    {
+        return new GuiMouseEvent[]{eventClick, eventLastClick, eventDrag, eventRelease, eventScroll};
     }
 
     public enum AnimationStatus
