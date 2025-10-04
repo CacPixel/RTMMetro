@@ -437,50 +437,50 @@ public class GuiMarkerAdvanced extends GuiFullScreen
                 });
 
         int labelY = 6;
-        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 110, 18, fontColor)
                 .setText(I18n.format("gui.marker.marker_group")).setAlignY(Align.CENTERED)
                 .setIcon(new Image(ResourceConstants.ICON_MARKER_GROUP).setColor(0xFFFFFF));
         labelY += lineHeight;
-        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 110, 18, fontColor)
                 .setText(I18n.format("gui.marker.marker_name")).setAlignY(Align.CENTERED)
                 .setIcon(new Image(ResourceConstants.ICON_MARKER_NAME).setColor(0xFFFFFF));
         labelY += lineHeight;
-        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 110, 18, fontColor)
                 .setText(I18n.format("gui.marker.rail_height")).setAlignY(Align.CENTERED)
                 .setIcon(new Image(ResourceConstants.ICON_MARKER_EDIT_LINE)
                         .setColor(RenderMarkerBlock.MarkerElement.HEIGHT.getColor()));
         labelY += lineHeight;
-        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 110, 18, fontColor)
                 .setText(I18n.format("gui.marker.horizontal_length")).setAlignY(Align.CENTERED)
                 .setIcon(new Image(ResourceConstants.ICON_MARKER_EDIT_LINE)
                         .setColor(RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor()));
         labelY += lineHeight;
-        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 110, 18, fontColor)
                 .setText(I18n.format("gui.marker.anchor_yaw")).setAlignY(Align.CENTERED)
                 .setIcon(new Image(ResourceConstants.ICON_MARKER_EDIT_LINE)
                         .setColor(RenderMarkerBlock.MarkerElement.HORIZONTIAL.getColor()));
         labelY += lineHeight;
-        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 110, 18, fontColor)
                 .setText(I18n.format("gui.marker.vertical_length")).setAlignY(Align.CENTERED)
                 .setIcon(new Image(ResourceConstants.ICON_MARKER_EDIT_LINE)
                         .setColor(RenderMarkerBlock.MarkerElement.VERTICAL.getColor()));
         labelY += lineHeight;
-        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 110, 18, fontColor)
                 .setText(I18n.format("gui.marker.anchor_pitch")).setAlignY(Align.CENTERED)
                 .setIcon(new Image(ResourceConstants.ICON_MARKER_EDIT_LINE)
                         .setColor(RenderMarkerBlock.MarkerElement.VERTICAL.getColor()));
         labelY += lineHeight;
-        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 110, 18, fontColor)
                 .setText(I18n.format("gui.marker.cant_edge")).setAlignY(Align.CENTERED)
                 .setIcon(new Image(ResourceConstants.ICON_MARKER_EDIT_LINE)
                         .setColor(RenderMarkerBlock.MarkerElement.CANT_EDGE.getColor()));
         labelY += lineHeight;
-        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 110, 18, fontColor)
                 .setText(I18n.format("gui.marker.cant_center")).setAlignY(Align.CENTERED)
                 .setIcon(new Image(ResourceConstants.ICON_MARKER_EDIT_LINE)
                         .setColor(RenderMarkerBlock.MarkerElement.CANT_CENTER.getColor()));
         labelY += lineHeight;
-        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 120, 18, fontColor)
+        mainScroll.addWidget(GuiLabelAdvanced.class, stringXpos, labelY, 110, 18, fontColor)
                 .setText(I18n.format("gui.marker.cant_random")).setAlignY(Align.CENTERED)
                 .setIcon(new Image(ResourceConstants.ICON_MARKER_EDIT_LINE)
                         .setColor(RenderMarkerBlock.MarkerElement.CANT_EDGE.getColor()));
@@ -513,8 +513,6 @@ public class GuiMarkerAdvanced extends GuiFullScreen
 
     public void controlEnable()
     {
-        this.getAllWidgets().forEach(x -> x.setEnabled(true));
-
         boolean isSwitch = this.marker.getBlockType() == RTMMetroBlock.MARKER_ADVANCED_SWITCH ||
                 this.marker.getOriginalRailMap() == null;
         boolean isCore = this.marker.isCoreMarker();
@@ -548,16 +546,19 @@ public class GuiMarkerAdvanced extends GuiFullScreen
         this.fieldCantRandom.setEnabled(isCore);
         this.buttonResetCantRandom.setEnabled(isCore);
 
-        if (this.currentMarkerValue.drawingScheme != RailDrawingScheme.DRAW_CIRCLE)
-        {
-            this.buttonRedraw.setEnabled(false);
-        }
+        this.buttonRedraw.setEnabled(this.currentMarkerValue.drawingScheme == RailDrawingScheme.DRAW_CIRCLE);
     }
 
     private void updateInfoLabel()
     {
         StringBuilder sb = new StringBuilder();
         SwitchType switchType = marker.switchType;
+        if (marker.getRailMaps() == null)
+        {
+            sb.append(I18n.format("gui.marker.info_rm_none_title"));
+            infoLabel.setText(sb.toString());
+            return;
+        }
         List<RailMap> rmList = Arrays.stream(marker.getRailMaps()).collect(Collectors.toList());
         RailMapAdvanced rmOriginal = marker.getOriginalRailMap();
         String in = "  ";
