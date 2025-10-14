@@ -49,7 +49,7 @@ public class MouseGrabber
             ret[1] = y;
             y = 0;
         }
-        return ret;
+        return ret; // [x, y]
     }
 
     public boolean isGrabbed()

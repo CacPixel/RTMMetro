@@ -50,12 +50,8 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
     public void onLeftClickAndDrag(int mouseX, int mouseY, long timeSinceLastClick)
     {
         super.onLeftClickAndDrag(mouseX, mouseY, timeSinceLastClick);
-        int dx = getHolder().shiftMouseX();
-        int dy = getHolder().shiftMouseY();
         boolean flag1 = getEventLastClick().canInteract();
-        boolean flag2 = getHolder().getEventClick().canInteract() && getHolder().getEventLastClick().canInteract();
-        boolean flag3 = MouseGrabber.INSTANCE.isGrabbed();
-        if (isEnabled() && isVisible() && !isFocused() && flag1 && (flag2 || flag3))
+        if (isEnabled() && isVisible() && !isFocused() && flag1)
         {
             if (isDragging() && !MouseGrabber.INSTANCE.isGrabbed())
             {
@@ -134,6 +130,7 @@ public class GuiTextFieldAdvancedNumber extends GuiTextFieldAdvanced
                 {
                     this.checkValue();
                 }
+                this.setFocused(false);
             }
             else
             {

@@ -682,6 +682,7 @@ public class GuiTextFieldAdvanced extends GuiWidget
         {
             cursorPosition = selectionEnd;
         }
+        this.getEventScroll().setEventPass(!isFocused);
     }
 
     public boolean isFocused()

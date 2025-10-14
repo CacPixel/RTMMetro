@@ -12,7 +12,6 @@ public class MouseScissorManager
     private final Stack<ScissorParam> scissorStack = new Stack<>();
     private final Stack<ScissorParam> disabledScissorStack = new Stack<>();
     private boolean started = false;
-    private int forceMouseInteractCount = 0;
 
     public MouseScissorManager(GuiScreenAdvanced screen)
     {
@@ -45,12 +44,6 @@ public class MouseScissorManager
         return isMouseInside(param, x, y, width, height, mouseX, mouseY);
     }
 
-    public void forceMouseInteract()
-    {
-        checkStart();
-        forceMouseInteractCount += 2;
-    }
-
     /* 按照提供的ScissorParam和当前栈顶ScissorParam比较、限制范围后再push */
     public void push(ScissorParam param)
     {
@@ -60,7 +53,7 @@ public class MouseScissorManager
             enableAll();
         }
         ScissorParam old = peek();
-        if (old != null && param != null)
+        if (old != null && param != null && !param.pushOrigin)
         {
             int sxNew = param.x;
             int syNew = param.y;

@@ -30,11 +30,11 @@ public abstract class GuiWidget
     public IntSupplier widthSupplier = this::getWidth;
     public IntSupplier heightSupplier = this::getHeight;
     public static final IntSupplier ZERO = () -> 0;
-    private final GuiMouseEvent eventClick = new GuiMouseEvent("Click", false, false);
-    private final GuiMouseEvent eventLastClick = new GuiMouseEvent("LastClick", false, false);
-    private final GuiMouseEvent eventDrag = new GuiMouseEvent("Drag", false, false);
-    private final GuiMouseEvent eventRelease = new GuiMouseEvent("Release", false, false);
-    private final GuiMouseEvent eventScroll = new GuiMouseEvent("Scroll", false, false);
+    private final GuiMouseEvent eventClick = new GuiMouseEvent(GuiMouseEvent.EVENT_NAME_CLICK, false, false);
+    private final GuiMouseEvent eventLastClick = new GuiMouseEvent(GuiMouseEvent.EVENT_NAME_LAST_CLICK, false, false);
+    private final GuiMouseEvent eventDrag = new GuiMouseEvent(GuiMouseEvent.EVENT_NAME_DRAG, false, false);
+    private final GuiMouseEvent eventRelease = new GuiMouseEvent(GuiMouseEvent.EVENT_NAME_RELEASE, false, false);
+    private final GuiMouseEvent eventScroll = new GuiMouseEvent(GuiMouseEvent.EVENT_NAME_SCROLL, false, false);
 
     public GuiWidget(IWidgetHolder holder, int x, int y, int width, int height)
     {
@@ -193,22 +193,14 @@ public abstract class GuiWidget
 
     public boolean isMouseInside()
     {
-        int dx = holder.shiftMouseX();
-        int dy = holder.shiftMouseY();
         MouseScissorManager msm = screen.getMouseScissorManager();
-        boolean flag1 = msm.isMouseInside(x + dx, y + dy, width, height, CacGuiUtils.getMouseX(), CacGuiUtils.getMouseY());
-        boolean flag2 = true;// holder.isMouseInside();
-        return flag1 && flag2;
+        return msm.isMouseInside(getXOfScreen(), getYOfScreen(), width, height, CacGuiUtils.getMouseX(), CacGuiUtils.getMouseY());
     }
 
     public boolean isLastClickInside()
     {
-        int dx = holder.shiftMouseX();
-        int dy = holder.shiftMouseY();
         MouseScissorManager msm = screen.getMouseScissorManager();
-        boolean flag1 = msm.isMouseInside(x + dx, y + dy, width, height, getLastClickedX(), getLastClickedY());
-        boolean flag2 = true;// holder.isMouseInside();
-        return flag1 && flag2;
+        return msm.isMouseInside(getXOfScreen(), getYOfScreen(), width, height, getLastClickedX(), getLastClickedY());
     }
 
     public void drawBefore(int mouseX, int mouseY, float partialTicks)
@@ -250,7 +242,7 @@ public abstract class GuiWidget
 
             screen.glPushMatrix();
             GlStateManager.translate(0, 0, 101);
-            CacGuiUtils.drawString(screen.mc.fontRenderer, toString(), x, y, 0xFFFFFFFF);// todo 跟随鼠标 等待get屏幕范围坐标做完
+            CacGuiUtils.drawString(screen.mc.fontRenderer, toString(), x, y, 0xFFFFFFFF);
             screen.glPopMatrix();
             screen.getScreenScissorManager().enable(size);
         }
@@ -268,14 +260,24 @@ public abstract class GuiWidget
 
     public int getEndY() {return y + height;}
 
-    public int getXOfScreen()
+    public final int getXOfScreen()
     {
-        return x + getHolder().getXOfScreen();
+        return x + getHolder().shiftMouseX();
     }
 
-    public int getYOfScreen()
+    public final int getYOfScreen()
     {
-        return y + getHolder().getYOfScreen();
+        return y + getHolder().shiftMouseY();
+    }
+
+    public int shiftMouseX()
+    {
+        return x + getHolder().shiftMouseX();
+    }
+
+    public int shiftMouseY()
+    {
+        return y + getHolder().shiftMouseY();
     }
 
     public final void updatePosAndSize()
@@ -338,11 +340,6 @@ public abstract class GuiWidget
     {
         this.visible = visible;
         return (T) this;
-    }
-
-    public boolean isPositionIndependent()
-    {
-        return x <= 0 && y <= 0 && width <= 0 && height <= 0;
     }
 
     public float getzLevel()
@@ -414,10 +411,6 @@ public abstract class GuiWidget
         return (T) this;
     }
 
-    public void mouseInteractJudge()
-    {
-    }
-
     public GuiMouseEvent getEventClick()
     {
         return eventClick;
@@ -446,6 +439,14 @@ public abstract class GuiWidget
     public GuiMouseEvent[] getGuiMouseEvents()
     {
         return new GuiMouseEvent[]{eventClick, eventLastClick, eventDrag, eventRelease, eventScroll};
+    }
+
+    public void onMouseInteractJudgeBegin()
+    {
+    }
+
+    public void onMouseInteractJudgeEnd()
+    {
     }
 
     public enum DragStatus

@@ -8,6 +8,11 @@ public class GuiMouseEvent
     private boolean canInteract;
     private boolean canEventPass;
     private BooleanSupplier judgeEventPassCallback;
+    public static final String EVENT_NAME_CLICK = "Click";
+    public static final String EVENT_NAME_LAST_CLICK = "LastClick";
+    public static final String EVENT_NAME_DRAG = "Drag";
+    public static final String EVENT_NAME_RELEASE = "Release";
+    public static final String EVENT_NAME_SCROLL = "Scroll";
 
     public GuiMouseEvent(String name, boolean canInteract, boolean canEventPass)
     {

@@ -136,10 +136,6 @@ public interface IWidgetHolder
         return ret;
     }
 
-    default int shiftMouseX() {return this.getScreen().shiftMouseX();}  //todo delete
-
-    default int shiftMouseY() {return this.getScreen().shiftMouseY();}//todo delete
-
     boolean isMouseInside();
 
     boolean isLastClickInside();
@@ -181,6 +177,10 @@ public interface IWidgetHolder
     int getXOfScreen();
 
     int getYOfScreen();
+
+    int shiftMouseX();
+
+    int shiftMouseY();
 
     default GuiParam fromWidth()
     {
@@ -231,7 +231,12 @@ public interface IWidgetHolder
 
     default void drawWidgetList(int mouseX, int mouseY, float partialTicks)
     {
-        getWidgets().stream()
+        drawWidgetList(getWidgets(), mouseX, mouseY, partialTicks);
+    }
+
+    default void drawWidgetList(List<GuiWidget> list, int mouseX, int mouseY, float partialTicks)
+    {
+        list.stream()
                 .sorted(Comparator.comparingInt(GuiWidget::getLayer))
                 .forEach(x -> {
                     if (x.isVisible())
@@ -245,26 +250,47 @@ public interface IWidgetHolder
                 });
     }
 
+    default ScissorParam getMouseInteractJudgeScissorParam()
+    {
+        return new ScissorParam(getXOfScreen(), getYOfScreen(), getHolderWidth(), getHolderHeight());
+    }
+
     default void mouseInteractJudge()
     {
-        List<GuiWidget> sortedWidgets = this.getWidgets().stream()
+        mouseInteractJudge(getWidgets(), getMouseInteractJudgeScissorParam());
+    }
+
+    default void mouseInteractJudge(List<GuiWidget> widgets, ScissorParam param)
+    {
+        List<GuiWidget> sortedWidgets = widgets.stream()
                 .sorted(Comparator.comparingInt(GuiWidget::getLayer).reversed())
                 .collect(Collectors.toList());
-        getScreen().getMouseScissorManager().push(new ScissorParam(getXOfScreen(), getYOfScreen(), getWidth(), getHeight()));
+        getScreen().getMouseScissorManager().push(param);
         for (GuiWidget widget : sortedWidgets)
         {
+            widget.onMouseInteractJudgeBegin();
             boolean isMouseInside = widget.isMouseInside();
-            widget.mouseInteractJudge();
+            boolean isLastClickInside = widget.isLastClickInside();
+            boolean isVisible = widget.isVisible();
+            if (widget instanceof IWidgetHolder)
+            {
+                ((IWidgetHolder) widget).mouseInteractJudge();
+            }
             GuiMouseEvent[] widgetEvents = widget.getGuiMouseEvents();
-            GuiMouseEvent[] screenEvents = getScreen().getGuiMouseEvents();
+            GuiMouseEvent[] screenEvents = getScreen().getGuiMouseEventContinues();
             for (int i = 0; i < widgetEvents.length; i++)
             {
                 if (screenEvents[i].canInteract())  // 如果screen设置了可交互
                 {
                     // 控件可不可交互取决于鼠标是否在内（layer高的先被轮到此处判断）
                     // 鼠标的范围已经经过Scissor裁切
-                    widgetEvents[i].setInteract(isMouseInside);
-                    if (isMouseInside && !widgetEvents[i].canEventPass())
+                    boolean insideFlag;
+                    if (GuiMouseEvent.EVENT_NAME_LAST_CLICK.equals(widgetEvents[i].name))
+                        insideFlag = isLastClickInside;
+                    else
+                        insideFlag = isMouseInside;
+                    widgetEvents[i].setInteract(insideFlag && isVisible);
+                    if (insideFlag && isVisible && !widgetEvents[i].canEventPass())
                     {
                         // 鼠标在控件内，且不允许穿透，那么后续的控件都不再能响应
                         screenEvents[i].setInteract(false);
@@ -276,21 +302,10 @@ public interface IWidgetHolder
                     widgetEvents[i].setInteract(false);
                 }
             }
+            widget.onMouseInteractJudgeEnd();
         }
         getScreen().getMouseScissorManager().pop();
     }
-
-    GuiMouseEvent getEventClick();
-
-    GuiMouseEvent getEventLastClick();
-
-    GuiMouseEvent getEventDrag();
-
-    GuiMouseEvent getEventRelease();
-
-    GuiMouseEvent getEventScroll();
-
-    GuiMouseEvent[] getGuiMouseEvents();
 
     default void printWidgetTree(int depth)
     {

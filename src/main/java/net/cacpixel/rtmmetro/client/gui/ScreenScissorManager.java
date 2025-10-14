@@ -78,7 +78,7 @@ public class ScreenScissorManager
             enableAll();
         }
         ScissorParam old = peek();
-        if (old != null && param != null)
+        if (old != null && param != null && !param.pushOrigin)
         {
             int sxNew = param.x;
             int syNew = param.y;

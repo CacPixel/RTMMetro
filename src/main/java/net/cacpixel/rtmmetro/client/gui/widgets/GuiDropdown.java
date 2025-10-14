@@ -48,10 +48,13 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
                 .setListener(w -> this.setOptionListExpanded(!isOptionListExpanded()));
         scroll = add(new DropdownScroll(this,
                 ZERO,
-                heightSupplierOriginal,
-                widthSupplierOriginal,
+                ZERO,
+                ZERO,
                 ZERO));
-        scroll.heightSupplier = this::calcDropdownHeight;
+        scroll.xSupplier = this::calcScrollX;
+        scroll.ySupplier = this::calcScrollY;
+        scroll.widthSupplier = this::calcScrollWidth;
+        scroll.heightSupplier = this::calcScrollHeight;
         scroll.scrollLeftRight = false;
         scroll.setLayout(new GuiLayoutFlex(scroll).setFlow(GuiLayoutFlex.FlexFlow.COLUMN));
         this.setLayer(1);
@@ -66,8 +69,7 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
             }
         };
         setOptionListExpanded(false);
-        getEventClick().setJudgeEventPassCallback(this::canMouseClickEventPass);
-        getEventScroll().setEventPass(false);
+        getEventClick().setEventPass(false);
     }
 
     public GuiDropdown(IWidgetHolder holder, int x, int y, int width, int height)
@@ -75,24 +77,32 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
         this(holder, GuiParam.from(x), GuiParam.from(y), GuiParam.from(width), GuiParam.from(height));
     }
 
-    @Override
-    public void draw(int mouseX, int mouseY, float partialTicks)
+    private int calcScrollX()
     {
-        super.draw(mouseX, mouseY, partialTicks);
+        return 0;
+    }
+
+    private int calcScrollY()
+    {
+        return heightSupplierOriginal.getAsInt(); // todo up popup when can not fit
+    }
+
+    private int calcScrollWidth()
+    {
+        return widthSupplierOriginal.getAsInt(); // todo wide popup if text is longer
+    }
+
+    private int calcScrollHeight()
+    {
+        int height = getButtonOptionList().size() * heightSupplierOriginal.getAsInt();
+//        height = Math.min(height, getScreen().height - (this.y + this.height)); // todo min size
+        return height;
     }
 
     @Override
-    public void drawBefore(int mouseX, int mouseY, float partialTicks)
+    public ScissorParam getMouseInteractJudgeScissorParam()
     {
-//        getScreen().getScissorManager().disableAll();
-        super.drawBefore(mouseX, mouseY, partialTicks);
-    }
-
-    @Override
-    public void drawAfter(int mouseX, int mouseY, float partialTicks)
-    {
-        super.drawAfter(mouseX, mouseY, partialTicks);
-//        getScreen().getScissorManager().enableAll();
+        return new ScissorParam(getXOfScreen(), getYOfScreen(), getHolderWidth(), getHolderHeight()).setPushOrigin(true);
     }
 
     @Override
@@ -100,25 +110,6 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
     {
         super.onMakeLayoutStart();
         setOptionListExpanded(false);
-    }
-
-    public boolean canMouseClickEventPass()
-    {
-//        if (this.isEnabled() && this.isVisible() && this.canMouseInteract())
-//        {
-//            if (isOptionListExpanded())
-//            {
-//                return false;
-//            }
-//        }
-//        return true;
-        return false;
-    }
-
-    @Override
-    public void onLeftClick(int mouseX, int mouseY)
-    {
-        super.onLeftClick(mouseX, mouseY);
     }
 
     @Override
@@ -135,17 +126,10 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
     public void onScroll(int mouseX, int mouseY, int scroll)
     {
         super.onScroll(mouseX, mouseY, scroll);
-        if (!this.getEventClick().canInteract()) // 这边没有使用getEventScroll是因为scroll event不会传递给下层的dropdown
+        if (!this.scroll.getEventScroll().canInteract())
         {
             setOptionListExpanded(false);
         }
-    }
-
-    private int calcDropdownHeight()
-    {
-        int height = getButtonOptionList().size() * heightSupplierOriginal.getAsInt();
-//        height = Math.min(height, getScreen().height - (this.y + this.height)); // todo min size
-        return height;
     }
 
     @SuppressWarnings("unchecked")
@@ -271,11 +255,6 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
             }
         }
 
-        public GuiScroll getHolderScroll()
-        {
-            return (GuiScroll) getHolder();
-        }
-
         @Override
         public void drawButton(Minecraft mc, int mouseX, int mouseY, float partial)
         {
@@ -289,20 +268,23 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
         {
             super(holder, x, y, width, height);
             getEventClick().setEventPass(true);
+            xButton.getEventClick().setEventPass(true);
+            yButton.getEventClick().setEventPass(true);
         }
 
         @Override
         public void doScissorBefore()
         {
             ScreenScissorManager screenScissorManager = this.getScreen().getScreenScissorManager();
-            int xDiff = this.yButton.isVisible() ? scrollButtonWidth : 0;
-            ScissorParam param = new ScissorParam(
-                    x + getHolder().shiftMouseX(),
-                    getScreen().getY(),
-                    width - xDiff,
-                    getScreen().getHeight());
-            screenScissorManager.pushOrigin(param);
+            ScissorParam param = new ScissorParam(getXOfScreen(), getYOfScreen(), getHolderWidth(), getHolderHeight()).setPushOrigin(true);
+            screenScissorManager.push(param);
             screenScissorManager.apply();
+        }
+
+        @Override
+        public ScissorParam getMouseInteractJudgeScissorParam()
+        {
+            return new ScissorParam(getXOfScreen(), getYOfScreen(), getHolderWidth(), getHolderHeight()).setPushOrigin(true);
         }
     }
 
@@ -324,7 +306,7 @@ public class GuiDropdown<T> extends GuiWidgetContainer implements IGuiWidgetWith
                                  IntSupplier heightSupplier)
         {
             super(holder, xSupplier, ySupplier, widthSupplier, heightSupplier);
-            getEventClick().setEventPass(true);
+            getEventClick().setEventPass(false);
         }
     }
 }

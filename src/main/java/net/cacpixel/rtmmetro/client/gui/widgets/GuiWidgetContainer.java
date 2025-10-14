@@ -43,68 +43,18 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
         IWidgetHolder.super.onUpdate();
     }
 
-    @Override
-    public int shiftMouseX()
-    {
-        if (this.isPositionIndependent())
-            return getHolder().shiftMouseX();
-        else
-            return this.getX() + getHolder().shiftMouseX();
-    }
-
-    @Override
-    public int shiftMouseY()
-    {
-        if (this.isPositionIndependent())
-            return getHolder().shiftMouseY();
-        else
-            return this.getY() + getHolder().shiftMouseY();
-    }
-
-    @Override
-    public boolean isMouseInside()
-    {
-        if (this.isPositionIndependent())
-            return this.widgets.stream().anyMatch(GuiWidget::isMouseInside);
-        else
-            return super.isMouseInside();
-    }
-
-    @Override
-    public boolean isLastClickInside()
-    {
-        if (this.isPositionIndependent())
-            return this.widgets.stream().anyMatch(GuiWidget::isLastClickInside);
-        else
-            return super.isLastClickInside();
-    }
-
     public void doScissorBefore()
     {
         ScreenScissorManager screenScissorManager = this.getScreen().getScreenScissorManager();
-        if (isPositionIndependent())
-        {
-            scissorDisableLayers = screenScissorManager.disableAll();
-        }
-        else
-        {
-            ScissorParam param = new ScissorParam(x + getHolder().shiftMouseX(), y + getHolder().shiftMouseY(), width, height);
-            screenScissorManager.push(param);
-            screenScissorManager.apply();
-        }
+        ScissorParam param = new ScissorParam(getXOfScreen(), getYOfScreen(), getHolderWidth(), getHolderHeight());
+        screenScissorManager.push(param);
+        screenScissorManager.apply();
     }
 
     public void doScissorAfter()
     {
         ScreenScissorManager screenScissorManager = this.getScreen().getScreenScissorManager();
-        if (isPositionIndependent())
-        {
-            screenScissorManager.enable(scissorDisableLayers);
-        }
-        else
-        {
-            screenScissorManager.pop();
-        }
+        screenScissorManager.pop();
     }
 
     @Override
@@ -118,11 +68,8 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
     @Override
     public void draw(int mouseX, int mouseY, float partialTicks)
     {
-        // draw begin
-        if (!this.isPositionIndependent())
-            GlStateManager.translate(x, y, 0);
+        GlStateManager.translate(x, y, 0);
         drawWidgetList(mouseX, mouseY, partialTicks);
-        // draw end
     }
 
     @Override
@@ -197,12 +144,5 @@ public class GuiWidgetContainer extends GuiWidget implements IWidgetHolder
                 .sorted(Comparator.comparingInt(GuiWidget::getLayer).reversed())
                 .forEach(w -> w.onScroll(mouseX, mouseY, scroll));
         super.onScroll(mouseX, mouseY, scroll);
-    }
-
-    @Override
-    public void mouseInteractJudge()
-    {
-        super.mouseInteractJudge();
-        IWidgetHolder.super.mouseInteractJudge();
     }
 }

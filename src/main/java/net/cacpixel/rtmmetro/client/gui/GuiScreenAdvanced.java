@@ -68,11 +68,11 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public static final int DEBUG_EVENT_SCROLL = 4;
     // 对于screen，下面flags的作用只是存储遍历的过程中，后续的控件是否还能进行交互
     // canEventPass字段对于screen来说没什么用
-    private final GuiMouseEvent eventClick = new GuiMouseEvent("Click", true, false);
-    private final GuiMouseEvent eventLastClick = new GuiMouseEvent("LastClick", true, false);
-    private final GuiMouseEvent eventDrag = new GuiMouseEvent("Drag", true, false);
-    private final GuiMouseEvent eventRelease = new GuiMouseEvent("Release", true, false);
-    private final GuiMouseEvent eventScroll = new GuiMouseEvent("Scroll", true, false);
+    private final GuiMouseEvent eventClickContinues = new GuiMouseEvent(GuiMouseEvent.EVENT_NAME_CLICK, true, false);
+    private final GuiMouseEvent eventLastClickContinues = new GuiMouseEvent(GuiMouseEvent.EVENT_NAME_LAST_CLICK, true, false);
+    private final GuiMouseEvent eventDragContinues = new GuiMouseEvent(GuiMouseEvent.EVENT_NAME_DRAG, true, false);
+    private final GuiMouseEvent eventReleaseContinues = new GuiMouseEvent(GuiMouseEvent.EVENT_NAME_RELEASE, true, false);
+    private final GuiMouseEvent eventScrollContinues = new GuiMouseEvent(GuiMouseEvent.EVENT_NAME_SCROLL, true, false);
 
     public GuiScreenAdvanced()
     {
@@ -150,8 +150,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
 
     public void drawScreenBefore(int mouseX, int mouseY, float partialTicks)
     {
-        if (this.mc.currentScreen == this)
-            this.handleInput();
         this.glPushMatrix();
         translationX = translationY = 0;
         if (x != 0 || y != 0)
@@ -172,7 +170,7 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
             glPushMatrix();
             GlStateManager.translate(0, 0, 101);
             CacGuiUtils.drawString(fontRenderer,
-                    "Gui Debug Mode Enabled (Press F3 to disable), debugType = " + getGuiMouseEvents()[debugType].name,
+                    "Gui Debug Mode Enabled (Press F3 to disable), debugType = " + getGuiMouseEventContinues()[debugType].name,
                     2, 2, 0xFFFFFFFF);
             glPopMatrix();
         }
@@ -747,16 +745,6 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         return CacGuiUtils.isMouseInside(x, y, width, height, getLastClickedX(), getLastClickedY());
     }
 
-    public int shiftMouseX()
-    {
-        return x;
-    }
-
-    public int shiftMouseY()
-    {
-        return y;
-    }
-
     public boolean isOpening()
     {
         return this.getAnimationStatus() == AnimationStatus.OPENING;
@@ -836,6 +824,16 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
         return y;
     }
 
+    public int shiftMouseX()
+    {
+        return x;
+    }
+
+    public int shiftMouseY()
+    {
+        return y;
+    }
+
     public ScreenScissorManager getScreenScissorManager()
     {
         return screenScissorManager;
@@ -893,40 +891,15 @@ public abstract class GuiScreenAdvanced extends GuiScreen implements IWidgetHold
     public void mouseInteractJudge()
     {
         IWidgetHolder.super.mouseInteractJudge();
-        for (GuiMouseEvent event : getGuiMouseEvents())
+        for (GuiMouseEvent event : getGuiMouseEventContinues())
         {
             event.setInteract(true);
         }
     }
 
-    public GuiMouseEvent getEventClick()
+    public GuiMouseEvent[] getGuiMouseEventContinues()
     {
-        return eventClick;
-    }
-
-    public GuiMouseEvent getEventLastClick()
-    {
-        return eventLastClick;
-    }
-
-    public GuiMouseEvent getEventDrag()
-    {
-        return eventDrag;
-    }
-
-    public GuiMouseEvent getEventRelease()
-    {
-        return eventRelease;
-    }
-
-    public GuiMouseEvent getEventScroll()
-    {
-        return eventScroll;
-    }
-
-    public GuiMouseEvent[] getGuiMouseEvents()
-    {
-        return new GuiMouseEvent[]{eventClick, eventLastClick, eventDrag, eventRelease, eventScroll};
+        return new GuiMouseEvent[]{eventClickContinues, eventLastClickContinues, eventDragContinues, eventReleaseContinues, eventScrollContinues};
     }
 
     public enum AnimationStatus

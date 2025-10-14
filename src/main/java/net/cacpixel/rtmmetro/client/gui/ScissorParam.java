@@ -6,6 +6,7 @@ public class ScissorParam
     public int y;
     public int width;
     public int height;
+    public boolean pushOrigin = false;
 
     public ScissorParam(int x, int y, int width, int height)
     {
@@ -15,4 +16,9 @@ public class ScissorParam
         this.height = Math.max(0, height);
     }
 
+    public ScissorParam setPushOrigin(boolean flag)
+    {
+        pushOrigin = flag;
+        return this;
+    }
 }
